@@ -10,6 +10,9 @@ import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import axios from 'axios'
 
+// Configure default base URL dynamically (empty string defaults to relative paths / vite proxy in dev)
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '';
+
 // Configure global axios interceptor for auth token and club context
 axios.interceptors.request.use(config => {
     const token = localStorage.getItem('token');
