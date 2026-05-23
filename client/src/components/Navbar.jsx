@@ -50,6 +50,14 @@ const Navbar = () => {
         navigate('/')
     }
 
+    const closeNavbar = () => {
+        const navbarCollapse = document.getElementById('navbarNav')
+        if (navbarCollapse && navbarCollapse.classList.contains('show')) {
+            const toggler = document.querySelector('.navbar-toggler')
+            if (toggler) toggler.click()
+        }
+    }
+
     return (
         <div className="container-fluid px-3 px-xl-5 px-xxl-5 pt-3 position-sticky top-0" style={{ zIndex: 1050 }}>
             <nav className="navbar navbar-expand-lg navbar-floating px-3 px-lg-4 py-0">
@@ -75,34 +83,34 @@ const Navbar = () => {
                 <div className="collapse navbar-collapse" id="navbarNav">
                     <ul className="navbar-nav mx-auto align-items-center gap-1 mt-4 mt-lg-0">
                         <li className="nav-item">
-                            <NavLink className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/">Home</NavLink>
+                            <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/">Home</NavLink>
                         </li>
 
                         {/* These tabs are visible to everyone, but lead to login if not authenticated */}
                         <li className="nav-item">
-                            <NavLink className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to={isAuthenticated ? "/feedback" : "/login"}>Feed</NavLink>
+                            <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to={isAuthenticated ? "/feedback" : "/login"}>Feed</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/about">About</NavLink>
+                            <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/about">About</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to={isAuthenticated ? "/my-pass" : "/login"}>Attendee Portal</NavLink>
+                            <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to={isAuthenticated ? "/my-pass" : "/login"}>Attendee Portal</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to={isAuthenticated ? "/support" : "/login"}>Support</NavLink>
+                            <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to={isAuthenticated ? "/support" : "/login"}>Support</NavLink>
                         </li>
 
                         {/* Admin Specific Tabs - Only show when logged in as admin with a verified entity */}
                         {isAuthenticated && isAdmin && hasEntity && (
                             <>
                                 <li className="nav-item">
-                                    <NavLink className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/festivals">Festivals</NavLink>
+                                    <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/festivals">Festivals</NavLink>
                                 </li>
                                 <li className="nav-item">
-                                    <NavLink className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/events">Events</NavLink>
+                                    <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/events">Events</NavLink>
                                 </li>
                                 <li className="nav-item">
-                                    <NavLink className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/dashboard">Dash</NavLink>
+                                    <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/dashboard">Dash</NavLink>
                                 </li>
                             </>
                         )}
@@ -132,7 +140,7 @@ const Navbar = () => {
                                     </div>
                                 </button>
                                 <ul className="dropdown-menu dropdown-menu-end p-2 border-white border-opacity-10 mt-2 shadow" aria-labelledby="userMenu" style={{ background: '#0f172a', backdropFilter: 'blur(16px)' }}>
-                                    <li><Link className="dropdown-item rounded mb-1 small text-white fw-semibold hover-glow" to="/settings">Profile Settings</Link></li>
+                                    <li><Link onClick={closeNavbar} className="dropdown-item rounded mb-1 small text-white fw-semibold hover-glow" to="/settings">Profile Settings</Link></li>
                                     <li><hr className="dropdown-divider bg-white opacity-25" /></li>
                                     <li><button onClick={handleLogout} className="dropdown-item text-danger rounded d-flex align-items-center gap-2 small fw-semibold hover-glow">
                                         <LogOut size={14} /> Logout
@@ -140,7 +148,7 @@ const Navbar = () => {
                                 </ul>
                             </div>
                         ) : (
-                            <Link className="btn btn-primary px-3 py-2 rounded-pill shadow-sm d-flex align-items-center tiny fw-bold" to="/login">
+                            <Link onClick={closeNavbar} className="btn btn-primary px-3 py-2 rounded-pill shadow-sm d-flex align-items-center tiny fw-bold" to="/login">
                                 Login <ChevronRight size={14} className="ms-1" />
                             </Link>
                         )}

@@ -716,3 +716,51 @@ label {
 .dark-mode .border-end {
     border-color: var(--glass-border) !important;
 }
+
+/* ==========================================
+   RESPONSIVENESS & MOBILE-FIRST OPTIMIZATIONS
+   ========================================== */
+
+/* VIPCard Responsive CSS Variables */
+.vip-card {
+    --vip-card-padding: 2.5rem;
+    --vip-card-h3-size: 1.5rem;
+    --vip-card-h2-size: 1.8rem;
+    --vip-card-p-size: 0.7rem;
+    --vip-card-valid-size: 0.95rem;
+    --vip-card-group-size: 1.1rem;
+    --vip-card-tier-size: 1.1rem;
+}
+
+@media (max-width: 480px) {
+    .vip-card {
+        --vip-card-padding: 1.25rem;
+        --vip-card-h3-size: 1.1rem;
+        --vip-card-h2-size: 1.3rem;
+        --vip-card-p-size: 0.6rem;
+        --vip-card-valid-size: 0.8rem;
+        --vip-card-group-size: 0.9rem;
+        --vip-card-tier-size: 0.9rem;
+    }
+}
+
+/* Modal Overlay Responsive Spacing */
+@media (max-width: 480px) {
+    .modal-overlay {
+        padding: 10px !important;
+    }
+}
+
+/* Horizontal scrolling for tab navigation on small screens */
+@media (max-width: 768px) {
+    .d-inline-flex.bg-secondary.bg-opacity-10 {
+        display: flex !important;
+        overflow-x: auto;
+        white-space: nowrap;
+        max-width: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+    .d-inline-flex.bg-secondary.bg-opacity-10::-webkit-scrollbar {
+        display: none;
+    }
+}

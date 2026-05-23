@@ -352,7 +352,7 @@ const AttendeePortal = () => {
                                                 { label: 'Issued On', value: new Date(result.date).toLocaleDateString(), icon: <Calendar size={14} className="text-primary" /> },
                                                 { label: 'AuthorizedBy', value: result.referenceName || 'Digital System', icon: <CheckCircle size={14} className="text-primary" /> },
                                             ].map(i => (
-                                                <div key={i.label} className="col-6">
+                                                <div key={i.label} className="col-12 col-sm-6">
                                                     <div className="tiny uppercase text-muted fw-bold ls-1 mb-2 d-flex align-items-center gap-1">
                                                         {i.icon} {i.label}
                                                     </div>

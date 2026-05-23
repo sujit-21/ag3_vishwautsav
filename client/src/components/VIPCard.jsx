@@ -53,7 +53,7 @@ const VIPCard = ({
                 backgroundRepeat: 'no-repeat',
                 borderRadius: '24px',
                 border: '1px solid rgba(255, 255, 255, 0.08)',
-                padding: '2.5rem',
+                padding: 'var(--vip-card-padding, 2.5rem)',
                 color: '#ffffff',
                 width: '100%',
                 maxWidth: '460px',
@@ -68,7 +68,7 @@ const VIPCard = ({
                 <div>
                     <h3 style={{
                         margin: 0,
-                        fontSize: '1.5rem',
+                        fontSize: 'var(--vip-card-h3-size, 1.5rem)',
                         fontWeight: 800,
                         letterSpacing: '1px',
                         textTransform: 'uppercase',
@@ -85,7 +85,7 @@ const VIPCard = ({
                     )}
                     <p style={{
                         margin: '0.6rem 0 0 0',
-                        fontSize: '0.75rem',
+                        fontSize: 'var(--vip-card-p-size, 0.75rem)',
                         fontWeight: 500,
                         letterSpacing: '4px',
                         color: 'rgba(255, 255, 255, 0.4)',
@@ -99,7 +99,7 @@ const VIPCard = ({
                 <div className="mt-auto">
                     <h2 style={{
                         margin: '0 0 0.8rem 0',
-                        fontSize: '1.8rem',
+                        fontSize: 'var(--vip-card-h2-size, 1.8rem)',
                         fontWeight: 800,
                         letterSpacing: '0.5px',
                         textTransform: 'uppercase',
@@ -129,7 +129,7 @@ const VIPCard = ({
                         <div className="position-relative z-1" style={{ maxWidth: '60%' }}>
                             <p className="d-flex align-items-center gap-2" style={{
                                 margin: '0 0 0.4rem 0',
-                                fontSize: '0.7rem',
+                                fontSize: 'var(--vip-card-p-size, 0.7rem)',
                                 fontFamily: "'Courier New', Courier, monospace",
                                 color: 'rgba(255, 255, 255, 0.5)',
                                 letterSpacing: '2px',
@@ -139,7 +139,7 @@ const VIPCard = ({
                             </p>
                             <p style={{
                                 margin: 0,
-                                fontSize: '0.95rem',
+                                fontSize: 'var(--vip-card-valid-size, 0.95rem)',
                                 fontWeight: 800,
                                 textTransform: 'uppercase',
                                 color: '#f8fafc'
@@ -152,7 +152,7 @@ const VIPCard = ({
                             <div>
                                 <p style={{
                                     margin: '0 0 0.4rem 0',
-                                    fontSize: '0.65rem',
+                                    fontSize: 'var(--vip-card-p-size, 0.65rem)',
                                     fontWeight: 700,
                                     color: 'rgba(255, 255, 255, 0.4)',
                                     letterSpacing: '3px',
@@ -162,7 +162,7 @@ const VIPCard = ({
                                 </p>
                                 <p style={{
                                     margin: 0,
-                                    fontSize: '1.1rem',
+                                    fontSize: 'var(--vip-card-group-size, 1.1rem)',
                                     fontWeight: 800,
                                     color: '#f8fafc',
                                     backgroundColor: 'transparent'
@@ -173,7 +173,7 @@ const VIPCard = ({
                             <div>
                                 <p style={{
                                     margin: '0 0 0.4rem 0',
-                                    fontSize: '0.65rem',
+                                    fontSize: 'var(--vip-card-p-size, 0.65rem)',
                                     fontWeight: 700,
                                     color: 'rgba(255, 255, 255, 0.4)',
                                     letterSpacing: '3px',
@@ -183,7 +183,7 @@ const VIPCard = ({
                                 </p>
                                 <p style={{
                                     margin: 0,
-                                    fontSize: '1.1rem',
+                                    fontSize: 'var(--vip-card-tier-size, 1.1rem)',
                                     fontWeight: 800,
                                     color: '#f8fafc'
                                 }}>
