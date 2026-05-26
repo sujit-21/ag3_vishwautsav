@@ -128,40 +128,32 @@ const Entity = () => {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-100"
-                style={{ maxWidth: '440px' }}
+                style={{ maxWidth: '400px' }}
             >
                 {/* Header Branding */}
-                <div className="text-center mb-4">
-                    <motion.div
-                        initial={{ scale: 0.8 }}
-                        animate={{ scale: 1 }}
-                        className="d-inline-flex p-3 rounded-circle mb-3 shadow-glow"
-                        style={{ background: 'rgba(99, 102, 241, 0.15)' }}
-                    >
-                        <ShieldCheck className="text-primary" size={48} />
-                    </motion.div>
-                    <h2 className="fs-1 fw-extrabold mb-1" style={{ color: 'var(--text-main)', letterSpacing: '-0.03em' }}>Portal <span style={{ color: '#6366f1' }}>Access</span></h2>
-                    <p className="small mb-0 fw-extrabold uppercase ls-2" style={{ color: 'var(--text-muted)' }}>Account: <span style={{ color: '#6366f1' }}>{user?.name}</span></p>
+                <div className="text-center mb-3">
+                    <h2 className="fs-2 fw-extrabold mb-1" style={{ color: 'var(--text-main)', letterSpacing: '-0.03em' }}>Entity <span style={{ color: '#6366f1' }}>Access</span></h2>
+                    <p className="tiny mb-0 fw-extrabold uppercase ls-2" style={{ color: 'var(--text-muted)' }}>Account: <span style={{ color: '#6366f1' }}>{user?.name}</span></p>
                 </div>
 
                 <div className="shadow-premium position-relative overflow-hidden"
                     style={{
-                        borderRadius: '28px',
+                        borderRadius: '24px',
                         background: 'var(--secondary-bg)',
                         border: '2px solid var(--glass-border)'
                     }}>
-                    <div className="w-100 py-3 d-flex align-items-center justify-content-center mb-4" style={{ background: '#6366f1' }}>
+                    <div className="w-100 py-2.5 d-flex align-items-center justify-content-center mb-3" style={{ background: '#6366f1' }}>
                         {/* <Building2 style={{ color: '#FFFFFF', opacity: 0.3 }} className="position-absolute start-0 ms-4" size={32} /> */}
-                        <h5 style={{ color: '#FFFFFF', fontWeight: '900', letterSpacing: '2px', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }} className="mb-0 uppercase">Select Entity</h5>
+                        <h5 style={{ color: '#FFFFFF', fontWeight: '900', letterSpacing: '2px', textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }} className="mb-0 uppercase fs-6">Select Entity</h5>
                     </div>
-                    <div className="px-4 pb-4">
+                    <div className="px-3 pb-3">
 
                         {/* Mode Toggle */}
                         {(user?.role === 'admin' || user?.role === 'superadmin') ? (
-                            <div className="d-flex gap-1 mb-4 p-1 rounded-3 border" style={{ background: 'var(--primary-bg)', borderColor: 'var(--glass-border)' }}>
+                            <div className="d-flex gap-1 mb-3 p-1 rounded-3 border" style={{ background: 'var(--primary-bg)', borderColor: 'var(--glass-border)' }}>
                                 <button
                                     onClick={() => { setMode('select'); setError(''); }}
-                                    className={`btn flex-grow-1 border-0 py-2 rounded-2 small fw-extrabold transition-all`}
+                                    className={`btn flex-grow-1 border-0 py-1.5 rounded-2 small fw-extrabold transition-all`}
                                     style={{
                                         background: mode === 'select' ? '#6366f1' : 'transparent',
                                         color: mode === 'select' ? '#FFFFFF' : '#64748B'
@@ -171,7 +163,7 @@ const Entity = () => {
                                 </button>
                                 <button
                                     onClick={() => { setMode('register'); setError(''); }}
-                                    className={`btn flex-grow-1 border-0 py-2 rounded-2 small fw-extrabold transition-all`}
+                                    className={`btn flex-grow-1 border-0 py-1.5 rounded-2 small fw-extrabold transition-all`}
                                     style={{
                                         background: mode === 'register' ? '#6366f1' : 'transparent',
                                         color: mode === 'register' ? '#FFFFFF' : '#64748B'
@@ -183,7 +175,7 @@ const Entity = () => {
                         ) : (
                             <div className="border tiny p-3 rounded-3 mb-4 d-flex align-items-center gap-2" style={{ background: 'rgba(99, 102, 241, 0.1)', borderColor: 'var(--accent-2)', color: 'var(--accent-1)' }}>
                                 <Info size={20} />
-                                <span className="fw-black">Join using your Workspace Secret code.</span>
+                                <span className="fw-black">Join using your Entity Security Key.</span>
                             </div>
                         )}
 
@@ -219,9 +211,9 @@ const Entity = () => {
                                             </div>
                                             <input
                                                 type="text"
-                                                className="form-control border-0 bg-transparent py-3 fs-6 fw-extrabold"
+                                                className="form-control border-0 bg-transparent py-2 fs-6 fw-extrabold"
                                                 style={{ boxShadow: 'none', color: 'var(--text-main)' }}
-                                                placeholder="Type organization name..."
+                                                placeholder="Search..."
                                                 value={isDropdownOpen ? searchQuery : (selectedEntityName || '')}
                                                 onChange={(e) => {
                                                     setSearchQuery(e.target.value);
@@ -248,7 +240,7 @@ const Entity = () => {
                                                             entities.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(c => (
                                                                 <div
                                                                     key={c._id}
-                                                                    className="px-3 py-3 border-bottom hover-bg-light cursor-pointer fw-extrabold transition-all"
+                                                                    className="px-3 py-2 border-bottom hover-bg-light cursor-pointer fw-extrabold transition-all"
                                                                     style={{ color: 'var(--text-main)', borderColor: 'var(--glass-border)' }}
                                                                     onMouseDown={(e) => {
                                                                         e.preventDefault();
@@ -300,7 +292,7 @@ const Entity = () => {
                                         </div>
                                         <input
                                             type="password"
-                                            className="form-control border-0 bg-transparent py-3 fs-6 fw-extrabold font-monospace"
+                                            className="form-control border-0 bg-transparent py-2 fs-6 fw-extrabold font-monospace"
                                             style={{ letterSpacing: '6px', color: 'var(--text-main)' }}
                                             placeholder="••••••••"
                                             value={formData.securityKey}
@@ -314,24 +306,24 @@ const Entity = () => {
                                 <button
                                     type="submit"
                                     disabled={loading || !selectedEntityName}
-                                    className={`btn w-100 py-3 mt-4 fw-black rounded-pill d-flex align-items-center justify-content-center gap-3 transition-all`}
+                                    className={`btn w-100 py-2.5 mt-3 fw-black rounded-pill d-flex align-items-center justify-content-center gap-3 transition-all`}
                                     style={{
                                         background: (!selectedEntityName || loading) ? '#CBD5E1' : '#6366f1',
                                         color: '#FFFFFF',
                                         border: 'none',
                                         letterSpacing: '3px',
-                                        fontSize: '1.1rem',
-                                        boxShadow: '0 10px 20px -5px rgba(99, 102, 241, 0.5)'
+                                        fontSize: '0.95rem',
+                                        boxShadow: '0 6px 12px -3px rgba(99, 102, 241, 0.4)'
                                     }}
                                 >
-                                    {loading ? 'PLEASE WAIT...' : 'CONFIRM ACCESS'} <ArrowRight size={22} />
+                                    {loading ? 'PLEASE WAIT...' : 'CONFIRM ACCESS'} <ArrowRight size={20} />
                                 </button>
                             </form>
                         ) : (
                             <form onSubmit={handleRegister}>
                                 <div className="mb-3">
                                     <label className="small fw-extrabold mb-2 uppercase ls-1 d-flex align-items-center gap-2" style={{ color: 'var(--text-main)' }}>
-                                        <Building2 size={18} style={{ color: '#6366f1' }} /> Create Organization
+                                        {/*<Building2 size={18} style={{ color: '#6366f1' }} />*/} Create Entity
                                     </label>
                                     <div className="input-group rounded-3 border overflow-hidden" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)' }}>
                                         <div className="px-3 d-flex align-items-center border-end" style={{ background: 'var(--secondary-bg)', borderColor: 'var(--input-border)' }}>
@@ -339,9 +331,9 @@ const Entity = () => {
                                         </div>
                                         <input
                                             type="text"
-                                            className="form-control border-0 bg-transparent py-3 fs-6 fw-extrabold"
+                                            className="form-control border-0 bg-transparent py-2 fs-6 fw-extrabold"
                                             style={{ color: 'var(--text-main)' }}
-                                            placeholder="Legal Name..."
+                                            placeholder="Enter your Entity Name"
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                             required
@@ -351,7 +343,7 @@ const Entity = () => {
 
                                 <div className="mb-4">
                                     <label className="small fw-extrabold mb-2 uppercase ls-1 d-flex align-items-center gap-2" style={{ color: 'var(--text-main)' }}>
-                                        <Key size={18} style={{ color: '#6366f1' }} /> Workspace Secret
+                                        {/*<Key size={18} style={{ color: '#6366f1' }} />*/} Security Key
                                     </label>
                                     <div className="input-group rounded-3 border overflow-hidden" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)' }}>
                                         <div className="px-3 d-flex align-items-center border-end" style={{ background: 'var(--secondary-bg)', borderColor: 'var(--input-border)' }}>
@@ -359,9 +351,9 @@ const Entity = () => {
                                         </div>
                                         <input
                                             type="password"
-                                            className="form-control border-0 bg-transparent py-3 fs-6 fw-extrabold font-monospace"
+                                            className="form-control border-0 bg-transparent py-2 fs-6 fw-extrabold font-monospace"
                                             style={{ letterSpacing: '6px', color: 'var(--text-main)' }}
-                                            placeholder="Min 6 chars"
+                                            placeholder="Enter Security Key"
                                             value={formData.securityKey}
                                             onChange={(e) => setFormData({ ...formData, securityKey: e.target.value })}
                                             required
@@ -373,14 +365,14 @@ const Entity = () => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className={`btn w-100 py-3 mt-4 fw-black rounded-pill transition-all`}
+                                    className={`btn w-100 py-2.5 mt-3 fw-black rounded-pill transition-all`}
                                     style={{
                                         background: loading ? '#CBD5E1' : '#6366f1',
                                         color: '#FFFFFF',
                                         border: 'none',
                                         letterSpacing: '3px',
-                                        fontSize: '1.1rem',
-                                        boxShadow: '0 10px 20px -5px rgba(99, 102, 241, 0.5)'
+                                        fontSize: '0.95rem',
+                                        boxShadow: '0 6px 12px -3px rgba(99, 102, 241, 0.4)'
                                     }}
                                 >
                                     {loading ? 'CREATING...' : 'CREATE & ACCESS'}
@@ -395,20 +387,20 @@ const Entity = () => {
                     </div>
                 </div>
 
-                <div className="mt-3 text-center d-flex flex-column gap-2">
-                    <button
-                        onClick={() => navigate('/my-pass')}
-                        className="btn d-inline-flex align-items-center justify-content-center gap-2 transition-all fw-black py-3 px-5 rounded-pill mx-auto shadow-lg border-0"
-                        style={{
-                            minWidth: '320px',
-                            background: '#0ea5e9',
-                            color: '#FFFFFF',
-                            fontSize: '0.95rem',
-                            letterSpacing: '2px'
-                        }}
-                    >
-                        <Search size={20} /> ATTENDEE / CHECK PASS
-                    </button>
+            <div className="mt-2 text-center d-flex flex-column gap-2">
+                <button
+                    onClick={() => navigate('/my-pass')}
+                    className="btn d-inline-flex align-items-center justify-content-center gap-2 transition-all fw-black py-2 px-4 rounded-pill mx-auto shadow-lg border-0"
+                    style={{
+                        minWidth: '280px',
+                        background: '#0ea5e9',
+                        color: '#FFFFFF',
+                        fontSize: '0.85rem',
+                        letterSpacing: '2px'
+                    }}
+                >
+                    <Search size={16} /> ATTENDEE / CHECK PASS
+                </button>
                     <button onClick={logout} className="btn btn-link no-underline small d-inline-flex align-items-center justify-content-center gap-2 transition-all fw-extrabold mt-1" style={{ color: '#ef4444' }}>
                         <LogOut size={16} /> NOT YOUR ACCOUNT? LOG OUT
                     </button>
