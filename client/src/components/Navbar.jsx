@@ -91,9 +91,6 @@ const Navbar = () => {
                             <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to={isAuthenticated ? "/feedback" : "/login"}>Feed</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/about">About</NavLink>
-                        </li>
-                        <li className="nav-item">
                             <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to={isAuthenticated ? "/my-pass" : "/login"}>Attendee Portal</NavLink>
                         </li>
                         <li className="nav-item">

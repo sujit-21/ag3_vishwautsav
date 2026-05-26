@@ -19,7 +19,6 @@ app.use('/api/events', require('./routes/events'));
 app.use('/api/subscriptions', require('./routes/subscriptions'));
 app.use('/api/cards', require('./routes/cards'));
 app.use('/api/expenses', require('./routes/expenses'));
-app.use('/api/about', require('./routes/about'));
 app.use('/api/support', require('./routes/support'));
 app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/credentials', require('./routes/credentials'));
