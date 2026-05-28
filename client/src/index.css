@@ -20,33 +20,33 @@
 
 .light-mode {
     --primary-bg: #f1f5f9;
-    --secondary-bg: #ffffff;
+    --secondary-bg: rgba(255, 255, 255, 0.7);
     --text-main: #0f172a;
     --text-muted: #475569;
-    --glass-bg: rgba(255, 255, 255, 0.95);
-    --glass-border: rgba(15, 23, 42, 0.15);
+    --glass-bg: rgba(255, 255, 255, 0.65);
+    --glass-border: rgba(15, 23, 42, 0.12);
     --modal-bg: #ffffff;
-    --input-bg: #f8fafc;
+    --input-bg: rgba(255, 255, 255, 0.6);
     --input-text: #0f172a;
-    --input-border: #cbd5e1;
+    --input-border: rgba(15, 23, 42, 0.15);
     --premium-glow: rgba(99, 102, 241, 0.1);
-    --overlay-gradient: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 60%, rgba(241, 245, 249, 0.2) 100%);
-    --bg-image-opacity: 0.9;
+    --overlay-gradient: linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 60%, rgba(241, 245, 249, 0.4) 100%);
+    --bg-image-opacity: 0.95;
 }
 
 .dark-mode {
     --primary-bg: #000000;
-    --secondary-bg: #121212;
+    --secondary-bg: rgba(18, 18, 24, 0.75);
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
-    --glass-bg: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
     --modal-bg: #121212;
-    --input-bg: #000000;
+    --input-bg: rgba(0, 0, 0, 0.4);
     --input-text: #f8fafc;
-    --input-border: #1e1e1e;
+    --input-border: rgba(255, 255, 255, 0.15);
     --premium-glow: rgba(192, 132, 252, 0.25);
-    --overlay-gradient: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.25) 100%);
+    --overlay-gradient: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.3) 60%, rgba(0, 0, 0, 0.6) 100%);
     --bg-image-opacity: 0.95;
 }
 
@@ -326,6 +326,8 @@ label {
 
 .glass-card-premium {
     background: var(--secondary-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
     border-radius: 20px;

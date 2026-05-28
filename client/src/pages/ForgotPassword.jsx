@@ -30,7 +30,7 @@ const ForgotPassword = () => {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="glass-card p-4 shadow-premium"
+                        className="glass-card-premium p-4 shadow-premium border-opacity-10"
                     >
                         <Link to="/login" className="btn btn-link link-modern text-decoration-none d-inline-flex align-items-center gap-2 mb-4 p-0">
                             <ChevronLeft size={18} /> Back to Login

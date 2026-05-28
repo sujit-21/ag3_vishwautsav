@@ -38,7 +38,7 @@ const RoleSelection = () => {
     ]
 
     return (
-        <div className="role-selection-page min-vh-100 d-flex align-items-center py-5" style={{ background: 'var(--primary-bg)' }}>
+        <div className="role-selection-page min-vh-100 d-flex align-items-center py-5 bg-transparent">
             <div className="container" style={{ maxWidth: '900px' }}>
                 <div className="text-center mb-4">
                     <motion.div

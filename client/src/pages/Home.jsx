@@ -1,26 +1,10 @@
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, Music, Zap, Users, ChevronRight, LayoutDashboard, MessageSquare, LogOut, Sparkles, Ticket } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-import musicConcertImg from '../homepage_images/Music Concert.jpg'
-import consertImg from '../homepage_images/consert.jpg'
-import holiImg from '../homepage_images/holi.jpg'
-import southFestivalsImg from '../homepage_images/south festivals.jpg'
-
-const bgImages = [musicConcertImg, consertImg, holiImg, southFestivalsImg]
-
 const Home = () => {
     const { isAuthenticated, logout } = useAuth()
-    const [currentBgIndex, setCurrentBgIndex] = useState(0)
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentBgIndex((prev) => (prev + 1) % bgImages.length)
-        }, 6000)
-        return () => clearInterval(interval)
-    }, [])
 
     const shortcuts = [
         {
@@ -58,21 +42,7 @@ const Home = () => {
     ]
 
     return (
-        <div className="home-page min-vh-100 bg-primary-bg py-4">
-            {/* Background Slideshow */}
-            <div className="position-fixed top-0 start-0 w-100 h-100 z-0 overflow-hidden pointer-events-none">
-                {bgImages.map((img, idx) => (
-                    <div
-                        key={idx}
-                        className={`slideshow-image ${idx === currentBgIndex ? 'active' : ''}`}
-                        style={{
-                            backgroundImage: `url("${img}")`
-                        }}
-                    />
-                ))}
-                {/* Dark Gradient Overlay to ensure maximum contrast and readability */}
-                <div className="slideshow-overlay" />
-            </div>
+        <div className="home-page min-vh-100 bg-transparent py-4">
 
             <div className="container position-relative z-1 pt-3">
                 <div className="text-center mb-4 pb-2">
