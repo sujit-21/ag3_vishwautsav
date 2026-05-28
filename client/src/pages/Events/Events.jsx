@@ -1101,7 +1101,7 @@ const Events = () => {
                                                         <tr key={sub.cardId} style={{ transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                                                             <td className="border-0 px-4 py-3"><span className="badge bg-secondary bg-opacity-10 text-muted font-monospace">{sub.cardId}</span></td>
                                                             <td className="border-0 py-3 fw-bold text-body">{sub.name}</td>
-                                                            <td className="border-0 py-3"><span className={`badge ${sub.membershipType === 'Admin' ? 'bg-danger text-white' : sub.membershipType === 'VIP' ? 'bg-warning text-dark' : 'bg-success bg-opacity-25 text-success'}`}>{sub.membershipType}</span></td>
+                                                            <td className="border-0 py-3"><span className={`badge ${sub.membershipType === 'Admin' ? 'bg-danger text-white' : sub.membershipType === 'VIP' ? 'bg-warning text-dark' : 'bg-success bg-opacity-25 text-success'}`}>{sub.membershipType === 'Regular' ? 'Volunteers' : sub.membershipType}</span></td>
                                                             <td className="border-0 py-3 text-center">{sub.familyMembers || 1}</td>
                                                             <td className="border-0 py-3 text-end px-4">
                                                                 <button onClick={() => setSelectedPreviewCard(sub)} className="btn btn-sm text-primary p-1 me-2 hover-scale" title="CardPreview Button"><Eye size={18} /></button>
@@ -1126,7 +1126,7 @@ const Events = () => {
                                     
                                     <div className="text-center w-100 mb-2">
                                         <h5 className="fw-bold text-white mb-0">{selectedPreviewCard.name}'s ID Pass</h5>
-                                        <span className="small text-success">{selectedPreviewCard.membershipType} Tier</span>
+                                        <span className="small text-success">{selectedPreviewCard.membershipType === 'Regular' ? 'Volunteers' : selectedPreviewCard.membershipType} Tier</span>
                                     </div>
                                     
                                     <VIPCard 
@@ -1137,7 +1137,7 @@ const Events = () => {
                                         userName={selectedPreviewCard.name || "MEMBER"}
                                         uid={selectedPreviewCard.cardId}
                                         validDate={(selectedPreviewCard.fromDate && selectedPreviewCard.toDate) ? `${new Date(selectedPreviewCard.fromDate).toLocaleDateString()} - ${new Date(selectedPreviewCard.toDate).toLocaleDateString()}` : "FULL EVENT"}
-                                        tier={selectedPreviewCard.membershipType || "Executive"}
+                                        tier={selectedPreviewCard.membershipType === 'Regular' ? 'Volunteers' : (selectedPreviewCard.membershipType || "Executive")}
                                         familyMembers={selectedPreviewCard.familyMembers}
                                     />
 
@@ -1529,40 +1529,18 @@ const Events = () => {
                                     alert('Error saving card: ' + errMsg)
                                 }
                             }} className="row g-3">
-                                <div className="col-lg-6">
-                                    <div className="row g-4">
-                                        <div className="col-12 p-4 rounded-4 border border-white border-opacity-10 bg-white bg-opacity-5">
-                                            <label className="text-accent-1 opacity-100 mb-2">Smart Fetch Strategy</label>
-                                            <div className="input-group-premium">
-                                                <input
-                                                    type="text"
-                                                    className="form-control-custom"
-                                                    placeholder="Scan / Enter Pass ID (e.g. XZBY...)"
-                                                    onKeyDown={async (e) => {
-                                                        if (e.key === 'Enter') {
-                                                            e.preventDefault()
-                                                            try {
-                                                                const res = await axios.get(`/api/subscriptions/search/${e.target.value}`)
-                                                                if (res.data) {
-                                                                    setCardFormData({
-                                                                        ...cardFormData,
-                                                                        cardId: res.data.subId || cardFormData.cardId,
-                                                                        name: res.data.name,
-                                                                        address: res.data.address || '',
-                                                                        entityName: res.data.entityName || '',
-                                                                        festOrEventName: res.data.festOrEventName || ''
-                                                                    })
-                                                                }
-                                                            } catch (err) {
-                                                                alert(err.response?.data?.message || 'Subscription ID not recognized')
-                                                            }
-                                                        }
-                                                    }}
-                                                />
-                                                <button type="button" className="btn btn-premium btn-sm rounded-0 px-4" onClick={async (e) => {
-                                                    const subId = e.target.parentElement.querySelector('input').value
+                                <div className="col-md-6">
+                                    <label>Smart Fetch Strategy</label>
+                                    <div className="input-group-premium">
+                                        <input
+                                            type="text"
+                                            className="form-control-custom py-1.5 tiny"
+                                            placeholder="Scan / Enter Pass ID (e.g. XZBY...)"
+                                            onKeyDown={async (e) => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault()
                                                     try {
-                                                        const res = await axios.get(`/api/subscriptions/search/${subId}`)
+                                                        const res = await axios.get(`/api/subscriptions/search/${e.target.value}`)
                                                         if (res.data) {
                                                             setCardFormData({
                                                                 ...cardFormData,
@@ -1574,66 +1552,84 @@ const Events = () => {
                                                             })
                                                         }
                                                     } catch (err) {
-                                                        alert('Record not found')
+                                                        alert(err.response?.data?.message || 'Subscription ID not recognized')
                                                     }
-                                                }}>Sync</button>
-                                            </div>
-                                            <p className="smaller text-white text-opacity-25 mt-2 mb-0 italic">Press Enter or click Sync to auto-fill member data.</p>
-                                        </div>
-
-                                        <div className="col-md-7">
-                                            <label>Member Identity</label>
-                                            <input type="text" className="form-input" placeholder="Display name on card" value={cardFormData.name} onChange={e => setCardFormData({ ...cardFormData, name: e.target.value })} required />
-                                        </div>
-                                        <div className="col-md-5">
-                                            <label>Access Level</label>
-                                            <select className="form-input" value={cardFormData.membershipType} onChange={e => setCardFormData({ ...cardFormData, membershipType: e.target.value })}>
-                                                <option value="Regular">Regular</option>
-                                                <option value="Prime">Prime Member</option>
-                                                <option value="VIP">VIP Elite</option>
-                                                <option value="Admin">Administrator</option>
-                                            </select>
-                                        </div>
-                                        <div className="col-12">
-                                            <label>Entity Branding</label>
-                                            <input type="text" className="form-input" placeholder="e.g. Blue Lagoon Entity" value={cardFormData.entityName} onChange={e => setCardFormData({ ...cardFormData, entityName: e.target.value })} />
-                                        </div>
+                                                }
+                                            }}
+                                        />
+                                        <button type="button" className="btn btn-premium btn-sm rounded-0 px-3 tiny fw-bold uppercase border-0" style={{ paddingTop: 0, paddingBottom: 0 }} onClick={async (e) => {
+                                            const subId = e.target.parentElement.querySelector('input').value
+                                            try {
+                                                const res = await axios.get(`/api/subscriptions/search/${subId}`)
+                                                if (res.data) {
+                                                    setCardFormData({
+                                                        ...cardFormData,
+                                                        cardId: res.data.subId || cardFormData.cardId,
+                                                        name: res.data.name,
+                                                        address: res.data.address || '',
+                                                        entityName: res.data.entityName || '',
+                                                        festOrEventName: res.data.festOrEventName || ''
+                                                    })
+                                                }
+                                            } catch (err) {
+                                                alert('Record not found')
+                                            }
+                                        }}>Sync</button>
                                     </div>
+                                    <p className="extra-tiny text-white text-opacity-25 mt-1.5 mb-0 italic">Press Enter or click Sync to auto-fill.</p>
                                 </div>
 
-                                <div className="col-lg-6">
-                                    <div className="row g-3 h-100 flex-column">
-                                        <div className="col-md-12">
-                                            <label>Physical Address / Location</label>
-                                            <input type="text" className="form-input" placeholder="Complete address detail" value={cardFormData.address} onChange={e => setCardFormData({ ...cardFormData, address: e.target.value })} />
-                                        </div>
-                                        <div className="col-md-12">
-                                            <label>Event Context</label>
-                                            <input type="text" className="form-input" placeholder="Primary event title" value={cardFormData.festOrEventName} onChange={e => setCardFormData({ ...cardFormData, festOrEventName: e.target.value })} />
-                                        </div>
-                                        <div className="row g-2 mt-auto pt-3">
-                                            <div className="col-md-4">
-                                                <label>Group Size</label>
-                                                <input type="number" className="form-input" value={cardFormData.familyMembers} onChange={e => setCardFormData({ ...cardFormData, familyMembers: e.target.value })} />
-                                            </div>
-                                            <div className="col-md-4">
-                                                <label>Effective From</label>
-                                                <input type="date" className="form-input" value={cardFormData.fromDate} onChange={e => setCardFormData({ ...cardFormData, fromDate: e.target.value })} />
-                                            </div>
-                                            <div className="col-md-4">
-                                                <label>Expiry Date</label>
-                                                <input type="date" className="form-input" value={cardFormData.toDate} onChange={e => setCardFormData({ ...cardFormData, toDate: e.target.value })} />
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div className="col-md-6">
+                                    <label>Physical Address / Location</label>
+                                    <input type="text" className="form-input py-1.5 tiny" placeholder="Complete address detail" value={cardFormData.address} onChange={e => setCardFormData({ ...cardFormData, address: e.target.value })} />
+                                </div>
+
+                                <div className="col-md-6">
+                                    <label>Member Identity</label>
+                                    <input type="text" className="form-input py-1.5 tiny" placeholder="Display name on card" value={cardFormData.name} onChange={e => setCardFormData({ ...cardFormData, name: e.target.value })} required />
+                                </div>
+
+                                <div className="col-md-6">
+                                    <label>Event Context</label>
+                                    <input type="text" className="form-input py-1.5 tiny" placeholder="Primary event title" value={cardFormData.festOrEventName} onChange={e => setCardFormData({ ...cardFormData, festOrEventName: e.target.value })} />
+                                </div>
+
+                                <div className="col-md-6">
+                                    <label>Entity Branding</label>
+                                    <input type="text" className="form-input py-1.5 tiny" placeholder="e.g. Blue Lagoon Entity" value={cardFormData.entityName} onChange={e => setCardFormData({ ...cardFormData, entityName: e.target.value })} />
+                                </div>
+
+                                <div className="col-md-6">
+                                    <label>Access Level</label>
+                                    <select className="form-input py-1.5 tiny" value={cardFormData.membershipType} onChange={e => setCardFormData({ ...cardFormData, membershipType: e.target.value })}>
+                                        <option value="Regular">Volunteers</option>
+                                        <option value="Prime">Prime Member</option>
+                                        <option value="VIP">VIP Elite</option>
+                                        <option value="Admin">Administrator</option>
+                                    </select>
+                                </div>
+
+                                <div className="col-md-4">
+                                    <label>Group Size</label>
+                                    <input type="number" className="form-input py-1.5 tiny" value={cardFormData.familyMembers} onChange={e => setCardFormData({ ...cardFormData, familyMembers: e.target.value })} />
+                                </div>
+
+                                <div className="col-md-4">
+                                    <label>Effective From</label>
+                                    <input type="date" className="form-input py-1.5 tiny" value={cardFormData.fromDate} onChange={e => setCardFormData({ ...cardFormData, fromDate: e.target.value })} />
+                                </div>
+
+                                <div className="col-md-4">
+                                    <label>Expiry Date</label>
+                                    <input type="date" className="form-input py-1.5 tiny" value={cardFormData.toDate} onChange={e => setCardFormData({ ...cardFormData, toDate: e.target.value })} />
                                 </div>
 
                                 <div className="col-12 mt-3 pt-3 border-top border-white border-opacity-10">
                                     <div className="d-flex gap-3">
-                                        <button type="submit" className="btn btn-premium flex-grow-1 py-3 px-5 shadow-lg">
-                                            <Zap size={18} /> {editingCardId ? 'Authorize Card Updates' : 'Generate Digital Pass Identity'}
+                                        <button type="submit" className="btn btn-premium flex-grow-1 py-2.5 px-5 shadow-lg fw-bold text-uppercase" style={{ fontSize: '0.85rem' }}>
+                                            <Zap size={16} /> {editingCardId ? 'Authorize Card Updates' : 'Generate Digital Pass Identity'}
                                         </button>
-                                        <button type="button" onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-cancel py-3 px-5">Abort Design</button>
+                                        <button type="button" onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-cancel py-2.5 px-5 fw-bold text-uppercase" style={{ fontSize: '0.85rem' }}>Abort Design</button>
                                     </div>
                                 </div>
                             </form>

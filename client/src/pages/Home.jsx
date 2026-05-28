@@ -1,35 +1,51 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Calendar, Music, Zap, Users, ChevronRight, LayoutDashboard, MessageSquare, LogOut } from 'lucide-react'
+import { Calendar, Music, Zap, Users, ChevronRight, LayoutDashboard, MessageSquare, LogOut, Sparkles, Ticket } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
+import musicConcertImg from '../homepage_images/Music Concert.jpg'
+import consertImg from '../homepage_images/consert.jpg'
+import holiImg from '../homepage_images/holi.jpg'
+import southFestivalsImg from '../homepage_images/south festivals.jpg'
+
+const bgImages = [musicConcertImg, consertImg, holiImg, southFestivalsImg]
+
 const Home = () => {
     const { isAuthenticated, logout } = useAuth()
+    const [currentBgIndex, setCurrentBgIndex] = useState(0)
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentBgIndex((prev) => (prev + 1) % bgImages.length)
+        }, 6000)
+        return () => clearInterval(interval)
+    }, [])
 
     const shortcuts = [
         {
             title: 'Festivals',
             desc: 'Initiate and manage global festivals.',
-            icon: <Music size={24} />,
+            icon: <Sparkles size={24} />,
             path: '/festivals',
-            color: 'var(--accent-1)',
-            badge: 'Registry'
+            color: '#c084fc',
+            badge: 'Culture'
         },
         {
             title: 'Events',
             desc: 'Initiate and manage global events.',
-            icon: <Calendar size={24} />,
+            icon: <Ticket size={24} />,
             path: '/events',
-            color: 'var(--accent-3)',
-            badge: 'Operations'
+            color: '#22d3ee',
+            badge: 'Activities'
         },
         {
             title: 'Dashboard',
             desc: 'Dashboard for Controls.',
             icon: <LayoutDashboard size={24} />,
             path: '/dashboard',
-            color: 'var(--accent-2)',
-            badge: 'Elite'
+            color: '#6366f1',
+            badge: 'Analytics'
         },
         {
             title: 'Feedback',
@@ -37,26 +53,36 @@ const Home = () => {
             icon: <MessageSquare size={24} />,
             path: '/feedback',
             color: '#10b981',
-            badge: 'Social'
+            badge: 'Community'
         }
     ]
 
     return (
-        <div className="home-page min-vh-100 bg-primary-bg py-5">
-            {/* Background Mesh */}
-            <div className="position-fixed top-0 start-0 w-100 h-100 opacity-20 z-0 pointer-events-none" style={{
-                backgroundImage: `radial-gradient(circle at 10% 20%, var(--accent-1), transparent 40%), radial-gradient(circle at 90% 80%, var(--accent-2), transparent 40%)`
-            }}></div>
+        <div className="home-page min-vh-100 bg-primary-bg py-4">
+            {/* Background Slideshow */}
+            <div className="position-fixed top-0 start-0 w-100 h-100 z-0 overflow-hidden pointer-events-none">
+                {bgImages.map((img, idx) => (
+                    <div
+                        key={idx}
+                        className={`slideshow-image ${idx === currentBgIndex ? 'active' : ''}`}
+                        style={{
+                            backgroundImage: `url("${img}")`
+                        }}
+                    />
+                ))}
+                {/* Dark Gradient Overlay to ensure maximum contrast and readability */}
+                <div className="slideshow-overlay" />
+            </div>
 
-            <div className="container position-relative z-1 pt-5">
-                <div className="text-center mb-5 pb-4">
+            <div className="container position-relative z-1 pt-3">
+                <div className="text-center mb-4 pb-2">
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
                         <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 border border-primary border-opacity-20 uppercase ls-2 tiny fw-bold">Vishwa Utsav Portal</span>
-                        <h1 className="display-4 fw-extrabold text-white mb-3">
+                        <h1 className="display-4 fw-extrabold mb-2" style={{ color: 'var(--text-main)' }}>
                             {"Welcome to ".split('').map((char, index) => (
                                 <motion.span
                                     key={`w-${index}`}
@@ -91,7 +117,6 @@ const Home = () => {
                                 </motion.span>
                             ))}
                         </h1>
-                        <p className="text-muted fs-5 max-w-2xl mx-auto">A Global Platform for Cultural Exchange and Celebration</p>
                     </motion.div>
                 </div>
 
@@ -105,18 +130,52 @@ const Home = () => {
                                 whileHover={{ y: -8, scale: 1.02 }}
                             >
                                 <Link to={isAuthenticated ? item.path : '/login'} className="text-decoration-none h-100 d-block">
-                                    <div className="glass-card-premium p-3 h-100 d-flex flex-column border-opacity-10 shadow-glow-hover">
-                                        <div className="d-flex justify-content-end align-items-start mb-3">
-                                            <span className="tiny uppercase fw-bold ls-2 opacity-40 text-white">{item.badge}</span>
+                                    <div 
+                                        className="shortcut-card p-4 h-100 d-flex flex-column"
+                                        style={{
+                                            '--card-accent': item.color,
+                                            '--card-accent-glow': `${item.color}25`,
+                                            '--card-bg-dark': `${item.color}10`,
+                                            '--card-border-dark': `${item.color}25`,
+                                            '--card-bg-light': `${item.color}08`,
+                                            '--card-border-light': `${item.color}18`
+                                        }}
+                                    >
+                                        <div className="d-flex justify-content-between align-items-center mb-4">
+                                            <div 
+                                                className="d-flex align-items-center justify-content-center rounded-3" 
+                                                style={{ 
+                                                    width: '48px', 
+                                                    height: '48px', 
+                                                    backgroundColor: `${item.color}15`,
+                                                    color: item.color,
+                                                    border: `1.5px solid ${item.color}30`
+                                                }}
+                                            >
+                                                {item.icon}
+                                            </div>
+                                            <span 
+                                                className="badge px-3 py-1.5 rounded-pill border uppercase ls-1 extra-tiny fw-bold"
+                                                style={{ 
+                                                    color: item.color, 
+                                                    borderColor: `${item.color}30`, 
+                                                    backgroundColor: `${item.color}10` 
+                                                }}
+                                            >
+                                                {item.badge}
+                                            </span>
                                         </div>
-                                        <h5 className="fw-bold text-white mb-2 d-flex align-items-center gap-2">
+                                        <h5 className="fw-bold mb-2 d-flex align-items-center gap-2" style={{ color: 'var(--text-main)' }}>
                                             {item.title}
                                         </h5>
-                                        <p className="tiny text-muted mb-3 flex-grow-1">
+                                        <p className="tiny mb-4 flex-grow-1" style={{ color: 'var(--text-muted)' }}>
                                             {item.desc}
                                         </p>
-                                        <div className="mt-auto d-flex align-items-center text-primary fw-bold small uppercase ls-1 gap-2">
-                                            Access <ChevronRight size={14} />
+                                        <div 
+                                            className="mt-auto d-flex align-items-center fw-bold small uppercase ls-1 gap-2"
+                                            style={{ color: item.color }}
+                                        >
+                                            Access <ChevronRight size={14} className="arrow-icon" />
                                         </div>
                                     </div>
                                 </Link>
@@ -125,12 +184,29 @@ const Home = () => {
                     ))}
                 </div>
 
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                    className="text-center mt-4 mx-auto"
+                    style={{ maxWidth: '700px' }}
+                >
+                    <div className="about-card p-4">
+                        <div className="text-center">
+                            <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 border border-primary border-opacity-20 uppercase ls-2 tiny fw-bold">About</span>
+                        </div>
+                        <p className="text-muted mb-0" style={{ fontSize: '0.95rem', lineHeight: '1.6', textAlign: 'justify' }}>
+                            Celebrating Culture. Connecting Communities. Vishwa Utsav is a modern digital platform created to organize, manage, and celebrate festivals, cultural events, competitions, and community activities through technology. Our mission is to bring together participants, organizers, institutions, volunteers, artists, mentors, and audiences into one seamless ecosystem where events become more engaging, accessible, and impactful.
+                        </p>
+                    </div>
+                </motion.div>
+
                 {isAuthenticated && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.8 }}
-                        className="text-center mt-5 pt-4"
+                        className="text-center mt-4 pt-1"
                     >
                         <button
                             onClick={logout}
@@ -146,7 +222,7 @@ const Home = () => {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 1 }}
-                        className="text-center mt-5 pt-5"
+                        className="text-center mt-4 pt-2"
                     >
                         <Link to="/login" className="btn btn-premium px-5 py-3 rounded-pill">
                             Unlock Full Portal <Zap size={18} className="ms-2" />

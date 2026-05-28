@@ -14,6 +14,8 @@
     --glass-bg: rgba(255, 255, 255, 0.03);
     --glass-border: rgba(255, 255, 255, 0.08);
     --premium-glow: rgba(192, 132, 252, 0.25);
+    --overlay-gradient: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.25) 100%);
+    --bg-image-opacity: 0.95;
 }
 
 .light-mode {
@@ -28,6 +30,8 @@
     --input-text: #0f172a;
     --input-border: #cbd5e1;
     --premium-glow: rgba(99, 102, 241, 0.1);
+    --overlay-gradient: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0) 60%, rgba(241, 245, 249, 0.2) 100%);
+    --bg-image-opacity: 0.9;
 }
 
 .dark-mode {
@@ -42,6 +46,39 @@
     --input-text: #f8fafc;
     --input-border: #1e1e1e;
     --premium-glow: rgba(192, 132, 252, 0.25);
+    --overlay-gradient: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0.25) 100%);
+    --bg-image-opacity: 0.95;
+}
+
+/* Premium Background Slideshow Classes */
+.slideshow-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out, transform 6s linear;
+    transform: scale(1.01);
+    z-index: 0;
+}
+
+.slideshow-image.active {
+    opacity: var(--bg-image-opacity);
+    transform: scale(1.05);
+    z-index: 1;
+}
+
+.slideshow-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--overlay-gradient);
+    z-index: 2;
 }
 
 * {
@@ -763,4 +800,47 @@ label {
     .d-inline-flex.bg-secondary.bg-opacity-10::-webkit-scrollbar {
         display: none;
     }
+}
+
+/* Shortcut Cards Premium Styling */
+.shortcut-card {
+    background: linear-gradient(135deg, var(--card-bg-dark), rgba(15, 15, 20, 0.75)) !important;
+    border: 1.5px solid var(--card-border-dark) !important;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3) !important;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.light-mode .shortcut-card {
+    background: linear-gradient(135deg, var(--card-bg-light), rgba(255, 255, 255, 0.5)) !important;
+    border-color: var(--card-border-light) !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* About Card Styling */
+.about-card {
+    background: rgba(15, 15, 20, 0.75) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 24px;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3) !important;
+}
+
+.light-mode .about-card {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border-color: rgba(15, 23, 42, 0.1) !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05) !important;
+}
+
+.shortcut-card:hover {
+    border-color: var(--card-accent) !important;
+    box-shadow: 0 20px 40px -10px var(--card-accent-glow) !important;
+    transform: translateY(-8px) scale(1.02) !important;
+}
+
+.shortcut-card .arrow-icon {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.shortcut-card:hover .arrow-icon {
+    transform: translateX(4px);
 }

@@ -187,7 +187,7 @@ const VIPCard = ({
                                     fontWeight: 800,
                                     color: '#f8fafc'
                                 }}>
-                                    {displayData.tier}
+                                    {displayData.tier === 'Regular' ? 'Volunteers' : displayData.tier}
                                 </p>
                             </div>
                         </div>

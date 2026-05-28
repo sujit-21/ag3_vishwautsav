@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Users, ShieldCheck, UserCircle, ArrowRight } from 'lucide-react'
+import { ShieldCheck, UserCircle, ArrowRight } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 const RoleSelection = () => {
@@ -24,31 +24,29 @@ const RoleSelection = () => {
             title: 'Administrator',
             subtitle: 'Management Console',
             desc: 'Access full administrative controls, financial reports, and entity management.',
-            icon: <ShieldCheck size={48} />,
-            color: 'var(--accent-1)',
-            theme: 'bg-primary bg-opacity-10 text-primary border-primary'
+            icon: <ShieldCheck size={28} />,
+            color: '#c084fc'
         },
         {
             id: 'user',
             title: 'Standard User',
             subtitle: 'Participant Portal',
             desc: 'Browse festivals, view events, and verify member record details by ID.',
-            icon: <UserCircle size={48} />,
-            color: 'var(--accent-2)',
-            theme: 'bg-info bg-opacity-10 text-info border-info'
+            icon: <UserCircle size={28} />,
+            color: '#22d3ee'
         }
     ]
 
     return (
         <div className="role-selection-page min-vh-100 d-flex align-items-center py-5" style={{ background: 'var(--primary-bg)' }}>
-            <div className="container">
-                <div className="text-center mb-5">
+            <div className="container" style={{ maxWidth: '900px' }}>
+                <div className="text-center mb-4">
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                     >
-                        <h1 className="display-5 fw-extrabold text-main mb-2">Welcome, <span className="gradient-text">{user?.name}</span></h1>
-                        <p className="text-muted fs-5">Select your access profile to continue session</p>
+                        <h1 className="display-6 fw-extrabold text-main mb-2">Welcome, <span className="gradient-text">{user?.name}</span></h1>
+                        <p className="text-muted fs-6">Select your access profile to continue session</p>
                     </motion.div>
                 </div>
 
@@ -59,26 +57,51 @@ const RoleSelection = () => {
                                 initial={{ opacity: 0, scale: 0.95 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ delay: idx * 0.1 }}
-                                whileHover={{ y: -10 }}
                                 onClick={() => handleRoleSelect(role.id)}
+                                className="h-100"
                             >
                                 <div 
-                                    className={`glass-card-premium p-5 h-100 cursor-pointer border-2 transition-all ${user?.role === role.id ? 'border-primary' : 'border-white border-opacity-10'}`}
+                                    className="shortcut-card p-4 h-100 cursor-pointer text-start d-flex flex-column"
                                     style={{ 
-                                        boxShadow: user?.role === role.id ? '0 0 40px rgba(13, 110, 253, 0.2)' : 'none',
-                                        backgroundColor: 'rgba(255, 255, 255, 0.03)'
+                                        '--card-accent': role.color,
+                                        '--card-accent-glow': `${role.color}25`,
+                                        borderColor: user?.role === role.id ? role.color : 'var(--glass-border)',
+                                        borderWidth: '1.5px',
+                                        borderStyle: 'solid',
+                                        boxShadow: user?.role === role.id ? `0 0 25px ${role.color}20` : 'none'
                                     }}
                                 >
-                                    <div className={`p-4 rounded-4 mb-4 d-inline-flex align-items-center justify-content-center ${role.theme}`}>
+                                    <div 
+                                        className="d-flex align-items-center justify-content-center rounded-3 mb-3" 
+                                        style={{ 
+                                            width: '52px', 
+                                            height: '52px', 
+                                            backgroundColor: `${role.color}15`,
+                                            color: role.color,
+                                            border: `1.5px solid ${role.color}30`
+                                        }}
+                                    >
                                         {role.icon}
                                     </div>
-                                    <div className="mb-4">
-                                        <div className="tiny uppercase fw-bold ls-2 text-primary mb-1">{role.subtitle}</div>
-                                        <h2 className="fw-extrabold text-main mb-3">{role.title}</h2>
-                                        <p className="text-muted mb-0 fs-6 lh-base">{role.desc}</p>
+                                    <div className="flex-grow-1">
+                                        <div 
+                                            className="tiny uppercase fw-bold ls-1 mb-1" 
+                                            style={{ color: role.color }}
+                                        >
+                                            {role.subtitle}
+                                        </div>
+                                        <h4 className="fw-extrabold mb-2" style={{ color: 'var(--text-main)' }}>
+                                            {role.title}
+                                        </h4>
+                                        <p className="tiny mb-3" style={{ color: 'var(--text-muted)', lineHeight: '1.5' }}>
+                                            {role.desc}
+                                        </p>
                                     </div>
-                                    <div className="mt-4 d-flex align-items-center gap-2 text-primary fw-bold text-uppercase ls-1">
-                                        Proceed to Workspace <ArrowRight size={18} />
+                                    <div 
+                                        className="mt-auto d-flex align-items-center gap-2 fw-bold small uppercase ls-1"
+                                        style={{ color: role.color }}
+                                    >
+                                        Proceed to Workspace <ArrowRight size={14} className="arrow-icon" />
                                     </div>
                                 </div>
                             </motion.div>
@@ -86,7 +109,7 @@ const RoleSelection = () => {
                     ))}
                 </div>
                 
-                <div className="text-center mt-5 pt-4">
+                <div className="text-center mt-4 pt-2">
                     <p className="tiny text-muted uppercase ls-2 fw-bold">Note: You can switch between roles anytime via the navigation bar.</p>
                 </div>
             </div>

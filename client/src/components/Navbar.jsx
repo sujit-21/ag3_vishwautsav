@@ -63,9 +63,9 @@ const Navbar = () => {
             <nav className="navbar navbar-expand-lg navbar-floating px-3 px-lg-4 py-0">
                 <div className="container-fluid p-0">
                     <Link className="navbar-brand d-flex align-items-center gap-3 no-underline" to="/">
-                        <div className="d-flex align-items-center justify-content-center p-1 rounded-4 shadow-glow bg-white bg-opacity-10 border border-white border-opacity-20" style={{ width: '36px', height: '36px' }}>
-                        <img src={logoImage} alt="Vishwa Utsav Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                    </div>
+                        <div className="d-flex align-items-center justify-content-center p-1 rounded-3 shadow-glow bg-white bg-opacity-10 border border-white border-opacity-20" style={{ width: '40px', height: '40px' }}>
+                            <img src={logoImage} alt="Vishwa Utsav Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                        </div>
                     <div>
                         <h1 className="fs-4 fw-extrabold mb-0 tracking-tight m-0" style={{ color: 'var(--text-main)' }}>
                             Vishwa<span className="text-primary">Utsav</span>
