@@ -13,6 +13,23 @@ export default defineConfig({
             },
         },
     },
+    build: {
+        chunkSizeWarningLimit: 1200,
+        rollupOptions: {
+            output: {
+                manualChunks(id) {
+                    if (id.includes('node_modules')) {
+                        if (id.includes('jspdf') || id.includes('html2canvas') || id.includes('purify')) {
+                            return 'pdf-vendor';
+                        }
+                        if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+                            return 'react-vendor';
+                        }
+                    }
+                }
+            }
+        }
+    },
     test: {
         globals: true,
         environment: 'jsdom',
