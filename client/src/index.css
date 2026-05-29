@@ -346,7 +346,7 @@ label {
 
 .nav-link-modern:hover {
     color: var(--text-main);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--glass-bg);
 }
 
 .nav-link-modern.active {
@@ -647,15 +647,27 @@ label {
 
 /* Floating Navbar */
 .navbar-floating {
-    background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 50px;
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
     margin-bottom: 0.5rem;
-    
-    /* Force dark mode text variables inside the navbar */
+    transition: all 0.3s ease;
+}
+
+.light-mode .navbar-floating {
+    background: linear-gradient(135deg, rgba(224, 231, 255, 0.8), rgba(243, 232, 255, 0.8)) !important;
+    border: 1.5px solid rgba(99, 102, 241, 0.15) !important;
+    box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.25) !important;
+    --text-main: #0f172a;
+    --text-muted: #475569;
+    --glass-bg: rgba(0, 0, 0, 0.04);
+    --glass-border: rgba(99, 102, 241, 0.15);
+}
+
+.dark-mode .navbar-floating {
+    background: linear-gradient(135deg, rgba(10, 10, 15, 0.85), rgba(20, 20, 30, 0.85)) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
     --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --glass-bg: rgba(255, 255, 255, 0.05);
@@ -673,6 +685,12 @@ label {
    ========================================== */
 .dark-mode .text-dark {
     color: var(--text-main) !important;
+}
+
+/* Maintain dark text on solid yellow warning/badge elements in dark mode for accessibility */
+.dark-mode .bg-warning.text-dark:not(.bg-opacity-10):not(.bg-opacity-20):not(.bg-opacity-25),
+.dark-mode .bg-warning .text-dark:not(.bg-opacity-10):not(.bg-opacity-20):not(.bg-opacity-25) {
+    color: #121214 !important;
 }
 
 .dark-mode .text-black {
@@ -697,19 +715,41 @@ label {
     color: var(--text-main) !important;
 }
 
+.dark-mode select,
+.dark-mode textarea,
+.dark-mode .form-select,
+.dark-mode .form-input,
 .dark-mode .form-control {
     background-color: var(--input-bg) !important;
     color: var(--text-main) !important;
     border-color: var(--input-border) !important;
 }
 
+.dark-mode select:focus,
+.dark-mode textarea:focus,
+.dark-mode .form-select:focus,
+.dark-mode .form-input:focus,
 .dark-mode .form-control:focus {
     background-color: var(--input-bg) !important;
     color: var(--text-main) !important;
     border-color: var(--accent-1) !important;
+    box-shadow: 0 0 0 4px rgba(192, 132, 252, 0.15) !important;
 }
 
-.dark-mode .form-control::placeholder {
+.dark-mode select option,
+.dark-mode .form-select option,
+.dark-mode .form-input option {
+    background-color: #121214 !important;
+    color: var(--text-main) !important;
+}
+
+/* Invert Bootstrap form-select dropdown arrow icon in dark mode */
+.dark-mode .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f8fafc' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+.dark-mode .form-control::placeholder,
+.dark-mode .form-input::placeholder {
     color: var(--text-muted) !important;
     opacity: 0.6;
 }
@@ -725,7 +765,20 @@ label {
     border-color: var(--glass-border) !important;
 }
 
+/* Make Bootstrap modal close buttons white & visible in dark mode */
+.dark-mode .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important;
+}
+
 .dark-mode table,
+.dark-mode .table {
+    background-color: var(--secondary-bg) !important;
+    color: var(--text-main) !important;
+    --bs-table-bg: var(--secondary-bg) !important;
+    --bs-table-color: var(--text-main) !important;
+    border-color: var(--glass-border) !important;
+}
+
 .dark-mode th,
 .dark-mode td {
     color: var(--text-main) !important;
@@ -734,6 +787,12 @@ label {
 
 .dark-mode .table-striped tbody tr:nth-of-type(odd) {
     background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Hover style in dark mode tables */
+.dark-mode .table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-main) !important;
 }
 
 .dark-mode .border {
@@ -845,4 +904,29 @@ label {
 
 .shortcut-card:hover .arrow-icon {
     transform: translateX(4px);
+}
+
+/* Dashboard Console & Details Cards */
+.dashboard-item-card {
+    background-color: rgba(15, 23, 42, 0.04) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    color: var(--text-main) !important;
+    transition: all 0.3s ease !important;
+}
+
+.dashboard-item-card:hover {
+    background-color: rgba(15, 23, 42, 0.06) !important;
+    border-color: var(--accent-1) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px -4px var(--premium-glow) !important;
+}
+
+.dark-mode .dashboard-item-card {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.dark-mode .dashboard-item-card:hover {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    border-color: var(--accent-1) !important;
 }

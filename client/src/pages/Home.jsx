@@ -166,7 +166,14 @@ const Home = () => {
                             <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 border border-primary border-opacity-20 uppercase ls-2 tiny fw-bold">About</span>
                         </div>
                         <p className="text-muted mb-0" style={{ fontSize: '0.95rem', lineHeight: '1.6', textAlign: 'justify' }}>
-                            Celebrating Culture. Connecting Communities. Vishwa Utsav is a modern digital platform created to organize, manage, and celebrate festivals, cultural events, competitions, and community activities through technology. Our mission is to bring together participants, organizers, institutions, volunteers, artists, mentors, and audiences into one seamless ecosystem where events become more engaging, accessible, and impactful.
+                            Celebrating Culture. Connecting Communities.
+
+Vishwa Utsav is a digital platform for festivals, cultural events, and community programs that enables paperless registrations, digital passes, subscriptions, donations, and seamless event management.
+
+Our platform connects organizers, participants, volunteers, sponsors, and communities through one unified digital ecosystem.
+
+Our vision is to create a smart, connected, and eco-friendly event ecosystem that brings people, culture, and celebrations together through technology.
+
                         </p>
                     </div>
                 </motion.div>

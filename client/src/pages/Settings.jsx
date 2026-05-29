@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Settings as SettingsIcon, Download, Upload, Moon, Sun, Palette, Save, Key, User, Shield, Trash2, Edit3, Plus, Building, UserCircle, LogOut } from 'lucide-react'
-import { useTheme } from '../context/ThemeContext'
+import { Settings as SettingsIcon, Download, Upload, Save, Key, User, Shield, Trash2, Edit3, Plus, Building, UserCircle, LogOut } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
 const Settings = () => {
-    const { isDarkMode, toggleDarkMode } = useTheme()
     const { user, logout } = useAuth()
     const navigate = useNavigate()
     const [status, setStatus] = useState('')
@@ -140,26 +138,6 @@ const Settings = () => {
             </motion.div>
 
             <div className="row g-4">
-                {/* Theme Settings */}
-                <div className="col-lg-6">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-2 h-100 shadow-sm border-opacity-10 d-flex flex-column">
-                        <h6 className="fw-bold mb-2 d-flex align-items-center gap-2 small px-1">
-                            <Palette size={16} className="text-primary" /> Appearance
-                        </h6>
-                        <div className="flex-grow-1 d-flex flex-column justify-content-center px-1">
-                            <div className="py-1 d-flex align-items-center justify-content-between">
-                                <div>
-                                    <h6 className="mb-0 fw-bold tiny">Dark Theme</h6>
-                                    <p className="text-muted extra-tiny mb-0">Toggle between Light and Dark interface.</p>
-                                </div>
-                                <div className="form-check form-switch">
-                                    <input className="form-check-input" type="checkbox" checked={isDarkMode} onChange={toggleDarkMode} style={{ cursor: 'pointer', transform: 'scale(0.8)' }} />
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
-
                 {/* Credentials Management */}
                 <div className="col-12">
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="glass-card p-2 shadow-sm border-opacity-10 d-flex flex-column">

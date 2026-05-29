@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { NavLink, Link, useNavigate } from 'react-router-dom'
-import { User, Menu, Zap, LogOut, ChevronRight } from 'lucide-react'
+import { User, Menu, Zap, LogOut, ChevronRight, Sun, Moon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import axios from 'axios'
 import logoImage from '../images/VISHWA UTSAV.png'
 
 const Navbar = () => {
     const { user, logout, isAuthenticated, verifiedEntity, setVerifiedEntity, switchRole } = useAuth()
+    const { isDarkMode, toggleDarkMode } = useTheme()
     const isAdmin = user?.role === 'admin' || user?.role === 'superadmin'
     const hasEntity = isAdmin ? verifiedEntity : (user?.entityName || verifiedEntity)
     const navigate = useNavigate()
@@ -113,11 +115,32 @@ const Navbar = () => {
                         )}
                     </ul>
 
-                    <div className="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+                    <div className="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                        {/* Dark Mode Toggle */}
+                        <button
+                            onClick={toggleDarkMode}
+                            className="btn btn-link p-0 rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm hover-glow transition-all"
+                            style={{ 
+                                color: 'var(--text-main)', 
+                                background: isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)', 
+                                border: '1.5px solid var(--glass-border)',
+                                width: '38px',
+                                height: '38px',
+                                cursor: 'pointer' 
+                            }}
+                            aria-label="Toggle Dark Mode"
+                            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                        >
+                            {isDarkMode ? (
+                                <Sun size={18} className="text-warning" style={{ filter: 'drop-shadow(0 0 5px rgba(245, 158, 11, 0.7))' }} />
+                            ) : (
+                                <Moon size={18} className="text-primary" style={{ filter: 'drop-shadow(0 0 5px rgba(99, 102, 241, 0.5))' }} />
+                            )}
+                        </button>
 
                         {/* Manual Role Selector Tabs (Smaller) */}
                         {isAuthenticated && (
-                            <div className="d-flex align-items-center bg-white bg-opacity-10 p-1 rounded-pill border border-white border-opacity-20 shadow-sm">
+                            <div className="d-flex align-items-center p-1 rounded-pill shadow-sm" style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)' }}>
                                 <span className={`px-4 py-1 rounded-pill text-uppercase fw-black ls-1 transition-all ${user?.role === 'admin' ? 'bg-primary text-white shadow-glow' : 'bg-secondary bg-opacity-25 text-muted'}`} style={{ fontSize: '0.65rem' }}>
                                     {user?.role === 'admin' ? 'ADMIN' : 'USER'}
                                 </span>

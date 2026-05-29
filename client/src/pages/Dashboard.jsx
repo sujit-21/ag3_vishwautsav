@@ -289,25 +289,25 @@ const Dashboard = () => {
                             </h6>
                             <div className="row g-3">
                                 <div className="col-md-6">
-                                    <div className="p-3 bg-secondary bg-opacity-5 rounded-3 border border-secondary border-opacity-10">
+                                    <div className="p-3 dashboard-item-card rounded-3">
                                         <p className="tiny text-muted uppercase fw-bold mb-1">Entity</p>
                                         <p className="small mb-0 fw-bold">{searchResult.entityName}</p>
                                     </div>
                                 </div>
                                 <div className="col-md-6">
-                                    <div className="p-3 bg-secondary bg-opacity-5 rounded-3 border border-secondary border-opacity-10">
+                                    <div className="p-3 dashboard-item-card rounded-3">
                                         <p className="tiny text-muted uppercase fw-bold mb-1">Event / Festival</p>
                                         <p className="small mb-0 fw-bold">{searchResult.festOrEventName}</p>
                                     </div>
                                 </div>
                                 <div className="col-md-6">
-                                    <div className="p-3 bg-secondary bg-opacity-5 rounded-3 border border-secondary border-opacity-10">
+                                    <div className="p-3 dashboard-item-card rounded-3">
                                         <p className="tiny text-muted uppercase fw-bold mb-1">Pass Tier</p>
                                         <p className="small mb-0 fw-bold text-primary">{searchResult.membershipType}</p>
                                     </div>
                                 </div>
                                 <div className="col-md-6">
-                                    <div className="p-3 bg-secondary bg-opacity-5 rounded-3 border border-secondary border-opacity-10">
+                                    <div className="p-3 dashboard-item-card rounded-3">
                                         <p className="tiny text-muted uppercase fw-bold mb-1">Purchase Date</p>
                                         <p className="small mb-0 fw-bold">{new Date(searchResult.date).toLocaleDateString()}</p>
                                     </div>
@@ -402,7 +402,7 @@ const Dashboard = () => {
                                         {org.festivals.map(fest => (
                                             <div key={fest._id} className="col-md-4">
                                                 <div 
-                                                    className="p-3 bg-secondary bg-opacity-5 border border-start border-primary border-3 border-secondary border-opacity-10 rounded-3 h-100 cursor-pointer hover-glow transition-all"
+                                                    className="p-3 dashboard-item-card border-start border-primary border-3 rounded-3 h-100 cursor-pointer"
                                                     onClick={() => setSelectedItem({ ...fest, type: 'festival' })}
                                                     role="button"
                                                 >
@@ -440,7 +440,7 @@ const Dashboard = () => {
                                         {org.events.map(ev => (
                                             <div key={ev._id} className="col-md-4">
                                                 <div 
-                                                    className="p-3 bg-secondary bg-opacity-5 border border-start border-warning border-3 border-secondary border-opacity-10 rounded-3 h-100 cursor-pointer hover-glow transition-all"
+                                                    className="p-3 dashboard-item-card border-start border-warning border-3 rounded-3 h-100 cursor-pointer"
                                                     onClick={() => setSelectedItem({ ...ev, type: 'event' })}
                                                     role="button"
                                                 >
@@ -573,7 +573,7 @@ const Dashboard = () => {
                                             }, {})
                                     ).sort(([a], [b]) => b - a).map(([year, data]) => (
                                         <div key={year} className="col-md-6 col-lg-4">
-                                            <div className="p-3 bg-white border border-secondary border-opacity-10 rounded-3 shadow-sm">
+                                            <div className="p-3 dashboard-item-card rounded-3">
                                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                                     <span className="fw-bold fs-5 text-primary">{year}</span>
                                                     <span className={`badge ${data.collection - data.expenses >= 0 ? 'bg-success' : 'bg-danger'} bg-opacity-20 ${data.collection - data.expenses >= 0 ? 'text-success' : 'text-danger'} fw-bold`}>
