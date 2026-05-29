@@ -122,6 +122,8 @@ const getPaymentColorStyle = (paymentType) => {
 const Events = () => {
     const { activeEvent, setActiveEvent, user } = useAuth()
     const [search, setSearch] = useState('')
+    const [subSearch, setSubSearch] = useState('')
+    const [expSearch, setExpSearch] = useState('')
     const [events, setEvents] = useState([])
     const [festivals, setFestivals] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -829,6 +831,27 @@ const Events = () => {
         setEditingEvent(null)
     }
 
+    const filteredSubs = subscriptionsList.filter(sub => {
+        const q = subSearch.toLowerCase()
+        return (
+            (sub.subId || '').toLowerCase().includes(q) ||
+            (sub.name || '').toLowerCase().includes(q) ||
+            (sub.address || '').toLowerCase().includes(q) ||
+            (sub.contact || '').toLowerCase().includes(q) ||
+            (sub.membershipType || '').toLowerCase().includes(q) ||
+            (sub.paymentType || '').toLowerCase().includes(q)
+        )
+    })
+
+    const filteredExpenses = expensesList.filter(exp => {
+        const q = expSearch.toLowerCase()
+        return (
+            (exp.expenseId || '').toLowerCase().includes(q) ||
+            (exp.particular || '').toLowerCase().includes(q) ||
+            (exp.expenseType || '').toLowerCase().includes(q) ||
+            (exp.paymentType || '').toLowerCase().includes(q)
+        )
+    })
 
     return (
         <div className="container pt-3 pb-5 text-main">
@@ -955,8 +978,19 @@ const Events = () => {
                             <h3 className="fw-bold mb-0">Event & Workshop Passes</h3>
                             <p className="text-muted small">Manage attendee registrations and specialized entries.</p>
                         </div>
-                        <div className="d-flex gap-2">
-                           <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary d-flex align-items-center gap-2">
+                        <div className="d-flex align-items-center gap-2">
+                            {/* Search Attendees */}
+                            <div className="input-group glass-card bg-secondary bg-opacity-5 p-1" style={{ maxWidth: '280px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted"><Search size={16} /></span>
+                                <input
+                                    type="text"
+                                    className="form-control bg-transparent border-0 text-main shadow-none small"
+                                    placeholder="Search attendees..."
+                                    value={subSearch}
+                                    onChange={(e) => setSubSearch(e.target.value)}
+                                />
+                            </div>
+                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary d-flex align-items-center gap-2">
                                 <FileDown size={18} /> All Attendee Details PDF
                             </button>
                             {!isSubAdding && (
@@ -993,10 +1027,10 @@ const Events = () => {
                                 </tr>
                             </thead>
                             <tbody className="text-main">
-                                {subscriptionsList.length === 0 ? (
-                                    <tr><td colSpan="8" className="text-center py-5 text-muted">No workshop passes found. Click 'Add New' to start.</td></tr>
+                                {filteredSubs.length === 0 ? (
+                                    <tr><td colSpan="8" className="text-center py-5 text-muted">{subscriptionsList.length === 0 ? "No workshop passes found. Click 'Add New' to start." : "No matching attendees found."}</td></tr>
                                 ) : (
-                                    subscriptionsList.map((sub) => (
+                                    filteredSubs.map((sub) => (
                                         <tr key={sub.subId}>
                                             <td className="border-0 py-3">
                                                 <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace">{sub.subId}</span>
@@ -1075,7 +1109,18 @@ const Events = () => {
                             <h3 className="fw-bold mb-1">Event Expenses</h3>
                             <p className="text-muted small">Track and manage all specialized event spending.</p>
                         </div>
-                        <div className="d-flex gap-2">
+                        <div className="d-flex align-items-center gap-2">
+                            {/* Search Expenses */}
+                            <div className="input-group glass-card bg-secondary bg-opacity-5 p-1" style={{ maxWidth: '280px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted"><Search size={16} /></span>
+                                <input
+                                    type="text"
+                                    className="form-control bg-transparent border-0 text-main shadow-none small"
+                                    placeholder="Search expenses..."
+                                    value={expSearch}
+                                    onChange={(e) => setExpSearch(e.target.value)}
+                                />
+                            </div>
                             <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger d-flex align-items-center gap-2">
                                 <FileDown size={18} /> All Expenses Details PDF
                             </button>
@@ -1197,6 +1242,8 @@ const Events = () => {
                         </motion.div>
                     )}
 
+
+
                     <div className="table-responsive">
                         <table className="table">
                             <thead>
@@ -1211,7 +1258,10 @@ const Events = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {expensesList.map((exp) => (
+                                {filteredExpenses.length === 0 ? (
+                                    <tr><td colSpan="7" className="text-center py-5 text-muted">{expensesList.length === 0 ? "No expenses logged yet." : "No matching expenses found."}</td></tr>
+                                ) : (
+                                    filteredExpenses.map((exp) => (
                                     <tr key={exp.expenseId}>
                                         <td className="border-0 py-1 small text-muted">{new Date(exp.date).toLocaleDateString()}</td>
                                         <td className="border-0 py-3"><span className="badge bg-secondary bg-opacity-10 text-muted font-monospace">{exp.expenseId}</span></td>
@@ -1241,7 +1291,8 @@ const Events = () => {
                                             }} className="btn btn-sm btn-light text-danger p-1 rounded-circle border-0"><Trash2 size={16} /></button>
                                         </td>
                                     </tr>
-                                ))}
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
