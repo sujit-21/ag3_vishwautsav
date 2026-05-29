@@ -11,6 +11,36 @@ import primeBg from '../images/primemember.jpg'
 import regularBg from '../images/regular.jpg'
 import vipBg from '../images/vip elite.jpg'
 
+const getTierBadgeStyle = (tier) => {
+    if (tier === 'Prime') return { backgroundColor: '#fef3c7', color: '#b45309', borderColor: '#fde68a' };
+    if (tier === 'VIP') return { backgroundColor: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd' };
+    if (tier === 'Admin') return { backgroundColor: '#dcfce7', color: '#166534', borderColor: '#bbf7d0' };
+    return { backgroundColor: '#f1f5f9', color: '#475569', borderColor: '#e2e8f0' };
+};
+
+const getTierDisplayName = (tier) => {
+    if (tier === 'Prime') return 'Prime Member';
+    if (tier === 'VIP') return 'VIP Access';
+    if (tier === 'Admin') return 'Administrative';
+    return 'None';
+};
+
+const getPaymentBadgeStyle = (paymentType) => {
+    if (paymentType === 'Cash & Paid') return { backgroundColor: '#dcfce7', color: '#166534', borderColor: '#bbf7d0' };
+    if (paymentType === 'Due') return { backgroundColor: '#fee2e2', color: '#991b1b', borderColor: '#fecaca' };
+    if (paymentType === 'Online') return { backgroundColor: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd' };
+    if (paymentType === 'Coupon or Token') return { backgroundColor: '#fef9c7', color: '#854d0e', borderColor: '#fef08a' };
+    return { backgroundColor: '#f1f5f9', color: '#475569', borderColor: '#e2e8f0' };
+};
+
+const getPaymentDisplayName = (paymentType) => {
+    if (paymentType === 'Cash & Paid') return 'Confirmed (Cash & Paid)';
+    if (paymentType === 'Due') return 'Pending (Due Balance)';
+    if (paymentType === 'Online') return 'Digital (Online Bank)';
+    if (paymentType === 'Coupon or Token') return 'Coupon / Token Voucher';
+    return paymentType;
+};
+
 const AttendeePortal = () => {
     const [entities, setEntities] = useState([])
     const [selectedEntity, setSelectedEntity] = useState('')
@@ -188,8 +218,42 @@ const AttendeePortal = () => {
 
             let y = 80
             details.forEach(([label, value]) => {
-                doc.setFontSize(10); doc.setTextColor(100, 100, 100); doc.text(label.toUpperCase(), 20, y)
-                doc.setFontSize(12); doc.setTextColor(30, 41, 59); doc.setFont('helvetica', 'bold'); doc.text(String(value || '—'), 70, y)
+                doc.setFontSize(10); doc.setTextColor(100, 100, 100); doc.setFont('helvetica', 'normal'); doc.text(label.toUpperCase(), 20, y)
+                
+                if (label === 'Tier') {
+                    const tier = result.membershipType;
+                    const tierLabel = getTierDisplayName(tier);
+                    let fill = [241, 245, 249];
+                    let text = [71, 85, 105];
+                    if (tier === 'Prime') { fill = [254, 243, 199]; text = [180, 83, 9]; }
+                    else if (tier === 'VIP') { fill = [224, 242, 254]; text = [3, 105, 161]; }
+                    else if (tier === 'Admin') { fill = [220, 252, 231]; text = [22, 101, 52]; }
+                    
+                    doc.setFillColor(fill[0], fill[1], fill[2]);
+                    doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+                    const textWidth = doc.getTextWidth(tierLabel);
+                    doc.roundedRect(70, y - 5, textWidth + 8, 7, 1, 1, 'F');
+                    doc.setTextColor(text[0], text[1], text[2]);
+                    doc.text(tierLabel, 74, y);
+                } else if (label === 'Payment Status') {
+                    const paymentType = result.paymentType;
+                    const payLabel = getPaymentDisplayName(paymentType);
+                    let fill = [241, 245, 249];
+                    let text = [71, 85, 105];
+                    if (paymentType === 'Cash & Paid') { fill = [220, 252, 231]; text = [22, 101, 52]; }
+                    else if (paymentType === 'Due') { fill = [254, 226, 226]; text = [153, 27, 27]; }
+                    else if (paymentType === 'Online') { fill = [224, 242, 254]; text = [3, 105, 161]; }
+                    else if (paymentType === 'Coupon or Token') { fill = [254, 249, 195]; text = [133, 77, 14]; }
+                    
+                    doc.setFillColor(fill[0], fill[1], fill[2]);
+                    doc.setFontSize(11); doc.setFont('helvetica', 'bold');
+                    const textWidth = doc.getTextWidth(payLabel);
+                    doc.roundedRect(70, y - 5, textWidth + 8, 7, 1, 1, 'F');
+                    doc.setTextColor(text[0], text[1], text[2]);
+                    doc.text(payLabel, 74, y);
+                } else {
+                    doc.setFontSize(12); doc.setTextColor(30, 41, 59); doc.setFont('helvetica', 'bold'); doc.text(String(value || '—'), 70, y)
+                }
                 y += 12
             })
 
@@ -331,12 +395,12 @@ const AttendeePortal = () => {
                                                 <h5 className="mb-1 fw-black text-main">Subscription Profile</h5>
                                                 <p className="tiny text-muted uppercase fw-bold ls-1 mb-0">Record Details & Status</p>
                                             </div>
-                                            <div className="text-end">
-                                                <span className="badge p-3 rounded-3 uppercase tiny fw-black d-block mb-1" style={{ background: '#6366f1', color: 'white' }}>
-                                                    {result.membershipType === 'Non-Prime' ? 'None' : result.membershipType} TIER
+                                            <div className="text-end d-flex flex-column align-items-end gap-1">
+                                                <span className="badge px-3 py-2 rounded-3 uppercase tiny fw-black d-inline-block border" style={getTierBadgeStyle(result.membershipType)}>
+                                                    {getTierDisplayName(result.membershipType)} TIER
                                                 </span>
-                                                <span className={`tiny fw-bold uppercase ${result.paymentType === 'Cash & Paid' ? 'text-success' : 'text-danger'}`}>
-                                                    {result.paymentType}
+                                                <span className="badge px-3 py-2 rounded-3 uppercase tiny fw-black d-inline-block border" style={getPaymentBadgeStyle(result.paymentType)}>
+                                                    {getPaymentDisplayName(result.paymentType)}
                                                 </span>
                                             </div>
                                         </div>

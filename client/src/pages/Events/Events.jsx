@@ -36,6 +36,89 @@ const festivalExpenseTypes = ['Decoration', 'Sound', 'Catering', 'Lighting', 'Ma
 const eventExpenseTypes = ['Venue Hire', 'Equipment', 'Staffing', 'Permits', 'Security', 'Promotion', 'Miscellaneous']
 const countries = ['India', 'USA', 'UK', 'UAE', 'Australia', 'Japan', 'France', 'Germany'];
 
+const getTierBadgeStyle = (tier) => {
+    if (tier === 'Prime') return { backgroundColor: '#fef3c7', color: '#b45309', borderColor: '#fde68a' };
+    if (tier === 'VIP') return { backgroundColor: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd' };
+    if (tier === 'Admin') return { backgroundColor: '#dcfce7', color: '#166534', borderColor: '#bbf7d0' };
+    return { backgroundColor: '#f1f5f9', color: '#475569', borderColor: '#e2e8f0' };
+};
+
+const getTierDisplayName = (tier) => {
+    if (tier === 'Prime') return 'Prime Member';
+    if (tier === 'VIP') return 'VIP Access';
+    if (tier === 'Admin') return 'Administrative';
+    return 'None';
+};
+
+const getPaymentBadgeStyle = (paymentType) => {
+    if (paymentType === 'Cash & Paid') return { backgroundColor: '#dcfce7', color: '#166534', borderColor: '#bbf7d0' };
+    if (paymentType === 'Due') return { backgroundColor: '#fee2e2', color: '#991b1b', borderColor: '#fecaca' };
+    if (paymentType === 'Online') return { backgroundColor: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd' };
+    if (paymentType === 'Coupon or Token') return { backgroundColor: '#fef9c7', color: '#854d0e', borderColor: '#fef08a' };
+    return { backgroundColor: '#f1f5f9', color: '#475569', borderColor: '#e2e8f0' };
+};
+
+const getPaymentDisplayName = (paymentType) => {
+    if (paymentType === 'Cash & Paid') return 'Confirmed (Cash & Paid)';
+    if (paymentType === 'Due') return 'Pending (Due Balance)';
+    if (paymentType === 'Online') return 'Digital (Online Bank)';
+    if (paymentType === 'Coupon or Token') return 'Coupon / Token Voucher';
+    return paymentType;
+};
+
+const getTierPdfStyle = (tier) => {
+    const label = getTierDisplayName(tier);
+    if (tier === 'Prime') {
+        return { content: label, styles: { fillColor: [254, 243, 199], textColor: [180, 83, 9], fontStyle: 'bold' } };
+    }
+    if (tier === 'VIP') {
+        return { content: label, styles: { fillColor: [224, 242, 254], textColor: [3, 105, 161], fontStyle: 'bold' } };
+    }
+    if (tier === 'Admin') {
+        return { content: label, styles: { fillColor: [220, 252, 231], textColor: [22, 101, 52], fontStyle: 'bold' } };
+    }
+    return { content: label, styles: { fillColor: [241, 245, 249], textColor: [71, 85, 105] } };
+};
+
+const getPaymentPdfStyle = (paymentType, onlineDetails = '') => {
+    let label = getPaymentDisplayName(paymentType);
+    let fill = [241, 245, 249];
+    let text = [71, 85, 105];
+
+    if (paymentType === 'Cash & Paid') {
+        fill = [220, 252, 231];
+        text = [22, 101, 52];
+    } else if (paymentType === 'Due') {
+        fill = [254, 226, 226];
+        text = [153, 27, 27];
+    } else if (paymentType === 'Online') {
+        label = label + (onlineDetails ? `\n${onlineDetails}` : '');
+        fill = [224, 242, 254];
+        text = [3, 105, 161];
+    } else if (paymentType === 'Coupon or Token') {
+        fill = [254, 249, 195];
+        text = [133, 77, 14];
+    }
+
+    return { content: label, styles: { fillColor: fill, textColor: text, fontStyle: 'bold' } };
+};
+
+const getTierColorStyle = (tier) => {
+    if (tier === 'Admin') return { backgroundColor: '#dcfce7', color: '#166534', fontWeight: 'bold' };
+    if (tier === 'VIP') return { backgroundColor: '#e0f2fe', color: '#0369a1', fontWeight: 'bold' };
+    if (tier === 'Prime') return { backgroundColor: '#fef3c7', color: '#b45309', fontWeight: 'bold' };
+    return { backgroundColor: '#f1f5f9', color: '#475569' };
+};
+
+const getPaymentColorStyle = (paymentType) => {
+    if (paymentType === 'Cash & Paid') return { backgroundColor: '#dcfce7', color: '#166534', fontWeight: 'bold' };
+    if (paymentType === 'Due') return { backgroundColor: '#fee2e2', color: '#991b1b', fontWeight: 'bold' };
+    if (paymentType === 'Online') return { backgroundColor: '#e0f2fe', color: '#0369a1', fontWeight: 'bold' };
+    if (paymentType === 'Coupon or Token') return { backgroundColor: '#fef9c7', color: '#854d0e', fontWeight: 'bold' };
+    return { backgroundColor: '#f1f5f9', color: '#475569' };
+};
+
+
 const Events = () => {
     const { activeEvent, setActiveEvent, user } = useAuth()
     const [search, setSearch] = useState('')
@@ -203,9 +286,9 @@ const Events = () => {
                 ['Full Name', sub.name || '—'],
                 ['Contact', `${sub.countryCode || ''} ${sub.contact || '—'}`],
                 ['Address', sub.address || '—'],
-                ['Tier / Pass', sub.membershipType === 'Non-Prime' ? 'None' : (sub.membershipType || '—')],
+                ['Tier / Pass', getTierDisplayName(sub.membershipType)],
                 ['Entity', sub.entityName || '—'],
-                ['Status', sub.paymentType || '—'],
+                ['Status', getPaymentDisplayName(sub.paymentType)],
                 ['Amount Net', `Rs. ${String(sub.amount || 0).replace(/[^0-9.]/g, '').trim()}`]
             ];
 
@@ -219,7 +302,50 @@ const Events = () => {
                 body: attendeeBody,
                 theme: 'grid',
                 columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40, fillColor: [248, 250, 252] } },
-                styles: { fontSize: 9 }
+                styles: { fontSize: 9 },
+                didParseCell: function(data) {
+                    if (data.row.section === 'body' && data.column.index === 1) {
+                        const rowKey = data.row.cells[0]?.text[0];
+                        const cellVal = data.cell.text[0];
+                        if (rowKey === 'Tier / Class' || rowKey === 'Tier / Pass') {
+                            if (cellVal === 'Administrative') {
+                                data.cell.styles.fillColor = [220, 252, 231];
+                                data.cell.styles.textColor = [22, 101, 52];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (cellVal === 'VIP Access') {
+                                data.cell.styles.fillColor = [224, 242, 254];
+                                data.cell.styles.textColor = [3, 105, 161];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (cellVal === 'Prime Member') {
+                                data.cell.styles.fillColor = [254, 243, 199];
+                                data.cell.styles.textColor = [180, 83, 9];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else {
+                                data.cell.styles.fillColor = [241, 245, 249];
+                                data.cell.styles.textColor = [71, 85, 105];
+                            }
+                        }
+                        if (rowKey === 'Status') {
+                            if (cellVal === 'Confirmed (Cash & Paid)') {
+                                data.cell.styles.fillColor = [220, 252, 231];
+                                data.cell.styles.textColor = [22, 101, 52];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (cellVal === 'Pending (Due Balance)') {
+                                data.cell.styles.fillColor = [254, 226, 226];
+                                data.cell.styles.textColor = [153, 27, 27];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (cellVal.startsWith('Digital') || cellVal.startsWith('Online')) {
+                                data.cell.styles.fillColor = [224, 242, 254];
+                                data.cell.styles.textColor = [3, 105, 161];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (cellVal === 'Coupon / Token Voucher') {
+                                data.cell.styles.fillColor = [254, 249, 195];
+                                data.cell.styles.textColor = [133, 77, 14];
+                                data.cell.styles.fontStyle = 'bold';
+                            }
+                        }
+                    }
+                }
             });
 
             // === Footer ===
@@ -419,11 +545,61 @@ const Events = () => {
                 startY: 45,
                 head: [['Pass ID', 'Name', 'Contact', 'Address', 'Amount', 'Payment', 'Tier', 'Date']],
                 body: subscriptionsList.map((s, i) => [
-                    s.subId || s.cardId, s.name, `${s.countryCode || ''} ${s.contact || ''}`, s.address || '—', `Rs. ${String(s.amount || 0).replace(/[^0-9.]/g, '')}`, s.paymentType === 'Online' && s.onlineParticulars ? `Online (${s.onlineParticulars})` : s.paymentType, s.membershipType, new Date(s.date).toLocaleDateString()
+                    s.subId || s.cardId,
+                    s.name,
+                    `${s.countryCode || ''} ${s.contact || ''}`,
+                    s.address || '—',
+                    `Rs. ${String(s.amount || 0).replace(/[^0-9.]/g, '')}`,
+                    s.paymentType === 'Online' && s.onlineParticulars ? `Digital (Online Bank) (${s.onlineParticulars})` : getPaymentDisplayName(s.paymentType),
+                    getTierDisplayName(s.membershipType),
+                    new Date(s.date).toLocaleDateString()
                 ]),
                 theme: 'striped',
                 headStyles: { fillColor: [63, 81, 181] },
-                styles: { fontSize: 8 }
+                styles: { fontSize: 8 },
+                didParseCell: function(data) {
+                    if (data.row.section === 'body') {
+                        if (data.column.index === 5) {
+                            const val = data.cell.text[0];
+                            if (val.startsWith('Confirmed') || val.startsWith('Cash & Paid')) {
+                                data.cell.styles.fillColor = [220, 252, 231];
+                                data.cell.styles.textColor = [22, 101, 52];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (val.startsWith('Pending') || val.startsWith('Due')) {
+                                data.cell.styles.fillColor = [254, 226, 226];
+                                data.cell.styles.textColor = [153, 27, 27];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (val.startsWith('Digital') || val.startsWith('Online')) {
+                                data.cell.styles.fillColor = [224, 242, 254];
+                                data.cell.styles.textColor = [3, 105, 161];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (val.startsWith('Coupon') || val.startsWith('Token')) {
+                                data.cell.styles.fillColor = [254, 249, 195];
+                                data.cell.styles.textColor = [133, 77, 14];
+                                data.cell.styles.fontStyle = 'bold';
+                            }
+                        }
+                        if (data.column.index === 6) {
+                            const val = data.cell.text[0];
+                            if (val === 'Administrative') {
+                                data.cell.styles.fillColor = [220, 252, 231];
+                                data.cell.styles.textColor = [22, 101, 52];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (val === 'VIP Access') {
+                                data.cell.styles.fillColor = [224, 242, 254];
+                                data.cell.styles.textColor = [3, 105, 161];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else if (val === 'Prime Member') {
+                                data.cell.styles.fillColor = [254, 243, 199];
+                                data.cell.styles.textColor = [180, 83, 9];
+                                data.cell.styles.fontStyle = 'bold';
+                            } else {
+                                data.cell.styles.fillColor = [241, 245, 249];
+                                data.cell.styles.textColor = [71, 85, 105];
+                            }
+                        }
+                    }
+                }
             });
 
             doc.save(`All_Attendees_${activeEvent?.title?.replace(/\s+/g, '_')}.pdf`);
@@ -833,10 +1009,16 @@ const Events = () => {
                                             <td className="border-0 py-3 fw-bold">{sub.name}</td>
                                             <td className="border-0 py-3 small italic text-muted">📞 {sub.countryCode} {sub.contact}</td>
                                             <td className="border-0 py-3 small italic text-muted">📍 {sub.address || 'N/A'}</td>
-                                            <td className="border-0 py-3"><span className={`badge ${sub.membershipType === 'Prime' ? 'bg-warning text-dark' : 'bg-light text-muted'}`}>{sub.membershipType === 'Non-Prime' ? 'None' : sub.membershipType}</span></td>
+                                            <td className="border-0 py-3">
+                                                <span className="badge border" style={getTierBadgeStyle(sub.membershipType)}>
+                                                    {getTierDisplayName(sub.membershipType)}
+                                                </span>
+                                            </td>
                                             <td className="border-0 py-3">
                                                 <div className="d-flex flex-column">
-                                                    <span className="small">{sub.paymentType}</span>
+                                                    <span className="badge border align-self-start mb-1" style={getPaymentBadgeStyle(sub.paymentType)}>
+                                                        {getPaymentDisplayName(sub.paymentType)}
+                                                    </span>
                                                     {sub.referenceName && <span className="text-muted smaller">Ref: {sub.referenceName}</span>}
                                                     {sub.paymentType === 'Online' && (
                                                         <>
@@ -1465,7 +1647,12 @@ const Events = () => {
                                 </div>
                                 <div className="col-md-6">
                                     <label>Pass Tier</label>
-                                    <select className="form-input" value={subFormData.membershipType} onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}>
+                                    <select 
+                                        className="form-input" 
+                                        value={subFormData.membershipType} 
+                                        style={getTierColorStyle(subFormData.membershipType)} 
+                                        onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}
+                                    >
                                         <option value="Prime">Prime Member</option>
                                         <option value="Non-Prime">None</option>
                                         <option value="VIP">VIP Access</option>
@@ -1474,7 +1661,12 @@ const Events = () => {
                                 </div>
                                 <div className="col-md-6">
                                     <label>Financial Status</label>
-                                    <select className="form-input" value={subFormData.paymentType} onChange={e => setSubFormData({ ...subFormData, paymentType: e.target.value })}>
+                                    <select 
+                                        className="form-input" 
+                                        value={subFormData.paymentType} 
+                                        style={getPaymentColorStyle(subFormData.paymentType)} 
+                                        onChange={e => setSubFormData({ ...subFormData, paymentType: e.target.value })}
+                                    >
                                         <option value="Cash & Paid">Confirmed (Cash &amp; Paid)</option>
                                         <option value="Due">Pending (Due Balance)</option>
                                         <option value="Online">Digital (Online Bank)</option>
