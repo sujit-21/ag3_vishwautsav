@@ -174,7 +174,7 @@ const Festivals = () => {
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(148, 163, 184); // Muted Slate
             doc.text(`PASS ID: ${sub.subId}`.toUpperCase(), 105, 26, { align: 'center' });
-            doc.text(`ISSUED ON: ${new Date().toLocaleDateString()}`, 105, 31, { align: 'center' });
+            doc.text(`ISSUED ON: ${sub.date ? new Date(sub.date).toLocaleDateString() : new Date().toLocaleDateString()}`, 105, 31, { align: 'center' });
 
             // === Section: Festival Data ===
             doc.setTextColor(30, 41, 59);
@@ -922,7 +922,14 @@ const Festivals = () => {
                                 ) : (
                                     subscriptionsList.map((sub) => (
                                         <tr key={sub.subId}>
-                                            <td className="border-0 py-3"><span className="badge bg-secondary bg-opacity-10 text-muted font-monospace">{sub.subId}</span></td>
+                                            <td className="border-0 py-3">
+                                                <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace">{sub.subId}</span>
+                                                {sub.date && (
+                                                    <div className="text-muted extra-tiny mt-1 opacity-75">
+                                                        📅 {new Date(sub.date).toLocaleDateString()}
+                                                    </div>
+                                                )}
+                                            </td>
                                             <td className="border-0 py-3 fw-bold">{sub.name}</td>
                                             <td className="border-0 py-3 small italic text-muted">📞 {sub.countryCode} {sub.contact}</td>
                                             <td className="border-0 py-3 small italic text-muted">📍 {sub.address || 'N/A'}</td>
@@ -951,7 +958,10 @@ const Festivals = () => {
                                                 }} className="btn btn-sm text-success p-1 me-2" title="WhatsApp"><MessageCircle size={16} /></button>
                                                 <button onClick={() => downloadPDF(sub)} className="btn btn-sm text-info p-1 me-2" title="Download PDF"><FileDown size={16} /></button>
                                                 <button onClick={() => {
-                                                    setSubFormData(sub)
+                                                    setSubFormData({
+                                                        ...sub,
+                                                        date: sub.date ? new Date(sub.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                                                    })
                                                     setEditingSubId(sub.subId)
                                                     setIsSubAdding(true)
                                                 }} className="btn btn-sm text-primary p-1 me-2"><Edit3 size={16} /></button>
@@ -1033,7 +1043,13 @@ const Festivals = () => {
                             }} className="row g-3">
                                 <div className="col-md-3">
                                     <label>Recording Date</label>
-                                    <input type="date" className="form-input cursor-not-allowed opacity-75" value={expenseFormData.date} readOnly />
+                                    <input 
+                                        type="date" 
+                                        className="form-input" 
+                                        value={expenseFormData.date} 
+                                        onChange={e => setExpenseFormData({ ...expenseFormData, date: e.target.value })} 
+                                        required 
+                                    />
                                 </div>
                                 <div className="col-md-3">
                                     <label>Voucher Ref#</label>
@@ -1128,7 +1144,10 @@ const Festivals = () => {
                                         <td className="border-0 py-3 text-end">
                                             <button onClick={() => downloadExpensePDF(exp)} className="btn btn-sm text-info p-1 me-2" title="Download PDF"><FileDown size={16} /></button>
                                             <button onClick={() => {
-                                                setExpenseFormData(exp)
+                                                setExpenseFormData({
+                                                    ...exp,
+                                                    date: exp.date ? new Date(exp.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                                                })
                                                 setEditingExpId(exp.expenseId)
                                                 setIsExpAdding(true)
                                             }} className="btn btn-sm text-primary p-1 me-2" title="Edit Expense"><Edit3 size={16} /></button>
@@ -1507,7 +1526,7 @@ const Festivals = () => {
                                     <label>Attendee Full Name</label>
                                     <input type="text" className="form-input" placeholder="Full Name" value={subFormData.name} onChange={e => setSubFormData({ ...subFormData, name: e.target.value })} required />
                                 </div>
-                                <div className="col-md-6">
+                                <div className="col-md-4">
                                     <label>Secure Contact Node</label>
                                     <div className="input-group-premium">
                                         <select className="form-select-prefix" value={subFormData.countryCode} onChange={e => setSubFormData({ ...subFormData, countryCode: e.target.value })}>
@@ -1516,7 +1535,7 @@ const Festivals = () => {
                                         <input type="text" className="form-control-custom" placeholder="Mobile / Contact No" value={subFormData.contact} onChange={e => setSubFormData({ ...subFormData, contact: e.target.value })} required />
                                     </div>
                                 </div>
-                                <div className="col-md-6">
+                                <div className="col-md-4">
                                     <label>Transaction Amount</label>
                                     <div className="input-group-premium">
                                         <select className="form-select-prefix" value={subFormData.currency} onChange={e => setSubFormData({ ...subFormData, currency: e.target.value })}>
@@ -1524,6 +1543,16 @@ const Festivals = () => {
                                         </select>
                                         <input type="number" className="form-control-custom" placeholder="0.00" value={subFormData.amount} onChange={e => setSubFormData({ ...subFormData, amount: e.target.value })} required />
                                     </div>
+                                </div>
+                                <div className="col-md-4">
+                                    <label>Subscription Date</label>
+                                    <input 
+                                        type="date" 
+                                        className="form-input" 
+                                        value={subFormData.date} 
+                                        onChange={e => setSubFormData({ ...subFormData, date: e.target.value })} 
+                                        required 
+                                    />
                                 </div>
                                 <div className="col-12">
                                     <label>Attendee Residence / Address</label>
