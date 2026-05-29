@@ -203,7 +203,7 @@ const Events = () => {
                 ['Full Name', sub.name || '—'],
                 ['Contact', `${sub.countryCode || ''} ${sub.contact || '—'}`],
                 ['Address', sub.address || '—'],
-                ['Tier / Pass', sub.membershipType || '—'],
+                ['Tier / Pass', sub.membershipType === 'Non-Prime' ? 'None' : (sub.membershipType || '—')],
                 ['Entity', sub.entityName || '—'],
                 ['Status', sub.paymentType || '—'],
                 ['Amount Net', `Rs. ${String(sub.amount || 0).replace(/[^0-9.]/g, '').trim()}`]
@@ -833,7 +833,7 @@ const Events = () => {
                                             <td className="border-0 py-3 fw-bold">{sub.name}</td>
                                             <td className="border-0 py-3 small italic text-muted">📞 {sub.countryCode} {sub.contact}</td>
                                             <td className="border-0 py-3 small italic text-muted">📍 {sub.address || 'N/A'}</td>
-                                            <td className="border-0 py-3"><span className={`badge ${sub.membershipType === 'Prime' ? 'bg-warning text-dark' : 'bg-light text-muted'}`}>{sub.membershipType}</span></td>
+                                            <td className="border-0 py-3"><span className={`badge ${sub.membershipType === 'Prime' ? 'bg-warning text-dark' : 'bg-light text-muted'}`}>{sub.membershipType === 'Non-Prime' ? 'None' : sub.membershipType}</span></td>
                                             <td className="border-0 py-3">
                                                 <div className="d-flex flex-column">
                                                     <span className="small">{sub.paymentType}</span>
@@ -1467,7 +1467,7 @@ const Events = () => {
                                     <label>Pass Tier</label>
                                     <select className="form-input" value={subFormData.membershipType} onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}>
                                         <option value="Prime">Prime Member</option>
-                                        <option value="Non-Prime">Non-Prime / Regular</option>
+                                        <option value="Non-Prime">None</option>
                                         <option value="VIP">VIP Access</option>
                                         <option value="Admin">Administrative</option>
                                     </select>

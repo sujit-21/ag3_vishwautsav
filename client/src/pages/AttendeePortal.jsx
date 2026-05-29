@@ -140,7 +140,8 @@ const AttendeePortal = () => {
             // Pass Status & Group Size
             doc.setFontSize(7); doc.setTextColor(220, 220, 220); doc.text('PASS STATUS', 98, 33, { align: 'right' })
             doc.setFontSize(11); doc.setTextColor(255, 255, 255)
-            doc.text(String(result.membershipType || 'General').toUpperCase(), 98, 40, { align: 'right' })
+            const displayTier = result.membershipType === 'Non-Prime' ? 'None' : (result.membershipType || 'General');
+            doc.text(String(displayTier).toUpperCase(), 98, 40, { align: 'right' })
 
             doc.setFontSize(7); doc.setTextColor(220, 220, 220); doc.text('GROUP SIZE', 98, 52, { align: 'right' })
             doc.setFontSize(11); doc.setTextColor(255, 255, 255)
@@ -177,7 +178,7 @@ const AttendeePortal = () => {
             const details = [
                 ['Full Name', result.name],
                 ['Pass ID', result.subId],
-                ['Tier', result.membershipType],
+                ['Tier', result.membershipType === 'Non-Prime' ? 'None' : result.membershipType],
                 ['Event', result.festOrEventName],
                 ['Payment Status', result.paymentType],
                 ['Amount Paid', `${result.currency || '₹'}${result.amount}`],
@@ -332,7 +333,7 @@ const AttendeePortal = () => {
                                             </div>
                                             <div className="text-end">
                                                 <span className="badge p-3 rounded-3 uppercase tiny fw-black d-block mb-1" style={{ background: '#6366f1', color: 'white' }}>
-                                                    {result.membershipType} TIER
+                                                    {result.membershipType === 'Non-Prime' ? 'None' : result.membershipType} TIER
                                                 </span>
                                                 <span className={`tiny fw-bold uppercase ${result.paymentType === 'Cash & Paid' ? 'text-success' : 'text-danger'}`}>
                                                     {result.paymentType}
