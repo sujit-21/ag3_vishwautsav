@@ -124,6 +124,7 @@ const Events = () => {
     const [search, setSearch] = useState('')
     const [subSearch, setSubSearch] = useState('')
     const [expSearch, setExpSearch] = useState('')
+    const [cardSearch, setCardSearch] = useState('')
     const [events, setEvents] = useState([])
     const [festivals, setFestivals] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -853,6 +854,17 @@ const Events = () => {
         )
     })
 
+    const filteredCards = cardsList.filter(sub => {
+        if (!sub) return false;
+        const q = cardSearch.toLowerCase()
+        return (
+            (sub.cardId || '').toLowerCase().includes(q) ||
+            (sub.name || '').toLowerCase().includes(q) ||
+            (sub.membershipType || '').toLowerCase().includes(q) ||
+            (sub.address || '').toLowerCase().includes(q)
+        )
+    })
+
     return (
         <div className="container pt-3 pb-5 text-main">
             <div className="row mb-2 align-items-end">
@@ -1307,6 +1319,16 @@ const Events = () => {
                             <p className="text-muted small">Visual representation of active member passes.</p>
                         </div>
                         <div className="d-flex align-items-center gap-3">
+                            <div className="input-group glass-card bg-secondary bg-opacity-5 p-1" style={{ maxWidth: '240px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted"><Search size={16} /></span>
+                                <input
+                                    type="text"
+                                    className="form-control bg-transparent border-0 text-main shadow-none small py-1"
+                                    placeholder="Search cards..."
+                                    value={cardSearch}
+                                    onChange={(e) => setCardSearch(e.target.value)}
+                                />
+                            </div>
                             <div className="d-flex align-items-center gap-2 px-2 py-1 bg-dark bg-opacity-20 border border-white border-opacity-5 rounded-pill shadow-sm">
                                 <div className="p-1 bg-primary bg-opacity-10 rounded-circle">
                                     <History size={12} className="text-primary" />
@@ -1346,10 +1368,10 @@ const Events = () => {
                                                 </tr>
                                             </thead>
                                             <tbody className="text-main">
-                                                {!Array.isArray(cardsList) || cardsList.length === 0 ? (
-                                                    <tr><td colSpan="5" className="text-center py-5 text-muted">No cards issued yet. Click 'New Pass Card' to begin.</td></tr>
+                                                {!Array.isArray(filteredCards) || filteredCards.length === 0 ? (
+                                                    <tr><td colSpan="5" className="text-center py-5 text-muted">{cardsList.length === 0 ? "No cards issued yet. Click 'New Pass Card' to begin." : "No matching cards found."}</td></tr>
                                                 ) : (
-                                                    cardsList.filter(s => s).map((sub) => (
+                                                    filteredCards.map((sub) => (
                                                         <tr key={sub.cardId} style={{ transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                                                             <td className="border-0 px-4 py-3"><span className="badge bg-secondary bg-opacity-10 text-muted font-monospace">{sub.cardId}</span></td>
                                                             <td className="border-0 py-3 fw-bold text-body">{sub.name}</td>
