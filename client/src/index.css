@@ -139,12 +139,14 @@ h4,
     background: var(--input-bg);
     color: var(--text-main) !important;
     border: 1px solid var(--input-border);
-    padding: 10px 14px;
-    border-radius: 10px;
+    padding: 10px 16px;
+    border-radius: 12px;
     width: 100%;
+    min-height: 48px;
     font-weight: 500;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
 }
 
 .form-input:hover {
@@ -162,11 +164,14 @@ h4,
 
 .input-group-premium {
     display: flex !important;
+    align-items: stretch;
     background: var(--input-bg);
     border: 1px solid var(--input-border);
-    border-radius: 10px;
+    border-radius: 12px;
+    min-height: 48px;
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
 }
 
 .input-group-premium:focus-within {
@@ -180,12 +185,16 @@ h4,
     border: none;
     border-right: 1px solid var(--input-border);
     color: var(--text-main);
-    padding: 0 15px;
+    padding: 0 10px 0 16px;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     cursor: pointer;
-    outline: none;
+    outline: none !important;
+    box-shadow: none !important;
     transition: background 0.2s;
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 130px;
 }
 
 .form-select-prefix:hover {
@@ -199,12 +208,16 @@ h4,
 
 .form-control-custom {
     background: transparent;
-    border: none;
+    border: none !important;
     color: var(--text-main);
-    padding: 10px 14px;
+    padding: 10px 16px;
     width: 100%;
+    flex: 1;
+    min-width: 0;
     font-weight: 500;
-    outline: none;
+    font-size: 0.95rem;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .form-control-custom::placeholder {
