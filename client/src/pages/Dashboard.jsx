@@ -398,80 +398,82 @@ const Dashboard = () => {
                                         </h4>
                                     </div>
                                     
-                                    <div className="row g-3 mb-4">
+                                    <div className="row g-2 mb-3">
                                         {org.festivals.map(fest => (
-                                            <div key={fest._id} className="col-md-4">
+                                            <div key={fest._id} className="col-12">
                                                 <div 
-                                                    className="p-3 dashboard-item-card border-start border-primary border-3 rounded-3 h-100 cursor-pointer"
+                                                    className="py-2 px-3 dashboard-item-card border-start border-primary border-3 rounded-3 cursor-pointer d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 bg-white shadow-sm transition-all hover-glow"
                                                     onClick={() => setSelectedItem({ ...fest, type: 'festival' })}
                                                     role="button"
                                                 >
-                                                    <div className="d-flex justify-content-between align-items-start mb-2">
-                                                        <div className="badge bg-primary text-white px-2 py-1 tiny fw-normal mb-0 shadow-sm">FESTIVAL</div>
-                                                        <Info size={14} className="text-muted" />
+                                                    <div className="d-flex align-items-center gap-2">
+                                                        <div className="badge bg-primary text-white px-2 py-1 tiny fw-bold shadow-sm" style={{ width: '75px', textAlign: 'center', fontSize: '0.65rem' }}>FESTIVAL</div>
+                                                        <h6 className="fw-extrabold mb-0 text-main fs-6">{fest.title}</h6>
                                                     </div>
-                                                    <h6 className="fw-bold mb-2">{fest.title}</h6>
                                                     
-                                                    {/* Attendee Data Year Base Feature - Cluster by Name */}
-                                                    {(() => {
-                                                        const base = getBaseName(fest.title)
-                                                        const history = attendeeAttendance[base]
-                                                        if (history) {
-                                                            return (
-                                                                <div className="mt-2 pt-2 border-top border-secondary border-opacity-10">
-                                                                    <div className="d-flex align-items-center gap-1 text-primary tiny fw-bold mb-1">
-                                                                        <Users size={10} /> Attendee History
+                                                    <div className="d-flex align-items-center gap-2">
+                                                        {(() => {
+                                                            const base = getBaseName(fest.title)
+                                                            const history = attendeeAttendance[base]
+                                                            if (history) {
+                                                                return (
+                                                                    <div className="d-flex align-items-center gap-2">
+                                                                        <span className="text-primary tiny fw-bold d-none d-md-block"><Users size={12} className="me-1"/>History:</span>
+                                                                        <div className="d-flex flex-wrap gap-1">
+                                                                            {Object.entries(history).sort(([a], [b]) => b - a).map(([yr, count]) => (
+                                                                                <div key={yr} className="bg-primary bg-opacity-10 text-primary px-2 py-0 rounded-2 tiny font-monospace fw-bold" style={{ fontSize: '0.65rem' }}>
+                                                                                    {yr}: <span className="text-dark">{count}</span>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
                                                                     </div>
-                                                                    <div className="d-flex flex-wrap gap-1">
-                                                                        {Object.entries(history).sort(([a], [b]) => b - a).map(([yr, count]) => (
-                                                                            <div key={yr} className="bg-primary bg-opacity-10 text-primary px-2 py-0.5 rounded-pill tiny font-monospace">
-                                                                                {yr}: <strong>{count}</strong>
-                                                                            </div>
-                                                                        ))}
-                                                                    </div>
-                                                                </div>
-                                                            )
-                                                        }
-                                                        return null
-                                                    })()}
+                                                                )
+                                                            }
+                                                            return null
+                                                        })()}
+                                                        <div className="btn btn-sm btn-light rounded-circle p-1 ms-1 shadow-sm d-none d-md-flex">
+                                                            <Info size={14} className="text-primary" />
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
                                         {org.events.map(ev => (
-                                            <div key={ev._id} className="col-md-4">
+                                            <div key={ev._id} className="col-12">
                                                 <div 
-                                                    className="p-3 dashboard-item-card border-start border-warning border-3 rounded-3 h-100 cursor-pointer"
+                                                    className="py-2 px-3 dashboard-item-card border-start border-warning border-3 rounded-3 cursor-pointer d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 bg-white shadow-sm transition-all hover-glow"
                                                     onClick={() => setSelectedItem({ ...ev, type: 'event' })}
                                                     role="button"
                                                 >
-                                                    <div className="d-flex justify-content-between align-items-start mb-2">
-                                                        <div className="badge bg-warning text-dark px-2 py-1 tiny fw-normal mb-0 shadow-sm">EVENT</div>
-                                                        <Info size={14} className="text-muted" />
+                                                    <div className="d-flex align-items-center gap-2">
+                                                        <div className="badge bg-warning text-dark px-2 py-1 tiny fw-bold shadow-sm" style={{ width: '75px', textAlign: 'center', fontSize: '0.65rem' }}>EVENT</div>
+                                                        <h6 className="fw-extrabold mb-0 text-main fs-6">{ev.title}</h6>
                                                     </div>
-                                                    <h6 className="fw-bold mb-2">{ev.title}</h6>
                                                     
-                                                    {/* Attendee Data Year Base Feature - Cluster by Name */}
-                                                    {(() => {
-                                                        const base = getBaseName(ev.title)
-                                                        const history = attendeeAttendance[base]
-                                                        if (history) {
-                                                            return (
-                                                                <div className="mt-2 pt-2 border-top border-secondary border-opacity-10">
-                                                                    <div className="d-flex align-items-center gap-1 text-warning tiny fw-bold mb-1">
-                                                                        <Users size={10} /> Attendee History
+                                                    <div className="d-flex align-items-center gap-2">
+                                                        {(() => {
+                                                            const base = getBaseName(ev.title)
+                                                            const history = attendeeAttendance[base]
+                                                            if (history) {
+                                                                return (
+                                                                    <div className="d-flex align-items-center gap-2">
+                                                                        <span className="text-warning tiny fw-bold d-none d-md-block"><Users size={12} className="me-1"/>History:</span>
+                                                                        <div className="d-flex flex-wrap gap-1">
+                                                                            {Object.entries(history).sort(([a], [b]) => b - a).map(([yr, count]) => (
+                                                                                <div key={yr} className="bg-warning bg-opacity-10 text-dark px-2 py-0 rounded-2 tiny font-monospace fw-bold" style={{ fontSize: '0.65rem' }}>
+                                                                                    {yr}: <span className="text-dark">{count}</span>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
                                                                     </div>
-                                                                    <div className="d-flex flex-wrap gap-1">
-                                                                        {Object.entries(history).sort(([a], [b]) => b - a).map(([yr, count]) => (
-                                                                            <div key={yr} className="bg-warning bg-opacity-10 text-dark px-2 py-0.5 rounded-pill tiny font-monospace">
-                                                                                {yr}: <strong>{count}</strong>
-                                                                            </div>
-                                                                        ))}
-                                                                    </div>
-                                                                </div>
-                                                            )
-                                                        }
-                                                        return null
-                                                    })()}
+                                                                )
+                                                            }
+                                                            return null
+                                                        })()}
+                                                        <div className="btn btn-sm btn-light rounded-circle p-1 ms-1 shadow-sm d-none d-md-flex">
+                                                            <Info size={14} className="text-warning" />
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}

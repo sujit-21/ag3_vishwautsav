@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, History, Eye } from 'lucide-react'
+import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, History, Eye, Phone } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import VIPCard from '../../components/VIPCard'
@@ -546,23 +546,23 @@ const Events = () => {
 
             autoTable(doc, {
                 startY: 45,
-                head: [['Pass ID', 'Name', 'Contact', 'Address', 'Amount', 'Payment', 'Tier', 'Date']],
+                head: [['Pass ID', 'Date', 'Name', 'Contact', 'Address', 'Amount', 'Payment', 'Tier']],
                 body: subscriptionsList.map((s, i) => [
                     s.subId || s.cardId,
+                    new Date(s.date).toLocaleDateString(),
                     s.name,
                     `${s.countryCode || ''} ${s.contact || ''}`,
                     s.address || '—',
                     `Rs. ${String(s.amount || 0).replace(/[^0-9.]/g, '')}`,
                     s.paymentType === 'Online' && s.onlineParticulars ? `Digital (Online Bank) (${s.onlineParticulars})` : getPaymentDisplayName(s.paymentType),
-                    getTierDisplayName(s.membershipType),
-                    new Date(s.date).toLocaleDateString()
+                    getTierDisplayName(s.membershipType)
                 ]),
                 theme: 'striped',
                 headStyles: { fillColor: [63, 81, 181] },
                 styles: { fontSize: 8 },
                 didParseCell: function(data) {
                     if (data.row.section === 'body') {
-                        if (data.column.index === 5) {
+                        if (data.column.index === 6) {
                             const val = data.cell.text[0];
                             if (val.startsWith('Confirmed') || val.startsWith('Cash & Paid')) {
                                 data.cell.styles.fillColor = [220, 252, 231];
@@ -582,7 +582,7 @@ const Events = () => {
                                 data.cell.styles.fontStyle = 'bold';
                             }
                         }
-                        if (data.column.index === 6) {
+                        if (data.column.index === 7) {
                             const val = data.cell.text[0];
                             if (val === 'Administrative') {
                                 data.cell.styles.fillColor = [220, 252, 231];
@@ -867,36 +867,52 @@ const Events = () => {
 
     return (
         <div className="container pt-3 pb-5 text-main">
-            <div className="row mb-2 align-items-end">
-                <div className="col-lg-7">
-                    <h2 className="fw-extrabold mb-0">Explore <span className="gradient-text">Events</span></h2>
-                    <p className="text-muted fw-bold tiny mb-0">Explore Events and manage them.</p>
-                </div>
-                <div className="col-lg-5 text-lg-end">
-                    <div className="d-inline-flex bg-secondary bg-opacity-10 p-1 rounded-3 gap-1 shadow-sm border border-secondary border-opacity-10">
-                        {['events', 'subscriptions', 'expenses', 'card', 'balanceSheet'].map(tab => {
-                            const isDisabled = tab !== 'events' && !activeEvent
-                            const labels = {
-                                events: 'List',
-                                subscriptions: 'Attendees',
-                                expenses: 'Expenses',
-                                card: 'Cards',
-                                balanceSheet: 'Audit'
-                            }
-                            return (
-                                <button
-                                    key={tab}
-                                    onClick={() => !isDisabled && setActiveTab(tab)}
-                                    className={`btn btn-sm px-3 py-1.5 rounded-2 text-capitalize fw-bold transition-all ${activeTab === tab ? 'btn-primary text-white shadow-sm' : 'text-muted border-0'} ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
-                                    style={{ fontSize: '0.75rem' }}
-                                    disabled={isDisabled}
-                                    title={isDisabled ? "Select an event first" : ""}
-                                >
-                                    {labels[tab] || tab}
+            <div className="d-flex flex-column flex-xl-row align-items-xl-center justify-content-start mb-4 gap-3">
+
+                <div className="d-inline-flex flex-wrap align-items-center bg-secondary bg-opacity-10 p-1 rounded-3 gap-1 shadow-sm border border-secondary border-opacity-10">
+                    {activeTab === 'events' && (
+                        <div className="d-flex align-items-center gap-2 me-2">
+                            <div className="input-group bg-white rounded-2 overflow-hidden shadow-sm flex-nowrap" style={{ width: '220px', height: '34px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-2 py-0 d-flex align-items-center"><Search size={14} /></span>
+                                <input
+                                    type="text"
+                                    className="form-control bg-transparent border-0 text-main shadow-none p-0 pe-2 h-100"
+                                    placeholder="Search by event title, location or club..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    style={{ fontSize: '0.8rem' }}
+                                />
+                            </div>
+                            {user?.role === 'admin' && (
+                                <button onClick={() => openModal()} className="btn btn-primary d-flex align-items-center justify-content-center px-3 rounded-2 fw-bold text-white shadow-sm transition-all hover-glow" style={{ fontSize: '0.75rem', height: '34px', backgroundColor: '#5c6cff', borderColor: '#5c6cff' }}>
+                                    <Plus size={14} className="me-1" /> CREATE
                                 </button>
-                            )
-                        })}
-                    </div>
+                            )}
+                        </div>
+                    )}
+
+                    {['events', 'subscriptions', 'expenses', 'card', 'balanceSheet'].map(tab => {
+                        const isDisabled = tab !== 'events' && !activeEvent
+                        const labels = {
+                            events: 'List',
+                            subscriptions: 'Attendees',
+                            expenses: 'Expenses',
+                            card: 'Cards',
+                            balanceSheet: 'Audit'
+                        }
+                        return (
+                            <button
+                                key={tab}
+                                onClick={() => !isDisabled && setActiveTab(tab)}
+                                className={`btn btn-sm px-3 py-1.5 rounded-2 text-capitalize fw-bold transition-all ${activeTab === tab ? 'btn-primary text-white shadow-sm' : 'text-muted border-0'} ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                style={{ fontSize: '0.75rem', height: '34px' }}
+                                disabled={isDisabled}
+                                title={isDisabled ? "Select an event first" : ""}
+                            >
+                                {labels[tab] || tab}
+                            </button>
+                        )
+                    })}
                 </div>
             </div>
 
@@ -906,104 +922,126 @@ const Events = () => {
 
             {activeTab === 'events' && (
                 <>
-                    <div className="row mb-4 align-items-center">
-                        <div className="col-lg-6">
-                            <div className="input-group glass-card bg-secondary bg-opacity-5 p-1 flex-grow-1">
-                                <span className="input-group-text bg-transparent border-0 text-muted"><Search size={18} /></span>
-                                <input
-                                    type="text"
-                                    className="form-control bg-transparent border-0 text-main shadow-none"
-                                    placeholder="Search by event title, location or club..."
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <div className="col-lg-6 text-end">
-                            {user?.role === 'admin' && (
-                                <button onClick={() => openModal()} className="btn btn-premium d-flex align-items-center gap-2 py-2 px-4 ms-auto small">
-                                    <Plus size={20} /> Add Event
-                                </button>
-                            )}
-                        </div>
-                    </div>
 
-                    <div className="row g-4">
+                    <div className="d-flex flex-column gap-2">
                         {events.filter(e => 
                             e.title.toLowerCase().includes(search.toLowerCase()) || 
                             (e.location && e.location.toLowerCase().includes(search.toLowerCase())) ||
                             (e.clubOrOrg && e.clubOrOrg.toLowerCase().includes(search.toLowerCase()))
-                        ).map((evt) => (
-                            <motion.div key={evt._id} layout initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="col-lg-3 col-md-6 mb-4">
-                                <div className="glass-card h-100 p-3 position-relative border border-secondary border-opacity-10 shadow-sm">
-                                    {user?.role === 'admin' && (
-                                        <div className="position-absolute top-0 end-0 m-3 d-flex gap-2">
-                                            <button onClick={() => openModal(evt)} className="btn btn-sm btn-white border-0 shadow-sm rounded-circle p-2 text-primary"><Edit3 size={16} /></button>
-                                            <button onClick={() => handleDelete(evt._id)} className="btn btn-sm btn-white border-0 shadow-sm rounded-circle p-2 text-danger"><Trash2 size={16} /></button>
+                        ).map((evt) => {
+                            const isActive = activeEvent?._id === evt._id;
+                            return (
+                                <motion.div
+                                    key={evt._id}
+                                    layout
+                                    initial={{ opacity: 0, y: 5 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    whileHover={{ y: -1, scale: 1.002 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="w-100"
+                                >
+                                    <div 
+                                        className={`bg-white shadow-sm d-flex flex-column flex-lg-row align-items-lg-center justify-content-between py-2 px-3 transition-all ${isActive ? 'border-primary border-2' : 'border border-secondary border-opacity-10'}`}
+                                        style={{ borderRadius: '8px', cursor: 'default' }}
+                                    >
+                                        {/* Left Side: Info */}
+                                        <div className="d-flex flex-column flex-lg-row align-items-lg-center gap-3 gap-lg-4 mb-2 mb-lg-0">
+                                            <div className="d-flex flex-wrap align-items-center gap-2">
+                                                <div className="badge bg-secondary bg-opacity-10 px-2 py-1 rounded-pill fw-bold" style={{ color: 'var(--accent-1)', fontSize: '0.7rem' }}>
+                                                    {evt.category}
+                                                </div>
+                                                <div className="fw-extrabold mb-0 text-dark m-0" style={{ letterSpacing: '-0.3px', fontSize: '0.95rem' }}>{evt.title}</div>
+                                            </div>
+
+                                            <div className="d-flex flex-wrap align-items-center gap-3 text-muted" style={{ fontSize: '0.8rem' }}>
+                                                <div className="d-flex align-items-center gap-1">
+                                                    <Calendar size={14} className="text-info opacity-75" />
+                                                    <span className="fw-medium text-secondary">{new Date(evt.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                                </div>
+                                                <div className="d-flex align-items-center gap-1">
+                                                    <Clock size={14} className="text-warning opacity-75" />
+                                                    <span className="fw-medium text-secondary">{evt.startTime} - {evt.endTime}</span>
+                                                </div>
+                                                <div className="d-flex align-items-center gap-1">
+                                                    <MapPin size={14} className="text-success opacity-75" />
+                                                    <span className="fw-medium text-secondary">{evt.location}</span>
+                                                </div>
+                                                {evt.festival && (
+                                                    <div className="d-flex align-items-center gap-1">
+                                                        <Tag size={12} className="text-primary" />
+                                                        <strong className="text-primary fw-bold" style={{ fontSize: '0.75rem' }}>{evt.festival.title}</strong>
+                                                    </div>
+                                                )}
+                                                <div className="d-flex align-items-center">
+                                                    {isActive ? (
+                                                        <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-0 rounded-pill"><CheckCircle size={10} className="me-1 d-inline"/> Active</span>
+                                                    ) : (
+                                                        <span className="badge bg-secondary bg-opacity-10 text-muted border border-secondary border-opacity-25 px-2 py-0 rounded-pill">Inactive</span>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
-                                    )}
-                                    <div className="badge bg-secondary bg-opacity-25 text-accent-1 mb-2 px-2 py-1 tiny fw-bold" style={{ color: 'var(--accent-1)' }}>{evt.category}</div>
-                                    <h5 className="fw-extrabold mb-2">{evt.title}</h5>
-                                    <div className="d-flex flex-column gap-1 text-muted tiny mb-3">
-                                        <div className="d-flex align-items-center gap-2 fw-bold"><Calendar size={14} className="text-info" /> {new Date(evt.date).toLocaleDateString()}</div>
-                                        <div className="d-flex align-items-center gap-2 fw-bold"><Clock size={14} className="text-warning" /> {evt.startTime} - {evt.endTime}</div>
-                                        <div className="d-flex align-items-center gap-2 fw-bold"><MapPin size={14} className="text-success" /> {evt.location}</div>
-                                    </div>
-                                    {evt.festival && (
-                                        <div className="p-2 bg-secondary bg-opacity-5 rounded-3 mb-4 small d-flex align-items-center gap-2">
-                                            <Tag size={12} className="text-primary" /> Festival: <strong>{evt.festival.title}</strong>
-                                        </div>
-                                    )}
-                                    <div className="d-flex justify-content-between align-items-center pt-3 border-top border-secondary border-opacity-10">
-                                        <div className="d-flex gap-2 align-items-center flex-grow-1">
+
+                                        {/* Right Side: Actions */}
+                                        <div className="d-flex align-items-center gap-2 ms-lg-auto border-top border-lg-0 pt-2 pt-lg-0 border-secondary border-opacity-10 mt-2 mt-lg-0">
+                                            <span className="fw-bold text-dark me-2" style={{ fontSize: '0.9rem' }}>{evt.currency || '₹'}{evt.price}</span>
                                             {user?.role === 'admin' ? (
-                                                activeEvent?._id === evt._id ? (
-                                                    <button onClick={() => setActiveEvent(null)} className="btn btn-success d-flex align-items-center justify-content-center gap-2 flex-grow-1">
-                                                        <CheckCircle size={18} /> Active
+                                                isActive ? (
+                                                    <button onClick={() => setActiveEvent(null)} className="btn btn-success btn-sm d-flex align-items-center justify-content-center gap-1 px-3 py-1 shadow-sm rounded-pill fw-bold transition-all" style={{ fontSize: '0.75rem' }}>
+                                                        <CheckCircle size={14} /> Selected
                                                     </button>
                                                 ) : (
                                                     <button onClick={() => {
                                                         setActiveEvent(evt)
                                                         setActiveTab('subscriptions')
-                                                    }} className="btn btn-premium flex-grow-1 py-2 small">Select & Manage</button>
+                                                    }} className="btn btn-primary btn-sm d-flex align-items-center justify-content-center gap-1 px-3 py-1 shadow-sm rounded-pill fw-bold transition-all hover-glow" style={{ fontSize: '0.75rem' }}>
+                                                        Select & Manage
+                                                    </button>
                                                 )
                                             ) : (
-                                                <div className="btn btn-outline-secondary flex-grow-1 py-2 small cursor-default opacity-50">View Only</div>
+                                                <div className="btn btn-light btn-sm px-3 py-1 rounded-pill fw-bold text-muted cursor-default border" style={{ fontSize: '0.75rem' }}>View Only</div>
                                             )}
-                                            <span className="fw-bold fs-5 ms-auto">{evt.currency || '₹'}{evt.price}</span>
+                                            
+                                            {user?.role === 'admin' && (
+                                                <div className="d-flex align-items-center gap-1 ms-1 ps-2 border-start border-secondary border-opacity-25">
+                                                    <button onClick={() => openModal(evt)} title="Edit Event" className="btn btn-light btn-sm text-secondary p-1 rounded hover-bg-secondary hover-text-white transition-all">
+                                                        <Edit3 size={14} />
+                                                    </button>
+                                                    <button onClick={() => handleDelete(evt._id)} className="btn btn-light btn-sm text-danger p-1 rounded hover-bg-danger hover-text-white transition-all" title="Delete Event">
+                                                        <Trash2 size={14} />
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
-                                        <button onClick={() => handleDelete(evt._id)} className="btn btn-outline-danger border-0 p-2 ms-2">
-                                            <Trash2 size={18} />
-                                        </button>
                                     </div>
-                                </div>
-                            </motion.div>
-                        ))}
+                                </motion.div>
+                            );
+                        })}
                     </div>
                 </>
             )}
 
             {activeTab === 'subscriptions' && (
-                <div className="glass-card p-4 shadow-sm">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
+                <div className="glass-card py-3 px-4 shadow-sm">
+                    <div className="d-flex justify-content-between align-items-center mb-2">
                         <div>
-                            <h3 className="fw-bold mb-0">Event & Workshop Passes</h3>
-                            <p className="text-muted small">Manage attendee registrations and specialized entries.</p>
+                            <h5 className="fw-extrabold mb-0 text-main">Event & Workshop Passes</h5>
+                            <p className="text-muted tiny mb-0">Manage attendee registrations and specialized entries.</p>
                         </div>
                         <div className="d-flex align-items-center gap-2">
                             {/* Search Attendees */}
-                            <div className="input-group glass-card bg-secondary bg-opacity-5 p-1" style={{ maxWidth: '280px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted"><Search size={16} /></span>
+                            <div className="input-group glass-card bg-secondary bg-opacity-5 p-0 overflow-hidden" style={{ maxWidth: '240px', height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-2 py-0 d-flex align-items-center"><Search size={14} /></span>
                                 <input
                                     type="text"
-                                    className="form-control bg-transparent border-0 text-main shadow-none small"
+                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-2 h-100"
                                     placeholder="Search attendees..."
                                     value={subSearch}
                                     onChange={(e) => setSubSearch(e.target.value)}
                                 />
                             </div>
-                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary d-flex align-items-center gap-2">
-                                <FileDown size={18} /> All Attendee Details PDF
+                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 px-2 text-nowrap" style={{ height: '32px' }}>
+                                <FileDown size={14} /> <span className="extra-tiny fw-bold uppercase">Attendee PDF</span>
                             </button>
                             {!isSubAdding && (
                                 <button onClick={() => {
@@ -1015,8 +1053,8 @@ const Events = () => {
                                         festOrEventName: activeEvent?.title || '',
                                         entityName: activeEvent?.entityName || ''
                                     })
-                                }} className="btn btn-premium px-4 py-2 small">
-                                    <Plus size={18} /> Add New
+                                }} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2 text-nowrap" style={{ height: '32px', padding: '0 12px' }}>
+                                    <Plus size={14} /> <span className="extra-tiny fw-bold uppercase">Add New</span>
                                 </button>
                             )}
                         </div>
@@ -1025,17 +1063,17 @@ const Events = () => {
                     {/* Component modal removed */}
 
                     <div className="table-responsive">
-                        <table className="table">
+                        <table className="table table-hover align-middle mb-0">
                             <thead>
                                 <tr className="small text-muted border-bottom">
-                                    <th className="border-0">Pass ID</th>
-                                    <th className="border-0">Name</th>
-                                    <th className="border-0">Contact</th>
-                                    <th className="border-0">Address</th>
-                                    <th className="border-0">Tier</th>
-                                    <th className="border-0">Payment</th>
-                                    <th className="border-0 text-end">Amount</th>
-                                    <th className="border-0 text-end">Action</th>
+                                    <th className="border-0 fw-semibold py-2">Pass ID</th>
+                                    <th className="border-0 fw-semibold py-2">Name</th>
+                                    <th className="border-0 fw-semibold py-2">Contact</th>
+                                    <th className="border-0 fw-semibold py-2">Address</th>
+                                    <th className="border-0 fw-semibold py-2">Tier</th>
+                                    <th className="border-0 fw-semibold py-2">Payment</th>
+                                    <th className="border-0 fw-semibold py-2 text-end">Amount</th>
+                                    <th className="border-0 fw-semibold py-2 text-end">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="text-main">
@@ -1044,65 +1082,61 @@ const Events = () => {
                                 ) : (
                                     filteredSubs.map((sub) => (
                                         <tr key={sub.subId}>
-                                            <td className="border-0 py-3">
-                                                <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace">{sub.subId}</span>
-                                                {sub.date && (
-                                                    <div className="text-muted extra-tiny mt-1 opacity-75">
-                                                        📅 {new Date(sub.date).toLocaleDateString()}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td className="border-0 py-3 fw-bold">{sub.name}</td>
-                                            <td className="border-0 py-3 small italic text-muted">📞 {sub.countryCode} {sub.contact}</td>
-                                            <td className="border-0 py-3 small italic text-muted">📍 {sub.address || 'N/A'}</td>
-                                            <td className="border-0 py-3">
-                                                <span className="badge border" style={getTierBadgeStyle(sub.membershipType)}>
-                                                    {getTierDisplayName(sub.membershipType)}
-                                                </span>
-                                            </td>
-                                            <td className="border-0 py-3">
-                                                <div className="d-flex flex-column">
-                                                    <span className="badge border align-self-start mb-1" style={getPaymentBadgeStyle(sub.paymentType)}>
-                                                        {getPaymentDisplayName(sub.paymentType)}
-                                                    </span>
-                                                    {sub.referenceName && <span className="text-muted smaller">Ref: {sub.referenceName}</span>}
-                                                    {sub.paymentType === 'Online' && (
-                                                        <>
-                                                            {sub.onlineParticulars && <span className="text-info smaller mt-1 opacity-75">{sub.onlineParticulars}</span>}
-                                                            {sub.onlineReference && <span className="text-info smaller font-monospace opacity-75">#{sub.onlineReference}</span>}
-                                                        </>
+                                            <td className="border-0 py-2">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <span className="badge bg-secondary bg-opacity-10 text-dark font-monospace px-2 py-1">{sub.subId}</span>
+                                                    {sub.date && (
+                                                        <span className="text-muted extra-tiny"><Calendar size={12} className="me-1 opacity-75" />{new Date(sub.date).toLocaleDateString()}</span>
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="border-0 py-3 text-end">
-                                                <span className="badge bg-success bg-opacity-100 text-white px-3 py-2 shadow-sm fs-6">
+                                            <td className="border-0 py-2 fw-bold small">{sub.name}</td>
+                                            <td className="border-0 py-2 small text-muted text-nowrap"><Phone size={12} className="me-1 opacity-75" />{sub.countryCode} {sub.contact}</td>
+                                            <td className="border-0 py-2 small text-muted text-nowrap text-truncate" style={{ maxWidth: '150px' }}><MapPin size={12} className="me-1 opacity-75" />{sub.address || 'N/A'}</td>
+                                            <td className="border-0 py-2">
+                                                <span className="badge bg-light text-dark border px-2 py-1 fw-medium" style={getTierBadgeStyle(sub.membershipType)}>
+                                                    {getTierDisplayName(sub.membershipType)}
+                                                </span>
+                                            </td>
+                                            <td className="border-0 py-2">
+                                                <div className="d-flex align-items-center gap-1 flex-wrap">
+                                                    <span className="badge px-2 py-1 fw-medium" style={getPaymentBadgeStyle(sub.paymentType)}>
+                                                        {getPaymentDisplayName(sub.paymentType)}
+                                                    </span>
+                                                    {sub.referenceName && <span className="text-muted extra-tiny">Ref: {sub.referenceName}</span>}
+                                                </div>
+                                            </td>
+                                            <td className="border-0 py-2 text-end">
+                                                <span className="badge bg-success text-white px-2 py-1 fw-bold shadow-sm" style={{ fontSize: '0.8rem' }}>
                                                     {sub.currency || '₹'}{String(sub.amount || 0).replace(/[^0-9.]/g, '')}
                                                 </span>
                                             </td>
-                                            <td className="border-0 py-3 text-end">
-                                                <button onClick={() => {
-                                                    const message = `Hello ${sub.name}, your event pass ID ${sub.subId} is confirmed.`
-                                                    window.open(`https://wa.me/${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
-                                                }} className="btn btn-sm text-success p-1 me-2" title="WhatsApp"><MessageCircle size={16} /></button>
-                                                <button onClick={() => downloadPDF(sub)} className="btn btn-sm text-info p-1 me-2" title="Download PDF"><FileDown size={16} /></button>
-                                                <button onClick={() => {
-                                                    setSubFormData({
-                                                        ...sub,
-                                                        date: sub.date ? new Date(sub.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
-                                                    })
-                                                    setEditingSubId(sub.subId)
-                                                    setIsSubAdding(true)
-                                                }} className="btn btn-sm text-primary p-1 me-2"><Edit3 size={16} /></button>
-                                                <button onClick={async () => {
-                                                    if (window.confirm('Delete registration?')) {
-                                                        try {
-                                                            await axios.delete(`/api/subscriptions/${sub.subId}`)
-                                                            fetchSubscriptions()
-                                                        } catch (err) {
-                                                            alert('Error deleting')
+                                            <td className="border-0 py-2 text-end">
+                                                <div className="d-flex justify-content-end gap-1">
+                                                    <button onClick={() => {
+                                                        const message = `Hello ${sub.name}, your event pass ID ${sub.subId} is confirmed.`
+                                                        window.open(`https://wa.me/${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
+                                                    }} className="btn btn-sm btn-light text-success p-1 rounded-2 shadow-sm border" title="WhatsApp"><MessageCircle size={14} /></button>
+                                                    <button onClick={() => downloadPDF(sub)} className="btn btn-sm btn-light text-info p-1 rounded-2 shadow-sm border" title="Download PDF"><FileDown size={14} /></button>
+                                                    <button onClick={() => {
+                                                        setSubFormData({
+                                                            ...sub,
+                                                            date: sub.date ? new Date(sub.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                                                        })
+                                                        setEditingSubId(sub.subId)
+                                                        setIsSubAdding(true)
+                                                    }} className="btn btn-sm btn-light text-primary p-1 rounded-2 shadow-sm border"><Edit3 size={14} /></button>
+                                                    <button onClick={async () => {
+                                                        if (window.confirm('Delete registration?')) {
+                                                            try {
+                                                                await axios.delete(`/api/subscriptions/${sub.subId}`)
+                                                                fetchSubscriptions()
+                                                            } catch (err) {
+                                                                alert('Error deleting')
+                                                            }
                                                         }
-                                                    }
-                                                }} className="btn btn-sm text-danger p-1"><Trash2 size={16} /></button>
+                                                    }} className="btn btn-sm btn-light text-danger p-1 rounded-2 shadow-sm border"><Trash2 size={14} /></button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
