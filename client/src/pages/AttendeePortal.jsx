@@ -12,10 +12,22 @@ import regularBg from '../images/regular.jpg'
 import vipBg from '../images/vip elite.jpg'
 
 const getTierBadgeStyle = (tier) => {
-    if (tier === 'Prime') return { backgroundColor: '#fef3c7', color: '#b45309', borderColor: '#fde68a' };
-    if (tier === 'VIP') return { backgroundColor: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd' };
-    if (tier === 'Admin') return { backgroundColor: '#dcfce7', color: '#166534', borderColor: '#bbf7d0' };
-    return { backgroundColor: '#f1f5f9', color: '#475569', borderColor: '#e2e8f0' };
+    const baseStyle = {
+        fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontSize: '12px',
+        fontWeight: '600',
+        padding: '3px 10px',
+        borderRadius: '9999px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        letterSpacing: '0.01em',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+    };
+    if (tier === 'Prime') return { ...baseStyle, backgroundColor: '#EEF2FF', color: '#4338CA', border: '1px solid #E0E7FF' };
+    if (tier === 'VIP') return { ...baseStyle, backgroundColor: '#1F2937', color: '#F9FAFB', border: '1px solid #374151' };
+    if (tier === 'Admin') return { ...baseStyle, backgroundColor: '#111827', color: '#34D399', border: '1px solid #374151' };
+    return { ...baseStyle, backgroundColor: '#F3F4F6', color: '#4B5563', border: '1px solid #E5E7EB' };
 };
 
 const getTierDisplayName = (tier) => {
@@ -396,7 +408,7 @@ const AttendeePortal = () => {
                                                 <p className="tiny text-muted uppercase fw-bold ls-1 mb-0">Record Details & Status</p>
                                             </div>
                                             <div className="text-end d-flex flex-column align-items-end gap-1">
-                                                <span className="badge px-3 py-2 rounded-3 uppercase tiny fw-black d-inline-block border" style={getTierBadgeStyle(result.membershipType)}>
+                                                <span style={{ ...getTierBadgeStyle(result.membershipType), textTransform: 'uppercase' }}>
                                                     {getTierDisplayName(result.membershipType)} TIER
                                                 </span>
                                                 <span className="badge px-3 py-2 rounded-3 uppercase tiny fw-black d-inline-block border" style={getPaymentBadgeStyle(result.paymentType)}>

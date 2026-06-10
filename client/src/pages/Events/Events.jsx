@@ -37,10 +37,22 @@ const eventExpenseTypes = ['Venue Hire', 'Equipment', 'Staffing', 'Permits', 'Se
 const countries = ['India', 'USA', 'UK', 'UAE', 'Australia', 'Japan', 'France', 'Germany'];
 
 const getTierBadgeStyle = (tier) => {
-    if (tier === 'Prime') return { backgroundColor: '#fef3c7', color: '#b45309', borderColor: '#fde68a' };
-    if (tier === 'VIP') return { backgroundColor: '#e0f2fe', color: '#0369a1', borderColor: '#bae6fd' };
-    if (tier === 'Admin') return { backgroundColor: '#dcfce7', color: '#166534', borderColor: '#bbf7d0' };
-    return { backgroundColor: '#f1f5f9', color: '#475569', borderColor: '#e2e8f0' };
+    const baseStyle = {
+        fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontSize: '12px',
+        fontWeight: '600',
+        padding: '3px 10px',
+        borderRadius: '9999px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        letterSpacing: '0.01em',
+        boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
+    };
+    if (tier === 'Prime') return { ...baseStyle, backgroundColor: '#EEF2FF', color: '#4338CA', border: '1px solid #E0E7FF' };
+    if (tier === 'VIP') return { ...baseStyle, backgroundColor: '#1F2937', color: '#F9FAFB', border: '1px solid #374151' };
+    if (tier === 'Admin') return { ...baseStyle, backgroundColor: '#111827', color: '#34D399', border: '1px solid #374151' };
+    return { ...baseStyle, backgroundColor: '#F3F4F6', color: '#4B5563', border: '1px solid #E5E7EB' };
 };
 
 const getTierDisplayName = (tier) => {
@@ -1025,8 +1037,8 @@ const Events = () => {
                 <div className="glass-card py-3 px-4 shadow-sm">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         <div>
-                            <h5 className="fw-extrabold mb-0 text-main">Event & Workshop Passes</h5>
-                            <p className="text-muted tiny mb-0">Manage attendee registrations and specialized entries.</p>
+                            <h5 className="fw-extrabold mb-0 text-main">Events</h5>
+                            <p className="text-muted tiny mb-0">Attendees registrations and entries.</p>
                         </div>
                         <div className="d-flex align-items-center gap-2">
                             {/* Search Attendees */}
@@ -1094,7 +1106,7 @@ const Events = () => {
                                             <td className="border-0 py-2 small text-muted text-nowrap"><Phone size={12} className="me-1 opacity-75" />{sub.countryCode} {sub.contact}</td>
                                             <td className="border-0 py-2 small text-muted text-nowrap text-truncate" style={{ maxWidth: '150px' }}><MapPin size={12} className="me-1 opacity-75" />{sub.address || 'N/A'}</td>
                                             <td className="border-0 py-2">
-                                                <span className="badge bg-light text-dark border px-2 py-1 fw-medium" style={getTierBadgeStyle(sub.membershipType)}>
+                                                <span style={getTierBadgeStyle(sub.membershipType)}>
                                                     {getTierDisplayName(sub.membershipType)}
                                                 </span>
                                             </td>
