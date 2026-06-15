@@ -1764,16 +1764,16 @@ const Festivals = () => {
 
             <AnimatePresence>
                 {isSubAdding && (
-                    <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', zIndex: 2000 }}>
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="modal-content-premium modal-festival w-100 mx-3 shadow-2xl" style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto' }}>
-                            <div className="d-flex justify-content-between align-items-center mb-3">
+                    <div className="modal-overlay modal-overlay-light position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 2000 }}>
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="modal-content-light w-100 mx-3" style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto' }}>
+                            <div className="d-flex justify-content-between align-items-start mb-4">
                                 <div>
-                                    <h2 className="fw-extrabold mb-1 fs-3 gradient-text">
-                                        {editingSubId ? 'Modify' : 'New'} Subscription
+                                    <h2 className="fw-extrabold mb-2 title-gradient" style={{ fontSize: '1.75rem' }}>
+                                        {editingSubId ? 'Modify Subscription' : 'New Subscription'}
                                     </h2>
-                                    <p className="small text-muted mb-0 italic">Secure membership access protocol for active attendees.</p>
+                                    <p className="subtitle mb-0">Secure membership access protocol for active attendees.</p>
                                 </div>
-                                <button onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-link text-white text-opacity-40 p-0 hover-rotate"><X size={28} /></button>
+                                <button onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-link text-secondary p-0 hover-scale"><X size={24} /></button>
                             </div>
                             <form onSubmit={async (e) => {
                                 e.preventDefault()
@@ -1799,12 +1799,7 @@ const Festivals = () => {
                             }} className="row g-3">
                                 <div className="col-md-5">
                                     <label>Pass ID (Auto-Generated)</label>
-                                    <div className="position-relative">
-                                        <input type="text" className="form-input bg-opacity-10 cursor-not-allowed" style={{ letterSpacing: '2px', fontWeight: '700' }} value={subFormData.subId} readOnly />
-                                        <div className="position-absolute end-0 top-50 translate-middle-y pe-3 text-white text-opacity-20 animate-pulse">
-                                            <Zap size={16} />
-                                        </div>
-                                    </div>
+                                    <input type="text" className="form-input" style={{ letterSpacing: '3px', fontWeight: '800', color: '#1e293b' }} value={subFormData.subId} readOnly />
                                 </div>
                                 <div className="col-md-7">
                                     <label>Attendee Full Name</label>
@@ -1847,7 +1842,7 @@ const Festivals = () => {
                                     <select 
                                         className="form-input" 
                                         value={subFormData.membershipType} 
-                                        style={getTierColorStyle(subFormData.membershipType)} 
+                                        style={{ backgroundColor: '#f1f5f9', color: '#0f172a', fontWeight: '500' }} 
                                         onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}
                                     >
                                         <option value="Prime">Prime Member</option>
@@ -1861,7 +1856,7 @@ const Festivals = () => {
                                     <select 
                                         className="form-input" 
                                         value={subFormData.paymentType} 
-                                        style={getPaymentColorStyle(subFormData.paymentType)} 
+                                        style={{ backgroundColor: subFormData.paymentType === 'Cash & Paid' ? '#dcfce7' : subFormData.paymentType === 'Due' ? '#fee2e2' : subFormData.paymentType === 'Online' ? '#e0f2fe' : '#f1f5f9', color: '#0f172a', fontWeight: '600' }} 
                                         onChange={e => setSubFormData({ ...subFormData, paymentType: e.target.value })}
                                     >
                                         <option value="Cash & Paid">Confirmed (Cash &amp; Paid)</option>
@@ -1887,12 +1882,12 @@ const Festivals = () => {
                                     </div>
                                 )}
 
-                                <div className="col-12 mt-5">
+                                <div className="col-12 mt-4 pt-2">
                                     <div className="d-flex gap-3">
-                                        <button type="submit" className="btn btn-premium flex-grow-1 py-3 px-5 shadow-lg">
+                                        <button type="submit" className="btn btn-premium flex-grow-1 text-white text-uppercase d-flex justify-content-center align-items-center gap-2">
                                             <Save size={18} /> {editingSubId ? 'Confirm Updates' : 'Authorize & Save Membership'}
                                         </button>
-                                        <button type="button" onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-cancel py-3 px-5">Cancel</button>
+                                        <button type="button" onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-cancel flex-grow-0 px-5">Cancel</button>
                                     </div>
                                 </div>
                             </form>

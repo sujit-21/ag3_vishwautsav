@@ -646,16 +646,182 @@ label {
     -webkit-text-fill-color: transparent;
 }
 
-.modal-content-premium .btn-cancel {
-    color: var(--text-muted);
-    border-color: var(--input-border);
-    background: rgba(255, 255, 255, 0.02);
-}
-
 .modal-content-premium .btn-cancel:hover {
     color: var(--text-main);
     background: rgba(255, 255, 255, 0.08);
     border-color: var(--text-muted);
+}
+
+.modal-overlay-light {
+    background: rgba(15, 23, 42, 0.4) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+.modal-content-light {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 2.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    color: #1e293b;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.modal-content-light label {
+    color: #475569 !important;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.modal-content-light h2.title-gradient {
+    background: linear-gradient(135deg, #a855f7, #8b5cf6);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800 !important;
+    font-size: 2.2rem !important;
+    letter-spacing: -0.03em;
+}
+
+.modal-content-light p.subtitle {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    font-weight: 500;
+}
+
+.modal-content-light .form-input {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #0f172a !important;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-weight: 500;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.modal-content-light .form-control-custom,
+.modal-content-light .form-select-prefix {
+    background: transparent;
+    color: #0f172a !important;
+    padding: 12px 16px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.modal-content-light .form-input:focus {
+    border-color: #a855f7 !important;
+    box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15) !important;
+    outline: none !important;
+    background: #ffffff;
+}
+
+.modal-content-light .input-group-premium:focus-within {
+    border-color: #a855f7 !important;
+    box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.15) !important;
+}
+
+.modal-content-light .form-input:read-only {
+    background: #f8fafc;
+    color: #334155 !important;
+    border-color: #e2e8f0;
+}
+
+.modal-content-light .input-group-premium {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    transition: all 0.2s;
+}
+
+.modal-content-light .input-group-premium .form-select-prefix {
+    border: none;
+    border-right: 1px solid #e2e8f0;
+    border-radius: 12px 0 0 12px;
+    background: #f8fafc;
+    color: #1e293b;
+    outline: none !important;
+    margin: 0;
+    height: 100%;
+    min-height: 100%;
+    align-self: stretch;
+    padding: 12px 8px 12px 12px;
+    max-width: 105px;
+    text-overflow: ellipsis;
+}
+
+.modal-content-light .input-group-premium .form-control-custom {
+    border: none !important;
+    border-radius: 0 12px 12px 0;
+    outline: none !important;
+    margin: 0;
+    height: 100%;
+    min-height: 100%;
+    align-self: stretch;
+    padding: 12px 16px;
+}
+
+.modal-content-light .btn-premium {
+    background: linear-gradient(135deg, #a855f7, #c084fc);
+    color: #ffffff !important;
+    border: none;
+    border-radius: 16px;
+    padding: 16px 24px;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 14px 0 rgba(168, 85, 247, 0.39);
+}
+
+.modal-content-light .btn-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+}
+
+.modal-content-light .btn-cancel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #475569 !important;
+    border-radius: 16px;
+    padding: 16px 32px;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.modal-content-light .btn-cancel:hover {
+    background: #f1f5f9;
+    color: #0f172a !important;
+    border-color: #cbd5e1;
+}
+
+/* Override dark mode for this specific modal */
+.dark-mode .modal-content-light,
+.dark-mode .modal-content-light .form-input,
+.dark-mode .modal-content-light .form-control-custom,
+.dark-mode .modal-content-light .form-select-prefix {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+}
+
+.dark-mode .modal-content-light label {
+    color: #475569 !important;
+}
+
+.dark-mode .modal-content-light .form-input:read-only {
+    background-color: #f8fafc !important;
+}
+
+.dark-mode .modal-content-light select option {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
 }
 
 /* Floating Navbar */
