@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, History, Eye, Phone } from 'lucide-react'
+import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, History, Eye, Phone, ShieldCheck, Lock, User, IndianRupee, Crown, CreditCard, Copy } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import VIPCard from '../../components/VIPCard'
@@ -1686,17 +1686,19 @@ const Events = () => {
 
             <AnimatePresence>
                 {isSubAdding && (
-                    <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', zIndex: 2000 }}>
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="modal-content-premium modal-event w-100 mx-3 shadow-2xl" style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto' }}>
-                            <div className="d-flex justify-content-between align-items-center mb-3">
+                    <div className="modal-overlay modal-overlay-light position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)', zIndex: 2000 }}>
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="modal-content-light w-100 mx-3 p-2 px-3 shadow-lg rounded-4" style={{ maxWidth: '800px', maxHeight: '90vh', overflowY: 'auto', backgroundColor: '#fcfcfc' }}>
+                            
+                            <div className="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
                                 <div>
-                                    <h2 className="fw-extrabold mb-1 fs-3 gradient-text">
+                                    <h2 className="fw-bold mb-0" style={{ fontSize: '1.25rem', color: '#064e3b' }}>
                                         {editingSubId ? 'Modify' : 'New'} Event Pass
                                     </h2>
-                                    <p className="small text-muted mb-0 italic">Secure workshop & event access protocol for active attendees.</p>
+                                    <p className="text-muted mb-0" style={{ fontSize: '0.75rem' }}>Secure workshop & event access protocol for active attendees.</p>
                                 </div>
-                                <button onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-link text-white text-opacity-40 p-0 hover-rotate"><X size={28} /></button>
+                                <button onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-light rounded-3 p-1 bg-white border shadow-sm hover-scale"><X size={18} className="text-dark" /></button>
                             </div>
+                            
                             <form onSubmit={async (e) => {
                                 e.preventDefault()
                                 try {
@@ -1718,104 +1720,164 @@ const Events = () => {
                                 } catch (err) {
                                     alert(err.response?.data?.message || 'Error saving pass')
                                 }
-                            }} className="row g-3">
-                                <div className="col-md-5">
-                                    <label>Pass ID (Auto-Generated)</label>
-                                    <div className="position-relative">
-                                        <input type="text" className="form-input bg-opacity-10 cursor-not-allowed" style={{ letterSpacing: '2px', fontWeight: '700' }} value={subFormData.subId} readOnly />
-                                        <div className="position-absolute end-0 top-50 translate-middle-y pe-3 text-white text-opacity-20 animate-pulse">
-                                            <Zap size={16} />
+                            }}>
+                                <div className="row g-2 mb-2">
+                                    <div className="col-md-6">
+                                        <div className="bg-white p-1 px-2 rounded-4 border shadow-sm h-100 d-flex gap-2 align-items-center">
+                                            <div className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style={{ backgroundColor: '#e6f4ea', color: '#047857', width: '32px', height: '32px' }}>
+                                                <CreditCard size={16} />
+                                            </div>
+                                            <div className="flex-grow-1">
+                                                <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>PASS ID (AUTO-GENERATED)</label>
+                                                <div className="d-flex align-items-center bg-light rounded-3 px-2 py-0 border">
+                                                    <input type="text" className="border-0 bg-transparent flex-grow-1 shadow-none fw-bold py-1" style={{ color: '#0f172a', letterSpacing: '1px', fontSize: '0.85rem' }} value={subFormData.subId} readOnly />
+                                                    <button type="button" className="btn btn-link text-dark p-0 m-0" onClick={() => navigator.clipboard.writeText(subFormData.subId)}><Copy size={14} /></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <div className="bg-white p-1 px-2 rounded-4 border shadow-sm h-100 d-flex gap-2 align-items-center">
+                                            <div className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style={{ backgroundColor: '#e6f4ea', color: '#047857', width: '32px', height: '32px' }}>
+                                                <Calendar size={16} />
+                                            </div>
+                                            <div className="flex-grow-1">
+                                                <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>SUBSCRIPTION DATE</label>
+                                                <div className="d-flex align-items-center rounded-3 bg-white border px-2 py-0">
+                                                    <input type="date" className="border-0 bg-transparent flex-grow-1 shadow-none py-1" style={{ fontSize: '0.85rem' }} value={subFormData.date} onChange={e => setSubFormData({ ...subFormData, date: e.target.value })} required />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="col-md-7">
-                                    <label>Attendee Full Name</label>
-                                    <input type="text" className="form-input" placeholder="Full legal name" value={subFormData.name} onChange={e => setSubFormData({ ...subFormData, name: e.target.value })} required />
-                                </div>
-                                <div className="col-md-4">
-                                    <label>Secure Contact Node</label>
-                                    <div className="input-group-premium">
-                                        <select className="form-select-prefix" value={subFormData.countryCode} onChange={e => setSubFormData({ ...subFormData, countryCode: e.target.value })}>
-                                            {countryCodes.map(c => <option key={c.code} value={c.code}>{c.country} ({c.code})</option>)}
-                                        </select>
-                                        <input type="text" className="form-control-custom" placeholder="Mobile / Contact No" value={subFormData.contact} onChange={e => setSubFormData({ ...subFormData, contact: e.target.value })} required />
+
+                                <div className="mb-2">
+                                    <div className="bg-white p-1 px-2 rounded-4 border shadow-sm d-flex gap-2 align-items-center">
+                                        <div className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style={{ backgroundColor: '#e6f4ea', color: '#047857', width: '32px', height: '32px' }}>
+                                            <User size={16} />
+                                        </div>
+                                        <div className="flex-grow-1">
+                                            <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>ATTENDEE FULL NAME</label>
+                                            <div className="d-flex align-items-center rounded-3 bg-white border px-2 py-0">
+                                                <input type="text" className="border-0 bg-transparent flex-grow-1 shadow-none py-1" style={{ fontSize: '0.85rem' }} placeholder="Full legal name" value={subFormData.name} onChange={e => setSubFormData({ ...subFormData, name: e.target.value })} required />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="col-md-4">
-                                    <label>Transaction Amount</label>
-                                    <div className="input-group-premium">
-                                        <select className="form-select-prefix" value={subFormData.currency} onChange={e => setSubFormData({ ...subFormData, currency: e.target.value })}>
-                                            {currencies.map(c => <option key={c.code} value={c.symbol}>{c.symbol} ({c.code})</option>)}
-                                        </select>
-                                        <input type="number" className="form-control-custom" placeholder="0.00" value={subFormData.amount} onChange={e => setSubFormData({ ...subFormData, amount: e.target.value })} required />
+
+                                <div className="mb-2">
+                                    <div className="bg-white p-1 px-2 rounded-4 border shadow-sm d-flex gap-2 align-items-center">
+                                        <div className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style={{ backgroundColor: '#e6f4ea', color: '#047857', width: '32px', height: '32px' }}>
+                                            <MapPin size={16} />
+                                        </div>
+                                        <div className="flex-grow-1">
+                                            <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>ATTENDEE RESIDENCE / ADDRESS</label>
+                                            <div className="d-flex align-items-center rounded-3 bg-white border px-2 py-0">
+                                                <input type="text" className="border-0 bg-transparent flex-grow-1 shadow-none py-1" style={{ fontSize: '0.85rem' }} placeholder="Street name, City, State, District..." value={subFormData.address} onChange={e => setSubFormData({ ...subFormData, address: e.target.value })} />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="col-md-4">
-                                    <label>Subscription Date</label>
-                                    <input 
-                                        type="date" 
-                                        className="form-input" 
-                                        value={subFormData.date} 
-                                        onChange={e => setSubFormData({ ...subFormData, date: e.target.value })} 
-                                        required 
-                                    />
+
+                                <div className="mb-2">
+                                    <div className="bg-white p-1 px-2 rounded-4 border shadow-sm d-flex gap-2 align-items-center">
+                                        <div className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style={{ backgroundColor: '#e6f4ea', color: '#047857', width: '32px', height: '32px' }}>
+                                            <IndianRupee size={16} />
+                                        </div>
+                                        <div className="flex-grow-1">
+                                            <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>TRANSACTION AMOUNT</label>
+                                            <div className="d-flex align-items-center rounded-3 bg-white border px-2 py-0">
+                                                <select className="border-0 shadow-none bg-transparent text-dark fw-bold border-end pe-2 me-2 py-1" style={{ fontSize: '0.85rem' }} value={subFormData.currency} onChange={e => setSubFormData({ ...subFormData, currency: e.target.value })}>
+                                                    {currencies.map(c => <option key={c.code} value={c.symbol}>{c.symbol} ({c.code})</option>)}
+                                                </select>
+                                                <input type="number" className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold text-dark py-1" style={{ fontSize: '0.85rem' }} placeholder="0.00" value={subFormData.amount} onChange={e => setSubFormData({ ...subFormData, amount: e.target.value })} required />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="col-12">
-                                    <label>Attendee Residence / Address</label>
-                                    <input type="text" className="form-input" placeholder="Street name, City, State, District..." value={subFormData.address} onChange={e => setSubFormData({ ...subFormData, address: e.target.value })} />
+
+                                <div className="mb-2">
+                                    <div className="bg-white p-1 px-2 rounded-4 border shadow-sm d-flex gap-2 align-items-center">
+                                        <div className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style={{ backgroundColor: '#e6f4ea', color: '#047857', width: '32px', height: '32px' }}>
+                                            <Phone size={16} />
+                                        </div>
+                                        <div className="flex-grow-1">
+                                            <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>SECURE CONTACT NODE</label>
+                                            <div className="d-flex align-items-center rounded-3 bg-white border px-2 py-0">
+                                                <div className="d-flex align-items-center border-end pe-2 me-2 py-1">
+                                                    <span className="me-1" style={{ fontSize: '0.85rem' }}>{subFormData.countryCode === '+91' ? '🇮🇳' : subFormData.countryCode === '+1' ? '🇺🇸' : subFormData.countryCode === '+44' ? '🇬🇧' : '🌐'}</span>
+                                                    <select className="border-0 shadow-none bg-transparent text-dark fw-bold" style={{ fontSize: '0.85rem' }} value={subFormData.countryCode} onChange={e => setSubFormData({ ...subFormData, countryCode: e.target.value })}>
+                                                        {countryCodes.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
+                                                    </select>
+                                                </div>
+                                                <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ fontSize: '0.85rem' }} placeholder="Mobile / Contact Number" value={subFormData.contact} onChange={e => setSubFormData({ ...subFormData, contact: e.target.value })} required />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <label>Pass Tier</label>
-                                    <select 
-                                        className="form-input" 
-                                        value={subFormData.membershipType} 
-                                        style={getTierColorStyle(subFormData.membershipType)} 
-                                        onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}
-                                    >
-                                        <option value="Prime">Prime Member</option>
-                                        <option value="Non-Prime">None</option>
-                                        <option value="VIP">VIP Access</option>
-                                        <option value="Admin">Administrative</option>
-                                    </select>
+
+                                <div className="row g-2 mb-2">
+                                    <div className="col-md-6">
+                                        <div className="bg-white p-1 px-2 rounded-4 border shadow-sm h-100 d-flex gap-2 align-items-center">
+                                            <div className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style={{ backgroundColor: '#e6f4ea', color: '#047857', width: '32px', height: '32px' }}>
+                                                <Crown size={16} />
+                                            </div>
+                                            <div className="flex-grow-1">
+                                                <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>PASS TIER</label>
+                                                <div className="d-flex align-items-center rounded-3 bg-white border px-2 py-0">
+                                                    <select className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: '#0f172a', fontSize: '0.85rem' }} value={subFormData.membershipType} onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}>
+                                                        <option value="Prime">Prime Member</option>
+                                                        <option value="None">None</option>
+                                                        <option value="VIP">VIP Access</option>
+                                                        <option value="Admin">Administrative</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col-md-6">
+                                        <div className="bg-white p-1 px-2 rounded-4 border shadow-sm h-100 d-flex gap-2 align-items-center">
+                                            <div className="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style={{ backgroundColor: '#e6f4ea', color: '#047857', width: '32px', height: '32px' }}>
+                                                <ShieldCheck size={16} />
+                                            </div>
+                                            <div className="flex-grow-1">
+                                                <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>FINANCIAL STATUS</label>
+                                                <div className="d-flex align-items-center rounded-3 border px-2 py-0" style={{ backgroundColor: subFormData.paymentType === 'Cash & Paid' ? '#dcfce7' : subFormData.paymentType === 'Due' ? '#fee2e2' : subFormData.paymentType === 'Online' ? '#e0f2fe' : '#f1f5f9' }}>
+                                                    <select className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: subFormData.paymentType === 'Cash & Paid' ? '#166534' : subFormData.paymentType === 'Due' ? '#991b1b' : subFormData.paymentType === 'Online' ? '#0369a1' : '#475569', fontSize: '0.85rem' }} value={subFormData.paymentType} onChange={e => setSubFormData({ ...subFormData, paymentType: e.target.value })}>
+                                                        <option value="Cash & Paid">Confirmed (Cash &amp; Paid)</option>
+                                                        <option value="Due">Pending (Due Balance)</option>
+                                                        <option value="Online">Digital (Online Bank)</option>
+                                                        <option value="Coupon or Token">Coupon / Token Voucher</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <label>Financial Status</label>
-                                    <select 
-                                        className="form-input" 
-                                        value={subFormData.paymentType} 
-                                        style={getPaymentColorStyle(subFormData.paymentType)} 
-                                        onChange={e => setSubFormData({ ...subFormData, paymentType: e.target.value })}
-                                    >
-                                        <option value="Cash & Paid">Confirmed (Cash &amp; Paid)</option>
-                                        <option value="Due">Pending (Due Balance)</option>
-                                        <option value="Online">Digital (Online Bank)</option>
-                                        <option value="Coupon or Token">Coupon / Token Voucher</option>
-                                    </select>
-                                </div>
-                                
+
                                 {subFormData.paymentType === 'Online' && (
-                                    <div className="col-12 p-3 mt-3 rounded-4 border border-info border-opacity-25 bg-info bg-opacity-10 shadow-sm animate-in zoom-in duration-300">
-                                        <h6 className="fw-bold text-info mb-3 d-flex align-items-center gap-2"><Zap size={16} /> Digital Payment Details</h6>
-                                        <div className="row g-3">
+                                    <div className="col-12 p-2 mt-2 rounded-4 border border-info border-opacity-25 bg-info bg-opacity-10 shadow-sm animate-in zoom-in duration-300">
+                                        <h6 className="fw-bold text-info mb-2 d-flex align-items-center gap-2" style={{ fontSize: '0.8rem' }}><Zap size={14} /> Digital Payment Details</h6>
+                                        <div className="row g-2">
                                             <div className="col-md-6">
-                                                <label className="text-info text-opacity-75 small uppercase ls-1 mb-2 fw-bold">Particulars / Bank Name</label>
-                                                <input type="text" className="form-input border-info border-opacity-25" placeholder="e.g. HDFC Bank Transfer" value={subFormData.onlineParticulars || ''} onChange={e => setSubFormData({ ...subFormData, onlineParticulars: e.target.value })} required />
+                                                <label className="text-info text-opacity-75 small uppercase ls-1 mb-1 fw-bold" style={{ fontSize: '0.6rem' }}>Particulars / Bank Name</label>
+                                                <input type="text" className="form-input py-1 px-2 border-info border-opacity-25" style={{ fontSize: '0.85rem' }} placeholder="e.g. HDFC Bank Transfer" value={subFormData.onlineParticulars || ''} onChange={e => setSubFormData({ ...subFormData, onlineParticulars: e.target.value })} required />
                                             </div>
                                             <div className="col-md-6">
-                                                <label className="text-info text-opacity-75 small uppercase ls-1 mb-2 fw-bold">Transaction Reference No.</label>
-                                                <input type="text" className="form-input border-info border-opacity-25 font-monospace" placeholder="e.g. UTR / Ref Number" value={subFormData.onlineReference || ''} onChange={e => setSubFormData({ ...subFormData, onlineReference: e.target.value })} required />
+                                                <label className="text-info text-opacity-75 small uppercase ls-1 mb-1 fw-bold" style={{ fontSize: '0.6rem' }}>Transaction Reference No.</label>
+                                                <input type="text" className="form-input py-1 px-2 border-info border-opacity-25 font-monospace" style={{ fontSize: '0.85rem' }} placeholder="e.g. UTR / Ref Number" value={subFormData.onlineReference || ''} onChange={e => setSubFormData({ ...subFormData, onlineReference: e.target.value })} required />
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="col-12 mt-5">
-                                    <div className="d-flex gap-3">
-                                        <button type="submit" className="btn btn-premium flex-grow-1 py-3 px-5 shadow-lg">
-                                            <Save size={18} /> {editingSubId ? 'Confirm Updates' : 'Authorize & Save Entry Pass'}
-                                        </button>
-                                        <button type="button" onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-cancel py-3 px-5">Cancel</button>
-                                    </div>
+                                <div className="d-flex gap-2 mt-3 pt-2 border-top border-light">
+                                    <button type="submit" className="btn flex-grow-1 text-white fw-bold d-flex justify-content-center align-items-center gap-2 rounded-3 py-2 shadow-sm" style={{ background: 'linear-gradient(to right, #0d9488, #059669)', border: 'none', fontSize: '0.9rem' }}>
+                                        <Lock size={16} /> {editingSubId ? 'CONFIRM UPDATES' : 'AUTHORIZE & SAVE ENTRY PASS'}
+                                    </button>
+                                    <button type="button" onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-light flex-grow-0 px-4 rounded-3 fw-bold bg-white border shadow-sm py-2 text-dark" style={{ fontSize: '0.9rem' }}>
+                                        Cancel
+                                    </button>
                                 </div>
                             </form>
                         </motion.div>

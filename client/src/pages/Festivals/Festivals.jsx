@@ -1765,13 +1765,13 @@ const Festivals = () => {
             <AnimatePresence>
                 {isSubAdding && (
                     <div className="modal-overlay modal-overlay-light position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 2000 }}>
-                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="modal-content-light w-100 mx-3 p-4" style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto', backgroundColor: '#f8fafc' }}>
-                            <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-light">
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="modal-content-light w-100 mx-3 p-2 px-3" style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto', backgroundColor: '#f8fafc' }}>
+                            <div className="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom border-light">
                                 <div>
-                                    <h2 className="fw-bold mb-0" style={{ fontSize: '1.4rem', color: '#1e1b4b' }}>
+                                    <h2 className="fw-bold mb-0" style={{ fontSize: '1.25rem', color: '#1e1b4b' }}>
                                         {editingSubId ? 'Modify Subscription' : 'New Subscription'}
                                     </h2>
-                                    <p className="text-muted mb-0 mt-1" style={{ fontSize: '0.8rem' }}>Secure membership access protocol for active attendees.</p>
+                                    <p className="text-muted mb-0" style={{ fontSize: '0.75rem' }}>Secure membership access protocol for active attendees.</p>
                                 </div>
                                 <button onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-light rounded-3 p-1 px-2 bg-white border shadow-sm hover-scale"><X size={18} className="text-primary" /></button>
                             </div>
@@ -1801,9 +1801,9 @@ const Festivals = () => {
                                 <div className="row g-2 mb-2">
                                     <div className="col-md-6">
                                         <div className="bg-white p-1 px-2 rounded-3 border shadow-sm h-100">
-                                            <label className="text-muted text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>ID (Auto-Generated)</label>
+                                            <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>ID (Auto-Generated)</label>
                                             <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-1" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
+                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
                                                     <Fingerprint size={14} />
                                                 </div>
                                                 <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: '#0f172a', letterSpacing: '2px', fontSize: '0.85rem' }} value={subFormData.subId} readOnly />
@@ -1813,9 +1813,9 @@ const Festivals = () => {
                                     </div>
                                     <div className="col-md-6">
                                         <div className="bg-white p-1 px-2 rounded-3 border shadow-sm h-100">
-                                            <label className="text-muted text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Subscription Date</label>
+                                            <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Subscription Date</label>
                                             <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-1" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
+                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
                                                     <Calendar size={14} />
                                                 </div>
                                                 <input type="date" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ fontSize: '0.85rem' }} value={subFormData.date} onChange={e => setSubFormData({ ...subFormData, date: e.target.value })} required />
@@ -1826,9 +1826,9 @@ const Festivals = () => {
 
                                 <div className="mb-2">
                                     <div className="bg-white p-1 px-2 rounded-3 border shadow-sm">
-                                        <label className="text-muted text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Attendee Full Name</label>
+                                        <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Attendee Full Name</label>
                                         <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-1" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
+                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
                                                 <User size={14} />
                                             </div>
                                             <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ fontSize: '0.85rem' }} placeholder="Full Name" value={subFormData.name} onChange={e => setSubFormData({ ...subFormData, name: e.target.value })} required />
@@ -1838,9 +1838,9 @@ const Festivals = () => {
 
                                 <div className="mb-2">
                                     <div className="bg-white p-1 px-2 rounded-3 border shadow-sm">
-                                        <label className="text-muted text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Attendee Residence / Address</label>
+                                        <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Attendee Residence / Address</label>
                                         <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-1" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
+                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
                                                 <MapPin size={14} />
                                             </div>
                                             <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ fontSize: '0.85rem' }} placeholder="Street name, City, State, District..." value={subFormData.address} onChange={e => setSubFormData({ ...subFormData, address: e.target.value })} />
@@ -1850,9 +1850,9 @@ const Festivals = () => {
 
                                 <div className="mb-2">
                                     <div className="bg-white p-1 px-2 rounded-3 border shadow-sm">
-                                        <label className="text-muted text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Transaction Amount</label>
+                                        <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Transaction Amount</label>
                                         <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-1" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
+                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
                                                 <CreditCard size={14} />
                                             </div>
                                             <div className="d-flex align-items-center border-end pe-2 me-2">
@@ -1862,15 +1862,14 @@ const Festivals = () => {
                                             </div>
                                             <input type="number" className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold text-dark py-1" style={{ fontSize: '0.85rem' }} placeholder="0.00" value={subFormData.amount} onChange={e => setSubFormData({ ...subFormData, amount: e.target.value })} required />
                                         </div>
-                                        <div className="mt-1 text-muted" style={{ fontSize: '0.6rem' }}>Enter amount in {subFormData.currency === '₹' ? 'Indian Rupees' : subFormData.currency}</div>
                                     </div>
                                 </div>
 
                                 <div className="mb-2">
                                     <div className="bg-white p-1 px-2 rounded-3 border shadow-sm">
-                                        <label className="text-muted text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Secure Contact Node</label>
+                                        <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Secure Contact Node</label>
                                         <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: '#ffffff', border: '1px solid #e2e8f0' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-1" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
+                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
                                                 <Phone size={14} />
                                             </div>
                                             <div className="d-flex align-items-center border-end pe-2 me-2">
@@ -1881,16 +1880,15 @@ const Festivals = () => {
                                             </div>
                                             <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ fontSize: '0.85rem' }} placeholder="Mobile / Contact Number" value={subFormData.contact} onChange={e => setSubFormData({ ...subFormData, contact: e.target.value })} required />
                                         </div>
-                                        <div className="mt-1 text-muted" style={{ fontSize: '0.6rem' }}>Enter mobile number</div>
                                     </div>
                                 </div>
 
                                 <div className="row g-2 mb-2">
                                     <div className="col-md-6">
                                         <div className="bg-white p-1 px-2 rounded-3 border shadow-sm h-100">
-                                            <label className="text-muted text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Subscription Tier</label>
+                                            <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Subscription Tier</label>
                                             <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-1" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
+                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: '#f3e8ff', color: '#8b5cf6', width: '28px', height: '28px' }}>
                                                     <Crown size={14} />
                                                 </div>
                                                 <select className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: '#0f172a', fontSize: '0.85rem' }} value={subFormData.membershipType} onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}>
@@ -1904,9 +1902,9 @@ const Festivals = () => {
                                     </div>
                                     <div className="col-md-6">
                                         <div className="bg-white p-1 px-2 rounded-3 border shadow-sm h-100">
-                                            <label className="text-muted text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Financial Status</label>
+                                            <label className="text-muted text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px' }}>Financial Status</label>
                                             <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: subFormData.paymentType === 'Cash & Paid' ? '#dcfce7' : subFormData.paymentType === 'Due' ? '#fee2e2' : subFormData.paymentType === 'Online' ? '#e0f2fe' : '#f1f5f9', border: '1px solid #e2e8f0' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-1" style={{ backgroundColor: '#ffffff', color: subFormData.paymentType === 'Cash & Paid' ? '#166534' : subFormData.paymentType === 'Due' ? '#991b1b' : subFormData.paymentType === 'Online' ? '#0369a1' : '#475569', width: '28px', height: '28px' }}>
+                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: '#ffffff', color: subFormData.paymentType === 'Cash & Paid' ? '#166534' : subFormData.paymentType === 'Due' ? '#991b1b' : subFormData.paymentType === 'Online' ? '#0369a1' : '#475569', width: '28px', height: '28px' }}>
                                                     <ShieldCheck size={14} />
                                                 </div>
                                                 <select className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: '#0f172a', fontSize: '0.85rem' }} value={subFormData.paymentType} onChange={e => setSubFormData({ ...subFormData, paymentType: e.target.value })}>
@@ -1922,25 +1920,25 @@ const Festivals = () => {
 
                                 {subFormData.paymentType === 'Online' && (
                                     <div className="col-12 p-2 mt-2 rounded-3 border border-info border-opacity-25 bg-info bg-opacity-10 shadow-sm animate-in zoom-in duration-300">
-                                        <h6 className="fw-bold text-info mb-2 d-flex align-items-center gap-2" style={{ fontSize: '0.8rem' }}><Zap size={14} /> Digital Payment Details</h6>
+                                        <h6 className="fw-bold text-info mb-1 d-flex align-items-center gap-2" style={{ fontSize: '0.75rem' }}><Zap size={14} /> Digital Payment Details</h6>
                                         <div className="row g-2">
                                             <div className="col-md-6">
-                                                <label className="text-info text-opacity-75 small uppercase ls-1 mb-1 fw-bold" style={{ fontSize: '0.6rem' }}>Particulars / Bank Name</label>
-                                                <input type="text" className="form-input border-info border-opacity-25 py-1" placeholder="e.g. HDFC Bank Transfer" value={subFormData.onlineParticulars || ''} onChange={e => setSubFormData({ ...subFormData, onlineParticulars: e.target.value })} required />
+                                                <label className="text-info text-opacity-75 small uppercase ls-1 mb-0 fw-bold" style={{ fontSize: '0.6rem' }}>Particulars / Bank Name</label>
+                                                <input type="text" className="form-input border-info border-opacity-25 py-1" style={{ fontSize: '0.85rem' }} placeholder="e.g. HDFC Bank Transfer" value={subFormData.onlineParticulars || ''} onChange={e => setSubFormData({ ...subFormData, onlineParticulars: e.target.value })} required />
                                             </div>
                                             <div className="col-md-6">
-                                                <label className="text-info text-opacity-75 small uppercase ls-1 mb-1 fw-bold" style={{ fontSize: '0.6rem' }}>Transaction Reference No.</label>
-                                                <input type="text" className="form-input border-info border-opacity-25 font-monospace py-1" placeholder="e.g. UTR / Ref Number" value={subFormData.onlineReference || ''} onChange={e => setSubFormData({ ...subFormData, onlineReference: e.target.value })} required />
+                                                <label className="text-info text-opacity-75 small uppercase ls-1 mb-0 fw-bold" style={{ fontSize: '0.6rem' }}>Transaction Reference No.</label>
+                                                <input type="text" className="form-input border-info border-opacity-25 font-monospace py-1" style={{ fontSize: '0.85rem' }} placeholder="e.g. UTR / Ref Number" value={subFormData.onlineReference || ''} onChange={e => setSubFormData({ ...subFormData, onlineReference: e.target.value })} required />
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="d-flex gap-3 mt-3 pt-2 border-top border-light">
+                                <div className="d-flex gap-2 mt-2 pt-2 border-top border-light">
                                     <button type="submit" className="btn flex-grow-1 text-white fw-bold d-flex justify-content-center align-items-center gap-2 rounded-3 py-2" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)', border: 'none' }}>
                                         <Lock size={16} /> {editingSubId ? 'CONFIRM UPDATES' : 'AUTHORIZE & SAVE MEMBERSHIP'}
                                     </button>
-                                    <button type="button" onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-light flex-grow-0 px-5 rounded-3 fw-bold bg-white border shadow-sm py-2">
+                                    <button type="button" onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-light flex-grow-0 px-4 rounded-3 fw-bold bg-white border shadow-sm py-2">
                                         Cancel
                                     </button>
                                 </div>
