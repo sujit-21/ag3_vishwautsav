@@ -23,7 +23,7 @@ app.use('/api/support', require('./routes/support'));
 app.use('/api/feedback', require('./routes/feedback'));
 app.use('/api/credentials', require('./routes/credentials'));
 app.use('/api/entity', require('./routes/entity'));
-
+app.use('/api/upload', require('./routes/upload'));
 // Basic Route
 app.get('/', (req, res) => {
   res.send('Festival & Event Management API is running...');

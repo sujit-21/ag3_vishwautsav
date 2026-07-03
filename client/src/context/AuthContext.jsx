@@ -13,8 +13,8 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const initAuth = () => {
             try {
-                const storedUser = localStorage.getItem('user');
-                const token = localStorage.getItem('token');
+                const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+                const token = localStorage.getItem('token') || sessionStorage.getItem('token');
                 const storedFest = localStorage.getItem('activeFestival');
                 const storedEvt = localStorage.getItem('activeEvent');
 
@@ -48,6 +48,8 @@ export const AuthProvider = ({ children }) => {
                     console.warn('Unauthorized access, logging out');
                     localStorage.removeItem('token');
                     localStorage.removeItem('user');
+                    sessionStorage.removeItem('token');
+                    sessionStorage.removeItem('user');
                     localStorage.removeItem('activeFestival');
                     localStorage.removeItem('activeEvent');
                     localStorage.removeItem('verifiedEntity');
@@ -84,20 +86,36 @@ export const AuthProvider = ({ children }) => {
         setVerifiedEntityState(entity);
     };
 
-    const login = (userData, token) => {
-        localStorage.setItem('token', token || localStorage.getItem('token'));
-        localStorage.setItem('user', JSON.stringify(userData));
+    const login = (userData, token, rememberMe = true) => {
+        const storage = rememberMe ? localStorage : sessionStorage;
+        storage.setItem('token', token || localStorage.getItem('token') || sessionStorage.getItem('token'));
+        storage.setItem('user', JSON.stringify(userData));
+        
+        if (rememberMe) {
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
+        } else {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+        }
+        
         setUser(userData);
     };
 
     const switchRole = async (newRole) => {
         if (!user) return;
         try {
+            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
             await axios.post('/api/auth/switch-role', { role: newRole }, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                headers: { Authorization: `Bearer ${token}` }
             });
             const updatedUser = { ...user, role: newRole };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
+            
+            if (sessionStorage.getItem('user')) {
+                sessionStorage.setItem('user', JSON.stringify(updatedUser));
+            } else {
+                localStorage.setItem('user', JSON.stringify(updatedUser));
+            }
             setUser(updatedUser);
         } catch (err) {
             console.error('Failed to switch role in DB:', err);
@@ -107,6 +125,8 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
         localStorage.removeItem('activeFestival');
         localStorage.removeItem('activeEvent');
         localStorage.removeItem('verifiedEntity');

@@ -15,8 +15,15 @@ const Login = () => {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
+    const [rememberMe, setRememberMe] = useState(false)
 
     useEffect(() => {
+        const savedEmail = localStorage.getItem('rememberedEmail')
+        if (savedEmail) {
+            setFormData(prev => ({ ...prev, email: savedEmail }))
+            setRememberMe(true)
+        }
+        
         if (isAuthenticated) {
             navigate('/role-selection')
         }
@@ -27,8 +34,14 @@ const Login = () => {
         setError('')
         setLoading(true)
         try {
+            if (rememberMe) {
+                localStorage.setItem('rememberedEmail', formData.email)
+            } else {
+                localStorage.removeItem('rememberedEmail')
+            }
+            
             const res = await axios.post('/api/auth/login', formData)
-            login(res.data.user, res.data.token) // Updated global auth state
+            login(res.data.user, res.data.token, rememberMe) // Updated global auth state with rememberMe
             navigate('/role-selection')
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid credentials')
@@ -97,9 +110,25 @@ const Login = () => {
                                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
                             </div>
-                            <div className="text-end mt-1.5">
-                                <Link to="/forgot-password" className="small text-primary text-decoration-none fw-bold" style={{ fontSize: '0.75rem' }}>Forgot Password?</Link>
+                        </div>
+
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                            <div className="d-flex align-items-center">
+                                <input 
+                                    className="form-check-input mt-0 me-2" 
+                                    type="checkbox" 
+                                    id="rememberMe" 
+                                    checked={rememberMe}
+                                    onChange={(e) => setRememberMe(e.target.checked)}
+                                    style={{ cursor: 'pointer' }}
+                                />
+                                <label className="text-muted text-uppercase fw-bold mb-0" htmlFor="rememberMe" style={{ cursor: 'pointer', fontSize: '0.68rem', letterSpacing: '1px' }}>
+                                    Remember me
+                                </label>
                             </div>
+                            <Link to="/forgot-password" className="small text-primary text-decoration-none fw-bold" style={{ fontSize: '0.75rem' }}>
+                                Forgot Password?
+                            </Link>
                         </div>
 
                         <button type="submit" className="btn btn-premium w-100 mb-3 py-2.5 rounded-pill fw-bold text-uppercase shadow-premium" style={{ letterSpacing: '1px', fontSize: '0.85rem' }} disabled={loading}>
