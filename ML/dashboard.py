@@ -113,18 +113,37 @@ if not df_subs.empty or not df_exp.empty:
     if not df_financials.empty:
         df_financials = df_financials.sort_values('Year')
         
+        # --- Add Professional KPI Metrics ---
+        total_subs = df_financials['Subscription_Amount'].sum()
+        total_exp = df_financials['Expenses'].sum()
+        profit = total_subs - total_exp
+        
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Total Paid Subscriptions", f"₹{total_subs:,.0f}")
+        m2.metric("Total Expenses", f"₹{total_exp:,.0f}")
+        m3.metric("Net Balance", f"₹{profit:,.0f}", delta=f"₹{profit:,.0f}")
+        st.markdown("<br>", unsafe_allow_html=True)
+        # ------------------------------------
+        
         # Create a beautiful Grouped Bar Chart using Matplotlib
-        fig, ax = plt.subplots(figsize=(10, 4))
+        fig, ax = plt.subplots(figsize=(10, 5))
         
         # Convert year back to string for the x-axis labels
         years = df_financials['Year'].astype(int).astype(str).tolist()
         x = range(len(years))
         width = 0.35
         
-        ax.bar([i - width/2 for i in x], df_financials['Subscription_Amount'], width, label='Paid Subscriptions', color='#2196F3')
-        ax.bar([i + width/2 for i in x], df_financials['Expenses'], width, label='Expenses', color='#F44336')
+        rects1 = ax.bar([i - width/2 for i in x], df_financials['Subscription_Amount'], width, label='Paid Subscriptions', color='#2196F3')
+        rects2 = ax.bar([i + width/2 for i in x], df_financials['Expenses'], width, label='Expenses', color='#F44336')
+        
+        # Add labels directly on top of the bars to look professional!
+        ax.bar_label(rects1, padding=3, fmt='₹{:,.0f}', fontsize=9, color='#2196F3', fontweight='bold')
+        ax.bar_label(rects2, padding=3, fmt='₹{:,.0f}', fontsize=9, color='#F44336', fontweight='bold')
         
         ax.set_ylabel('Total Amount (₹)')
+        # Increase the top y-limit slightly so the labels don't get cut off
+        ax.margins(y=0.15)
+        
         ax.set_xticks(x)
         ax.set_xticklabels(years)
         ax.legend()
