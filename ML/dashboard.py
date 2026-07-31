@@ -33,7 +33,7 @@ except Exception as e:
 # ==========================================
 # 2. FETCH DATA
 # ==========================================
-@st.cache_data(ttl=600) # Cache the data for 10 minutes to make the dashboard fast
+@st.cache_data(ttl=5) # Cache data for only 5 seconds so it feels real-time!
 def get_data():
     # Fetch subscriptions
     subs = list(db.subscriptions.find({}, {"_id": 0, "amount": 1, "date": 1, "entityName": 1, "festOrEventName": 1, "paymentType": 1, "membershipType": 1}))
