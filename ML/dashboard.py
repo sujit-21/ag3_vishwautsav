@@ -118,11 +118,30 @@ if not df_subs.empty or not df_exp.empty:
         total_exp = df_financials['Expenses'].sum()
         profit = total_subs - total_exp
         
-        m1, m2, m3 = st.columns(3)
-        m1.metric("Total Paid Subscriptions", f"₹{total_subs:,.0f}")
-        m2.metric("Total Expenses", f"₹{total_exp:,.0f}")
-        m3.metric("Net Balance", f"₹{profit:,.0f}", delta=f"₹{profit:,.0f}")
-        st.markdown("<br>", unsafe_allow_html=True)
+        # Calculate Total Due from the original unfiltered df_subs
+        total_due = df_subs[df_subs['paymentType'] == 'Due']['amount'].sum() if not df_subs.empty else 0
+        
+        # Beautiful Custom HTML Cards mimicking the provided design
+        st.markdown(f"""
+        <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px; background-color: #0CA678; color: white; padding: 20px; border-radius: 8px; font-family: sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px;">TOTAL COLLECTION</div>
+                <div style="font-size: 32px; font-weight: 800;">₹{total_subs:,.0f}</div>
+            </div>
+            <div style="flex: 1; min-width: 200px; background-color: #E03131; color: white; padding: 20px; border-radius: 8px; font-family: sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px;">TOTAL EXPENSES</div>
+                <div style="font-size: 32px; font-weight: 800;">₹{total_exp:,.0f}</div>
+            </div>
+            <div style="flex: 1; min-width: 200px; background-color: #F59F00; color: white; padding: 20px; border-radius: 8px; font-family: sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px;">TOTAL DUE</div>
+                <div style="font-size: 32px; font-weight: 800;">₹{total_due:,.0f}</div>
+            </div>
+            <div style="flex: 1; min-width: 200px; background-color: #7950F2; color: white; padding: 20px; border-radius: 8px; font-family: sans-serif; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <div style="font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px;">TOTAL SAVINGS</div>
+                <div style="font-size: 32px; font-weight: 800;">₹{profit:,.0f}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
         # ------------------------------------
         
         # Create a beautiful Grouped Bar Chart using Matplotlib
