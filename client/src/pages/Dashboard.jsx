@@ -180,20 +180,27 @@ const Dashboard = () => {
         festivals.forEach(f => {
             const org = f.entityName || 'Not specified'
             nameToOrg[f.title] = org
-            if (!orgMap[org]) orgMap[org] = { orgName: org, festivals: [], events: [], collection: 0, expenses: 0, savings: 0 }
+            if (!orgMap[org]) orgMap[org] = { orgName: org, festivals: [], events: [], collection: 0, expenses: 0, due: 0, savings: 0 }
             orgMap[org].festivals.push(f)
         })
 
         events.forEach(e => {
             const org = e.entityName || 'Not specified'
             nameToOrg[e.title] = org
-            if (!orgMap[org]) orgMap[org] = { orgName: org, festivals: [], events: [], collection: 0, expenses: 0, savings: 0 }
+            if (!orgMap[org]) orgMap[org] = { orgName: org, festivals: [], events: [], collection: 0, expenses: 0, due: 0, savings: 0 }
             orgMap[org].events.push(e)
         })
 
         allSubscriptions.forEach(s => {
             const org = nameToOrg[s.festOrEventName] || 'Not specified'
-            if (orgMap[org]) orgMap[org].collection += (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0)
+            if (orgMap[org]) {
+                const amount = Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0
+                if (s.paymentType === 'Due') {
+                    orgMap[org].due += amount
+                } else {
+                    orgMap[org].collection += amount
+                }
+            }
         })
         
         allExpenses.forEach(e => {
@@ -509,22 +516,28 @@ const Dashboard = () => {
 
                                     {/* Financial Summary Cards - PREMIUM GRADIENTS FOR MAX VISIBILITY */}
                                     <div className="row g-3 border-top border-secondary border-opacity-10 pt-4">
-                                        <div className="col-md-4">
-                                            <div className="p-3 bg-gradient-success rounded-3 d-flex flex-column justify-content-center shadow-lg border-0">
+                                        <div className="col-sm-6 col-md-3">
+                                            <div className="p-3 bg-gradient-success rounded-3 d-flex flex-column justify-content-center shadow-lg border-0 h-100">
                                                 <h6 className="text-white text-opacity-80 tiny text-uppercase mb-1 fw-bold">Total Collection</h6>
-                                                <h3 className="fw-extrabold text-white mb-0 fs-3">₹{org.collection.toLocaleString()}</h3>
+                                                <h3 className="fw-extrabold text-white mb-0 fs-3 text-truncate">₹{org.collection.toLocaleString()}</h3>
                                             </div>
                                         </div>
-                                        <div className="col-md-4">
-                                            <div className="p-3 bg-gradient-danger rounded-3 d-flex flex-column justify-content-center shadow-lg border-0">
+                                        <div className="col-sm-6 col-md-3">
+                                            <div className="p-3 bg-gradient-danger rounded-3 d-flex flex-column justify-content-center shadow-lg border-0 h-100">
                                                 <h6 className="text-white text-opacity-80 tiny text-uppercase mb-1 fw-bold">Total Expenses</h6>
-                                                <h3 className="fw-extrabold text-white mb-0 fs-3">₹{org.expenses.toLocaleString()}</h3>
+                                                <h3 className="fw-extrabold text-white mb-0 fs-3 text-truncate">₹{org.expenses.toLocaleString()}</h3>
                                             </div>
                                         </div>
-                                        <div className="col-md-4">
-                                            <div className="p-3 bg-gradient-primary rounded-3 d-flex flex-column justify-content-center shadow-lg border-0">
+                                        <div className="col-sm-6 col-md-3">
+                                            <div className="p-3 bg-gradient-warning rounded-3 d-flex flex-column justify-content-center shadow-lg border-0 h-100">
+                                                <h6 className="text-white text-opacity-80 tiny text-uppercase mb-1 fw-bold">Total Due</h6>
+                                                <h3 className="fw-extrabold text-white mb-0 fs-3 text-truncate">₹{org.due.toLocaleString()}</h3>
+                                            </div>
+                                        </div>
+                                        <div className="col-sm-6 col-md-3">
+                                            <div className="p-3 bg-gradient-primary rounded-3 d-flex flex-column justify-content-center shadow-lg border-0 h-100">
                                                 <h6 className="text-white text-opacity-80 tiny text-uppercase mb-1 fw-bold">Total Savings</h6>
-                                                <h3 className="fw-extrabold text-white mb-0 fs-3">₹{org.savings.toLocaleString()}</h3>
+                                                <h3 className="fw-extrabold text-white mb-0 fs-3 text-truncate">₹{org.savings.toLocaleString()}</h3>
                                             </div>
                                         </div>
                                     </div>
