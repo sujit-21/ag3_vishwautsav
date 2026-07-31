@@ -377,8 +377,36 @@ const Dashboard = () => {
                                     >
                                         <ShieldCheck size={16} /> Verify
                                     </button>
+                                    <button
+                                        onClick={() => { setActiveAdminTab('analytics'); setSearchResult(null); setSearchError(''); }}
+                                        className="btn border-0 px-4 py-2 rounded-2 small fw-extrabold transition-all d-flex align-items-center gap-2"
+                                        style={{
+                                            background: activeAdminTab === 'analytics' ? '#6366f1' : 'transparent',
+                                            color: activeAdminTab === 'analytics' ? '#ffffff' : '#64748b'
+                                        }}
+                                    >
+                                        <BarChart3 size={16} /> Analytics
+                                    </button>
                                 </div>
                             </div>
+
+                            {/* ── Analytics Tab ── */}
+                            {activeAdminTab === 'analytics' && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="glass-card p-4 border border-secondary border-opacity-10 mb-4 shadow-sm w-100"
+                                    style={{ height: '850px' }}
+                                >
+                                    <iframe 
+                                        src="https://vishwautsav.streamlit.app/?embed=true" 
+                                        width="100%" 
+                                        height="100%" 
+                                        style={{ border: 'none', borderRadius: '8px' }}
+                                        title="Admin Analytics Dashboard"
+                                    />
+                                </motion.div>
+                            )}
 
                             {/* ── Console Tab ── */}
                             {activeAdminTab === 'console' && (
