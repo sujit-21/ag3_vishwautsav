@@ -1,52 +1,116 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
-from sklearn.ensemble import RandomForestRegressor # Ready for future AI predictions
+from pymongo import MongoClient
+from sklearn.ensemble import RandomForestRegressor
 
 # Set page config for a wider layout
 st.set_page_config(page_title="Vishwautsav Analytics", layout="wide")
 
 st.title("📊 Vishwautsav Analytics Dashboard")
-st.markdown("Welcome to the Admin Dashboard. Use the filters on the left to slice the data.")
+st.markdown("Welcome to the Admin Dashboard. Use the filters on the left to slice the live data from MongoDB.")
 
 # ==========================================
-# 1. SIDEBAR FILTERS (Entity & Festival)
+# 1. MONGODB CONNECTION
+# ==========================================
+# This uses Streamlit's secrets manager to securely connect to your DB
+@st.cache_resource
+def init_connection():
+    # Make sure you add MONGO_URI to your Streamlit Cloud secrets!
+    uri = st.secrets["MONGO_URI"]
+    client = MongoClient(uri)
+    return client
+
+try:
+    client = init_connection()
+    # It automatically gets the database name (vishwautsav_db) from your URI string
+    db = client.get_default_database()
+except Exception as e:
+    st.error(f"Failed to connect to MongoDB. Did you add MONGO_URI to your Streamlit Secrets? Error: {e}")
+    st.stop()
+
+# ==========================================
+# 2. FETCH DATA
+# ==========================================
+@st.cache_data(ttl=600) # Cache the data for 10 minutes to make the dashboard fast
+def get_data():
+    # Fetch subscriptions
+    subs = list(db.subscriptions.find({}, {"_id": 0, "amount": 1, "date": 1, "entityName": 1, "festOrEventName": 1, "paymentType": 1, "membershipType": 1}))
+    df_subs = pd.DataFrame(subs)
+    
+    # Fetch expenses
+    expenses = list(db.expenses.find({}, {"_id": 0, "amount": 1, "date": 1, "festOrEventName": 1}))
+    df_exp = pd.DataFrame(expenses)
+
+    # Fetch unique entities and festivals for the dropdowns
+    entities_list = ["All Entities"] + (df_subs['entityName'].dropna().unique().tolist() if not df_subs.empty else [])
+    festivals_list = ["All Festivals"] + (df_subs['festOrEventName'].dropna().unique().tolist() if not df_subs.empty else [])
+
+    return df_subs, df_exp, entities_list, festivals_list
+
+df_subs, df_exp, entities_list, festivals_list = get_data()
+
+# ==========================================
+# 3. SIDEBAR FILTERS
 # ==========================================
 st.sidebar.header("Data Filters")
 
-# In the future, these will be fetched from your database
-entities = ["All Entities", "Entity A", "Entity B"]
-festivals = ["All Festivals", "Music Concert", "Holi", "South Festivals"]
+selected_entity = st.sidebar.selectbox("Select Entity", entities_list)
+selected_festival = st.sidebar.selectbox("Select Festival/Event", festivals_list)
 
-selected_entity = st.sidebar.selectbox("Select Entity", entities)
-selected_festival = st.sidebar.selectbox("Select Festival/Event", festivals)
+# Filter the dataframes based on selection
+if selected_entity != "All Entities":
+    df_subs = df_subs[df_subs['entityName'] == selected_entity]
+
+if selected_festival != "All Festivals":
+    df_subs = df_subs[df_subs['festOrEventName'] == selected_festival]
+    if not df_exp.empty:
+        df_exp = df_exp[df_exp['festOrEventName'] == selected_festival]
 
 st.sidebar.markdown("---")
 st.sidebar.info("Future AI Feature: Random Forest prediction models will be added here.")
 
 # ==========================================
-# 2. DUMMY DATA (Replace with DB connection)
-# ==========================================
-# Here is where you will write code to connect to your Database (e.g., MongoDB)
-# For now, we use dummy data so you can see how the charts look!
-data = {
-    "Year": [2022, 2023, 2024],
-    "Subscription_Amount": [50000, 75000, 120000],
-    "Expenses": [30000, 45000, 60000]
-}
-df_financials = pd.DataFrame(data)
-
-# ==========================================
-# 3. FINANCIALS (Year-wise Subscriptions vs Expenses)
+# 4. FINANCIALS (Year-wise Subscriptions vs Expenses)
 # ==========================================
 st.subheader(f"Financial Overview ({selected_entity} - {selected_festival})")
 
-# We create a bar chart using Streamlit's native charting (very easy)
-st.bar_chart(
-    df_financials.set_index("Year")[["Subscription_Amount", "Expenses"]],
-    use_container_width=True
-)
+if not df_subs.empty or not df_exp.empty:
+    # Process Subscriptions
+    if not df_subs.empty:
+        df_subs['Year'] = pd.to_datetime(df_subs['date']).dt.year
+        subs_yearly = df_subs.groupby('Year')['amount'].sum().reset_index()
+        subs_yearly.rename(columns={'amount': 'Subscription_Amount'}, inplace=True)
+    else:
+        subs_yearly = pd.DataFrame(columns=['Year', 'Subscription_Amount'])
+
+    # Process Expenses
+    if not df_exp.empty:
+        df_exp['Year'] = pd.to_datetime(df_exp['date']).dt.year
+        exp_yearly = df_exp.groupby('Year')['amount'].sum().reset_index()
+        exp_yearly.rename(columns={'amount': 'Expenses'}, inplace=True)
+    else:
+        exp_yearly = pd.DataFrame(columns=['Year', 'Expenses'])
+
+    # Merge them together by Year
+    if not subs_yearly.empty and not exp_yearly.empty:
+        df_financials = pd.merge(subs_yearly, exp_yearly, on='Year', how='outer').fillna(0)
+    elif not subs_yearly.empty:
+        df_financials = subs_yearly
+        df_financials['Expenses'] = 0
+    elif not exp_yearly.empty:
+        df_financials = exp_yearly
+        df_financials['Subscription_Amount'] = 0
+    else:
+        df_financials = pd.DataFrame(columns=['Year', 'Subscription_Amount', 'Expenses'])
+
+    if not df_financials.empty:
+        df_financials['Year'] = df_financials['Year'].astype(int).astype(str) # Convert year to string so it displays correctly on chart
+        st.bar_chart(df_financials.set_index("Year")[["Subscription_Amount", "Expenses"]], use_container_width=True)
+    else:
+        st.info("No financial data found for the selected filters.")
+else:
+    st.info("No financial data found in the database.")
 
 st.divider()
 
@@ -54,39 +118,55 @@ st.divider()
 col1, col2 = st.columns(2)
 
 # ==========================================
-# 4. PAYMENT STATUS (Paid, Due, Online)
+# 5. PAYMENT STATUS (Paid, Due, Online)
 # ==========================================
 with col1:
     st.subheader("User Payment Status")
     
-    payment_labels = ['Paid User', 'Due User', 'Online Paid User']
-    payment_sizes = [400, 150, 600] # Replace with real DB counts
-    
-    fig1, ax1 = plt.subplots()
-    ax1.pie(payment_sizes, labels=payment_labels, autopct='%1.1f%%', startangle=90, colors=['#4CAF50', '#F44336', '#2196F3'])
-    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    
-    st.pyplot(fig1)
+    if not df_subs.empty and 'paymentType' in df_subs.columns:
+        payment_counts = df_subs['paymentType'].value_counts()
+        
+        if not payment_counts.empty:
+            fig1, ax1 = plt.subplots()
+            # Generate colors based on the payment type
+            color_map = {'Cash & Paid': '#4CAF50', 'Due': '#F44336', 'Online': '#2196F3', 'Coupon or Token': '#FF9800'}
+            colors = [color_map.get(ptype, '#9E9E9E') for ptype in payment_counts.index]
+            
+            ax1.pie(payment_counts.values, labels=payment_counts.index, autopct='%1.1f%%', startangle=90, colors=colors)
+            ax1.axis('equal')
+            st.pyplot(fig1)
+        else:
+            st.write("No payment data available.")
+    else:
+        st.write("No payment data available.")
 
 # ==========================================
-# 5. USER TIER TYPES (None, Prime, VIP, Admin)
+# 6. USER TIER TYPES (None, Prime, VIP, Admin)
 # ==========================================
 with col2:
     st.subheader("User Tier Breakdown")
     
-    tier_labels = ['None Tier', 'Prime Tier', 'VIP Tier', 'Admin Tier']
-    tier_sizes = [1000, 300, 50, 10] # Replace with real DB counts
-    
-    fig2, ax2 = plt.subplots()
-    # Using a donut chart style here for variety
-    wedges, texts, autotexts = ax2.pie(tier_sizes, labels=tier_labels, autopct='%1.1f%%', startangle=90, colors=['#9E9E9E', '#FFC107', '#9C27B0', '#000000'])
-    
-    # Draw circle in the center to make it a donut
-    centre_circle = plt.Circle((0,0),0.70,fc='white')
-    fig2.gca().add_artist(centre_circle)
-    ax2.axis('equal')  
-    
-    st.pyplot(fig2)
+    if not df_subs.empty and 'membershipType' in df_subs.columns:
+        tier_counts = df_subs['membershipType'].value_counts()
+        
+        if not tier_counts.empty:
+            fig2, ax2 = plt.subplots()
+            
+            color_map = {'Non-Prime': '#9E9E9E', 'Prime': '#FFC107', 'VIP': '#9C27B0', 'Admin': '#000000'}
+            colors = [color_map.get(ttype, '#607D8B') for ttype in tier_counts.index]
+            
+            wedges, texts, autotexts = ax2.pie(tier_counts.values, labels=tier_counts.index, autopct='%1.1f%%', startangle=90, colors=colors)
+            
+            # Draw circle in the center to make it a donut
+            centre_circle = plt.Circle((0,0),0.70,fc='white')
+            fig2.gca().add_artist(centre_circle)
+            ax2.axis('equal')  
+            
+            st.pyplot(fig2)
+        else:
+            st.write("No tier data available.")
+    else:
+        st.write("No tier data available.")
 
 # ==========================================
 # AI PREDICTION PLACEHOLDER
