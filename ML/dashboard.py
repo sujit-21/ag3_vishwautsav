@@ -76,11 +76,17 @@ st.sidebar.info("Future AI Feature: Random Forest prediction models will be adde
 st.subheader(f"Financial Overview ({selected_entity} - {selected_festival})")
 
 if not df_subs.empty or not df_exp.empty:
-    # Process Subscriptions
+    # Process Subscriptions (EXCLUDE 'Due' payments)
     if not df_subs.empty:
-        df_subs['Year'] = pd.to_datetime(df_subs['date']).dt.year
-        subs_yearly = df_subs.groupby('Year')['amount'].sum().reset_index()
-        subs_yearly.rename(columns={'amount': 'Subscription_Amount'}, inplace=True)
+        # Filter out Due payments
+        df_paid_subs = df_subs[df_subs['paymentType'] != 'Due'].copy()
+        
+        if not df_paid_subs.empty:
+            df_paid_subs['Year'] = pd.to_datetime(df_paid_subs['date']).dt.year
+            subs_yearly = df_paid_subs.groupby('Year')['amount'].sum().reset_index()
+            subs_yearly.rename(columns={'amount': 'Subscription_Amount'}, inplace=True)
+        else:
+            subs_yearly = pd.DataFrame(columns=['Year', 'Subscription_Amount'])
     else:
         subs_yearly = pd.DataFrame(columns=['Year', 'Subscription_Amount'])
 
@@ -105,8 +111,29 @@ if not df_subs.empty or not df_exp.empty:
         df_financials = pd.DataFrame(columns=['Year', 'Subscription_Amount', 'Expenses'])
 
     if not df_financials.empty:
-        df_financials['Year'] = df_financials['Year'].astype(int).astype(str) # Convert year to string so it displays correctly on chart
-        st.bar_chart(df_financials.set_index("Year")[["Subscription_Amount", "Expenses"]], use_container_width=True)
+        df_financials = df_financials.sort_values('Year')
+        
+        # Create a beautiful Grouped Bar Chart using Matplotlib
+        fig, ax = plt.subplots(figsize=(10, 4))
+        
+        # Convert year back to string for the x-axis labels
+        years = df_financials['Year'].astype(int).astype(str).tolist()
+        x = range(len(years))
+        width = 0.35
+        
+        ax.bar([i - width/2 for i in x], df_financials['Subscription_Amount'], width, label='Paid Subscriptions', color='#2196F3')
+        ax.bar([i + width/2 for i in x], df_financials['Expenses'], width, label='Expenses', color='#F44336')
+        
+        ax.set_ylabel('Total Amount (₹)')
+        ax.set_xticks(x)
+        ax.set_xticklabels(years)
+        ax.legend()
+        
+        # Make it look clean
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        
+        st.pyplot(fig)
     else:
         st.info("No financial data found for the selected filters.")
 else:
