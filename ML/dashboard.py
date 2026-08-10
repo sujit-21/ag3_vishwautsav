@@ -8,8 +8,65 @@ from sklearn.ensemble import RandomForestRegressor
 # Set page config for a wider layout
 st.set_page_config(page_title="Vishwautsav Analytics", layout="wide")
 
-st.title("Vishwautsav Analytics Dashboard")
-st.markdown("Welcome to the Admin Dashboard. Use the filters on the left to slice the live data from MongoDB.")
+# ==========================================
+# 0. AUTHENTICATION
+# ==========================================
+if "authenticated" not in st.session_state:
+    st.session_state["authenticated"] = False
+if "username" not in st.session_state:
+    st.session_state["username"] = ""
+if "role" not in st.session_state:
+    st.session_state["role"] = ""
+
+def check_password():
+    username = st.session_state["login_username"].strip()
+    password = st.session_state["login_password"]
+    
+    # Check Admin
+    if username.lower() == "admin":
+        if "ADMIN_PASSWORD" in st.secrets and password == st.secrets["ADMIN_PASSWORD"]:
+            st.session_state["authenticated"] = True
+            st.session_state["username"] = "Admin"
+            st.session_state["role"] = "admin"
+            st.session_state["login_password"] = ""
+            return
+            
+    # Check Entity (Option B: Unique Passwords)
+    if "passwords" in st.secrets and username in st.secrets["passwords"]:
+        if password == st.secrets["passwords"][username]:
+            st.session_state["authenticated"] = True
+            st.session_state["username"] = username
+            st.session_state["role"] = "entity"
+            st.session_state["login_password"] = ""
+            return
+            
+    st.error("Invalid Username or Password")
+
+if not st.session_state["authenticated"]:
+    st.title("Vishwautsav Analytics Login")
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.info("Log in with your Entity Name to see your data.")
+        st.text_input("Username (Entity Name or 'admin')", key="login_username")
+        st.text_input("Password", type="password", key="login_password")
+        st.button("Login", on_click=check_password)
+    
+    st.stop() # Stop app here if not logged in
+
+# App continues if logged in...
+def logout():
+    st.session_state["authenticated"] = False
+    st.session_state["username"] = ""
+    st.session_state["role"] = ""
+
+st.sidebar.button("Logout", on_click=logout)
+
+st.title(f"Vishwautsav Analytics Dashboard - {st.session_state['username']}")
+if st.session_state['role'] == "admin":
+    st.markdown("Welcome to the Admin Dashboard. Use the filters on the left to slice the live data from MongoDB.")
+else:
+    st.markdown(f"Welcome to the **{st.session_state['username']}** Dashboard. Here is your specific live data.")
 
 # ==========================================
 # 1. MONGODB CONNECTION
@@ -40,7 +97,7 @@ def get_data():
     df_subs = pd.DataFrame(subs)
     
     # Fetch expenses
-    expenses = list(db.expenses.find({}, {"_id": 0, "amount": 1, "date": 1, "festOrEventName": 1}))
+    expenses = list(db.expenses.find({}, {"_id": 0, "amount": 1, "date": 1, "festOrEventName": 1, "entityName": 1}))
     df_exp = pd.DataFrame(expenses)
 
     # Fetch unique entities and festivals for the dropdowns
@@ -56,16 +113,26 @@ df_subs, df_exp, entities_list, festivals_list = get_data()
 # ==========================================
 st.sidebar.header("Data Filters")
 
-selected_entity = st.sidebar.selectbox("Select Entity", entities_list)
+if st.session_state["role"] == "admin":
+    selected_entity = st.sidebar.selectbox("Select Entity", entities_list)
+else:
+    # If it's a specific entity, lock the dropdown to them
+    selected_entity = st.session_state["username"]
+    st.sidebar.markdown(f"**Entity:** {selected_entity}")
+
 selected_festival = st.sidebar.selectbox("Select Festival/Event", festivals_list)
 
 # Filter the dataframes based on selection
 if selected_entity != "All Entities":
-    df_subs = df_subs[df_subs['entityName'] == selected_entity]
+    if not df_subs.empty and 'entityName' in df_subs.columns:
+        df_subs = df_subs[df_subs['entityName'] == selected_entity]
+    if not df_exp.empty and 'entityName' in df_exp.columns:
+        df_exp = df_exp[df_exp['entityName'] == selected_entity]
 
 if selected_festival != "All Festivals":
-    df_subs = df_subs[df_subs['festOrEventName'] == selected_festival]
-    if not df_exp.empty:
+    if not df_subs.empty and 'festOrEventName' in df_subs.columns:
+        df_subs = df_subs[df_subs['festOrEventName'] == selected_festival]
+    if not df_exp.empty and 'festOrEventName' in df_exp.columns:
         df_exp = df_exp[df_exp['festOrEventName'] == selected_festival]
 
 st.sidebar.markdown("---")
