@@ -79,8 +79,16 @@ selected_festival = st.sidebar.selectbox("Select Festival/Event", festivals_list
 if selected_entity != "All Entities":
     if not df_subs.empty and 'entityName' in df_subs.columns:
         df_subs = df_subs[df_subs['entityName'] == selected_entity]
-    if not df_exp.empty and 'entityName' in df_exp.columns:
-        df_exp = df_exp[df_exp['entityName'] == selected_entity]
+    
+    if not df_exp.empty:
+        if 'entityName' in df_exp.columns:
+            # Filter it strictly, fill NaN with empty string to avoid errors
+            df_exp['entityName'] = df_exp['entityName'].fillna('')
+            df_exp = df_exp[df_exp['entityName'] == selected_entity]
+        else:
+            # CRITICAL FIX: If entityName doesn't exist in DB for expenses,
+            # clear the dataframe so other entities' expenses don't bleed through!
+            df_exp = pd.DataFrame(columns=df_exp.columns)
 
 if selected_festival != "All Festivals":
     if not df_subs.empty and 'festOrEventName' in df_subs.columns:
