@@ -109,7 +109,7 @@ const Navbar = () => {
                                     <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/events">Events</NavLink>
                                 </li>
                                 <li className="nav-item">
-                                    <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/dashboard">Dash</NavLink>
+                                    <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-2 small ${isActive ? 'active' : ''}`} to="/dashboard">Dashboard</NavLink>
                                 </li>
                             </>
                         )}
