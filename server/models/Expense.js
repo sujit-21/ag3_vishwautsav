@@ -11,6 +11,7 @@ const ExpenseSchema = new mongoose.Schema({
     onlineParticulars: { type: String },
     onlineReference: { type: String },
     festOrEventName: { type: String },
+    entityName: { type: String },
     category: { type: String, enum: ['festival', 'event'], required: true },
     adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     createdAt: { type: Date, default: Date.now }
