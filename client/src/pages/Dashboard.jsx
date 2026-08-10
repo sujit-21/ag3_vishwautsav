@@ -406,7 +406,7 @@ const Dashboard = () => {
                                     style={{ height: '850px' }}
                                 >
                                     <iframe 
-                                        src="https://vishwautsav.streamlit.app/?embed=true" 
+                                        src={`https://vishwautsav.streamlit.app/?embed=true${user?.entityName ? `&entity=${encodeURIComponent(user.entityName)}` : ''}`} 
                                         width="100%" 
                                         height="100%" 
                                         style={{ border: 'none', borderRadius: '8px' }}
