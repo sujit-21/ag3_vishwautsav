@@ -53,13 +53,12 @@ def get_data():
     expenses = list(db.expenses.find({}, {"_id": 0, "amount": 1, "date": 1, "festOrEventName": 1, "entityName": 1}))
     df_exp = pd.DataFrame(expenses)
 
-    # Fetch unique entities and festivals for the dropdowns
+    # Fetch unique entities for the dropdowns
     entities_list = ["All Entities"] + (df_subs['entityName'].dropna().unique().tolist() if not df_subs.empty else [])
-    festivals_list = ["All Festivals"] + (df_subs['festOrEventName'].dropna().unique().tolist() if not df_subs.empty else [])
 
-    return df_subs, df_exp, entities_list, festivals_list
+    return df_subs, df_exp, entities_list
 
-df_subs, df_exp, entities_list, festivals_list = get_data()
+df_subs, df_exp, entities_list = get_data()
 
 # ==========================================
 # 3. SIDEBAR FILTERS
@@ -73,9 +72,7 @@ if url_entity:
 else:
     selected_entity = st.sidebar.selectbox("Select Entity", entities_list)
 
-selected_festival = st.sidebar.selectbox("Select Festival/Event", festivals_list)
-
-# Filter the dataframes based on selection
+# 1. FILTER BY ENTITY FIRST
 if selected_entity != "All Entities":
     if not df_subs.empty and 'entityName' in df_subs.columns:
         df_subs = df_subs[df_subs['entityName'] == selected_entity]
@@ -90,6 +87,11 @@ if selected_entity != "All Entities":
             # clear the dataframe so other entities' expenses don't bleed through!
             df_exp = pd.DataFrame(columns=df_exp.columns)
 
+# 2. GENERATE FESTIVALS LIST DYNAMICALLY BASED ON FILTERED DATA
+festivals_list = ["All Festivals"] + (df_subs['festOrEventName'].dropna().unique().tolist() if not df_subs.empty else [])
+selected_festival = st.sidebar.selectbox("Select Festival/Event", festivals_list)
+
+# 3. FILTER BY FESTIVAL
 if selected_festival != "All Festivals":
     if not df_subs.empty and 'festOrEventName' in df_subs.columns:
         df_subs = df_subs[df_subs['festOrEventName'] == selected_festival]
