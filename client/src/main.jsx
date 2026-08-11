@@ -15,7 +15,7 @@ axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '';
 
 // Configure global axios interceptor for auth token and club context
 axios.interceptors.request.use(config => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
