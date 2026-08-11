@@ -1164,27 +1164,27 @@ const Events = () => {
                 <div className="glass-card p-4">
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h3 className="fw-bold mb-1">Event Expenses</h3>
+                            <h3 className="mb-1 fw-normal">Expenses</h3>
                             <p className="text-muted small">Track and manage all specialized event spending.</p>
                         </div>
                         <div className="d-flex align-items-center gap-2">
                             {/* Search Expenses */}
-                            <div className="input-group glass-card bg-secondary bg-opacity-5 p-1" style={{ maxWidth: '280px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted"><Search size={16} /></span>
+                            <div className="input-group glass-card bg-secondary bg-opacity-5 p-0 overflow-hidden" style={{ maxWidth: '240px', height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-2 py-0 d-flex align-items-center"><Search size={14} /></span>
                                 <input
                                     type="text"
-                                    className="form-control bg-transparent border-0 text-main shadow-none small"
+                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-2 h-100"
                                     placeholder="Search expenses..."
                                     value={expSearch}
                                     onChange={(e) => setExpSearch(e.target.value)}
                                 />
                             </div>
-                            <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger d-flex align-items-center gap-2">
-                                <FileDown size={18} /> All Expenses Details PDF
+                            <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-2 text-nowrap" style={{ height: '32px' }}>
+                                <FileDown size={14} /> <span className="extra-tiny fw-bold uppercase">All Expenses PDF</span>
                             </button>
                             {!isExpAdding && (
-                                <button onClick={() => setIsExpAdding(true)} className="btn btn-premium d-flex align-items-center gap-2">
-                                    <Plus size={18} /> New Expense
+                                <button onClick={() => setIsExpAdding(true)} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2 text-nowrap" style={{ height: '32px' }}>
+                                    <Plus size={14} /> <span className="extra-tiny fw-bold uppercase">New Expense</span>
                                 </button>
                             )}
                         </div>
@@ -1320,17 +1320,17 @@ const Events = () => {
                                     <tr><td colSpan="7" className="text-center py-5 text-muted">{expensesList.length === 0 ? "No expenses logged yet." : "No matching expenses found."}</td></tr>
                                 ) : (
                                     filteredExpenses.map((exp) => (
-                                    <tr key={exp.expenseId}>
-                                        <td className="border-0 py-1 small text-muted">{new Date(exp.date).toLocaleDateString()}</td>
+                                    <tr key={exp.expenseId} className="align-middle border-bottom border-secondary border-opacity-10">
+                                        <td className="border-0 py-3 small text-muted">{new Date(exp.date).toLocaleDateString()}</td>
                                         <td className="border-0 py-3"><span className="badge bg-secondary bg-opacity-10 text-muted font-monospace">{exp.expenseId}</span></td>
                                         <td className="border-0 py-3 fw-bold">{exp.particular}</td>
-                                        <td className="border-0 py-3 fw-bold">{exp.expenseType}</td>
-                                        <td className="border-0 py-3">
+                                        <td className="border-0 py-3 small fw-bold">{exp.expenseType}</td>
+                                        <td className="border-0 py-3 small">
                                             <span className={`badge rounded-pill px-2 py-1 extra-tiny ${exp.paymentType === 'Online' ? 'bg-info bg-opacity-10 text-info' : exp.paymentType === 'Due' ? 'bg-danger bg-opacity-10 text-danger' : 'bg-success bg-opacity-10 text-success'}`}>
                                                 {exp.paymentType === 'Online' && exp.onlineParticulars ? `Online (${exp.onlineParticulars})` : exp.paymentType}
                                             </span>
                                         </td>
-                                        <td className="border-0 py-3 text-end fw-bold text-danger">-{exp.currency}{(Number(exp.amount) || 0).toLocaleString()}</td>
+                                        <td className="border-0 py-3 small text-end fw-bold text-danger">-{exp.currency}{(Number(exp.amount) || 0).toLocaleString()}</td>
                                         <td className="border-0 py-3 text-end">
                                             <button onClick={() => downloadExpensePDF(exp)} className="btn btn-sm text-info p-1 me-2" title="Download PDF"><FileDown size={16} /></button>
                                             <button onClick={() => {
