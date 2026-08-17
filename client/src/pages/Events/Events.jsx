@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, History, Eye, Phone, ShieldCheck, Lock, User, IndianRupee, Crown, CreditCard, Copy } from 'lucide-react'
+import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, History, Eye, Phone, ShieldCheck, Lock, User, IndianRupee, Crown, CreditCard, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import VIPCard from '../../components/VIPCard'
@@ -137,6 +137,26 @@ const Events = () => {
     const [subSearch, setSubSearch] = useState('')
     const [expSearch, setExpSearch] = useState('')
     const [cardSearch, setCardSearch] = useState('')
+
+    // Sort and Filter States for Events Main Tab
+    const [eventSort, setEventSort] = useState('newest')
+    const [eventCategoryFilter, setEventCategoryFilter] = useState('all')
+
+    // Sort and Filter States for Attendees (Subscriptions)
+    const [subSort, setSubSort] = useState('newest')
+    const [subMembershipFilter, setSubMembershipFilter] = useState('all')
+    const [subPaymentFilter, setSubPaymentFilter] = useState('all')
+
+    // Sort and Filter States for Expenses
+    const [expSort, setExpSort] = useState('newest')
+    const [expTypeFilter, setExpTypeFilter] = useState('all')
+    const [expPaymentFilter, setExpPaymentFilter] = useState('all')
+
+    // Sort and Filter States for Cards
+    const [cardSort, setCardSort] = useState('name-asc')
+    const [cardMembershipFilter, setCardMembershipFilter] = useState('all')
+    const [isDataOpen, setIsDataOpen] = useState(false)
+
     const [events, setEvents] = useState([])
     const [festivals, setFestivals] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -699,6 +719,115 @@ const Events = () => {
         } catch (err) { console.error(err); alert('PDF Failed'); }
     }
 
+    const downloadMasterDataPDF = async () => {
+        try {
+            const jspdfModule = await import('jspdf');
+            const autoTableModule = await import('jspdf-autotable');
+            const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
+            const autoTable = autoTableModule.default || autoTableModule;
+
+            const doc = new jsPDF({ orientation: 'landscape' });
+
+            // Header Banner
+            doc.setFillColor(15, 23, 42); // Dark Navy
+            doc.rect(0, 0, 297, 35, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(18);
+            doc.setFont(undefined, 'bold');
+            const titleName = (activeEvent?.title || 'EVENT REPORT').toUpperCase();
+            doc.text(`MASTER DATA REPORT: ${titleName}`, 148, 16, { align: 'center' });
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Generated on: ${new Date().toLocaleString()} | Entity: ${activeEvent?.entityName || 'Vishwa Utsav'} | Complete Unified Master Records`, 148, 26, { align: 'center' });
+
+            // SECTION 1: ATTENDEES & SUBSCRIPTIONS
+            doc.setFontSize(12);
+            doc.setTextColor(30, 41, 59);
+            doc.setFont(undefined, 'bold');
+            doc.text("1. ATTENDEES & SUBSCRIPTIONS SUMMARY", 14, 45);
+
+            autoTable(doc, {
+                startY: 50,
+                head: [['Pass ID', 'Date', 'Name', 'Contact', 'Address', 'Amount', 'Payment Status', 'Tier']],
+                body: subscriptionsList.map(s => [
+                    s.subId || s.cardId,
+                    new Date(s.date).toLocaleDateString(),
+                    s.name,
+                    `${s.countryCode || ''} ${s.contact || ''}`,
+                    s.address || '—',
+                    `Rs. ${String(s.amount || 0).replace(/[^0-9.]/g, '')}`,
+                    s.paymentType === 'Online' && s.onlineParticulars ? `Digital (Online Bank) (${s.onlineParticulars})` : getPaymentDisplayName(s.paymentType),
+                    getTierDisplayName(s.membershipType)
+                ]),
+                theme: 'striped',
+                headStyles: { fillColor: [63, 81, 181] },
+                styles: { fontSize: 8 }
+            });
+
+            let nextY = (doc.lastAutoTable?.finalY || 50) + 14;
+            if (nextY > 160) {
+                doc.addPage();
+                nextY = 20;
+            }
+
+            // SECTION 2: EXPENSES LOG
+            doc.setFontSize(12);
+            doc.setTextColor(30, 41, 59);
+            doc.setFont(undefined, 'bold');
+            doc.text("2. EXPENSES AUDIT LOG", 14, nextY);
+
+            autoTable(doc, {
+                startY: nextY + 5,
+                head: [['Date', 'Voucher ID', 'Particulars', 'Category', 'Amount']],
+                body: expensesList.map(e => [
+                    new Date(e.date).toLocaleDateString(),
+                    e.expenseId,
+                    e.particular,
+                    e.expenseType,
+                    `Rs. ${String(e.amount || 0).replace(/[^0-9.]/g, '')}`
+                ]),
+                theme: 'grid',
+                headStyles: { fillColor: [225, 29, 72] },
+                styles: { fontSize: 8 }
+            });
+
+            nextY = (doc.lastAutoTable?.finalY || nextY) + 14;
+            if (nextY > 140) {
+                doc.addPage();
+                nextY = 20;
+            }
+
+            // SECTION 3: BALANCE SHEET SUMMARY
+            doc.setFontSize(12);
+            doc.setTextColor(30, 41, 59);
+            doc.setFont(undefined, 'bold');
+            doc.text("3. BALANCE SHEET & AUDIT STATEMENT", 14, nextY);
+
+            const totalCollection = subscriptionsList.reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0);
+            const totalExpenses = expensesList.reduce((acc, e) => acc + (Number(String(e.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0);
+            const netBalance = totalCollection - totalExpenses;
+
+            autoTable(doc, {
+                startY: nextY + 5,
+                body: [
+                    ['Total Revenue Generated (Subscriptions)', `Rs. ${totalCollection.toLocaleString()}`],
+                    ['Total Expenses Incurred', `Rs. ${totalExpenses.toLocaleString()}`],
+                    ['Net Operating Profit / Balance', `Rs. ${netBalance.toLocaleString()}`]
+                ],
+                theme: 'striped',
+                headStyles: { fillColor: [16, 185, 129] },
+                styles: { fontSize: 9, fontStyle: 'bold' }
+            });
+
+            // Master Data filename pattern: MASTER DATA_EVENT NAME
+            const eventTitle = activeEvent?.title || 'EVENT';
+            doc.save(`MASTER DATA_${eventTitle}.pdf`);
+        } catch (err) {
+            console.error(err);
+            alert('Master Data PDF generation failed');
+        }
+    }
+
     useEffect(() => {
         fetchEvents()
         fetchFestivals()
@@ -844,38 +973,100 @@ const Events = () => {
         setEditingEvent(null)
     }
 
-    const filteredSubs = subscriptionsList.filter(sub => {
-        const q = subSearch.toLowerCase()
-        return (
-            (sub.subId || '').toLowerCase().includes(q) ||
-            (sub.name || '').toLowerCase().includes(q) ||
-            (sub.address || '').toLowerCase().includes(q) ||
-            (sub.contact || '').toLowerCase().includes(q) ||
-            (sub.membershipType || '').toLowerCase().includes(q) ||
-            (sub.paymentType || '').toLowerCase().includes(q)
-        )
-    })
+    const filteredEvents = events
+        .filter(e => {
+            if (!e) return false;
+            const q = search.toLowerCase()
+            const matchesSearch = !q || (
+                (e.title || '').toLowerCase().includes(q) ||
+                (e.location && e.location.toLowerCase().includes(q)) ||
+                (e.clubOrOrg && e.clubOrOrg.toLowerCase().includes(q))
+            )
+            const matchesCategory = eventCategoryFilter === 'all' || e.category === eventCategoryFilter
+            return matchesSearch && matchesCategory
+        })
+        .sort((a, b) => {
+            if (eventSort === 'newest') return new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0)
+            if (eventSort === 'oldest') return new Date(a.date || a.createdAt || 0) - new Date(b.date || b.createdAt || 0)
+            if (eventSort === 'title-asc') return (a.title || '').localeCompare(b.title || '')
+            if (eventSort === 'title-desc') return (b.title || '').localeCompare(a.title || '')
+            if (eventSort === 'price-high') return (Number(b.price) || 0) - (Number(a.price) || 0)
+            if (eventSort === 'price-low') return (Number(a.price) || 0) - (Number(b.price) || 0)
+            return 0
+        })
 
-    const filteredExpenses = expensesList.filter(exp => {
-        const q = expSearch.toLowerCase()
-        return (
-            (exp.expenseId || '').toLowerCase().includes(q) ||
-            (exp.particular || '').toLowerCase().includes(q) ||
-            (exp.expenseType || '').toLowerCase().includes(q) ||
-            (exp.paymentType || '').toLowerCase().includes(q)
-        )
-    })
+    const filteredSubs = subscriptionsList
+        .filter(sub => {
+            if (!sub) return false;
+            const q = subSearch.toLowerCase()
+            const matchesSearch = !q || (
+                (sub.subId || '').toLowerCase().includes(q) ||
+                (sub.name || '').toLowerCase().includes(q) ||
+                (sub.address || '').toLowerCase().includes(q) ||
+                (sub.contact || '').toLowerCase().includes(q) ||
+                (sub.membershipType || '').toLowerCase().includes(q) ||
+                (sub.paymentType || '').toLowerCase().includes(q)
+            )
+            const matchesMembership = subMembershipFilter === 'all' || 
+                sub.membershipType === subMembershipFilter || 
+                (subMembershipFilter === 'Administrative' && (sub.membershipType === 'Administrative' || sub.membershipType === 'Admin'))
+            const matchesPayment = subPaymentFilter === 'all' || sub.paymentType === subPaymentFilter
+            return matchesSearch && matchesMembership && matchesPayment
+        })
+        .sort((a, b) => {
+            if (subSort === 'newest') return new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0)
+            if (subSort === 'oldest') return new Date(a.date || a.createdAt || 0) - new Date(b.date || b.createdAt || 0)
+            if (subSort === 'name-asc') return (a.name || '').localeCompare(b.name || '')
+            if (subSort === 'name-desc') return (b.name || '').localeCompare(a.name || '')
+            if (subSort === 'amount-high') return (Number(b.amount) || 0) - (Number(a.amount) || 0)
+            if (subSort === 'amount-low') return (Number(a.amount) || 0) - (Number(b.amount) || 0)
+            return 0
+        })
 
-    const filteredCards = cardsList.filter(sub => {
-        if (!sub) return false;
-        const q = cardSearch.toLowerCase()
-        return (
-            (sub.cardId || '').toLowerCase().includes(q) ||
-            (sub.name || '').toLowerCase().includes(q) ||
-            (sub.membershipType || '').toLowerCase().includes(q) ||
-            (sub.address || '').toLowerCase().includes(q)
-        )
-    })
+    const filteredExpenses = expensesList
+        .filter(exp => {
+            if (!exp) return false;
+            const q = expSearch.toLowerCase()
+            const matchesSearch = !q || (
+                (exp.expenseId || '').toLowerCase().includes(q) ||
+                (exp.particular || '').toLowerCase().includes(q) ||
+                (exp.expenseType || '').toLowerCase().includes(q) ||
+                (exp.paymentType || '').toLowerCase().includes(q)
+            )
+            const matchesType = expTypeFilter === 'all' || exp.expenseType === expTypeFilter
+            const matchesPayment = expPaymentFilter === 'all' || exp.paymentType === expPaymentFilter
+            return matchesSearch && matchesType && matchesPayment
+        })
+        .sort((a, b) => {
+            if (expSort === 'newest') return new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0)
+            if (expSort === 'oldest') return new Date(a.date || a.createdAt || 0) - new Date(b.date || b.createdAt || 0)
+            if (expSort === 'amount-high') return (Number(b.amount) || 0) - (Number(a.amount) || 0)
+            if (expSort === 'amount-low') return (Number(a.amount) || 0) - (Number(b.amount) || 0)
+            if (expSort === 'name-asc') return (a.particular || '').localeCompare(b.particular || '')
+            return 0
+        })
+
+    const filteredCards = cardsList
+        .filter(sub => {
+            if (!sub) return false;
+            const q = cardSearch.toLowerCase()
+            const matchesSearch = !q || (
+                (sub.cardId || '').toLowerCase().includes(q) ||
+                (sub.name || '').toLowerCase().includes(q) ||
+                (sub.membershipType || '').toLowerCase().includes(q) ||
+                (sub.address || '').toLowerCase().includes(q)
+            )
+            const matchesMembership = cardMembershipFilter === 'all' || 
+                sub.membershipType === cardMembershipFilter || 
+                (cardMembershipFilter === 'Administrative' && (sub.membershipType === 'Administrative' || sub.membershipType === 'Admin'))
+            return matchesSearch && matchesMembership
+        })
+        .sort((a, b) => {
+            if (cardSort === 'name-asc') return (a.name || '').localeCompare(b.name || '')
+            if (cardSort === 'name-desc') return (b.name || '').localeCompare(a.name || '')
+            if (cardSort === 'newest') return new Date(b.date || b.createdAt || 0) - new Date(a.date || a.createdAt || 0)
+            return 0
+        })
 
     return (
         <div className="container pt-3 pb-5 text-main">
@@ -883,21 +1074,61 @@ const Events = () => {
 
                 <div className="d-inline-flex flex-wrap align-items-center bg-secondary bg-opacity-10 p-1 rounded-3 gap-1 shadow-sm border border-secondary border-opacity-10">
                     {activeTab === 'events' && (
-                        <div className="d-flex align-items-center gap-2 me-2">
-                            <div className="input-group bg-white rounded-2 overflow-hidden shadow-sm flex-nowrap" style={{ width: '220px', height: '34px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-2 py-0 d-flex align-items-center"><Search size={14} /></span>
+                        <div className="d-flex align-items-center gap-2 me-2 flex-nowrap overflow-x-auto py-1">
+                            {/* SORT Tab (Left side of Search Bar) */}
+                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={13} /></span>
+                                <select
+                                    className="form-select bg-transparent border-0 text-main shadow-none tiny p-0 pe-3 h-100 fw-bold"
+                                    style={{ fontSize: '0.72rem' }}
+                                    value={eventSort}
+                                    onChange={(e) => setEventSort(e.target.value)}
+                                    title="Sort Events"
+                                >
+                                    <option value="newest">SORT: Newest</option>
+                                    <option value="oldest">SORT: Oldest</option>
+                                    <option value="title-asc">SORT: Title (A-Z)</option>
+                                    <option value="title-desc">SORT: Title (Z-A)</option>
+                                    <option value="price-high">SORT: Price (High-Low)</option>
+                                    <option value="price-low">SORT: Price (Low-High)</option>
+                                </select>
+                            </div>
+
+                            {/* FILTER Tab (Left side of Search Bar) */}
+                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${eventCategoryFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={13} className={eventCategoryFilter !== 'all' ? 'text-primary' : ''} /></span>
+                                <select
+                                    className="form-select bg-transparent border-0 text-main shadow-none tiny p-0 pe-3 h-100 fw-bold"
+                                    style={{ fontSize: '0.72rem' }}
+                                    value={eventCategoryFilter}
+                                    onChange={(e) => setEventCategoryFilter(e.target.value)}
+                                    title="Filter Category"
+                                >
+                                    <option value="all">Category: All</option>
+                                    <option value="Music">Music</option>
+                                    <option value="Cultural">Cultural</option>
+                                    <option value="Workshop">Workshop</option>
+                                    <option value="Sports">Sports</option>
+                                    <option value="Tech">Tech</option>
+                                    <option value="Seminar">Seminar</option>
+                                </select>
+                            </div>
+
+                            {/* Search Bar */}
+                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={13} /></span>
                                 <input
                                     type="text"
                                     className="form-control bg-transparent border-0 text-main shadow-none p-0 pe-2 h-100"
-                                    placeholder="Search by event title, location or club..."
+                                    placeholder="Search events..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    style={{ fontSize: '0.8rem' }}
+                                    style={{ fontSize: '0.72rem' }}
                                 />
                             </div>
                             {user?.role === 'admin' && (
-                                <button onClick={() => openModal()} className="btn btn-primary d-flex align-items-center justify-content-center px-3 rounded-2 fw-bold text-white shadow-sm transition-all hover-glow" style={{ fontSize: '0.75rem', height: '34px', backgroundColor: '#5c6cff', borderColor: '#5c6cff' }}>
-                                    <Plus size={14} className="me-1" /> CREATE
+                                <button onClick={() => openModal()} className="btn btn-primary d-flex align-items-center justify-content-center px-3 rounded-pill fw-bold text-white shadow-sm transition-all hover-glow text-nowrap ms-1" style={{ fontSize: '0.72rem', height: '32px', backgroundColor: '#5c6cff', borderColor: '#5c6cff' }}>
+                                    <Plus size={13} className="me-1" /> CREATE
                                 </button>
                             )}
                         </div>
@@ -925,6 +1156,57 @@ const Events = () => {
                             </button>
                         )
                     })}
+
+                    {/* DROPDOWN name DATA - Shortcut Downloads */}
+                    <div className="position-relative d-inline-block ms-1">
+                        <button
+                            onClick={() => !activeEvent ? alert("Select an event first to access Data reports") : setIsDataOpen(!isDataOpen)}
+                            className={`btn btn-sm px-3 py-1.5 rounded-2 text-capitalize fw-bold transition-all d-flex align-items-center gap-1.5 shadow-sm data-dropdown-btn ${isDataOpen ? 'active-data-open' : ''} ${!activeEvent ? 'opacity-40 cursor-not-allowed' : ''}`}
+                            style={{ fontSize: '0.75rem', height: '34px' }}
+                            title="Quick Download Data Reports"
+                        >
+                            <Download size={13} /> DATA <ChevronDown size={12} className={`transition-all ${isDataOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        {isDataOpen && activeEvent && (
+                            <div 
+                                className="position-absolute end-0 mt-1.5 glass-card shadow-lg p-1.5 rounded-3 border data-dropdown-menu"
+                                style={{ width: '220px', zIndex: 1100 }}
+                            >
+                                <div className="extra-tiny text-muted uppercase fw-bold px-2 py-1 border-bottom border-secondary border-opacity-25 mb-1">
+                                    Data Shortcuts &amp; Downloads
+                                </div>
+                                <button 
+                                    className="btn btn-sm w-100 text-start text-white py-1.5 px-2 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1" 
+                                    onClick={() => { downloadAllAttendeesPDF(); setIsDataOpen(false); }}
+                                    style={{ fontSize: '0.75rem' }}
+                                >
+                                    <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-primary" /> Attendee PDF</span>
+                                </button>
+                                <button 
+                                    className="btn btn-sm w-100 text-start text-white py-1.5 px-2 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1" 
+                                    onClick={() => { downloadAllExpensesPDF(); setIsDataOpen(false); }}
+                                    style={{ fontSize: '0.75rem' }}
+                                >
+                                    <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-danger" /> All Expenses PDF</span>
+                                </button>
+                                <button 
+                                    className="btn btn-sm w-100 text-start text-white py-1.5 px-2 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1" 
+                                    onClick={() => { downloadBalanceSheetPDF(); setIsDataOpen(false); }}
+                                    style={{ fontSize: '0.75rem' }}
+                                >
+                                    <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-success" /> BalanceSheet PDF</span>
+                                </button>
+                                <div className="dropdown-divider my-1 border-secondary border-opacity-25"></div>
+                                <button 
+                                    className="btn btn-sm w-100 text-start text-white py-2 px-2 rounded-2 fw-bold d-flex align-items-center justify-content-between shadow-sm" 
+                                    onClick={() => { downloadMasterDataPDF(); setIsDataOpen(false); }}
+                                    style={{ fontSize: '0.75rem', background: 'linear-gradient(135deg, #4f46e5, #9333ea)' }}
+                                >
+                                    <span className="d-flex align-items-center gap-2"><Sparkles size={14} className="text-warning" /> MASTER DATA PDF</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -936,11 +1218,7 @@ const Events = () => {
                 <>
 
                     <div className="d-flex flex-column gap-2">
-                        {events.filter(e => 
-                            e.title.toLowerCase().includes(search.toLowerCase()) || 
-                            (e.location && e.location.toLowerCase().includes(search.toLowerCase())) ||
-                            (e.clubOrOrg && e.clubOrOrg.toLowerCase().includes(search.toLowerCase()))
-                        ).map((evt) => {
+                        {filteredEvents.map((evt) => {
                             const isActive = activeEvent?._id === evt._id;
                             return (
                                 <motion.div
@@ -1040,21 +1318,76 @@ const Events = () => {
                             <h5 className="fw-extrabold mb-0 text-main">Events</h5>
                             <p className="text-muted tiny mb-0">Attendees registrations and entries.</p>
                         </div>
-                        <div className="d-flex align-items-center gap-2">
-                            {/* Search Attendees */}
-                            <div className="input-group glass-card bg-secondary bg-opacity-5 p-0 overflow-hidden" style={{ maxWidth: '240px', height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-2 py-0 d-flex align-items-center"><Search size={14} /></span>
+                        <div className="d-flex align-items-center gap-2 flex-nowrap overflow-x-auto py-1">
+                            {/* SORT Tab (Left side of Search Bar) */}
+                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={13} /></span>
+                                <select
+                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-3 h-100 fw-bold"
+                                    style={{ fontSize: '0.72rem' }}
+                                    value={subSort}
+                                    onChange={(e) => setSubSort(e.target.value)}
+                                    title="Sort Attendees"
+                                >
+                                    <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
+                                    <option value="oldest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Oldest</option>
+                                    <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (A-Z)</option>
+                                    <option value="name-desc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (Z-A)</option>
+                                    <option value="amount-high" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (High-Low)</option>
+                                    <option value="amount-low" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (Low-High)</option>
+                                </select>
+                            </div>
+
+                            {/* FILTER Tab (Left side of Search Bar) */}
+                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${subMembershipFilter !== 'all' || subPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={13} className={subMembershipFilter !== 'all' || subPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
+                                <select
+                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                    style={{ fontSize: '0.72rem' }}
+                                    value={subMembershipFilter}
+                                    onChange={(e) => setSubMembershipFilter(e.target.value)}
+                                    title="Filter Tier"
+                                >
+                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Tier: All</option>
+                                    <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP</option>
+                                    <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime</option>
+                                    <option value="Non-Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Non-Prime</option>
+                                    <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
+                                </select>
+                                <select
+                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold border-start border-secondary border-opacity-25"
+                                    style={{ fontSize: '0.72rem' }}
+                                    value={subPaymentFilter}
+                                    onChange={(e) => setSubPaymentFilter(e.target.value)}
+                                    title="Filter Payment"
+                                >
+                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Pay: All</option>
+                                    <option value="Cash & Paid" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Paid</option>
+                                    <option value="Online" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Online</option>
+                                    <option value="Due" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Due</option>
+                                    <option value="Coupon or Token" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Coupon</option>
+                                </select>
+                            </div>
+
+                            {/* SEARCH Bar */}
+                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={13} /></span>
                                 <input
                                     type="text"
                                     className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-2 h-100"
                                     placeholder="Search attendees..."
                                     value={subSearch}
                                     onChange={(e) => setSubSearch(e.target.value)}
+                                    style={{ fontSize: '0.72rem' }}
                                 />
                             </div>
-                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 px-2 text-nowrap" style={{ height: '32px' }}>
-                                <FileDown size={14} /> <span className="extra-tiny fw-bold uppercase">Attendee PDF</span>
+
+                            {/* ATTENDEE PDF Button */}
+                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.7rem' }}>
+                                <FileDown size={13} /> <span className="uppercase">Attendee PDF</span>
                             </button>
+
+                            {/* ADD NEW Button */}
                             {!isSubAdding && (
                                 <button onClick={() => {
                                     setIsSubAdding(true)
@@ -1065,8 +1398,8 @@ const Events = () => {
                                         festOrEventName: activeEvent?.title || '',
                                         entityName: activeEvent?.entityName || ''
                                     })
-                                }} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2 text-nowrap" style={{ height: '32px', padding: '0 12px' }}>
-                                    <Plus size={14} /> <span className="extra-tiny fw-bold uppercase">Add New</span>
+                                }} className="btn btn-premium btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.7rem' }}>
+                                    <Plus size={13} /> <span className="uppercase">Add New</span>
                                 </button>
                             )}
                         </div>
@@ -1167,24 +1500,78 @@ const Events = () => {
                             <h3 className="mb-1 fw-normal">Expenses</h3>
                             <p className="text-muted small">Track and manage all specialized event spending.</p>
                         </div>
-                        <div className="d-flex align-items-center gap-2">
+                        <div className="d-flex align-items-center gap-2 flex-nowrap overflow-x-auto py-1">
+                            {/* SORT Tab (Left side of Search Bar) */}
+                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={13} /></span>
+                                <select
+                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                    style={{ fontSize: '0.72rem' }}
+                                    value={expSort}
+                                    onChange={(e) => setExpSort(e.target.value)}
+                                    title="Sort Expenses"
+                                >
+                                    <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
+                                    <option value="oldest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Oldest</option>
+                                    <option value="amount-high" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (High-Low)</option>
+                                    <option value="amount-low" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (Low-High)</option>
+                                    <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Particular (A-Z)</option>
+                                </select>
+                            </div>
+
+                            {/* FILTER Tab (Left side of Search Bar) */}
+                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={13} className={expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
+                                <select
+                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                    style={{ fontSize: '0.72rem' }}
+                                    value={expTypeFilter}
+                                    onChange={(e) => setExpTypeFilter(e.target.value)}
+                                    title="Filter Category"
+                                >
+                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Category: All</option>
+                                    <option value="Venue & Location" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Venue & Location</option>
+                                    <option value="Sound & Lighting" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Sound & Lighting</option>
+                                    <option value="Catering & Food" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Catering & Food</option>
+                                    <option value="Marketing & PR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Marketing & PR</option>
+                                    <option value="Artist & Talent" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Artist & Talent</option>
+                                    <option value="Security & Logistics" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Security & Logistics</option>
+                                    <option value="Miscellaneous" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Miscellaneous</option>
+                                </select>
+                                <select
+                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold border-start border-secondary border-opacity-25"
+                                    style={{ fontSize: '0.72rem' }}
+                                    value={expPaymentFilter}
+                                    onChange={(e) => setExpPaymentFilter(e.target.value)}
+                                    title="Filter Payment Mode"
+                                >
+                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Pay: All</option>
+                                    <option value="Cash" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cash</option>
+                                    <option value="Online" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Online</option>
+                                    <option value="Bank Transfer" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Bank Transfer</option>
+                                    <option value="Cheque" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cheque</option>
+                                    <option value="UPI / QR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>UPI / QR</option>
+                                </select>
+                            </div>
+
                             {/* Search Expenses */}
-                            <div className="input-group glass-card bg-secondary bg-opacity-5 p-0 overflow-hidden" style={{ maxWidth: '240px', height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-2 py-0 d-flex align-items-center"><Search size={14} /></span>
+                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={13} /></span>
                                 <input
                                     type="text"
                                     className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-2 h-100"
                                     placeholder="Search expenses..."
                                     value={expSearch}
                                     onChange={(e) => setExpSearch(e.target.value)}
+                                    style={{ fontSize: '0.72rem' }}
                                 />
                             </div>
-                            <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-2 text-nowrap" style={{ height: '32px' }}>
-                                <FileDown size={14} /> <span className="extra-tiny fw-bold uppercase">All Expenses PDF</span>
+                            <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.7rem' }}>
+                                <FileDown size={13} /> <span className="uppercase">All Expenses PDF</span>
                             </button>
                             {!isExpAdding && (
-                                <button onClick={() => setIsExpAdding(true)} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2 text-nowrap" style={{ height: '32px' }}>
-                                    <Plus size={14} /> <span className="extra-tiny fw-bold uppercase">New Expense</span>
+                                <button onClick={() => setIsExpAdding(true)} className="btn btn-premium btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.7rem' }}>
+                                    <Plus size={13} /> <span className="uppercase">New Expense</span>
                                 </button>
                             )}
                         </div>
@@ -1364,15 +1751,50 @@ const Events = () => {
                             <h3 className="fw-bold mb-1">Pass Preview</h3>
                             <p className="text-muted small">Visual representation of active member passes.</p>
                         </div>
-                        <div className="d-flex align-items-center gap-3">
-                            <div className="input-group glass-card bg-secondary bg-opacity-5 p-1" style={{ maxWidth: '240px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted"><Search size={16} /></span>
+                        <div className="d-flex align-items-center gap-2 flex-nowrap overflow-x-auto py-1">
+                            {/* SORT Tab (Left side of Search Bar) */}
+                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={13} /></span>
+                                <select
+                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                    style={{ fontSize: '0.72rem' }}
+                                    value={cardSort}
+                                    onChange={(e) => setCardSort(e.target.value)}
+                                    title="Sort Cards"
+                                >
+                                    <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (A-Z)</option>
+                                    <option value="name-desc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (Z-A)</option>
+                                    <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
+                                </select>
+                            </div>
+
+                            {/* FILTER Tab (Left side of Search Bar) */}
+                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${cardMembershipFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={13} className={cardMembershipFilter !== 'all' ? 'text-primary' : ''} /></span>
+                                <select
+                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                    style={{ fontSize: '0.72rem' }}
+                                    value={cardMembershipFilter}
+                                    onChange={(e) => setCardMembershipFilter(e.target.value)}
+                                    title="Filter by Tier"
+                                >
+                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Tier: All</option>
+                                    <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP</option>
+                                    <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime</option>
+                                    <option value="Non-Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Non-Prime</option>
+                                    <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
+                                </select>
+                            </div>
+
+                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={13} /></span>
                                 <input
                                     type="text"
-                                    className="form-control bg-transparent border-0 text-main shadow-none small py-1"
+                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-2 h-100"
                                     placeholder="Search cards..."
                                     value={cardSearch}
                                     onChange={(e) => setCardSearch(e.target.value)}
+                                    style={{ fontSize: '0.72rem' }}
                                 />
                             </div>
                             <div className="d-flex align-items-center gap-2 px-2 py-1 bg-dark bg-opacity-20 border border-white border-opacity-5 rounded-pill shadow-sm">
@@ -1393,8 +1815,8 @@ const Events = () => {
                                     festOrEventName: activeEvent?.title || ''
                                 })
                                 setIsCardAdding(true)
-                            }} className="btn btn-premium px-4">
-                                <Plus size={18} /> New Pass Card
+                            }} className="btn btn-premium btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.7rem' }}>
+                                <Plus size={13} /> <span className="uppercase">New Pass Card</span>
                             </button>
                         </div>
                     </div>
