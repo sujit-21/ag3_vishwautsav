@@ -29,12 +29,14 @@
 }
 
 .light-mode {
-    --primary-bg: #f2f9f8;
-    --secondary-bg: #e6f4f1;
-    --text-main: #143039;
-    --text-muted: #438295;
+    --primary-bg: #FFF0E0;
+    --secondary-bg: #FFE8D6;
+    --text-main: #3E2723;
+    --text-muted: #6D4C41;
+    --accent-1: #FF6B00;
+    --accent-2: #FF6B00;
     --glass-bg: rgba(255, 255, 255, 0.88);
-    --glass-border: rgba(67, 130, 149, 0.25);
+    --glass-border: rgba(72, 7, 31, 0.25);
     --modal-bg: #ffffff;
     --input-bg: rgba(230, 244, 241, 0.7);
     --input-text: #143039;
@@ -874,9 +876,9 @@ label {
 }
 
 .light-mode .navbar-floating {
-    background: linear-gradient(135deg, rgba(224, 231, 255, 0.8), rgba(243, 232, 255, 0.8)) !important;
-    border: 1.5px solid rgba(99, 102, 241, 0.15) !important;
-    box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.25) !important;
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1.5px solid rgba(255, 140, 0, 0.25) !important;
+    box-shadow: 0 10px 30px -10px rgba(255, 140, 0, 0.15) !important;
     --text-main: #0f172a;
     --text-muted: #475569;
     --glass-bg: rgba(0, 0, 0, 0.04);
@@ -1148,7 +1150,8 @@ label {
 .dark-mode .dashboard-item-card:hover {
     background-color: rgba(255, 255, 255, 0.06) !important;
     border-color: var(--accent-1) !important;
-}/* ==========================================
+}
+/* ==========================================
    SLIDING AUTHENTICATION COMPONENT
    ========================================== */
 

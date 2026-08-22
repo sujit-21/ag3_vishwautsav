@@ -69,8 +69,8 @@ const Navbar = () => {
                             <img src={logoImage} alt="Vishwa Utsav Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                         </div>
                     <div>
-                        <h1 className="fs-4 fw-extrabold mb-0 tracking-tight m-0" style={{ color: 'var(--text-main)' }}>
-                            Vishwa<span style={{ color: 'var(--palette-terracotta)' }}>Utsav</span>
+                        <h1 className="fs-4 fw-extrabold mb-0 tracking-tight m-0" style={{ color: '#D9480F' }}>
+                            VishwaUtsav
                         </h1>
                         <p className="tiny mb-0 d-none d-md-block ls-1 uppercase" style={{ color: 'var(--text-muted)' }}>One World , Many Celebrations</p>
                     </div>

@@ -34,7 +34,7 @@ const BackgroundWrapper = () => {
         return () => clearInterval(interval)
     }, [])
 
-    const showBg = ['/', '/login', '/signup', '/forgot-password', '/role-selection'].includes(location.pathname)
+    const showBg = ['/login', '/signup', '/forgot-password', '/role-selection'].includes(location.pathname)
 
     if (!showBg) return null
 

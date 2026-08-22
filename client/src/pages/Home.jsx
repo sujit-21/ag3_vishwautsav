@@ -1,10 +1,24 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, Music, Zap, Users, ChevronRight, LayoutDashboard, MessageSquare, LogOut, Sparkles, Ticket } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import musicConcertImg from '../homepage_images/Music Concert.jpg'
+import consertImg from '../homepage_images/consert.jpg'
+import holiImg from '../homepage_images/holi.jpg'
+import southFestivalsImg from '../homepage_images/south festivals.jpg'
 
+const bgImages = [musicConcertImg, consertImg, holiImg, southFestivalsImg]
 const Home = () => {
     const { isAuthenticated, logout } = useAuth()
+    const [currentBgIndex, setCurrentBgIndex] = useState(0)
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentBgIndex((prev) => (prev + 1) % bgImages.length)
+        }, 6000)
+        return () => clearInterval(interval)
+    }, [])
 
     const shortcuts = [
         {
@@ -51,8 +65,7 @@ const Home = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 border border-primary border-opacity-20 uppercase ls-2 tiny fw-bold">Vishwa Utsav Portal</span>
-                        <h1 className="display-5 fw-extrabold mb-2" style={{ color: 'var(--text-main)' }}>
+                        <h1 className="display-5 fw-extrabold mb-2" style={{ color: '#D9480F' }}>
                             {"Welcome to ".split('').map((char, index) => (
                                 <motion.span
                                     key={`w-${index}`}
@@ -72,7 +85,6 @@ const Home = () => {
                             {"Vishwa Utsav".split('').map((char, index) => (
                                 <motion.span
                                     key={`v-${index}`}
-                                    className="gradient-text"
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{
@@ -81,7 +93,7 @@ const Home = () => {
                                         repeat: Infinity,
                                         repeatDelay: 5
                                     }}
-                                    style={{ display: "inline-block", whiteSpace: "pre" }}
+                                    style={{ display: "inline-block", whiteSpace: "pre", color: "#D9480F" }}
                                 >
                                     {char}
                                 </motion.span>
@@ -154,29 +166,58 @@ const Home = () => {
                     ))}
                 </div>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.8 }}
-                    className="text-center mt-4 mx-auto"
-                    style={{ maxWidth: '700px' }}
-                >
-                    <div className="about-card p-4">
-                        <div className="text-center">
-                            <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 border border-primary border-opacity-20 uppercase ls-2 tiny fw-bold">About</span>
-                        </div>
-                        <p className="text-muted mb-0" style={{ fontSize: '0.95rem', lineHeight: '1.6', textAlign: 'justify' }}>
-                            Celebrating Culture. Connecting Communities.
+                <div className="row mt-4 g-4 align-items-stretch">
+                    {/* Gallery Section */}
+                    <div className="col-lg-6 d-flex">
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3, duration: 0.8 }}
+                            className="about-card p-4 w-100 h-100 d-flex flex-column"
+                        >
+                            <div className="text-center mb-3">
+                                <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill border border-primary border-opacity-20 uppercase ls-2 tiny fw-bold d-inline-flex align-items-center justify-content-center" style={{ lineHeight: 1 }}>Gallery</span>
+                            </div>
+                            <div className="flex-grow-1 position-relative rounded-3 overflow-hidden shadow-sm" style={{ minHeight: '300px' }}>
+                                {bgImages.map((img, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={`slideshow-image ${idx === currentBgIndex ? 'active' : ''}`}
+                                        style={{ 
+                                            backgroundImage: `url("${img}")`,
+                                            opacity: idx === currentBgIndex ? 1 : 0
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                        </motion.div>
+                    </div>
+
+                    {/* About Section */}
+                    <div className="col-lg-6 d-flex">
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.5, duration: 0.8 }}
+                            className="w-100 d-flex"
+                        >
+                            <div className="about-card p-4 w-100 d-flex flex-column justify-content-center">
+                                <div className="text-center">
+                                    <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 border border-primary border-opacity-20 uppercase ls-2 tiny fw-bold d-inline-flex align-items-center justify-content-center" style={{ lineHeight: 1 }}>About</span>
+                                </div>
+                                <p className="text-muted mb-0" style={{ fontSize: '0.95rem', lineHeight: '1.6', textAlign: 'justify' }}>
+                                    Celebrating Culture. Connecting Communities.
 
 Vishwa Utsav is a digital platform for festivals, cultural events, and community programs that enables paperless registrations, digital passes, subscriptions, donations, and seamless event management.
 
 Our platform connects organizers, participants, volunteers, sponsors, and communities through one unified digital ecosystem.
 
 Our vision is to create a smart, connected, and eco-friendly event ecosystem that brings people, culture, and celebrations together through technology.
-
-                        </p>
+                                </p>
+                            </div>
+                        </motion.div>
                     </div>
-                </motion.div>
+                </div>
 
                 {isAuthenticated && (
                     <motion.div
