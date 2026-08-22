@@ -52,7 +52,7 @@ const Home = () => {
                         transition={{ duration: 0.8 }}
                     >
                         <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 border border-primary border-opacity-20 uppercase ls-2 tiny fw-bold">Vishwa Utsav Portal</span>
-                        <h1 className="display-4 fw-extrabold mb-2" style={{ color: 'var(--text-main)' }}>
+                        <h1 className="display-5 fw-extrabold mb-2" style={{ color: 'var(--text-main)' }}>
                             {"Welcome to ".split('').map((char, index) => (
                                 <motion.span
                                     key={`w-${index}`}
