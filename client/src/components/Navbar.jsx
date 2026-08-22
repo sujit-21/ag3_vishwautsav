@@ -83,7 +83,7 @@ const Navbar = () => {
                 </button>
 
                 <div className="collapse navbar-collapse" id="navbarNav">
-                    <ul className="navbar-nav mx-auto align-items-center gap-1 mt-4 mt-lg-0">
+                    <ul className="navbar-nav flex-row flex-wrap justify-content-center mx-auto align-items-center gap-2 mt-4 mt-lg-0">
                         <li className="nav-item">
                             <NavLink onClick={closeNavbar} className={({ isActive }) => `nav-link-modern py-2 px-3 small ${isActive ? 'active' : ''}`} to="/">Home</NavLink>
                         </li>
