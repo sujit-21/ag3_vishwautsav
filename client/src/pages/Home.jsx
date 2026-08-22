@@ -61,11 +61,13 @@ const Home = () => {
             <div className="container position-relative z-1 pt-3">
                 <div className="text-center mb-4 pb-2">
                     <motion.div
+                        className="bg-white bg-opacity-50 rounded-pill px-3 py-1 d-inline-block shadow-sm border border-white border-opacity-50"
+                        style={{ backdropFilter: 'blur(10px)' }}
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <h1 className="display-5 fw-extrabold mb-2" style={{ color: '#D9480F' }}>
+                        <h1 className="display-6 fw-extrabold mb-1" style={{ color: '#D9480F' }}>
                             {"Welcome to ".split('').map((char, index) => (
                                 <motion.span
                                     key={`w-${index}`}
@@ -99,6 +101,15 @@ const Home = () => {
                                 </motion.span>
                             ))}
                         </h1>
+                        <motion.p 
+                            className="small ls-2 text-uppercase fw-semibold mb-0" 
+                            style={{ color: 'var(--text-muted)' }}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.8, delay: 0.6 }}
+                        >
+                            ONE WORLD , MANY CELEBRATIONS
+                        </motion.p>
                     </motion.div>
                 </div>
 

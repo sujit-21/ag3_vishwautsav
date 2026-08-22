@@ -72,7 +72,6 @@ const Navbar = () => {
                         <h1 className="fs-4 fw-extrabold mb-0 tracking-tight m-0" style={{ color: '#D9480F' }}>
                             VishwaUtsav
                         </h1>
-                        <p className="tiny mb-0 d-none d-md-block ls-1 uppercase" style={{ color: 'var(--text-muted)' }}>One World , Many Celebrations</p>
                     </div>
                 </Link>
 
