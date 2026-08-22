@@ -10,6 +10,7 @@ import Events from './pages/Events/Events'
 import Settings from './pages/Settings'
 import Support from './pages/Support'
 import Feedback from './pages/Feedback'
+import Gallery from './pages/Gallery'
 import Entity from './pages/Entity'
 import AttendeePortal from './pages/AttendeePortal'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -69,6 +70,7 @@ function App() {
                     <Route path="/verify-entity" element={<ProtectedRoute adminOnly skipClubCheck><Entity /></ProtectedRoute>} />
                     <Route path="/support" element={<Support />} />
                     <Route path="/feedback" element={<Feedback />} />
+                    <Route path="/gallery" element={<Gallery />} />
 
                     {/* Protected Routes */}
                     <Route path="/" element={<Home />} />

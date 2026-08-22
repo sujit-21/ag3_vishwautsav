@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Calendar, Music, Zap, Users, ChevronRight, LayoutDashboard, MessageSquare, LogOut, Sparkles, Ticket } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import musicConcertImg from '../homepage_images/Music Concert.jpg'
 import consertImg from '../homepage_images/consert.jpg'
@@ -11,6 +11,7 @@ import southFestivalsImg from '../homepage_images/south festivals.jpg'
 const bgImages = [musicConcertImg, consertImg, holiImg, southFestivalsImg]
 const Home = () => {
     const { isAuthenticated, logout } = useAuth()
+    const navigate = useNavigate()
     const [currentBgIndex, setCurrentBgIndex] = useState(0)
 
     useEffect(() => {
@@ -158,7 +159,7 @@ const Home = () => {
                                                 {item.badge}
                                             </span>
                                         </div>
-                                        <h5 className="fw-bold mb-2 d-flex align-items-center gap-2" style={{ color: 'var(--text-main)' }}>
+                                        <h5 className="fw-bold mb-2 d-flex align-items-center gap-2" style={{ color: '#D9480F' }}>
                                             {item.title}
                                         </h5>
                                         <p className="tiny mb-4 flex-grow-1" style={{ color: 'var(--text-muted)' }}>
@@ -184,22 +185,31 @@ const Home = () => {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3, duration: 0.8 }}
-                            className="about-card p-4 w-100 h-100 d-flex flex-column"
+                            whileHover={{ scale: 1.02 }}
+                            onClick={() => navigate('/gallery')}
+                            className="about-card w-100 h-100 position-relative overflow-hidden shadow-sm"
+                            style={{ minHeight: '350px', cursor: 'pointer' }}
                         >
-                            <div className="text-center mb-3">
-                                <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill border border-primary border-opacity-20 uppercase ls-2 tiny fw-bold d-inline-flex align-items-center justify-content-center" style={{ lineHeight: 1 }}>Gallery</span>
-                            </div>
-                            <div className="flex-grow-1 position-relative rounded-3 overflow-hidden shadow-sm" style={{ minHeight: '300px' }}>
-                                {bgImages.map((img, idx) => (
-                                    <div
-                                        key={idx}
-                                        className={`slideshow-image ${idx === currentBgIndex ? 'active' : ''}`}
-                                        style={{ 
-                                            backgroundImage: `url("${img}")`,
-                                            opacity: idx === currentBgIndex ? 1 : 0
-                                        }}
-                                    />
-                                ))}
+                            {/* Full bleed images */}
+                            {bgImages.map((img, idx) => (
+                                <div
+                                    key={idx}
+                                    className={`slideshow-image ${idx === currentBgIndex ? 'active' : ''}`}
+                                    style={{ 
+                                        position: 'absolute',
+                                        top: 0, left: 0, right: 0, bottom: 0,
+                                        backgroundImage: `url("${img}")`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                        opacity: idx === currentBgIndex ? 1 : 0,
+                                        transition: 'opacity 1s ease-in-out',
+                                        zIndex: 0
+                                    }}
+                                />
+                            ))}
+                            {/* Floating Badge */}
+                            <div className="position-absolute top-0 start-0 w-100 p-4 text-center" style={{ zIndex: 1 }}>
+                                <span className="badge bg-white bg-opacity-75 text-dark px-4 py-2 rounded-pill shadow-sm border border-white border-opacity-50 uppercase ls-2 tiny fw-bold d-inline-flex align-items-center justify-content-center" style={{ backdropFilter: 'blur(5px)', lineHeight: 1 }}>Gallery</span>
                             </div>
                         </motion.div>
                     </div>
