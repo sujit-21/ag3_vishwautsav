@@ -1617,7 +1617,7 @@ label {
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid var(--glass-border);
-        border-radius: 1rem;
+        border-radius: 12px !important;
         padding: 1.5rem;
         margin-top: 1rem;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
