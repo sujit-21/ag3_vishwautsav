@@ -1611,5 +1611,15 @@ label {
     transform: translateX(2px);
 }
 
-
-
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 1rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+}
