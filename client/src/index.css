@@ -895,7 +895,7 @@ label {
 
 @media (max-width: 991px) {
     .navbar-floating {
-        border-radius: 20px;
+        border-radius: 20px !important;
     }
 }
 
