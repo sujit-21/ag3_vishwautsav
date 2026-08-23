@@ -1226,7 +1226,33 @@ const Festivals = () => {
                         </div>
                     )}
 
-                    {['festivals', 'subscriptions', 'expenses', 'card', 'balanceSheet'].map(tab => {
+                    {['festivals', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet'].map(tab => {
+                        if (tab === 'new_attendee') {
+                            return (
+                                <button
+                                    key="new_attendee"
+                                    onClick={() => {
+                                        if (activeFestival) {
+                                            setIsSubAdding(true);
+                                            setSubFormData({
+                                                ...subFormData,
+                                                subId: generateSubID(),
+                                                date: new Date().toISOString().split('T')[0],
+                                                festOrEventName: activeFestival.title || '',
+                                                entityName: activeFestival.entityName || ''
+                                            });
+                                        }
+                                    }}
+                                    className={`btn btn-sm px-3 py-1.5 rounded-pill fw-bold text-white transition-all shadow-sm mx-1 ${!activeFestival ? 'opacity-40 cursor-not-allowed' : ''}`}
+                                    style={{ fontSize: '0.75rem', height: '34px', backgroundColor: '#e25822', borderColor: '#e25822' }}
+                                    disabled={!activeFestival}
+                                    title={!activeFestival ? "Select a festival first" : ""}
+                                >
+                                    <Plus size={13} className="me-1 d-inline-block" style={{marginTop:'-2px'}} /> New Attende
+                                </button>
+                            );
+                        }
+
                         const isDisabled = tab !== 'festivals' && !activeFestival
                         const labels = {
                             festivals: 'List',
