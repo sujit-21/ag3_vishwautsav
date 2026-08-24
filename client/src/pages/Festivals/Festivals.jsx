@@ -2000,12 +2000,11 @@ const Festivals = () => {
                     <div className="table-responsive">
                         <table className="table" style={{ minWidth: '520px' }}>
                             <colgroup>
-                                <col style={{ width: '140px' }} />
-                                <col style={{ width: '160px' }} />
+                                <col style={{ width: '130px' }} />
                                 <col />
-                                <col style={{ width: '100px' }} />
-                                <col style={{ width: '80px' }} />
-                                <col style={{ width: '80px' }} />
+                                <col style={{ width: '110px' }} />
+                                <col style={{ width: '90px' }} />
+                                <col style={{ width: '90px' }} />
                             </colgroup>
                             <thead>
                                 <tr className="text-muted" style={{ fontSize: '0.72rem' }}>
