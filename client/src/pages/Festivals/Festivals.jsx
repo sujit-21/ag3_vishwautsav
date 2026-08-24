@@ -2692,18 +2692,18 @@ const Festivals = () => {
             <AnimatePresence>
                 {isCardAdding && (
                     <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(12px)', zIndex: 2000 }}>
-                        <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="modal-content-premium modal-festival w-100 mx-3 shadow-2xl" style={{ maxWidth: '900px', maxHeight: '95vh', overflowY: 'auto' }}>
-                            <div className="d-flex justify-content-between align-items-center mb-3">
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="modal-content-premium modal-festival w-100 mx-3 shadow-2xl p-3 p-sm-4" style={{ maxWidth: '720px', maxHeight: '92vh', overflowY: 'auto' }}>
+                            <div className="d-flex justify-content-between align-items-center mb-2.5">
                                 <div>
-                                    <h2 className="fw-extrabold mb-1 fs-3 gradient-text">
+                                    <h4 className="fw-extrabold mb-0 gradient-text">
                                         {editingCardId ? 'Configure' : 'Design'} Member Pass
-                                    </h2>
-                                    <p className="small text-muted mb-0 italic">Customize visual identity and access validity for elite members.</p>
+                                    </h4>
+                                    <p className="extra-tiny text-muted mb-0 italic">Customize visual identity and access validity for elite members.</p>
                                 </div>
-                                <div onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-link text-white text-opacity-40 p-0 hover-rotate cursor-pointer"><X size={28} /></div>
+                                <div onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-link text-white text-opacity-40 p-0 hover-rotate cursor-pointer"><X size={22} /></div>
                             </div>
 
-                            <div className="mb-4 d-flex justify-content-center bg-dark bg-opacity-30 p-4 rounded-4 border border-white border-opacity-5">
+                            <div className="mb-3 d-flex justify-content-center bg-dark bg-opacity-30 p-2.5 rounded-3 border border-white border-opacity-5">
                                 <VIPCard
                                     eventName={cardFormData.festOrEventName || "PREVIEW MODE"}
                                     entityName={cardFormData.entityName || "ENTITY BRANDING"}
@@ -2734,13 +2734,13 @@ const Festivals = () => {
                                     const errMsg = err.response?.data?.message || err.message || 'Unknown error';
                                     alert('Error saving card: ' + errMsg)
                                 }
-                            }} className="row g-3">
+                            }} className="row g-2">
                                 <div className="col-md-6">
-                                    <label>Smart Fetch Strategy</label>
+                                    <label className="extra-tiny fw-bold text-muted mb-1">SMART FETCH STRATEGY</label>
                                     <div className="input-group-premium">
                                         <input
                                             type="text"
-                                            className="form-control-custom py-1.5 tiny"
+                                            className="form-control-custom py-1 tiny"
                                             placeholder="Scan / Enter Pass ID (e.g. XZBY...)"
                                             onKeyDown={async (e) => {
                                                 if (e.key === 'Enter') {
@@ -2764,7 +2764,7 @@ const Festivals = () => {
                                                 }
                                             }}
                                         />
-                                        <button type="button" className="btn btn-premium btn-sm rounded-0 px-3 tiny fw-bold uppercase border-0" style={{ paddingTop: 0, paddingBottom: 0 }} onClick={async (e) => {
+                                        <button type="button" className="btn btn-premium btn-sm rounded-0 px-2.5 extra-tiny fw-bold uppercase border-0" style={{ paddingTop: 0, paddingBottom: 0 }} onClick={async (e) => {
                                             const subId = e.target.parentElement.querySelector('input').value
                                             try {
                                                 const res = await axios.get(`/api/subscriptions/search/${subId}`)
@@ -2784,32 +2784,32 @@ const Festivals = () => {
                                             }
                                         }}>Sync</button>
                                     </div>
-                                    <p className="extra-tiny text-white text-opacity-25 mt-1.5 mb-0 italic">Press Enter or click Sync to auto-fill.</p>
+                                    <p className="extra-tiny text-white text-opacity-25 mt-1 mb-0 italic">Press Enter or click Sync to auto-fill.</p>
                                 </div>
 
                                 <div className="col-md-6">
-                                    <label>Physical Address / Location</label>
-                                    <input type="text" className="form-input py-1.5 tiny" placeholder="Complete address detail" value={cardFormData.address} onChange={e => setCardFormData({ ...cardFormData, address: e.target.value })} />
+                                    <label className="extra-tiny fw-bold text-muted mb-1">PHYSICAL ADDRESS / LOCATION</label>
+                                    <input type="text" className="form-input py-1 tiny" placeholder="Complete address detail" value={cardFormData.address} onChange={e => setCardFormData({ ...cardFormData, address: e.target.value })} />
                                 </div>
 
                                 <div className="col-md-6">
-                                    <label>Member Identity</label>
-                                    <input type="text" className="form-input py-1.5 tiny" placeholder="Display name on card" value={cardFormData.name} onChange={e => setCardFormData({ ...cardFormData, name: e.target.value })} required />
+                                    <label className="extra-tiny fw-bold text-muted mb-1">MEMBER IDENTITY</label>
+                                    <input type="text" className="form-input py-1 tiny" placeholder="Display name on card" value={cardFormData.name} onChange={e => setCardFormData({ ...cardFormData, name: e.target.value })} required />
                                 </div>
 
                                 <div className="col-md-6">
-                                    <label>Festival Context</label>
-                                    <input type="text" className="form-input py-1.5 tiny" placeholder="Primary event title" value={cardFormData.festOrEventName} onChange={e => setCardFormData({ ...cardFormData, festOrEventName: e.target.value })} />
+                                    <label className="extra-tiny fw-bold text-muted mb-1">FESTIVAL CONTEXT</label>
+                                    <input type="text" className="form-input py-1 tiny" placeholder="Primary event title" value={cardFormData.festOrEventName} onChange={e => setCardFormData({ ...cardFormData, festOrEventName: e.target.value })} />
                                 </div>
 
                                 <div className="col-md-6">
-                                    <label>Entity Branding</label>
-                                    <input type="text" className="form-input py-1.5 tiny" placeholder="e.g. Blue Lagoon Entity" value={cardFormData.entityName} onChange={e => setCardFormData({ ...cardFormData, entityName: e.target.value })} />
+                                    <label className="extra-tiny fw-bold text-muted mb-1">ENTITY BRANDING</label>
+                                    <input type="text" className="form-input py-1 tiny" placeholder="e.g. Blue Lagoon Entity" value={cardFormData.entityName} onChange={e => setCardFormData({ ...cardFormData, entityName: e.target.value })} />
                                 </div>
 
                                 <div className="col-md-6">
-                                    <label>Access Level</label>
-                                    <select className="form-input py-1.5 tiny" value={cardFormData.membershipType} onChange={e => setCardFormData({ ...cardFormData, membershipType: e.target.value })}>
+                                    <label className="extra-tiny fw-bold text-muted mb-1">ACCESS LEVEL</label>
+                                    <select className="form-input py-1 tiny" value={cardFormData.membershipType} onChange={e => setCardFormData({ ...cardFormData, membershipType: e.target.value })}>
                                         <option value="Regular">Volunteers</option>
                                         <option value="Prime">Prime Member</option>
                                         <option value="VIP">VIP Elite</option>
@@ -2818,26 +2818,26 @@ const Festivals = () => {
                                 </div>
 
                                 <div className="col-md-4">
-                                    <label>Group Size</label>
-                                    <input type="number" className="form-input py-1.5 tiny" value={cardFormData.familyMembers} onChange={e => setCardFormData({ ...cardFormData, familyMembers: e.target.value })} />
+                                    <label className="extra-tiny fw-bold text-muted mb-1">GROUP SIZE</label>
+                                    <input type="number" className="form-input py-1 tiny" value={cardFormData.familyMembers} onChange={e => setCardFormData({ ...cardFormData, familyMembers: e.target.value })} />
                                 </div>
 
                                 <div className="col-md-4">
-                                    <label>Effective From</label>
-                                    <input type="date" className="form-input py-1.5 tiny" value={cardFormData.fromDate} onChange={e => setCardFormData({ ...cardFormData, fromDate: e.target.value })} />
+                                    <label className="extra-tiny fw-bold text-muted mb-1">EFFECTIVE FROM</label>
+                                    <input type="date" className="form-input py-1 tiny" value={cardFormData.fromDate} onChange={e => setCardFormData({ ...cardFormData, fromDate: e.target.value })} />
                                 </div>
 
                                 <div className="col-md-4">
-                                    <label>Expiry Date</label>
-                                    <input type="date" className="form-input py-1.5 tiny" value={cardFormData.toDate} onChange={e => setCardFormData({ ...cardFormData, toDate: e.target.value })} />
+                                    <label className="extra-tiny fw-bold text-muted mb-1">EXPIRY DATE</label>
+                                    <input type="date" className="form-input py-1 tiny" value={cardFormData.toDate} onChange={e => setCardFormData({ ...cardFormData, toDate: e.target.value })} />
                                 </div>
 
-                                <div className="col-12 mt-3 pt-3 border-top border-white border-opacity-10">
-                                    <div className="d-flex gap-3">
-                                        <button type="submit" className="btn btn-premium flex-grow-1 py-2.5 px-5 shadow-lg fw-bold text-uppercase" style={{ fontSize: '0.85rem' }}>
-                                            <Zap size={16} /> {editingCardId ? 'Authorize Card Updates' : 'Generate Digital Pass Identity'}
+                                <div className="col-12 mt-2 pt-2 border-top border-white border-opacity-10">
+                                    <div className="d-flex gap-2">
+                                        <button type="submit" className="btn btn-premium flex-grow-1 py-2 px-4 shadow-lg fw-bold text-uppercase" style={{ fontSize: '0.8rem' }}>
+                                            <Zap size={14} /> {editingCardId ? 'Authorize Card Updates' : 'Generate Digital Pass Identity'}
                                         </button>
-                                        <button type="button" onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-cancel py-2.5 px-5 fw-bold text-uppercase" style={{ fontSize: '0.85rem' }}>Abort Design</button>
+                                        <button type="button" onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-cancel py-2 px-4 fw-bold text-uppercase" style={{ fontSize: '0.8rem' }}>Abort Design</button>
                                     </div>
                                 </div>
                             </form>

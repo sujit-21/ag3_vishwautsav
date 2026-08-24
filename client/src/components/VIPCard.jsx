@@ -43,52 +43,52 @@ const VIPCard = ({
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            whileHover={{ scale: 1.02, rotateY: 2, rotateX: 2 }}
-            transition={{ duration: 0.4, type: "spring", stiffness: 100 }}
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.3 }}
             className={`vip-card position-relative overflow-hidden ${className}`}
             style={{
                 backgroundImage: `url(${bgImage})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',
-                borderRadius: '24px',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                padding: 'var(--vip-card-padding, 2.5rem)',
+                borderRadius: '18px',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                padding: '1.25rem 1.5rem',
                 color: '#ffffff',
                 width: '100%',
-                maxWidth: '460px',
-                aspectRatio: '1.586 / 1', // standard credit card ratio approx
-                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1)',
+                maxWidth: '420px',
+                aspectRatio: '1.586 / 1',
+                boxShadow: '0 20px 40px -10px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.15)',
                 fontFamily: "'Outfit', sans-serif"
             }}
         >
-
             <div className="d-flex flex-column justify-content-between h-100 position-relative z-1">
                 {/* Top Section */}
                 <div>
                     <h3 style={{
                         margin: 0,
-                        fontSize: 'var(--vip-card-h3-size, 1.5rem)',
+                        fontSize: '1.05rem',
                         fontWeight: 800,
-                        letterSpacing: '1px',
+                        letterSpacing: '0.5px',
                         textTransform: 'uppercase',
-                        color: '#f8fafc',
-                        textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+                        color: '#ffffff',
+                        textShadow: '0 2px 8px rgba(0,0,0,0.6)',
+                        lineHeight: 1.2
                     }}>
                         {displayData.eventName}
                     </h3>
                     {(displayData.entityName || displayData.address) && (
-                        <div style={{ marginTop: '0.3rem' }}>
-                            {displayData.entityName && <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.8)', textTransform: 'uppercase', letterSpacing: '1px' }}>{displayData.entityName}</div>}
-                            {displayData.address && <div style={{ fontSize: '0.7rem', color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '0.1rem' }}>{displayData.address}</div>}
+                        <div style={{ marginTop: '0.2rem' }}>
+                            {displayData.entityName && <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'rgba(255, 255, 255, 0.85)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{displayData.entityName}</div>}
+                            {displayData.address && <div style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.6)', textTransform: 'uppercase', letterSpacing: '0.3px', marginTop: '0.05rem' }}>{displayData.address}</div>}
                         </div>
                     )}
                     <p style={{
-                        margin: '0.6rem 0 0 0',
-                        fontSize: 'var(--vip-card-p-size, 0.75rem)',
-                        fontWeight: 500,
-                        letterSpacing: '4px',
-                        color: 'rgba(255, 255, 255, 0.4)',
+                        margin: '0.3rem 0 0 0',
+                        fontSize: '0.62rem',
+                        fontWeight: 600,
+                        letterSpacing: '2px',
+                        color: 'rgba(255, 255, 255, 0.65)',
                         textTransform: 'uppercase'
                     }}>
                         {accessLevel}
@@ -98,96 +98,83 @@ const VIPCard = ({
                 {/* Bottom Section */}
                 <div className="mt-auto">
                     <h2 style={{
-                        margin: '0 0 0.8rem 0',
-                        fontSize: 'var(--vip-card-h2-size, 1.8rem)',
+                        margin: '0 0 0.4rem 0',
+                        fontSize: '1.25rem',
                         fontWeight: 800,
                         letterSpacing: '0.5px',
                         textTransform: 'uppercase',
                         color: '#ffffff',
-                        textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+                        textShadow: '0 2px 8px rgba(0,0,0,0.6)',
+                        lineHeight: 1.2
                     }}>
                         {displayData.userName}
                     </h2>
 
-                    <div className="d-flex justify-content-between align-items-end w-100 position-relative">
-                        {/* Faint watermark text */}
-                        <div style={{
-                            position: 'absolute',
-                            top: '-15px',
-                            left: '0',
-                            fontSize: '0.65rem',
-                            fontFamily: "'Courier New', Courier, monospace",
-                            color: 'rgba(255, 255, 255, 0.1)',
-                            letterSpacing: '2px',
-                            textTransform: 'uppercase',
-                            pointerEvents: 'none',
-                            zIndex: 0
-                        }}>
-                            VALID THROUGH
-                        </div>
-
-                        <div className="position-relative z-1" style={{ maxWidth: '60%' }}>
-                            <p className="d-flex align-items-center gap-2" style={{
-                                margin: '0 0 0.4rem 0',
-                                fontSize: 'var(--vip-card-p-size, 0.7rem)',
+                    <div className="d-flex justify-content-between align-items-end w-100 pt-1 border-top border-white border-opacity-15">
+                        <div style={{ maxWidth: '58%' }}>
+                            <p className="d-flex align-items-center gap-1 mb-0" style={{
+                                fontSize: '0.58rem',
                                 fontFamily: "'Courier New', Courier, monospace",
-                                color: 'rgba(255, 255, 255, 0.5)',
-                                letterSpacing: '2px',
-                                textTransform: 'uppercase'
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                letterSpacing: '1px',
+                                textTransform: 'uppercase',
+                                lineHeight: 1.2
                             }}>
-                                <span>U I D</span> <span style={{ opacity: 0.5 }}>//</span> <span>{String(displayData.uid || '').match(/.{1,4}/g)?.join(' ') || displayData.uid}</span>
+                                <span>UID:</span> <span>{String(displayData.uid || '').match(/.{1,4}/g)?.join(' ') || displayData.uid}</span>
                             </p>
                             <p style={{
-                                margin: 0,
-                                fontSize: 'var(--vip-card-valid-size, 0.95rem)',
-                                fontWeight: 800,
+                                margin: '0.1rem 0 0 0',
+                                fontSize: '0.72rem',
+                                fontWeight: 700,
                                 textTransform: 'uppercase',
-                                color: '#f8fafc'
+                                color: '#ffffff',
+                                lineHeight: 1.2
                             }}>
                                 {displayData.validDate}
                             </p>
                         </div>
 
-                        <div className="d-flex gap-4 text-end position-relative z-1">
+                        <div className="d-flex gap-3 text-end">
                             <div>
                                 <p style={{
-                                    margin: '0 0 0.4rem 0',
-                                    fontSize: 'var(--vip-card-p-size, 0.65rem)',
+                                    margin: '0 0 0.1rem 0',
+                                    fontSize: '0.55rem',
                                     fontWeight: 700,
-                                    color: 'rgba(255, 255, 255, 0.4)',
-                                    letterSpacing: '3px',
+                                    color: 'rgba(255, 255, 255, 0.6)',
+                                    letterSpacing: '1.5px',
                                     textTransform: 'uppercase'
                                 }}>
                                     GROUP
                                 </p>
                                 <p style={{
                                     margin: 0,
-                                    fontSize: 'var(--vip-card-group-size, 1.1rem)',
+                                    fontSize: '0.88rem',
                                     fontWeight: 800,
-                                    color: '#f8fafc',
-                                    backgroundColor: 'transparent'
+                                    color: '#ffffff',
+                                    lineHeight: 1.1
                                 }}>
                                     {displayData.familyMembers ?? 0}
                                 </p>
                             </div>
                             <div>
                                 <p style={{
-                                    margin: '0 0 0.4rem 0',
-                                    fontSize: 'var(--vip-card-p-size, 0.65rem)',
+                                    margin: '0 0 0.1rem 0',
+                                    fontSize: '0.55rem',
                                     fontWeight: 700,
-                                    color: 'rgba(255, 255, 255, 0.4)',
-                                    letterSpacing: '3px',
+                                    color: 'rgba(255, 255, 255, 0.6)',
+                                    letterSpacing: '1.5px',
                                     textTransform: 'uppercase'
                                 }}>
                                     TIER
                                 </p>
                                 <p style={{
                                     margin: 0,
-                                    fontSize: 'var(--vip-card-tier-size, 1.1rem)',
+                                    fontSize: '0.78rem',
                                     fontWeight: 800,
-                                    color: '#f8fafc'
+                                    color: '#ffffff',
+                                    lineHeight: 1.1
                                 }}>
-                                    {displayData.tier === 'Regular' ? 'Volunteers' : displayData.tier}
+                                    {displayData.tier === 'Regular' ? 'Volunteers' : (displayData.tier || 'Standard')}
                                 </p>
                             </div>
                         </div>
