@@ -112,7 +112,7 @@ const VIPCard = ({
                     </h2>
 
                     <div className="d-flex justify-content-between align-items-end w-100 pt-1 border-top border-white border-opacity-15">
-                        <div style={{ maxWidth: '58%' }}>
+                        <div style={{ maxWidth: '50%' }}>
                             <p className="d-flex align-items-center gap-1 mb-0" style={{
                                 fontSize: compact ? '0.48rem' : '0.58rem',
                                 fontFamily: "'Courier New', Courier, monospace",
@@ -135,8 +135,8 @@ const VIPCard = ({
                             </p>
                         </div>
 
-                        <div className="d-flex gap-2.5 text-end">
-                            <div>
+                        <div className="d-flex gap-3 justify-content-end align-items-end">
+                            <div className="text-center" style={{ minWidth: compact ? '32px' : '45px' }}>
                                 <p style={{
                                     margin: 0,
                                     fontSize: compact ? '0.46rem' : '0.55rem',
@@ -157,7 +157,7 @@ const VIPCard = ({
                                     {displayData.familyMembers ?? 0}
                                 </p>
                             </div>
-                            <div>
+                            <div className="text-end" style={{ minWidth: compact ? '50px' : '65px' }}>
                                 <p style={{
                                     margin: 0,
                                     fontSize: compact ? '0.46rem' : '0.55rem',
@@ -170,10 +170,11 @@ const VIPCard = ({
                                 </p>
                                 <p style={{
                                     margin: 0,
-                                    fontSize: compact ? '0.65rem' : '0.78rem',
+                                    fontSize: compact ? '0.62rem' : '0.78rem',
                                     fontWeight: 800,
                                     color: '#ffffff',
-                                    lineHeight: 1.1
+                                    lineHeight: 1.1,
+                                    whiteSpace: 'nowrap'
                                 }}>
                                     {displayData.tier === 'Regular' ? 'Volunteers' : (displayData.tier || 'Standard')}
                                 </p>
