@@ -1391,7 +1391,7 @@ const Events = () => {
             )}
 
             {activeTab === 'subscriptions' && (
-                <div className="glass-card py-3 px-4 shadow-sm" style={{ maxWidth: '820px' }}>
+                <div className="glass-card py-3 px-4 shadow-sm mx-auto" style={{ maxWidth: '820px' }}>
                     {/* Subscriptions Title, Subtitle, and Badge */}
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         <div>
