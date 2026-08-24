@@ -1392,16 +1392,21 @@ const Events = () => {
 
             {activeTab === 'subscriptions' && (
                 <div className="glass-card py-3 px-4 shadow-sm" style={{ maxWidth: '820px' }}>
-                    {/* Subscriptions Title and Subtitle */}
-                    <div className="mb-1">
-                        <h5 className="fw-extrabold mb-0 text-main">Subscriptions</h5>
-                        <p className="text-muted tiny mb-0">Attendee List and Payment tracking.</p>
+                    {/* Subscriptions Title, Subtitle, and Badge */}
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <h5 className="fw-extrabold mb-0 text-main">Subscriptions</h5>
+                            <p className="text-muted tiny mb-0">Attendee List and Payment tracking.</p>
+                        </div>
+                        <span className="badge bg-primary bg-opacity-10 text-primary fw-bold px-2.5 py-1 rounded-pill" style={{ fontSize: '0.72rem' }}>
+                            {filteredSubs.length} Attendees
+                        </span>
                     </div>
 
                     {/* Toolbar below Title inside the Card */}
                     <div className="d-flex flex-column py-1 mb-3" style={{ gap: '10px' }}>
                         {/* Row 1: Add New, Search, Attendee PDF */}
-                        <div className="d-flex align-items-center gap-2.5 flex-wrap flex-sm-nowrap">
+                        <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
                             {/* ADD NEW */}
                             {!isSubAdding && (
                                 <button onClick={() => {
@@ -1438,7 +1443,7 @@ const Events = () => {
                         </div>
 
                         {/* Row 2: Sort, Tier All, Pay All (Just below) */}
-                        <div className="d-flex align-items-center gap-2.5 flex-wrap flex-sm-nowrap">
+                        <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
                             {/* SORT */}
                             <div className="input-group action-item-pill px-2.5 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
                                 <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={13} /></span>
@@ -1458,11 +1463,11 @@ const Events = () => {
                                 </select>
                             </div>
 
-                            {/* FILTER */}
-                            <div className={`input-group action-item-pill px-2.5 align-items-center flex-nowrap shadow-sm ${subMembershipFilter !== 'all' || subPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={13} className={subMembershipFilter !== 'all' || subPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
+                            {/* TIER FILTER */}
+                            <div className={`input-group action-item-pill px-2.5 align-items-center flex-nowrap shadow-sm ${subMembershipFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={13} className={subMembershipFilter !== 'all' ? 'text-primary' : ''} /></span>
                                 <select
-                                    className="form-select select-tier bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold"
+                                    className="form-select select-tier bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
                                     style={{ fontSize: '0.75rem' }}
                                     value={subMembershipFilter}
                                     onChange={(e) => setSubMembershipFilter(e.target.value)}
@@ -1474,8 +1479,13 @@ const Events = () => {
                                     <option value="Non-Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Non-Prime</option>
                                     <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
                                 </select>
+                            </div>
+
+                            {/* PAYMENT FILTER */}
+                            <div className={`input-group action-item-pill px-2.5 align-items-center flex-nowrap shadow-sm ${subPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><CreditCard size={13} className={subPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
                                 <select
-                                    className="form-select select-pay bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold border-start border-secondary border-opacity-25"
+                                    className="form-select select-pay bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
                                     style={{ fontSize: '0.75rem' }}
                                     value={subPaymentFilter}
                                     onChange={(e) => setSubPaymentFilter(e.target.value)}
