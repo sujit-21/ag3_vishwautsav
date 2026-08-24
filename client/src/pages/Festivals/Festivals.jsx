@@ -1615,8 +1615,10 @@ const Festivals = () => {
                                                         <span className="badge bg-secondary bg-opacity-10 text-dark font-monospace px-2 py-1">{sub.subId}</span>
                                                     </td>
                                                     <td className="border-0 py-2 px-1 pe-2">
-                                                        <div className="d-flex align-items-center justify-content-between gap-1 w-100">
-                                                            <span className="fw-bold small text-truncate" title={sub.name}>{sub.name}</span>
+                                                        <div className="d-flex align-items-center justify-content-between gap-1.5 w-100">
+                                                            <span className="fw-bold small" style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.25' }}>
+                                                                {sub.name}
+                                                            </span>
                                                             <button
                                                                 type="button"
                                                                 onClick={(e) => {
