@@ -1734,7 +1734,7 @@ const Events = () => {
 
 
             {activeTab === 'expenses' && (
-                <div className="glass-card p-3">
+                <div className="glass-card py-3 px-3 px-sm-4 shadow-sm mx-auto w-100" style={{ maxWidth: '720px' }}>
                     {/* Expenses Title and Subtitle */}
                     <div className="mb-1">
                         <h4 className="mb-0 fw-normal">Expenses</h4>
