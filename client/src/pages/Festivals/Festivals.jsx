@@ -1605,12 +1605,18 @@ const Festivals = () => {
                                 {filteredSubs.length === 0 ? (
                                     <tr><td colSpan="5" className="text-center py-5 text-muted">{subscriptionsList.length === 0 ? "No subscriptions yet. Click 'Add New' to begin." : "No matching attendees found."}</td></tr>
                                 ) : (
-                                    filteredSubs.map((sub) => {
+                                    filteredSubs.map((sub, index) => {
                                         const isInfoOpen = !!openInfoIds[sub.subId];
                                         const isActionOpen = openActionSubId === sub.subId;
+                                        const isEven = index % 2 === 0;
+                                        const rowBg = isInfoOpen
+                                            ? 'rgba(67, 130, 149, 0.14)'
+                                            : isEven
+                                                ? 'rgba(67, 130, 149, 0.07)'
+                                                : 'rgba(224, 122, 67, 0.07)';
                                         return (
                                             <Fragment key={sub.subId}>
-                                                <tr className={`align-middle transition-all ${isInfoOpen ? 'border-bottom-0 bg-secondary bg-opacity-5' : ''}`}>
+                                                <tr className="align-middle transition-all" style={{ backgroundColor: rowBg }}>
                                                     <td className="border-0 py-2 ps-2 pe-1">
                                                         <span className="badge bg-secondary bg-opacity-10 text-dark font-monospace px-2 py-1">{sub.subId}</span>
                                                     </td>
@@ -1758,7 +1764,7 @@ const Festivals = () => {
                                                     </td>
                                                 </tr>
                                                 {isInfoOpen && (
-                                                    <tr className="bg-secondary bg-opacity-5 border-top-0">
+                                                    <tr style={{ backgroundColor: 'rgba(67, 130, 149, 0.14)' }} className="border-top-0">
                                                         <td colSpan="5" className="border-0 pt-0 pb-2 px-3">
                                                             <motion.div
                                                                 initial={{ opacity: 0, height: 0 }}
