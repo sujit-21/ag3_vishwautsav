@@ -1998,13 +1998,14 @@ const Festivals = () => {
                     )}
 
                     <div className="table-responsive rounded-2" style={{ WebkitOverflowScrolling: 'touch' }}>
-                        <table className="table table-hover align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%', minWidth: '540px' }}>
+                        <table className="table table-hover align-middle mb-0" style={{ width: '100%', minWidth: '560px' }}>
                             <colgroup>
-                                <col style={{ width: '90px' }} />
-                                <col style={{ width: '180px' }} />
-                                <col style={{ width: '100px' }} />
+                                <col style={{ width: '110px' }} />
+                                <col style={{ width: '200px' }} />
+                                <col style={{ width: '110px' }} />
                                 <col style={{ width: '85px' }} />
                                 <col style={{ width: '85px' }} />
+                                <col />
                             </colgroup>
                             <thead>
                                 <tr className="text-muted" style={{ fontSize: '0.72rem' }}>
@@ -2013,11 +2014,12 @@ const Festivals = () => {
                                     <th className="border-0 bg-transparent py-2 px-1">PAYMENT</th>
                                     <th className="border-0 bg-transparent py-2 px-1">AMOUNT</th>
                                     <th className="border-0 bg-transparent py-2 px-1">ACTION</th>
+                                    <th className="border-0 bg-transparent py-2"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredExpenses.length === 0 ? (
-                                    <tr><td colSpan="5" className="text-center py-5 text-muted">{expensesList.length === 0 ? "No expenses logged yet." : "No matching expenses found."}</td></tr>
+                                    <tr><td colSpan="6" className="text-center py-5 text-muted">{expensesList.length === 0 ? "No expenses logged yet." : "No matching expenses found."}</td></tr>
                                 ) : (
                                     filteredExpenses.map((exp, index) => {
                                         const isExpInfoOpen = !!openExpInfoIds[exp.expenseId];
@@ -2030,7 +2032,7 @@ const Festivals = () => {
                                                         <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace" style={{ fontSize: '0.7rem' }}>{exp.expenseId}</span>
                                                     </td>
                                                     <td className="border-0 py-2 px-1 pe-2">
-                                                        <div className="d-flex align-items-center justify-content-between gap-1.5 w-100">
+                                                        <div className="d-inline-flex align-items-center gap-1.5">
                                                             <span className="fw-bold small" style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.25' }}>{exp.particular}</span>
                                                             <button
                                                                 type="button"
@@ -2072,10 +2074,11 @@ const Festivals = () => {
                                                             }} className="btn btn-sm text-danger p-0"><Trash2 size={14} /></button>
                                                         </div>
                                                     </td>
+                                                    <td className="border-0 py-2"></td>
                                                 </tr>
                                                 {isExpInfoOpen && (
                                                     <tr style={{ backgroundColor: 'rgba(67,130,149,0.14)' }} className="border-top-0">
-                                                        <td colSpan="5" className="border-0 pt-0 pb-2 px-3">
+                                                        <td colSpan="6" className="border-0 pt-0 pb-2 px-3">
                                                             <motion.div
                                                                 initial={{ opacity: 0, height: 0 }}
                                                                 animate={{ opacity: 1, height: 'auto' }}
