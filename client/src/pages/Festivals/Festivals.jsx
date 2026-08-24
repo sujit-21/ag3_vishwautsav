@@ -1139,7 +1139,7 @@ const Festivals = () => {
             if (expSort === 'oldest') return new Date(a.date || a.createdAt || 0) - new Date(b.date || b.createdAt || 0)
             if (expSort === 'amount-high') return (Number(b.amount) || 0) - (Number(a.amount) || 0)
             if (expSort === 'amount-low') return (Number(a.amount) || 0) - (Number(b.amount) || 0)
-            if (expSort === 'name-asc') return (exp.particular || '').localeCompare(b.particular || '')
+            if (expSort === 'name-asc') return (a.particular || '').localeCompare(b.particular || '')
             return 0
         })
 
