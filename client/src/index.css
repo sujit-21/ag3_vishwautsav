@@ -488,13 +488,15 @@ label {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(20, 48, 57, 0.85);
-    backdrop-filter: blur(8px);
-    z-index: 1050;
+    background: rgba(15, 23, 42, 0.92) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    z-index: 99999 !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 24px 16px;
+    overflow-y: auto;
 }
 
 .modal-container {

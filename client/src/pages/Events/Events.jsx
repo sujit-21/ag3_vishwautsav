@@ -2631,8 +2631,8 @@ const Events = () => {
 
             <AnimatePresence>
                 {isCardAdding && (
-                    <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(12px)', zIndex: 2000 }}>
-                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="modal-content-premium modal-festival w-100 mx-3 shadow-2xl p-3 p-sm-4" style={{ maxWidth: '720px', maxHeight: '92vh', overflowY: 'auto' }}>
+                    <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center py-4 px-2 px-sm-3" style={{ background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(16px)', zIndex: 99999 }}>
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="modal-content-premium modal-festival w-100 mx-auto shadow-2xl p-3 p-sm-4 my-auto" style={{ maxWidth: '720px', maxHeight: '88vh', overflowY: 'auto' }}>
                             <div className="d-flex justify-content-between align-items-center mb-2.5">
                                 <div>
                                     <h4 className="fw-extrabold mb-0 gradient-text">
