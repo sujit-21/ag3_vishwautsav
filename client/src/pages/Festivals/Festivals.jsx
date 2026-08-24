@@ -1473,7 +1473,7 @@ const Festivals = () => {
             )}
 
             {activeTab === 'subscriptions' && (
-                <div className="glass-card py-3 px-3 px-sm-4 shadow-sm mx-auto w-100" style={{ maxWidth: '820px' }}>
+                <div className="glass-card py-3 px-3 px-sm-4 shadow-sm mx-auto w-100" style={{ maxWidth: '720px' }}>
                     {/* Subscriptions Title, Subtitle, and Badge */}
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         <div>
@@ -1584,21 +1584,21 @@ const Festivals = () => {
                     </div>
 
                     <div className="table-responsive rounded-2" style={{ WebkitOverflowScrolling: 'touch' }}>
-                        <table className="table table-hover align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%', minWidth: '630px' }}>
+                        <table className="table table-hover align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%', minWidth: '540px' }}>
                             <colgroup>
-                                <col style={{ width: '95px' }} />
-                                <col style={{ width: '190px' }} />
-                                <col style={{ width: '130px' }} />
-                                <col style={{ width: '95px' }} />
-                                <col style={{ width: '110px' }} />
+                                <col style={{ width: '85px' }} />
+                                <col style={{ width: '175px' }} />
+                                <col style={{ width: '100px' }} />
+                                <col style={{ width: '75px' }} />
+                                <col style={{ width: '85px' }} />
                             </colgroup>
                             <thead>
                                 <tr className="small text-muted border-bottom">
-                                    <th className="border-0 fw-semibold py-2 ps-3">ID</th>
-                                    <th className="border-0 fw-semibold py-2">Attendee Name</th>
-                                    <th className="border-0 fw-semibold py-2">Payment</th>
-                                    <th className="border-0 fw-semibold py-2">Amount</th>
-                                    <th className="border-0 fw-semibold py-2">Action</th>
+                                    <th className="border-0 fw-semibold py-2 ps-2 pe-1">ID</th>
+                                    <th className="border-0 fw-semibold py-2 px-1">Attendee Name</th>
+                                    <th className="border-0 fw-semibold py-2 px-1">Payment</th>
+                                    <th className="border-0 fw-semibold py-2 px-1">Amount</th>
+                                    <th className="border-0 fw-semibold py-2 ps-1 pe-2">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="text-main">
@@ -1611,10 +1611,10 @@ const Festivals = () => {
                                         return (
                                             <Fragment key={sub.subId}>
                                                 <tr className={`align-middle transition-all ${isInfoOpen ? 'border-bottom-0 bg-secondary bg-opacity-5' : ''}`}>
-                                                    <td className="border-0 py-2 ps-3">
+                                                    <td className="border-0 py-2 ps-2 pe-1">
                                                         <span className="badge bg-secondary bg-opacity-10 text-dark font-monospace px-2 py-1">{sub.subId}</span>
                                                     </td>
-                                                    <td className="border-0 py-2">
+                                                    <td className="border-0 py-2 px-1">
                                                         <div className="d-flex align-items-center gap-1.5">
                                                             <span className="fw-bold small">{sub.name}</span>
                                                             <button
@@ -1630,12 +1630,12 @@ const Festivals = () => {
                                                                 }`}
                                                                 style={{ width: '20px', height: '20px', minWidth: '20px', cursor: 'pointer' }}
                                                                 title={isInfoOpen ? "Hide attendee details" : "Show Date, Contact, Address, Type"}
-                                                            >
+                                                              >
                                                                 <Info size={11} strokeWidth={2.5} />
                                                             </button>
                                                         </div>
                                                     </td>
-                                                    <td className="border-0 py-2">
+                                                    <td className="border-0 py-2 px-1">
                                                         <div className="d-flex align-items-center gap-1 flex-wrap">
                                                             <span className="badge px-2 py-1 fw-medium" style={getPaymentBadgeStyle(sub.paymentType)}>
                                                                 {getPaymentDisplayName(sub.paymentType)}
@@ -1643,12 +1643,12 @@ const Festivals = () => {
                                                             {sub.referenceName && <span className="text-muted extra-tiny">Ref: {sub.referenceName}</span>}
                                                         </div>
                                                     </td>
-                                                    <td className="border-0 py-2">
+                                                    <td className="border-0 py-2 px-1">
                                                         <span className="badge bg-success text-white px-2 py-1 fw-bold shadow-sm" style={{ fontSize: '0.8rem' }}>
                                                             {sub.currency || '₹'}{String(sub.amount || 0).replace(/[^0-9.]/g, '')}
                                                         </span>
                                                     </td>
-                                                    <td className="border-0 py-2 position-relative">
+                                                    <td className="border-0 py-2 ps-1 pe-2 position-relative">
                                                         <div className="position-relative d-inline-block">
                                                             <button
                                                                 type="button"
