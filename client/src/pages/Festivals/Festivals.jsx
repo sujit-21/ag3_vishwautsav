@@ -2691,20 +2691,21 @@ const Festivals = () => {
 
             <AnimatePresence>
                 {isCardAdding && (
-                    <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center py-4 px-2 px-sm-3" style={{ background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(16px)', zIndex: 99999 }}>
-                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="modal-content-premium modal-festival w-100 mx-auto shadow-2xl p-3 p-sm-4 my-auto" style={{ maxWidth: '720px', maxHeight: '88vh', overflowY: 'auto' }}>
-                            <div className="d-flex justify-content-between align-items-center mb-2.5">
+                    <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center py-3 px-2 px-sm-3" style={{ background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(16px)', zIndex: 99999 }}>
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="modal-content-premium modal-festival w-100 mx-auto shadow-2xl p-2.5 px-sm-3 py-sm-3 my-auto" style={{ maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto' }}>
+                            <div className="d-flex justify-content-between align-items-center mb-1.5">
                                 <div>
-                                    <h4 className="fw-extrabold mb-0 gradient-text">
+                                    <h6 className="fw-extrabold mb-0 gradient-text">
                                         {editingCardId ? 'Configure' : 'Design'} Member Pass
-                                    </h4>
+                                    </h6>
                                     <p className="extra-tiny text-muted mb-0 italic">Customize visual identity and access validity for elite members.</p>
                                 </div>
-                                <div onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-link text-white text-opacity-40 p-0 hover-rotate cursor-pointer"><X size={22} /></div>
+                                <div onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-link text-white text-opacity-40 p-0 hover-rotate cursor-pointer"><X size={18} /></div>
                             </div>
 
-                            <div className="mb-3 d-flex justify-content-center bg-dark bg-opacity-30 p-2.5 rounded-3 border border-white border-opacity-5">
+                            <div className="mb-2 d-flex justify-content-center bg-dark bg-opacity-30 p-1.5 rounded-3 border border-white border-opacity-5">
                                 <VIPCard
+                                    compact={true}
                                     eventName={cardFormData.festOrEventName || "PREVIEW MODE"}
                                     entityName={cardFormData.entityName || "ENTITY BRANDING"}
                                     address={cardFormData.address || "LOCATION DETAILS"}
@@ -2734,14 +2735,15 @@ const Festivals = () => {
                                     const errMsg = err.response?.data?.message || err.message || 'Unknown error';
                                     alert('Error saving card: ' + errMsg)
                                 }
-                            }} className="row g-2">
-                                <div className="col-md-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">SMART FETCH STRATEGY</label>
-                                    <div className="input-group-premium">
+                            }} className="row g-1.5">
+                                <div className="col-6">
+                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>SMART FETCH STRATEGY</label>
+                                    <div className="input-group-premium" style={{ height: '28px' }}>
                                         <input
                                             type="text"
-                                            className="form-control-custom py-1 tiny"
-                                            placeholder="Scan / Enter Pass ID (e.g. XZBY...)"
+                                            className="form-control-custom tiny py-0 px-2 h-100"
+                                            placeholder="Scan / Enter Pass ID..."
+                                            style={{ fontSize: '0.72rem' }}
                                             onKeyDown={async (e) => {
                                                 if (e.key === 'Enter') {
                                                     e.preventDefault()
@@ -2764,7 +2766,7 @@ const Festivals = () => {
                                                 }
                                             }}
                                         />
-                                        <button type="button" className="btn btn-premium btn-sm rounded-0 px-2.5 extra-tiny fw-bold uppercase border-0" style={{ paddingTop: 0, paddingBottom: 0 }} onClick={async (e) => {
+                                        <button type="button" className="btn btn-premium btn-sm rounded-0 px-2 extra-tiny fw-bold uppercase border-0 h-100" style={{ fontSize: '0.65rem' }} onClick={async (e) => {
                                             const subId = e.target.parentElement.querySelector('input').value
                                             try {
                                                 const res = await axios.get(`/api/subscriptions/search/${subId}`)
@@ -2784,32 +2786,31 @@ const Festivals = () => {
                                             }
                                         }}>Sync</button>
                                     </div>
-                                    <p className="extra-tiny text-white text-opacity-25 mt-1 mb-0 italic">Press Enter or click Sync to auto-fill.</p>
                                 </div>
 
-                                <div className="col-md-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">PHYSICAL ADDRESS / LOCATION</label>
-                                    <input type="text" className="form-input py-1 tiny" placeholder="Complete address detail" value={cardFormData.address} onChange={e => setCardFormData({ ...cardFormData, address: e.target.value })} />
+                                <div className="col-6">
+                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>PHYSICAL ADDRESS / LOCATION</label>
+                                    <input type="text" className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} placeholder="Complete address detail" value={cardFormData.address} onChange={e => setCardFormData({ ...cardFormData, address: e.target.value })} />
                                 </div>
 
-                                <div className="col-md-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">MEMBER IDENTITY</label>
-                                    <input type="text" className="form-input py-1 tiny" placeholder="Display name on card" value={cardFormData.name} onChange={e => setCardFormData({ ...cardFormData, name: e.target.value })} required />
+                                <div className="col-6">
+                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>MEMBER IDENTITY</label>
+                                    <input type="text" className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} placeholder="Display name on card" value={cardFormData.name} onChange={e => setCardFormData({ ...cardFormData, name: e.target.value })} required />
                                 </div>
 
-                                <div className="col-md-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">FESTIVAL CONTEXT</label>
-                                    <input type="text" className="form-input py-1 tiny" placeholder="Primary event title" value={cardFormData.festOrEventName} onChange={e => setCardFormData({ ...cardFormData, festOrEventName: e.target.value })} />
+                                <div className="col-6">
+                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>FESTIVAL CONTEXT</label>
+                                    <input type="text" className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} placeholder="Primary event title" value={cardFormData.festOrEventName} onChange={e => setCardFormData({ ...cardFormData, festOrEventName: e.target.value })} />
                                 </div>
 
-                                <div className="col-md-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">ENTITY BRANDING</label>
-                                    <input type="text" className="form-input py-1 tiny" placeholder="e.g. Blue Lagoon Entity" value={cardFormData.entityName} onChange={e => setCardFormData({ ...cardFormData, entityName: e.target.value })} />
+                                <div className="col-6">
+                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>ENTITY BRANDING</label>
+                                    <input type="text" className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} placeholder="e.g. Blue Lagoon Entity" value={cardFormData.entityName} onChange={e => setCardFormData({ ...cardFormData, entityName: e.target.value })} />
                                 </div>
 
-                                <div className="col-md-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">ACCESS LEVEL</label>
-                                    <select className="form-input py-1 tiny" value={cardFormData.membershipType} onChange={e => setCardFormData({ ...cardFormData, membershipType: e.target.value })}>
+                                <div className="col-6">
+                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>ACCESS LEVEL</label>
+                                    <select className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} value={cardFormData.membershipType} onChange={e => setCardFormData({ ...cardFormData, membershipType: e.target.value })}>
                                         <option value="Regular">Volunteers</option>
                                         <option value="Prime">Prime Member</option>
                                         <option value="VIP">VIP Elite</option>
@@ -2817,27 +2818,27 @@ const Festivals = () => {
                                     </select>
                                 </div>
 
-                                <div className="col-md-4">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">GROUP SIZE</label>
-                                    <input type="number" className="form-input py-1 tiny" value={cardFormData.familyMembers} onChange={e => setCardFormData({ ...cardFormData, familyMembers: e.target.value })} />
+                                <div className="col-4">
+                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>GROUP SIZE</label>
+                                    <input type="number" className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} value={cardFormData.familyMembers} onChange={e => setCardFormData({ ...cardFormData, familyMembers: e.target.value })} />
                                 </div>
 
-                                <div className="col-md-4">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">EFFECTIVE FROM</label>
-                                    <input type="date" className="form-input py-1 tiny" value={cardFormData.fromDate} onChange={e => setCardFormData({ ...cardFormData, fromDate: e.target.value })} />
+                                <div className="col-4">
+                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>EFFECTIVE FROM</label>
+                                    <input type="date" className="form-input tiny py-0 px-1 w-100" style={{ height: '28px', fontSize: '0.72rem' }} value={cardFormData.fromDate} onChange={e => setCardFormData({ ...cardFormData, fromDate: e.target.value })} />
                                 </div>
 
-                                <div className="col-md-4">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">EXPIRY DATE</label>
-                                    <input type="date" className="form-input py-1 tiny" value={cardFormData.toDate} onChange={e => setCardFormData({ ...cardFormData, toDate: e.target.value })} />
+                                <div className="col-4">
+                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>EXPIRY DATE</label>
+                                    <input type="date" className="form-input tiny py-0 px-1 w-100" style={{ height: '28px', fontSize: '0.72rem' }} value={cardFormData.toDate} onChange={e => setCardFormData({ ...cardFormData, toDate: e.target.value })} />
                                 </div>
 
-                                <div className="col-12 mt-2 pt-2 border-top border-white border-opacity-10">
+                                <div className="col-12 mt-2 pt-1.5 border-top border-white border-opacity-10">
                                     <div className="d-flex gap-2">
-                                        <button type="submit" className="btn btn-premium flex-grow-1 py-2 px-4 shadow-lg fw-bold text-uppercase" style={{ fontSize: '0.8rem' }}>
-                                            <Zap size={14} /> {editingCardId ? 'Authorize Card Updates' : 'Generate Digital Pass Identity'}
+                                        <button type="submit" className="btn btn-premium flex-grow-1 py-1 px-3 shadow-lg fw-bold text-uppercase d-flex align-items-center justify-content-center gap-1" style={{ height: '30px', fontSize: '0.74rem' }}>
+                                            <Zap size={13} /> {editingCardId ? 'Authorize Card Updates' : 'Generate Digital Pass Identity'}
                                         </button>
-                                        <button type="button" onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-cancel py-2 px-4 fw-bold text-uppercase" style={{ fontSize: '0.8rem' }}>Abort Design</button>
+                                        <button type="button" onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-cancel py-1 px-3 fw-bold text-uppercase" style={{ height: '30px', fontSize: '0.74rem' }}>Abort</button>
                                     </div>
                                 </div>
                             </form>
