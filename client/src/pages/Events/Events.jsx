@@ -1189,7 +1189,7 @@ const Events = () => {
                             <h5 className="fw-extrabold mb-0 text-main">Events</h5>
                             <p className="text-muted tiny mb-0">Manage and explore all upcoming events.</p>
                         </div>
-                        <div className="d-flex align-items-center gap-2.5 flex-wrap flex-sm-nowrap overflow-x-auto py-1">
+                        <div className="d-flex align-items-center gap-2 flex-wrap py-1">
                             {/* SORT */}
                             <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
                                 <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
