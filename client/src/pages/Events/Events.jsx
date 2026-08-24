@@ -1391,7 +1391,7 @@ const Events = () => {
             )}
 
             {activeTab === 'subscriptions' && (
-                <div className="glass-card py-3 px-4 shadow-sm mx-auto" style={{ maxWidth: '820px' }}>
+                <div className="glass-card py-3 px-3 px-sm-4 shadow-sm mx-auto w-100" style={{ maxWidth: '820px' }}>
                     {/* Subscriptions Title, Subtitle, and Badge */}
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         <div>
@@ -1424,7 +1424,7 @@ const Events = () => {
                             )}
 
                             {/* SEARCH */}
-                            <div className="input-group action-item-pill search-pill-container px-2.5 flex-nowrap shadow-sm" style={{ height: '32px' }}>
+                            <div className="input-group action-item-pill search-pill-container px-2.5 flex-nowrap shadow-sm flex-grow-1 flex-sm-grow-0" style={{ height: '32px' }}>
                                 <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={13} /></span>
                                 <input
                                     type="text"
@@ -1442,8 +1442,8 @@ const Events = () => {
                             </button>
                         </div>
 
-                        {/* Row 2: Sort, Tier All, Pay All (Just below) */}
-                        <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
+                        {/* Row 2: Sort, Tier All, Pay All (Just below - clean horizontal swipe on mobile) */}
+                        <div className="d-flex align-items-center gap-2 overflow-x-auto py-1 flex-nowrap">
                             {/* SORT */}
                             <div className="input-group action-item-pill px-2.5 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
                                 <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={13} /></span>
@@ -1501,11 +1501,11 @@ const Events = () => {
                         </div>
                     </div>
 
-                    <div className="table-responsive" style={{ overflow: 'visible' }}>
-                        <table className="table table-hover align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%' }}>
+                    <div className="table-responsive rounded-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+                        <table className="table table-hover align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%', minWidth: '630px' }}>
                             <colgroup>
                                 <col style={{ width: '95px' }} />
-                                <col style={{ width: '200px' }} />
+                                <col style={{ width: '190px' }} />
                                 <col style={{ width: '130px' }} />
                                 <col style={{ width: '95px' }} />
                                 <col style={{ width: '110px' }} />
