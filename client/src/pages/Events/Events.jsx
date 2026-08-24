@@ -1071,10 +1071,10 @@ const Events = () => {
         })
 
     return (
-        <div className="container pt-3 pb-5 text-main">
+        <div className="container pt-3 pb-5 text-main" style={{ isolation: 'isolate' }}>
             {/* Navigation Tabs Bar at the Top */}
-            <div className="d-flex align-items-center mb-4">
-                <div className="d-inline-flex flex-wrap align-items-center bg-secondary bg-opacity-10 p-1 rounded-3 gap-1 shadow-sm border border-secondary border-opacity-10">
+            <div className="d-flex align-items-center mb-4" style={{ isolation: 'isolate' }}>
+                <div className="d-inline-flex flex-wrap align-items-center bg-secondary bg-opacity-10 p-1 rounded-3 gap-1 shadow-sm border border-secondary border-opacity-10" style={{ isolation: 'isolate' }}>
                     {['events', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet'].map(tab => {
                         if (tab === 'new_attendee') {
                             return (
@@ -1260,7 +1260,7 @@ const Events = () => {
                                     layout
                                     initial={{ opacity: 0, y: 5 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    whileHover={{ y: -1, scale: 1.002 }}
+                                    whileHover={{ scale: 1.002 }}
                                     transition={{ duration: 0.2 }}
                                     className="w-100"
                                 >
