@@ -1742,80 +1742,86 @@ const Events = () => {
                     </div>
 
                     {/* Toolbar below Title inside the Card */}
-                    <div className="d-flex align-items-center gap-2.5 flex-wrap flex-sm-nowrap overflow-x-auto py-1 mb-2">
-                        {/* SORT */}
-                        <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
-                            <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
-                            <select
-                                className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                style={{ fontSize: '0.67rem' }}
-                                value={expSort}
-                                onChange={(e) => setExpSort(e.target.value)}
-                                title="Sort Expenses"
-                            >
-                                <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
-                                <option value="oldest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Oldest</option>
-                                <option value="amount-high" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (High-Low)</option>
-                                <option value="amount-low" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (Low-High)</option>
-                                <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Particular (A-Z)</option>
-                            </select>
-                        </div>
-
-                        {/* FILTER */}
-                        <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
-                            <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
-                            <select
-                                className="form-select select-cat bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold"
-                                style={{ fontSize: '0.67rem' }}
-                                value={expTypeFilter}
-                                onChange={(e) => setExpTypeFilter(e.target.value)}
-                                title="Filter Category"
-                            >
-                                <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Category: All</option>
-                                <option value="Venue & Location" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Venue & Location</option>
-                                <option value="Sound & Lighting" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Sound & Lighting</option>
-                                <option value="Catering & Food" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Catering & Food</option>
-                                <option value="Marketing & PR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Marketing & PR</option>
-                                <option value="Artist & Talent" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Artist & Talent</option>
-                                <option value="Security & Logistics" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Security & Logistics</option>
-                                <option value="Miscellaneous" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Miscellaneous</option>
-                            </select>
-                            <select
-                                className="form-select select-pay bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold border-start border-secondary border-opacity-25"
-                                style={{ fontSize: '0.67rem' }}
-                                value={expPaymentFilter}
-                                onChange={(e) => setExpPaymentFilter(e.target.value)}
-                                title="Filter Payment Mode"
-                            >
-                                <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Pay: All</option>
-                                <option value="Cash" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cash</option>
-                                <option value="Online" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Online</option>
-                                <option value="Bank Transfer" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Bank Transfer</option>
-                                <option value="Cheque" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cheque</option>
-                                <option value="UPI / QR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>UPI / QR</option>
-                            </select>
-                        </div>
-
-                        {/* SEARCH */}
-                        <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '26px' }}>
-                            <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
-                            <input
-                                type="text"
-                                className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100"
-                                placeholder="Search expenses..."
-                                value={expSearch}
-                                onChange={(e) => setExpSearch(e.target.value)}
-                                style={{ fontSize: '0.67rem' }}
-                            />
-                        </div>
-                        <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
-                            <FileDown size={11} /> <span className="uppercase">All Expenses PDF</span>
-                        </button>
-                        {!isExpAdding && (
-                            <button onClick={() => setIsExpAdding(true)} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
-                                <Plus size={11} /> <span className="uppercase">New Expense</span>
+                    <div className="d-flex flex-column gap-2 mb-2.5">
+                        {/* Row 1: New Expense, Search, All Expenses PDF */}
+                        <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
+                            {!isExpAdding && (
+                                <button onClick={() => setIsExpAdding(true)} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
+                                    <Plus size={11} /> <span className="uppercase">New Expense</span>
+                                </button>
+                            )}
+                            {/* Search Expenses */}
+                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
+                                <input
+                                    type="text"
+                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100"
+                                    placeholder="Search expenses..."
+                                    value={expSearch}
+                                    onChange={(e) => setExpSearch(e.target.value)}
+                                    style={{ fontSize: '0.67rem' }}
+                                />
+                            </div>
+                            <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
+                                <FileDown size={11} /> <span className="uppercase">All Expenses PDF</span>
                             </button>
-                        )}
+                        </div>
+
+                        {/* Row 2: Sort, Category Filter, Pay Filter */}
+                        <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
+                            {/* SORT */}
+                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
+                                <select
+                                    className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                    style={{ fontSize: '0.67rem' }}
+                                    value={expSort}
+                                    onChange={(e) => setExpSort(e.target.value)}
+                                    title="Sort Expenses"
+                                >
+                                    <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
+                                    <option value="oldest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Oldest</option>
+                                    <option value="amount-high" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (High-Low)</option>
+                                    <option value="amount-low" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (Low-High)</option>
+                                    <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Particular (A-Z)</option>
+                                </select>
+                            </div>
+
+                            {/* FILTER */}
+                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
+                                <select
+                                    className="form-select select-cat bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold"
+                                    style={{ fontSize: '0.67rem' }}
+                                    value={expTypeFilter}
+                                    onChange={(e) => setExpTypeFilter(e.target.value)}
+                                    title="Filter Category"
+                                >
+                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Category: All</option>
+                                    <option value="Venue & Location" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Venue & Location</option>
+                                    <option value="Sound & Lighting" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Sound & Lighting</option>
+                                    <option value="Catering & Food" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Catering & Food</option>
+                                    <option value="Marketing & PR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Marketing & PR</option>
+                                    <option value="Artist & Talent" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Artist & Talent</option>
+                                    <option value="Security & Logistics" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Security & Logistics</option>
+                                    <option value="Miscellaneous" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Miscellaneous</option>
+                                </select>
+                                <select
+                                    className="form-select select-pay bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold border-start border-secondary border-opacity-25"
+                                    style={{ fontSize: '0.67rem' }}
+                                    value={expPaymentFilter}
+                                    onChange={(e) => setExpPaymentFilter(e.target.value)}
+                                    title="Filter Payment Mode"
+                                >
+                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Pay: All</option>
+                                    <option value="Cash" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cash</option>
+                                    <option value="Online" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Online</option>
+                                    <option value="Bank Transfer" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Bank Transfer</option>
+                                    <option value="Cheque" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cheque</option>
+                                    <option value="UPI / QR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>UPI / QR</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     {isExpAdding && (
