@@ -2122,173 +2122,191 @@ const Festivals = () => {
             )}
 
             {activeTab === 'card' && (
-                <div className="py-2">
-                    {/* Pass Preview Title and Subtitle */}
-                    <div className="mb-1">
-                        <h3 className="fw-bold mb-1">Pass Preview</h3>
-                        <p className="text-muted small">Visual representation of active member passes.</p>
+                <div className="glass-card py-3 px-3 px-sm-4 shadow-sm mx-auto w-100" style={{ maxWidth: '720px' }}>
+                    {/* Pass Preview Title, Subtitle, and Badge */}
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <h5 className="fw-extrabold mb-0 text-main">Pass Preview</h5>
+                            <p className="text-muted tiny mb-0">Visual representation of active member passes.</p>
+                        </div>
+                        <span className="badge bg-primary bg-opacity-10 text-primary fw-bold px-2.5 py-1 rounded-pill" style={{ fontSize: '0.72rem' }}>
+                            {filteredCards?.length || 0} Issued
+                        </span>
                     </div>
 
                     {/* Toolbar below Title inside the Card */}
-                    <div className="d-flex align-items-center gap-2.5 flex-wrap flex-sm-nowrap overflow-x-auto py-1 mb-2">
-                        {/* SORT */}
-                        <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
-                            <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
-                            <select
-                                className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                style={{ fontSize: '0.67rem' }}
-                                value={cardSort}
-                                onChange={(e) => setCardSort(e.target.value)}
-                                title="Sort Cards"
-                            >
-                                <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (A-Z)</option>
-                                <option value="name-desc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (Z-A)</option>
-                                <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
-                            </select>
-                        </div>
+                    <div className="d-flex flex-column gap-2 mb-2.5">
+                        {/* Row 1: Create Pass, Search */}
+                        <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
+                            <button onClick={() => {
+                                setCardFormData({
+                                    ...cardFormData,
+                                    name: '',
+                                    address: '',
+                                    membershipType: 'Regular',
+                                    cardColor: '#1e293b',
+                                    backgroundImage: 'none',
+                                    familyMembers: 0,
+                                    fromDate: activeFestival?.startDate ? new Date(activeFestival.startDate).toISOString().split('T')[0] : '',
+                                    toDate: activeFestival?.endDate ? new Date(activeFestival.endDate).toISOString().split('T')[0] : '',
+                                    festOrEventName: activeFestival?.title || '',
+                                    entityName: activeFestival?.entityName || ''
+                                })
+                                setEditingCardId(null)
+                                setIsCardAdding(true)
+                            }} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
+                                <Plus size={11} /> <span className="uppercase">Create Pass</span>
+                            </button>
 
-                        {/* FILTER */}
-                        <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${cardMembershipFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
-                            <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={cardMembershipFilter !== 'all' ? 'text-primary' : ''} /></span>
-                            <select
-                                className="form-select select-tier bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                style={{ fontSize: '0.67rem' }}
-                                value={cardMembershipFilter}
-                                onChange={(e) => setCardMembershipFilter(e.target.value)}
-                                title="Filter by Tier"
-                            >
-                                <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Tier: All</option>
-                                <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP</option>
-                                <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime</option>
-                                <option value="Non-Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Non-Prime</option>
-                                <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
-                            </select>
-                        </div>
-
-                        {/* SEARCH */}
-                        <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '26px' }}>
-                            <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
-                            <input
-                                type="text"
-                                className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100"
-                                placeholder="Search passes..."
-                                value={cardSearch}
-                                onChange={(e) => setCardSearch(e.target.value)}
-                                style={{ fontSize: '0.67rem' }}
-                            />
-                        </div>
-
-                        <div className="d-flex align-items-center gap-1.5 px-2 py-0.5 bg-dark bg-opacity-20 border border-white border-opacity-5 rounded-pill shadow-sm" style={{ height: '26px' }}>
-                            <div className="p-0.5 bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
-                                <History size={11} className="text-primary" />
+                            {/* SEARCH */}
+                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
+                                <input
+                                    type="text"
+                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100"
+                                    placeholder="Search passes..."
+                                    value={cardSearch}
+                                    onChange={(e) => setCardSearch(e.target.value)}
+                                    style={{ fontSize: '0.67rem' }}
+                                />
                             </div>
-                            <div className="small fw-bold text-white mb-0 me-1" style={{ fontSize: '0.68rem' }}>{cardsList?.length || 0} Issued</div>
                         </div>
-                        <button onClick={() => {
-                            setCardFormData({
-                                ...cardFormData,
-                                name: '',
-                                address: '',
-                                membershipType: 'Regular',
-                                cardColor: '#1e293b',
-                                backgroundImage: 'none',
-                                familyMembers: 0,
-                                fromDate: activeFestival?.startDate ? new Date(activeFestival.startDate).toISOString().split('T')[0] : '',
-                                toDate: activeFestival?.endDate ? new Date(activeFestival.endDate).toISOString().split('T')[0] : '',
-                                festOrEventName: activeFestival?.title || '',
-                                entityName: activeFestival?.entityName || ''
-                            })
-                            setEditingCardId(null)
-                            setIsCardAdding(true)
-                        }} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
-                            <Plus size={11} /> <span className="uppercase">Create Pass</span>
-                        </button>
+
+                        {/* Row 2: Sort, Tier Filter */}
+                        <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
+                            {/* SORT */}
+                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
+                                <select
+                                    className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                    style={{ fontSize: '0.67rem' }}
+                                    value={cardSort}
+                                    onChange={(e) => setCardSort(e.target.value)}
+                                    title="Sort Cards"
+                                >
+                                    <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (A-Z)</option>
+                                    <option value="name-desc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (Z-A)</option>
+                                    <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
+                                </select>
+                            </div>
+
+                            {/* FILTER */}
+                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${cardMembershipFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={cardMembershipFilter !== 'all' ? 'text-primary' : ''} /></span>
+                                <select
+                                    className="form-select select-tier bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                    style={{ fontSize: '0.67rem' }}
+                                    value={cardMembershipFilter}
+                                    onChange={(e) => setCardMembershipFilter(e.target.value)}
+                                    title="Filter by Tier"
+                                >
+                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Tier: All</option>
+                                    <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP</option>
+                                    <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime</option>
+                                    <option value="Non-Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Non-Prime</option>
+                                    <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <div className="row g-4">
-                        {!selectedPreviewCard ? (
-                            <div className="col-12 w-100 mt-2">
-                                <div className="glass-card-premium overflow-hidden border border-white border-opacity-10 shadow-lg">
-                                    <div className="table-responsive">
-                                        <table className="table table-hover align-middle mb-0">
-                                            <thead>
-                                                <tr className="small text-muted border-bottom border-white border-opacity-10">
-                                                    <th className="border-0 bg-transparent px-4 py-3">Card ID</th>
-                                                    <th className="border-0 bg-transparent py-3">Issued To</th>
-                                                    <th className="border-0 bg-transparent py-3">Category</th>
-                                                    <th className="border-0 bg-transparent py-3 text-center">Group Size</th>
-                                                    <th className="border-0 bg-transparent py-3 text-end px-4">Actions</th>
+
+                    {!selectedPreviewCard ? (
+                        <div className="table-responsive rounded-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+                            <table className="table table-hover align-middle mb-0" style={{ width: '100%', minWidth: '560px' }}>
+                                <colgroup>
+                                    <col style={{ width: '110px' }} />
+                                    <col style={{ width: '180px' }} />
+                                    <col style={{ width: '110px' }} />
+                                    <col style={{ width: '80px' }} />
+                                    <col style={{ width: '100px' }} />
+                                    <col />
+                                </colgroup>
+                                <thead>
+                                    <tr className="text-muted" style={{ fontSize: '0.72rem' }}>
+                                        <th className="border-0 bg-transparent py-2 ps-2">CARD ID</th>
+                                        <th className="border-0 bg-transparent py-2 px-1">ISSUED TO</th>
+                                        <th className="border-0 bg-transparent py-2 px-1">CATEGORY</th>
+                                        <th className="border-0 bg-transparent py-2 px-1 text-center">GROUP</th>
+                                        <th className="border-0 bg-transparent py-2 px-1">ACTION</th>
+                                        <th className="border-0 bg-transparent py-2"></th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-main">
+                                    {!Array.isArray(filteredCards) || filteredCards.length === 0 ? (
+                                        <tr><td colSpan="6" className="text-center py-5 text-muted">{cardsList.length === 0 ? "No cards issued yet. Click 'Create Pass' to begin." : "No matching cards found."}</td></tr>
+                                    ) : (
+                                        filteredCards.map((sub, index) => {
+                                            const isEven = index % 2 === 0;
+                                            const rowBg = isEven ? 'rgba(67,130,149,0.07)' : 'rgba(224,122,67,0.07)';
+                                            return (
+                                                <tr key={sub.cardId} className="align-middle transition-all" style={{ backgroundColor: rowBg }}>
+                                                    <td className="border-0 py-2 ps-2 pe-1">
+                                                        <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace" style={{ fontSize: '0.7rem' }}>{sub.cardId}</span>
+                                                    </td>
+                                                    <td className="border-0 py-2 px-1 pe-2 fw-bold small" style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.25' }}>
+                                                        {sub.name}
+                                                    </td>
+                                                    <td className="border-0 py-2 px-1">
+                                                        <span className={`badge rounded-pill px-2 py-1 extra-tiny ${sub.membershipType === 'Admin' || sub.membershipType === 'Administrative' ? 'bg-danger bg-opacity-15 text-danger' : sub.membershipType === 'VIP' ? 'bg-warning bg-opacity-20 text-dark fw-bold' : 'bg-success bg-opacity-15 text-success'}`}>
+                                                            {sub.membershipType === 'Regular' ? 'Volunteers' : sub.membershipType}
+                                                        </span>
+                                                    </td>
+                                                    <td className="border-0 py-2 px-1 text-center small fw-bold text-muted">{sub.familyMembers || 1}</td>
+                                                    <td className="border-0 py-2 px-1">
+                                                        <div className="d-flex align-items-center gap-1">
+                                                            <button onClick={() => setSelectedPreviewCard(sub)} className="btn btn-sm text-primary p-0" title="Preview Pass"><Eye size={14} /></button>
+                                                            <button onClick={() => downloadCardPDF(sub)} className="btn btn-sm text-info p-0" title="Download PDF"><FileDown size={14} /></button>
+                                                            <button onClick={() => { setCardFormData(sub); setEditingCardId(sub.cardId); setIsCardAdding(true); }} className="btn btn-sm text-warning p-0" title="Edit Pass"><Edit3 size={14} /></button>
+                                                            <button onClick={async () => { if (window.confirm('Delete this card?')) { await axios.delete(`/api/cards/${sub.cardId}`); fetchCards(); } }} className="btn btn-sm text-danger p-0" title="Delete Pass"><Trash2 size={14} /></button>
+                                                        </div>
+                                                    </td>
+                                                    <td className="border-0 py-2"></td>
                                                 </tr>
-                                            </thead>
-                                            <tbody className="text-main">
-                                                {!Array.isArray(filteredCards) || filteredCards.length === 0 ? (
-                                                    <tr><td colSpan="5" className="text-center py-5 text-muted">{cardsList.length === 0 ? "No cards issued yet. Click 'New Pass Card' to begin." : "No matching cards found."}</td></tr>
-                                                ) : (
-                                                    filteredCards.map((sub) => (
-                                                        <tr key={sub.cardId} style={{ transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                                                            <td className="border-0 px-4 py-3"><span className="badge bg-secondary bg-opacity-10 text-muted font-monospace">{sub.cardId}</span></td>
-                                                            <td className="border-0 py-3 fw-bold text-body">{sub.name}</td>
-                                                            <td className="border-0 py-3"><span className={`badge ${sub.membershipType === 'Admin' ? 'bg-danger text-white' : sub.membershipType === 'VIP' ? 'bg-warning text-dark' : 'bg-success bg-opacity-25 text-success'}`}>{sub.membershipType === 'Regular' ? 'Volunteers' : sub.membershipType}</span></td>
-                                                            <td className="border-0 py-3 text-center">{sub.familyMembers || 1}</td>
-                                                            <td className="border-0 py-3 text-end px-4">
-                                                                <button onClick={() => setSelectedPreviewCard(sub)} className="btn btn-sm text-primary p-1 me-2 hover-scale" title="CardPreview Button"><Eye size={18} /></button>
-                                                                <button onClick={() => downloadCardPDF(sub)} className="btn btn-sm text-info p-1 me-2 hover-scale" title="Download PDF"><FileDown size={18} /></button>
-                                                                <button onClick={() => { setCardFormData(sub); setEditingCardId(sub.cardId); setIsCardAdding(true); }} className="btn btn-sm text-warning p-1 me-2 hover-scale" title="Edit Pass"><Edit3 size={18} /></button>
-                                                                <button onClick={async () => { if (window.confirm('Delete this card?')) { await axios.delete(`/api/cards/${sub.cardId}`); fetchCards(); } }} className="btn btn-sm text-danger p-1 hover-scale" title="Delete Pass"><Trash2 size={18} /></button>
-                                                            </td>
-                                                        </tr>
-                                                    ))
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
+                                            );
+                                        })
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        <div className="d-flex flex-column gap-3 align-items-center justify-content-center p-3 glass-card-premium position-relative mx-auto" style={{ maxWidth: '420px' }}>
+                            <button onClick={() => setSelectedPreviewCard(null)} className="btn btn-link position-absolute top-0 end-0 m-2 text-muted hover-text-white p-1">
+                                <X size={18} />
+                            </button>
+                            <div className="text-center w-100 mb-1">
+                                <h6 className="fw-bold text-main mb-0">{selectedPreviewCard.name}'s ID Pass</h6>
+                                <span className="extra-tiny text-success">{selectedPreviewCard.membershipType === 'Regular' ? 'Volunteers' : selectedPreviewCard.membershipType} Tier</span>
                             </div>
-                        ) : (
-                            <div className="col-md-8 col-lg-5">
-                                <div className="card-container d-flex flex-column gap-4 align-items-center justify-content-center p-4 glass-card-premium position-relative" style={{ minHeight: '400px' }}>
-                                    <button onClick={() => setSelectedPreviewCard(null)} className="btn btn-link position-absolute top-0 end-0 m-2 text-muted hover-text-white">
-                                        <X size={20} />
-                                    </button>
-                                    
-                                    <div className="text-center w-100 mb-2">
-                                        <h5 className="fw-bold text-white mb-0">{selectedPreviewCard.name}'s ID Pass</h5>
-                                        <span className="small text-success">{selectedPreviewCard.membershipType === 'Regular' ? 'Volunteers' : selectedPreviewCard.membershipType} Tier</span>
-                                    </div>
-                                    
-                                    <VIPCard
-                                        eventName={selectedPreviewCard.festOrEventName || "MIDNIGHT SUN"}
-                                        entityName={selectedPreviewCard.entityName || ""}
-                                        address={selectedPreviewCard.address || ""}
-                                        accessLevel={selectedPreviewCard.membershipType === 'Admin' ? 'ALL ACCESS' : 'VIP ACCESS ONLY'}
-                                        userName={selectedPreviewCard.name || "MEMBER"}
-                                        uid={selectedPreviewCard.cardId}
-                                        validDate={(selectedPreviewCard.fromDate && selectedPreviewCard.toDate) ? `${new Date(selectedPreviewCard.fromDate).toLocaleDateString()} - ${new Date(selectedPreviewCard.toDate).toLocaleDateString()}` : "FULL EVENT"}
-                                        tier={selectedPreviewCard.membershipType === 'Regular' ? 'Volunteers' : (selectedPreviewCard.membershipType || "Executive")}
-                                        familyMembers={selectedPreviewCard.familyMembers}
-                                    />
-
-                                    {/* Card Actions Outside */}
-                                    <div className="d-flex gap-2 justify-content-center w-100 bg-secondary bg-opacity-10 p-2 rounded-4 border border-secondary border-opacity-10 mt-3">
-                                        <button onClick={() => downloadCardPDF(selectedPreviewCard)} className="btn btn-premium flex-grow-1 py-2 px-3 rounded-pill d-flex align-items-center justify-content-center gap-2" title="Download Card as PDF">
-                                            <FileDown size={18} /> <span className="small fw-bold">Download PDF</span>
-                                        </button>
-                                        <button onClick={() => {
-                                            setCardFormData(selectedPreviewCard)
-                                            setEditingCardId(selectedPreviewCard.cardId)
-                                            setIsCardAdding(true)
-                                        }} className="btn btn-light text-primary p-2 rounded-circle shadow-sm" title="Edit Pass"><Edit3 size={18} /></button>
-                                        <button onClick={async () => {
-                                            if (window.confirm('Delete this card?')) {
-                                                await axios.delete(`/api/cards/${selectedPreviewCard.cardId}`)
-                                                setSelectedPreviewCard(null)
-                                                fetchCards()
-                                            }
-                                        }} className="btn btn-light text-danger p-2 rounded-circle shadow-sm" title="Delete Pass"><Trash2 size={18} /></button>
-                                    </div>
-                                </div>
+                            <VIPCard
+                                eventName={selectedPreviewCard.festOrEventName || "MIDNIGHT SUN"}
+                                entityName={selectedPreviewCard.entityName || ""}
+                                address={selectedPreviewCard.address || ""}
+                                accessLevel={selectedPreviewCard.membershipType === 'Admin' ? 'ALL ACCESS' : 'VIP ACCESS ONLY'}
+                                userName={selectedPreviewCard.name || "MEMBER"}
+                                uid={selectedPreviewCard.cardId}
+                                validDate={(selectedPreviewCard.fromDate && selectedPreviewCard.toDate) ? `${new Date(selectedPreviewCard.fromDate).toLocaleDateString()} - ${new Date(selectedPreviewCard.toDate).toLocaleDateString()}` : "FULL EVENT"}
+                                tier={selectedPreviewCard.membershipType === 'Regular' ? 'Volunteers' : (selectedPreviewCard.membershipType || "Executive")}
+                                familyMembers={selectedPreviewCard.familyMembers}
+                            />
+                            <div className="d-flex gap-2 justify-content-center w-100 bg-secondary bg-opacity-10 p-2 rounded-3 border border-secondary border-opacity-10 mt-1">
+                                <button onClick={() => downloadCardPDF(selectedPreviewCard)} className="btn btn-premium flex-grow-1 py-1.5 px-3 rounded-pill d-flex align-items-center justify-content-center gap-1.5 shadow-sm" style={{ fontSize: '0.78rem' }} title="Download Card as PDF">
+                                    <FileDown size={14} /> <span className="fw-bold">Download PDF</span>
+                                </button>
+                                <button onClick={() => {
+                                    setCardFormData(selectedPreviewCard)
+                                    setEditingCardId(selectedPreviewCard.cardId)
+                                    setIsCardAdding(true)
+                                }} className="btn btn-light text-primary p-1.5 rounded-circle shadow-sm" title="Edit Pass"><Edit3 size={14} /></button>
+                                <button onClick={async () => {
+                                    if (window.confirm('Delete this card?')) {
+                                        await axios.delete(`/api/cards/${selectedPreviewCard.cardId}`)
+                                        setSelectedPreviewCard(null)
+                                        fetchCards()
+                                    }
+                                }} className="btn btn-light text-danger p-1.5 rounded-circle shadow-sm" title="Delete Pass"><Trash2 size={14} /></button>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             )}
 
