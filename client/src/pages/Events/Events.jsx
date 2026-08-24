@@ -1917,14 +1917,14 @@ const Events = () => {
 
 
 
-                    <div className="table-responsive">
-                        <table className="table" style={{ minWidth: '520px' }}>
+                    <div className="table-responsive rounded-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+                        <table className="table table-hover align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%', minWidth: '540px' }}>
                             <colgroup>
-                                <col style={{ width: '130px' }} />
-                                <col />
-                                <col style={{ width: '110px' }} />
                                 <col style={{ width: '90px' }} />
-                                <col style={{ width: '90px' }} />
+                                <col style={{ width: '180px' }} />
+                                <col style={{ width: '100px' }} />
+                                <col style={{ width: '85px' }} />
+                                <col style={{ width: '85px' }} />
                             </colgroup>
                             <thead>
                                 <tr className="text-muted" style={{ fontSize: '0.72rem' }}>
@@ -1945,20 +1945,28 @@ const Events = () => {
                                         const rowBg = isExpInfoOpen ? 'rgba(67,130,149,0.14)' : isEven ? 'rgba(67,130,149,0.07)' : 'rgba(224,122,67,0.07)';
                                         return (
                                             <Fragment key={exp.expenseId}>
-                                                <tr className="align-middle" style={{ backgroundColor: rowBg }}>
+                                                <tr className="align-middle transition-all" style={{ backgroundColor: rowBg }}>
                                                     <td className="border-0 py-2 ps-2 pe-1">
                                                         <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace" style={{ fontSize: '0.7rem' }}>{exp.expenseId}</span>
                                                     </td>
-                                                    <td className="border-0 py-2 px-1">
-                                                        <div className="d-flex align-items-center justify-content-between gap-1">
-                                                            <span className="fw-bold" style={{ fontSize: '0.82rem', wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.25' }}>{exp.particular}</span>
+                                                    <td className="border-0 py-2 px-1 pe-2">
+                                                        <div className="d-flex align-items-center justify-content-between gap-1.5 w-100">
+                                                            <span className="fw-bold small" style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.25' }}>{exp.particular}</span>
                                                             <button
-                                                                onClick={() => setOpenExpInfoIds(prev => ({ ...prev, [exp.expenseId]: !prev[exp.expenseId] }))}
-                                                                className={`btn p-0 flex-shrink-0 d-flex align-items-center justify-content-center rounded-circle border transition-all ${isExpInfoOpen ? 'text-white bg-info border-info' : 'text-info border-info bg-transparent'}`}
-                                                                style={{ width: '20px', height: '20px', flexShrink: 0 }}
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setOpenExpInfoIds(prev => ({ ...prev, [exp.expenseId]: !prev[exp.expenseId] }));
+                                                                }}
+                                                                className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0 transition-all ${
+                                                                    isExpInfoOpen
+                                                                        ? 'bg-primary text-white shadow-sm'
+                                                                        : 'bg-secondary bg-opacity-10 text-primary border-0 hover-bg-primary hover-text-white'
+                                                                }`}
+                                                                style={{ width: '20px', height: '20px', minWidth: '20px', cursor: 'pointer' }}
                                                                 title={isExpInfoOpen ? 'Hide details' : 'Show Date & Type'}
                                                             >
-                                                                <Info size={11} />
+                                                                <Info size={11} strokeWidth={2.5} />
                                                             </button>
                                                         </div>
                                                     </td>
