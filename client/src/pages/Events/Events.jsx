@@ -1932,8 +1932,8 @@ const Events = () => {
                                     <th className="border-0 bg-transparent py-2 ps-2">EXPENSE ID</th>
                                     <th className="border-0 bg-transparent py-2 px-1">PARTICULAR</th>
                                     <th className="border-0 bg-transparent py-2 px-1">PAYMENT</th>
-                                    <th className="border-0 bg-transparent py-2 px-1 text-end">AMOUNT</th>
-                                    <th className="border-0 bg-transparent py-2 px-1 text-end">ACTION</th>
+                                    <th className="border-0 bg-transparent py-2 px-1">AMOUNT</th>
+                                    <th className="border-0 bg-transparent py-2 px-1">ACTION</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1968,9 +1968,9 @@ const Events = () => {
                                                             {exp.paymentType === 'Online' && exp.onlineParticulars ? `Online (${exp.onlineParticulars})` : exp.paymentType}
                                                         </span>
                                                     </td>
-                                                    <td className="border-0 py-2 px-1 text-end fw-bold text-danger" style={{ fontSize: '0.82rem' }}>-{exp.currency}{(Number(exp.amount) || 0).toLocaleString()}</td>
-                                                    <td className="border-0 py-2 px-1 text-end">
-                                                        <div className="d-flex align-items-center justify-content-end gap-1">
+                                                    <td className="border-0 py-2 px-1 fw-bold text-danger" style={{ fontSize: '0.82rem' }}>-{exp.currency}{(Number(exp.amount) || 0).toLocaleString()}</td>
+                                                    <td className="border-0 py-2 px-1">
+                                                        <div className="d-flex align-items-center gap-1">
                                                             <button onClick={() => downloadExpensePDF(exp)} className="btn btn-sm text-info p-0" title="Download PDF"><FileDown size={14} /></button>
                                                             <button onClick={() => {
                                                                 setExpenseFormData({ ...exp, date: exp.date ? new Date(exp.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0] })
