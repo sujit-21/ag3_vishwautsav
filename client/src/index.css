@@ -1474,6 +1474,10 @@ label {
     border: 1px solid rgba(163, 217, 201, 0.35) !important;
     background-color: rgba(67, 130, 149, 0.15) !important;
     border-radius: 50rem !important;
+    height: 32px !important;
+    width: auto !important;
+    max-width: fit-content !important;
+    flex-shrink: 0 !important;
 }
 
 .action-item-pill:hover,
@@ -1488,6 +1492,26 @@ label {
     cursor: pointer;
     transition: color 0.2s ease;
     color: var(--text-main) !important;
+    padding-right: 18px !important;
+    background-position: right 4px center !important;
+    background-size: 10px 8px !important;
+    width: auto !important;
+}
+
+.action-item-pill select.select-sort {
+    width: 180px !important;
+}
+
+.action-item-pill select.select-tier {
+    width: 115px !important;
+}
+
+.action-item-pill select.select-pay {
+    width: 100px !important;
+}
+
+.action-item-pill select.select-cat {
+    width: 145px !important;
 }
 
 .action-item-pill select option {
@@ -1535,8 +1559,8 @@ label {
 }
 
 .search-pill-container {
-    min-width: 240px !important;
-    width: 260px !important;
+    min-width: 200px !important;
+    width: 220px !important;
     flex-shrink: 0 !important;
 }
 

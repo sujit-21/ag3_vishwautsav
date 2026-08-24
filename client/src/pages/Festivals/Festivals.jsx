@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles } from 'lucide-react'
+import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import VIPCard from '../../components/VIPCard'
@@ -81,10 +81,10 @@ const getPaymentBadgeStyle = (paymentType) => {
 };
 
 const getPaymentDisplayName = (paymentType) => {
-    if (paymentType === 'Cash & Paid') return 'Confirmed (Cash & Paid)';
-    if (paymentType === 'Due') return 'Pending (Due Balance)';
-    if (paymentType === 'Online') return 'Digital (Online Bank)';
-    if (paymentType === 'Coupon or Token') return 'Coupon / Token Voucher';
+    if (paymentType === 'Cash & Paid') return 'Cash & Paid';
+    if (paymentType === 'Due') return 'Due';
+    if (paymentType === 'Online') return 'Online';
+    if (paymentType === 'Coupon or Token') return 'Coupon or Token';
     return paymentType;
 };
 
@@ -168,6 +168,8 @@ const Festivals = () => {
     const [isDataOpen, setIsDataOpen] = useState(false)
 
     const [festivals, setFestivals] = useState([])
+    const [openInfoIds, setOpenInfoIds] = useState({})
+    const [openActionSubId, setOpenActionSubId] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingFest, setEditingFest] = useState(null)
     const [formData, setFormData] = useState({
@@ -364,19 +366,19 @@ const Festivals = () => {
                             }
                         }
                         if (rowKey === 'Status') {
-                            if (cellVal === 'Confirmed (Cash & Paid)') {
+                            if (cellVal.includes('Cash & Paid')) {
                                 data.cell.styles.fillColor = [220, 252, 231];
                                 data.cell.styles.textColor = [22, 101, 52];
                                 data.cell.styles.fontStyle = 'bold';
-                            } else if (cellVal === 'Pending (Due Balance)') {
+                            } else if (cellVal.includes('Due')) {
                                 data.cell.styles.fillColor = [254, 226, 226];
                                 data.cell.styles.textColor = [153, 27, 27];
                                 data.cell.styles.fontStyle = 'bold';
-                            } else if (cellVal.startsWith('Digital') || cellVal.startsWith('Online')) {
+                            } else if (cellVal.includes('Online')) {
                                 data.cell.styles.fillColor = [224, 242, 254];
                                 data.cell.styles.textColor = [3, 105, 161];
                                 data.cell.styles.fontStyle = 'bold';
-                            } else if (cellVal === 'Coupon / Token Voucher') {
+                            } else if (cellVal.includes('Coupon') || cellVal.includes('Token')) {
                                 data.cell.styles.fillColor = [254, 249, 195];
                                 data.cell.styles.textColor = [133, 77, 14];
                                 data.cell.styles.fontStyle = 'bold';
@@ -1164,68 +1166,9 @@ const Festivals = () => {
 
     return (
         <div className="container pt-3 pb-5 text-main">
-            <div className="d-flex flex-column flex-xl-row align-items-xl-center justify-content-start mb-4 gap-3">
-
+            {/* Navigation Tabs Bar at the Top */}
+            <div className="d-flex align-items-center mb-4">
                 <div className="d-inline-flex flex-wrap align-items-center bg-secondary bg-opacity-10 p-1 rounded-3 gap-1 shadow-sm border border-secondary border-opacity-10">
-                    {activeTab === 'festivals' && (
-                        <div className="d-flex align-items-center gap-2 me-2 flex-nowrap overflow-x-auto py-1">
-                            {/* SORT Tab (Left side of Search Bar) */}
-                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={13} /></span>
-                                <select
-                                    className="form-select bg-transparent border-0 text-main shadow-none tiny p-0 pe-3 h-100 fw-bold"
-                                    style={{ fontSize: '0.72rem' }}
-                                    value={festSort}
-                                    onChange={(e) => setFestSort(e.target.value)}
-                                    title="Sort Festivals"
-                                >
-                                    <option value="newest">SORT: Newest</option>
-                                    <option value="oldest">SORT: Oldest</option>
-                                    <option value="title-asc">SORT: Title (A-Z)</option>
-                                    <option value="title-desc">SORT: Title (Z-A)</option>
-                                </select>
-                            </div>
-
-                            {/* FILTER Tab (Left side of Search Bar) */}
-                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${festCategoryFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={13} className={festCategoryFilter !== 'all' ? 'text-primary' : ''} /></span>
-                                <select
-                                    className="form-select bg-transparent border-0 text-main shadow-none tiny p-0 pe-3 h-100 fw-bold"
-                                    style={{ fontSize: '0.72rem' }}
-                                    value={festCategoryFilter}
-                                    onChange={(e) => setFestCategoryFilter(e.target.value)}
-                                    title="Filter Category"
-                                >
-                                    <option value="all">Category: All</option>
-                                    <option value="Cultural">Cultural</option>
-                                    <option value="Music">Music</option>
-                                    <option value="Arts">Arts</option>
-                                    <option value="Food & Culinary">Food & Culinary</option>
-                                    <option value="Religious">Religious</option>
-                                    <option value="Film & Media">Film & Media</option>
-                                </select>
-                            </div>
-
-                            {/* Search Bar */}
-                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={13} /></span>
-                                <input
-                                    type="text"
-                                    className="form-control bg-transparent border-0 text-main shadow-none p-0 pe-2 h-100"
-                                    placeholder="Search festivals..."
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    style={{ fontSize: '0.72rem' }}
-                                />
-                            </div>
-                            {user?.role === 'admin' && (
-                                <button onClick={() => openModal()} className="btn btn-primary d-flex align-items-center justify-content-center px-3 rounded-pill fw-bold text-white shadow-sm transition-all hover-glow text-nowrap ms-1" style={{ fontSize: '0.72rem', height: '32px', backgroundColor: '#5c6cff', borderColor: '#5c6cff' }}>
-                                    <Plus size={13} className="me-1" /> CREATE
-                                </button>
-                            )}
-                        </div>
-                    )}
-
                     {['festivals', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet'].map(tab => {
                         if (tab === 'new_attendee') {
                             return (
@@ -1332,8 +1275,71 @@ const Festivals = () => {
 
             {activeTab === 'festivals' && (
                 <>
+                    {/* Header & Controls for Festivals */}
+                    <div className="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center gap-3 mb-3">
+                        <div>
+                            <h5 className="fw-extrabold mb-0 text-main">Festivals</h5>
+                            <p className="text-muted tiny mb-0">Manage and explore all upcoming festivals.</p>
+                        </div>
+                        <div className="d-flex align-items-center gap-2.5 flex-wrap flex-sm-nowrap overflow-x-auto py-1">
+                            {/* SORT */}
+                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
+                                <select
+                                    className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny p-0 pe-2 h-100 fw-bold"
+                                    style={{ fontSize: '0.67rem' }}
+                                    value={festSort}
+                                    onChange={(e) => setFestSort(e.target.value)}
+                                    title="Sort Festivals"
+                                >
+                                    <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
+                                    <option value="oldest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Oldest</option>
+                                    <option value="title-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Title (A-Z)</option>
+                                    <option value="title-desc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Title (Z-A)</option>
+                                </select>
+                            </div>
 
+                            {/* FILTER */}
+                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${festCategoryFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={festCategoryFilter !== 'all' ? 'text-primary' : ''} /></span>
+                                <select
+                                    className="form-select select-cat bg-transparent border-0 text-main shadow-none tiny p-0 pe-2 h-100 fw-bold"
+                                    style={{ fontSize: '0.67rem' }}
+                                    value={festCategoryFilter}
+                                    onChange={(e) => setFestCategoryFilter(e.target.value)}
+                                    title="Filter Category"
+                                >
+                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Category: All</option>
+                                    <option value="Cultural" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cultural</option>
+                                    <option value="Music" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Music</option>
+                                    <option value="Arts" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Arts</option>
+                                    <option value="Food & Culinary" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Food & Culinary</option>
+                                    <option value="Religious" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Religious</option>
+                                    <option value="Film & Media" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Film & Media</option>
+                                </select>
+                            </div>
 
+                            {/* SEARCH */}
+                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
+                                <input
+                                    type="text"
+                                    className="form-control bg-transparent border-0 text-main shadow-none p-0 pe-1 h-100"
+                                    placeholder="Search festivals..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    style={{ fontSize: '0.67rem' }}
+                                />
+                            </div>
+
+                            {/* CREATE */}
+                            {user?.role === 'admin' && (
+                                <button onClick={() => openModal()} className="btn btn-primary d-flex align-items-center justify-content-center px-2.5 rounded-pill fw-bold text-white shadow-sm transition-all hover-glow text-nowrap ms-1" style={{ fontSize: '0.66rem', height: '26px', backgroundColor: '#5c6cff', borderColor: '#5c6cff' }}>
+                                    <Plus size={11} className="me-1" /> CREATE
+                                </button>
+                            )}
+                        </div>
+                    </div>
 
                     <div className="d-flex flex-column gap-2">
                         {filteredFestivals.map((fest, idx) => {
@@ -1348,72 +1354,116 @@ const Festivals = () => {
                                     className="w-100"
                                 >
                                     <div 
-                                        className={`bg-white shadow-sm d-flex flex-column flex-lg-row align-items-lg-center justify-content-between py-2 px-3 transition-all ${isActive ? 'border-primary border-2' : 'border border-secondary border-opacity-10'}`}
+                                        className={`bg-white shadow-sm d-flex flex-column py-2 px-3 transition-all ${isActive ? 'border-primary border-2' : 'border border-secondary border-opacity-10'}`}
                                         style={{ borderRadius: '8px', cursor: 'default' }}
                                     >
-                                        {/* Left Side: Info */}
-                                        <div className="d-flex flex-column flex-lg-row align-items-lg-center gap-3 gap-lg-4 mb-2 mb-lg-0">
-                                            <div className="d-flex flex-wrap align-items-center gap-2">
-                                                <div className="badge bg-secondary bg-opacity-10 px-2 py-1 rounded-pill fw-bold" style={{ color: 'var(--accent-1)', fontSize: '0.7rem' }}>
-                                                    {fest.category}
-                                                </div>
+                                        {/* Main Row */}
+                                        <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-2">
+                                            {/* Left Side: Title and Small rounded 'i' Info Button */}
+                                            <div className="d-flex align-items-center gap-2">
                                                 <div className="fw-extrabold mb-0 text-dark m-0" style={{ letterSpacing: '-0.3px', fontSize: '0.95rem' }}>{fest.title}</div>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setOpenInfoIds(prev => ({ ...prev, [fest._id]: !prev[fest._id] }));
+                                                    }}
+                                                    className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center transition-all ${
+                                                        openInfoIds[fest._id]
+                                                            ? 'bg-primary text-white shadow-sm'
+                                                            : 'bg-secondary bg-opacity-10 text-primary border-0 hover-bg-primary hover-text-white'
+                                                    }`}
+                                                    style={{ width: '22px', height: '22px', minWidth: '22px', cursor: 'pointer' }}
+                                                    title={openInfoIds[fest._id] ? "Hide festival details" : "Show Category, Address, Date details"}
+                                                >
+                                                    <Info size={12} strokeWidth={2.5} />
+                                                </button>
                                             </div>
 
-                                            <div className="d-flex flex-wrap align-items-center gap-3 text-muted" style={{ fontSize: '0.8rem' }}>
-                                                <div className="d-flex align-items-center gap-1">
-                                                    <MapPin size={14} className="text-info opacity-75" />
-                                                    <span className="fw-medium text-secondary">{fest.location}</span>
-                                                </div>
-                                                <div className="d-flex align-items-center gap-1">
-                                                    <Calendar size={14} className="text-warning opacity-75" />
-                                                    <span className="fw-medium text-secondary">{new Date(fest.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                                                </div>
-                                                <div className="d-flex align-items-center">
-                                                    {isActive ? (
-                                                        <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-0 rounded-pill"><CheckCircle size={10} className="me-1 d-inline"/> Active</span>
+                                            {/* Right Side: Actions */}
+                                            <div className="d-flex align-items-center gap-2 ms-lg-auto border-top border-lg-0 pt-2 pt-lg-0 border-secondary border-opacity-10 mt-2 mt-lg-0">
+                                                {user?.role === 'admin' ? (
+                                                    isActive ? (
+                                                        <button onClick={() => setActiveFestival(null)} className="btn btn-success btn-sm d-flex align-items-center justify-content-center gap-1 px-3 py-1 shadow-sm rounded-pill fw-bold transition-all" style={{ fontSize: '0.75rem' }}>
+                                                            <CheckCircle size={14} /> Selected
+                                                        </button>
                                                     ) : (
-                                                        <span className="badge bg-secondary bg-opacity-10 text-muted border border-secondary border-opacity-25 px-2 py-0 rounded-pill">Inactive</span>
+                                                        <button onClick={() => {
+                                                            setActiveFestival(fest)
+                                                            setActiveTab('subscriptions')
+                                                        }} className="btn btn-primary btn-sm d-flex align-items-center justify-content-center gap-1 px-3 py-1 shadow-sm rounded-pill fw-bold transition-all hover-glow" style={{ fontSize: '0.75rem' }}>
+                                                            Select & Manage
+                                                        </button>
+                                                    )
+                                                ) : (
+                                                    <div className="btn btn-light btn-sm px-3 py-1 rounded-pill fw-bold text-muted cursor-default border" style={{ fontSize: '0.75rem' }}>View Only</div>
+                                                )}
+                                                
+                                                <div className="d-flex align-items-center gap-1 ms-1 ps-2 border-start border-secondary border-opacity-25">
+                                                    <button onClick={() => generateFestivalPDF(fest)} title="Download Report" className="btn btn-light btn-sm text-info p-1 rounded hover-bg-info hover-text-white transition-all">
+                                                        <FileDown size={14} />
+                                                    </button>
+                                                    {user?.role === 'admin' && (
+                                                        <>
+                                                            <button onClick={() => openModal(fest)} title="Edit Festival" className="btn btn-light btn-sm text-secondary p-1 rounded hover-bg-secondary hover-text-white transition-all">
+                                                                <Edit3 size={14} />
+                                                            </button>
+                                                            <button onClick={() => handleDelete(fest._id)} className="btn btn-light btn-sm text-danger p-1 rounded hover-bg-danger hover-text-white transition-all" title="Delete Festival">
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        </>
                                                     )}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Right Side: Actions */}
-                                        <div className="d-flex align-items-center gap-2 ms-lg-auto border-top border-lg-0 pt-2 pt-lg-0 border-secondary border-opacity-10 mt-2 mt-lg-0">
-                                            {user?.role === 'admin' ? (
-                                                isActive ? (
-                                                    <button onClick={() => setActiveFestival(null)} className="btn btn-success btn-sm d-flex align-items-center justify-content-center gap-1 px-3 py-1 shadow-sm rounded-pill fw-bold transition-all" style={{ fontSize: '0.75rem' }}>
-                                                        <CheckCircle size={14} /> Selected
-                                                    </button>
-                                                ) : (
-                                                    <button onClick={() => {
-                                                        setActiveFestival(fest)
-                                                        setActiveTab('subscriptions')
-                                                    }} className="btn btn-primary btn-sm d-flex align-items-center justify-content-center gap-1 px-3 py-1 shadow-sm rounded-pill fw-bold transition-all hover-glow" style={{ fontSize: '0.75rem' }}>
-                                                        Select & Manage
-                                                    </button>
-                                                )
-                                            ) : (
-                                                <div className="btn btn-light btn-sm px-3 py-1 rounded-pill fw-bold text-muted cursor-default border" style={{ fontSize: '0.75rem' }}>View Only</div>
+                                        {/* Expandable Details shown on 'i' click */}
+                                        <AnimatePresence>
+                                            {openInfoIds[fest._id] && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto', marginTop: '8px' }}
+                                                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                                                    transition={{ duration: 0.2 }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <div className="d-flex flex-wrap align-items-center gap-3 pt-2 border-top border-secondary border-opacity-10 text-muted" style={{ fontSize: '0.8rem' }}>
+                                                        {fest.category && (
+                                                            <div className="badge bg-secondary bg-opacity-10 px-2 py-1 rounded-pill fw-bold" style={{ color: 'var(--accent-1)', fontSize: '0.7rem' }}>
+                                                                {fest.category}
+                                                            </div>
+                                                        )}
+
+                                                        <div className="d-flex align-items-center gap-1">
+                                                            <MapPin size={14} className="text-info opacity-75" />
+                                                            <span className="fw-medium text-secondary">{fest.location || 'No address provided'}</span>
+                                                        </div>
+
+                                                        <div className="d-flex align-items-center gap-1">
+                                                            <Calendar size={14} className="text-warning opacity-75" />
+                                                            <span className="fw-medium text-secondary">
+                                                                {fest.startDate ? new Date(fest.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
+                                                                {fest.endDate && ` - ${new Date(fest.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`}
+                                                            </span>
+                                                        </div>
+
+                                                        <div className="d-flex align-items-center">
+                                                            {isActive ? (
+                                                                <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-0 rounded-pill"><CheckCircle size={10} className="me-1 d-inline"/> Active</span>
+                                                            ) : (
+                                                                <span className="badge bg-secondary bg-opacity-10 text-muted border border-secondary border-opacity-25 px-2 py-0 rounded-pill">Inactive</span>
+                                                            )}
+                                                        </div>
+
+                                                        {fest.description && (
+                                                            <div className="w-100 text-muted tiny pt-1" style={{ fontSize: '0.75rem' }}>
+                                                                {fest.description}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </motion.div>
                                             )}
-                                            
-                                            <div className="d-flex align-items-center gap-1 ms-1 ps-2 border-start border-secondary border-opacity-25">
-                                                <button onClick={() => generateFestivalPDF(fest)} title="Download Report" className="btn btn-light btn-sm text-info p-1 rounded hover-bg-info hover-text-white transition-all">
-                                                    <FileDown size={14} />
-                                                </button>
-                                                {user?.role === 'admin' && (
-                                                    <>
-                                                        <button onClick={() => openModal(fest)} title="Edit Festival" className="btn btn-light btn-sm text-secondary p-1 rounded hover-bg-secondary hover-text-white transition-all">
-                                                            <Edit3 size={14} />
-                                                        </button>
-                                                        <button onClick={() => handleDelete(fest._id)} className="btn btn-light btn-sm text-danger p-1 rounded hover-bg-danger hover-text-white transition-all" title="Delete Festival">
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    </>
-                                                )}
-                                            </div>
-                                        </div>
+                                        </AnimatePresence>
                                     </div>
                                 </motion.div>
                             );
@@ -1423,19 +1473,60 @@ const Festivals = () => {
             )}
 
             {activeTab === 'subscriptions' && (
-                <div className="glass-card py-3 px-4 shadow-sm">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                        <div>
-                            <h5 className="fw-extrabold mb-0 text-main">Subscriptions</h5>
-                            <p className="text-muted tiny mb-0">Attendee List and Payment tracking.</p>
+                <div className="glass-card py-3 px-4 shadow-sm" style={{ maxWidth: '820px' }}>
+                    {/* Subscriptions Title and Subtitle */}
+                    <div className="mb-1">
+                        <h5 className="fw-extrabold mb-0 text-main">Subscriptions</h5>
+                        <p className="text-muted tiny mb-0">Attendee List and Payment tracking.</p>
+                    </div>
+
+                    {/* Toolbar below Title inside the Card */}
+                    <div className="d-flex flex-column py-1 mb-3" style={{ gap: '10px' }}>
+                        {/* Row 1: Add New, Search, Attendee PDF */}
+                        <div className="d-flex align-items-center gap-2.5 flex-wrap flex-sm-nowrap">
+                            {/* ADD NEW */}
+                            {!isSubAdding && (
+                                <button onClick={() => {
+                                    setIsSubAdding(true)
+                                    setSubFormData({
+                                        ...subFormData,
+                                        subId: generateSubID(),
+                                        date: new Date().toISOString().split('T')[0],
+                                        festOrEventName: activeFestival?.title || '',
+                                        entityName: activeFestival?.entityName || ''
+                                    })
+                                }} className="btn btn-premium btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.74rem' }}>
+                                    <Plus size={13} /> <span className="uppercase">Add New</span>
+                                </button>
+                            )}
+
+                            {/* SEARCH */}
+                            <div className="input-group action-item-pill search-pill-container px-2.5 flex-nowrap shadow-sm" style={{ height: '32px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={13} /></span>
+                                <input
+                                    type="text"
+                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100 fw-bold"
+                                    placeholder="Search attendees..."
+                                    value={subSearch}
+                                    onChange={(e) => setSubSearch(e.target.value)}
+                                    style={{ fontSize: '0.75rem' }}
+                                />
+                            </div>
+
+                            {/* ATTENDEE PDF */}
+                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.74rem' }}>
+                                <FileDown size={13} /> <span className="uppercase">Attendee PDF</span>
+                            </button>
                         </div>
-                        <div className="d-flex align-items-center gap-2 flex-nowrap overflow-x-auto py-1">
-                            {/* SORT Tab (Left side of Search Bar) */}
-                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
+
+                        {/* Row 2: Sort, Tier All, Pay All (Just below) */}
+                        <div className="d-flex align-items-center gap-2.5 flex-wrap flex-sm-nowrap">
+                            {/* SORT */}
+                            <div className="input-group action-item-pill px-2.5 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
                                 <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={13} /></span>
                                 <select
-                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-3 h-100 fw-bold"
-                                    style={{ fontSize: '0.72rem' }}
+                                    className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                    style={{ fontSize: '0.75rem' }}
                                     value={subSort}
                                     onChange={(e) => setSubSort(e.target.value)}
                                     title="Sort Attendees"
@@ -1449,12 +1540,12 @@ const Festivals = () => {
                                 </select>
                             </div>
 
-                            {/* FILTER Tab (Left side of Search Bar) */}
-                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${subMembershipFilter !== 'all' || subPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
+                            {/* FILTER */}
+                            <div className={`input-group action-item-pill px-2.5 align-items-center flex-nowrap shadow-sm ${subMembershipFilter !== 'all' || subPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
                                 <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={13} className={subMembershipFilter !== 'all' || subPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
                                 <select
-                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.72rem' }}
+                                    className="form-select select-tier bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold"
+                                    style={{ fontSize: '0.75rem' }}
                                     value={subMembershipFilter}
                                     onChange={(e) => setSubMembershipFilter(e.target.value)}
                                     title="Filter Tier"
@@ -1466,8 +1557,8 @@ const Festivals = () => {
                                     <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
                                 </select>
                                 <select
-                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold border-start border-secondary border-opacity-25"
-                                    style={{ fontSize: '0.72rem' }}
+                                    className="form-select select-pay bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold border-start border-secondary border-opacity-25"
+                                    style={{ fontSize: '0.75rem' }}
                                     value={subPaymentFilter}
                                     onChange={(e) => setSubPaymentFilter(e.target.value)}
                                     title="Filter Payment"
@@ -1479,123 +1570,224 @@ const Festivals = () => {
                                     <option value="Coupon or Token" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Coupon</option>
                                 </select>
                             </div>
-
-                            {/* SEARCH Bar */}
-                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={13} /></span>
-                                <input
-                                    type="text"
-                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-2 h-100"
-                                    placeholder="Search attendees..."
-                                    value={subSearch}
-                                    onChange={(e) => setSubSearch(e.target.value)}
-                                    style={{ fontSize: '0.72rem' }}
-                                />
-                            </div>
-
-                            {/* ATTENDEE PDF Button */}
-                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.7rem' }}>
-                                <FileDown size={13} /> <span className="uppercase">Attendee PDF</span>
-                            </button>
-
-                            {/* ADD NEW Button */}
-                            {!isSubAdding && (
-                                <button onClick={() => {
-                                    setIsSubAdding(true)
-                                    setSubFormData({
-                                        ...subFormData,
-                                        subId: generateSubID(),
-                                        date: new Date().toISOString().split('T')[0],
-                                        festOrEventName: activeFestival?.title || '',
-                                        entityName: activeFestival?.entityName || ''
-                                    })
-                                }} className="btn btn-premium btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.7rem' }}>
-                                    <Plus size={13} /> <span className="uppercase">Add New</span>
-                                </button>
-                            )}
                         </div>
                     </div>
 
-                    {/* Component modal removed */}
-
-                    <div className="table-responsive">
-                        <table className="table table-hover align-middle mb-0">
+                    <div className="table-responsive" style={{ overflow: 'visible' }}>
+                        <table className="table table-hover align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%' }}>
+                            <colgroup>
+                                <col style={{ width: '95px' }} />
+                                <col style={{ width: '200px' }} />
+                                <col style={{ width: '130px' }} />
+                                <col style={{ width: '95px' }} />
+                                <col style={{ width: '110px' }} />
+                            </colgroup>
                             <thead>
                                 <tr className="small text-muted border-bottom">
-                                    <th className="border-0 fw-semibold py-2">ID</th>
-                                    <th className="border-0 fw-semibold py-2">Name</th>
-                                    <th className="border-0 fw-semibold py-2">Contact</th>
-                                    <th className="border-0 fw-semibold py-2">Address</th>
-                                    <th className="border-0 fw-semibold py-2">Type</th>
+                                    <th className="border-0 fw-semibold py-2 ps-3">ID</th>
+                                    <th className="border-0 fw-semibold py-2">Attendee Name</th>
                                     <th className="border-0 fw-semibold py-2">Payment</th>
-                                    <th className="border-0 fw-semibold py-2 text-end">Amount</th>
-                                    <th className="border-0 fw-semibold py-2 text-end">Action</th>
+                                    <th className="border-0 fw-semibold py-2">Amount</th>
+                                    <th className="border-0 fw-semibold py-2">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="text-main">
                                 {filteredSubs.length === 0 ? (
-                                    <tr><td colSpan="8" className="text-center py-5 text-muted">{subscriptionsList.length === 0 ? "No subscriptions yet. Click 'Add New' to begin." : "No matching attendees found."}</td></tr>
+                                    <tr><td colSpan="5" className="text-center py-5 text-muted">{subscriptionsList.length === 0 ? "No subscriptions yet. Click 'Add New' to begin." : "No matching attendees found."}</td></tr>
                                 ) : (
-                                    filteredSubs.map((sub) => (
-                                        <tr key={sub.subId}>
-                                            <td className="border-0 py-2">
-                                                <div className="d-flex align-items-center gap-2">
-                                                    <span className="badge bg-secondary bg-opacity-10 text-dark font-monospace px-2 py-1">{sub.subId}</span>
-                                                    {sub.date && (
-                                                        <span className="text-muted extra-tiny"><Calendar size={12} className="me-1 opacity-75" />{new Date(sub.date).toLocaleDateString()}</span>
-                                                    )}
-                                                </div>
-                                            </td>
-                                            <td className="border-0 py-2 fw-bold small">{sub.name}</td>
-                                            <td className="border-0 py-2 small text-muted text-nowrap"><Phone size={12} className="me-1 opacity-75" />{sub.countryCode} {sub.contact}</td>
-                                            <td className="border-0 py-2 small text-muted text-nowrap text-truncate" style={{ maxWidth: '150px' }}><MapPin size={12} className="me-1 opacity-75" />{sub.address || 'N/A'}</td>
-                                            <td className="border-0 py-2">
-                                                <span style={getTierBadgeStyle(sub.membershipType)}>
-                                                    {getTierDisplayName(sub.membershipType)}
-                                                </span>
-                                            </td>
-                                            <td className="border-0 py-2">
-                                                <div className="d-flex align-items-center gap-1 flex-wrap">
-                                                    <span className="badge px-2 py-1 fw-medium" style={getPaymentBadgeStyle(sub.paymentType)}>
-                                                        {getPaymentDisplayName(sub.paymentType)}
-                                                    </span>
-                                                    {sub.referenceName && <span className="text-muted extra-tiny">Ref: {sub.referenceName}</span>}
-                                                </div>
-                                            </td>
-                                            <td className="border-0 py-2 text-end">
-                                                <span className="badge bg-success text-white px-2 py-1 fw-bold shadow-sm" style={{ fontSize: '0.8rem' }}>
-                                                    {sub.currency || '₹'}{String(sub.amount || 0).replace(/[^0-9.]/g, '')}
-                                                </span>
-                                            </td>
-                                            <td className="border-0 py-2 text-end">
-                                                <div className="d-flex justify-content-end gap-1">
-                                                    <button onClick={() => {
-                                                        const message = `Halo ${sub.name}, your subscription ID ${sub.subId} is confirmed.`
-                                                        window.open(`https://wa.me/${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
-                                                    }} className="btn btn-sm btn-light text-success p-1 rounded-2 shadow-sm border" title="WhatsApp"><MessageCircle size={14} /></button>
-                                                    <button onClick={() => downloadPDF(sub)} className="btn btn-sm btn-light text-info p-1 rounded-2 shadow-sm border" title="Download PDF"><FileDown size={14} /></button>
-                                                    <button onClick={() => {
-                                                        setSubFormData({
-                                                            ...sub,
-                                                            date: sub.date ? new Date(sub.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
-                                                        })
-                                                        setEditingSubId(sub.subId)
-                                                        setIsSubAdding(true)
-                                                    }} className="btn btn-sm btn-light text-primary p-1 rounded-2 shadow-sm border"><Edit3 size={14} /></button>
-                                                    <button onClick={async () => {
-                                                        if (window.confirm('Delete subscription?')) {
-                                                            try {
-                                                                await axios.delete(`/api/subscriptions/${sub.subId}`)
-                                                                fetchSubscriptions()
-                                                            } catch (err) {
-                                                                alert('Error deleting')
-                                                            }
-                                                        }
-                                                    }} className="btn btn-sm btn-light text-danger p-1 rounded-2 shadow-sm border"><Trash2 size={14} /></button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
+                                    filteredSubs.map((sub) => {
+                                        const isInfoOpen = !!openInfoIds[sub.subId];
+                                        const isActionOpen = openActionSubId === sub.subId;
+                                        return (
+                                            <Fragment key={sub.subId}>
+                                                <tr className={`align-middle transition-all ${isInfoOpen ? 'border-bottom-0 bg-secondary bg-opacity-5' : ''}`}>
+                                                    <td className="border-0 py-2 ps-3">
+                                                        <span className="badge bg-secondary bg-opacity-10 text-dark font-monospace px-2 py-1">{sub.subId}</span>
+                                                    </td>
+                                                    <td className="border-0 py-2">
+                                                        <div className="d-flex align-items-center gap-1.5">
+                                                            <span className="fw-bold small">{sub.name}</span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setOpenInfoIds(prev => ({ ...prev, [sub.subId]: !prev[sub.subId] }));
+                                                                }}
+                                                                className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center transition-all ${
+                                                                    isInfoOpen
+                                                                        ? 'bg-primary text-white shadow-sm'
+                                                                        : 'bg-secondary bg-opacity-10 text-primary border-0 hover-bg-primary hover-text-white'
+                                                                }`}
+                                                                style={{ width: '20px', height: '20px', minWidth: '20px', cursor: 'pointer' }}
+                                                                title={isInfoOpen ? "Hide attendee details" : "Show Date, Contact, Address, Type"}
+                                                            >
+                                                                <Info size={11} strokeWidth={2.5} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td className="border-0 py-2">
+                                                        <div className="d-flex align-items-center gap-1 flex-wrap">
+                                                            <span className="badge px-2 py-1 fw-medium" style={getPaymentBadgeStyle(sub.paymentType)}>
+                                                                {getPaymentDisplayName(sub.paymentType)}
+                                                            </span>
+                                                            {sub.referenceName && <span className="text-muted extra-tiny">Ref: {sub.referenceName}</span>}
+                                                        </div>
+                                                    </td>
+                                                    <td className="border-0 py-2">
+                                                        <span className="badge bg-success text-white px-2 py-1 fw-bold shadow-sm" style={{ fontSize: '0.8rem' }}>
+                                                            {sub.currency || '₹'}{String(sub.amount || 0).replace(/[^0-9.]/g, '')}
+                                                        </span>
+                                                    </td>
+                                                    <td className="border-0 py-2 position-relative">
+                                                        <div className="position-relative d-inline-block">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setOpenActionSubId(isActionOpen ? null : sub.subId)}
+                                                                className={`btn btn-sm d-flex align-items-center gap-1.5 px-2.5 rounded-pill fw-bold text-nowrap transition-all shadow-sm ${
+                                                                    isActionOpen
+                                                                        ? 'btn-primary text-white'
+                                                                        : 'btn-outline-secondary'
+                                                                }`}
+                                                                style={{ height: '28px', fontSize: '0.73rem' }}
+                                                            >
+                                                                <span>Action</span>
+                                                                <ChevronDown size={12} className={`transition-all ${isActionOpen ? 'rotate-180' : ''}`} style={{ transform: isActionOpen ? 'rotate(180deg)' : 'none' }} />
+                                                            </button>
+
+                                                            {isActionOpen && (
+                                                                <>
+                                                                    <div
+                                                                        className="position-fixed top-0 start-0 w-100 h-100"
+                                                                        style={{ zIndex: 1040 }}
+                                                                        onClick={() => setOpenActionSubId(null)}
+                                                                    />
+                                                                    <motion.div
+                                                                        initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                                                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                                        exit={{ opacity: 0, scale: 0.95 }}
+                                                                        transition={{ duration: 0.15 }}
+                                                                        className="position-absolute end-0 mt-1 py-1 bg-white rounded-3 shadow-lg border border-secondary border-opacity-15 d-flex flex-column"
+                                                                        style={{ minWidth: '145px', zIndex: 1050 }}
+                                                                    >
+                                                                        {/* WhatsApp */}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                setOpenActionSubId(null)
+                                                                                const message = `Halo ${sub.name}, your subscription ID ${sub.subId} is confirmed.`
+                                                                                window.open(`https://wa.me/${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
+                                                                            }}
+                                                                            className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 hover-bg-light"
+                                                                            style={{ fontSize: '0.78rem' }}
+                                                                        >
+                                                                            <MessageCircle size={14} className="text-success" />
+                                                                            <span className="fw-medium">WhatsApp</span>
+                                                                        </button>
+
+                                                                        {/* Download PDF */}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                setOpenActionSubId(null)
+                                                                                downloadPDF(sub)
+                                                                            }}
+                                                                            className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 hover-bg-light"
+                                                                            style={{ fontSize: '0.78rem' }}
+                                                                        >
+                                                                            <FileDown size={14} className="text-info" />
+                                                                            <span className="fw-medium">PDF Pass</span>
+                                                                        </button>
+
+                                                                        {/* Edit */}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                setOpenActionSubId(null)
+                                                                                setSubFormData({
+                                                                                    ...sub,
+                                                                                    date: sub.date ? new Date(sub.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                                                                                })
+                                                                                setEditingSubId(sub.subId)
+                                                                                setIsSubAdding(true)
+                                                                            }}
+                                                                            className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 hover-bg-light"
+                                                                            style={{ fontSize: '0.78rem' }}
+                                                                        >
+                                                                            <Edit3 size={14} className="text-primary" />
+                                                                            <span className="fw-medium">Edit</span>
+                                                                        </button>
+
+                                                                        <div className="dropdown-divider my-1 border-secondary border-opacity-10"></div>
+
+                                                                        {/* Delete */}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={async () => {
+                                                                                setOpenActionSubId(null)
+                                                                                if (window.confirm('Delete subscription?')) {
+                                                                                    try {
+                                                                                        await axios.delete(`/api/subscriptions/${sub.subId}`)
+                                                                                        fetchSubscriptions()
+                                                                                    } catch (err) {
+                                                                                        alert('Error deleting')
+                                                                                    }
+                                                                                }
+                                                                            }}
+                                                                            className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-danger border-0 rounded-0 hover-bg-danger hover-bg-opacity-10"
+                                                                            style={{ fontSize: '0.78rem' }}
+                                                                        >
+                                                                            <Trash2 size={14} className="text-danger" />
+                                                                            <span className="fw-medium">Delete</span>
+                                                                        </button>
+                                                                    </motion.div>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {isInfoOpen && (
+                                                    <tr className="bg-secondary bg-opacity-5 border-top-0">
+                                                        <td colSpan="5" className="border-0 pt-0 pb-2 px-3">
+                                                            <motion.div
+                                                                initial={{ opacity: 0, height: 0 }}
+                                                                animate={{ opacity: 1, height: 'auto' }}
+                                                                exit={{ opacity: 0, height: 0 }}
+                                                                transition={{ duration: 0.2 }}
+                                                                className="p-2 rounded-3 bg-white shadow-sm border border-secondary border-opacity-15 d-flex flex-wrap align-items-center gap-3 text-muted"
+                                                                style={{ fontSize: '0.78rem' }}
+                                                            >
+                                                                {/* Date */}
+                                                                <div className="d-flex align-items-center gap-1.5">
+                                                                    <Calendar size={13} className="text-warning opacity-75" />
+                                                                    <span><strong className="text-dark">Date:</strong> {sub.date ? new Date(sub.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</span>
+                                                                </div>
+
+                                                                {/* Contact */}
+                                                                <div className="d-flex align-items-center gap-1.5">
+                                                                    <Phone size={13} className="text-info opacity-75" />
+                                                                    <span><strong className="text-dark">Contact:</strong> {sub.countryCode || ''} {sub.contact || 'N/A'}</span>
+                                                                </div>
+
+                                                                {/* Address */}
+                                                                <div className="d-flex align-items-center gap-1.5">
+                                                                    <MapPin size={13} className="text-danger opacity-75" />
+                                                                    <span><strong className="text-dark">Address:</strong> {sub.address || 'N/A'}</span>
+                                                                </div>
+
+                                                                {/* Type */}
+                                                                <div className="d-flex align-items-center gap-1.5">
+                                                                    <span className="fw-bold extra-tiny uppercase text-dark">Type:</span>
+                                                                    <span style={getTierBadgeStyle(sub.membershipType)}>
+                                                                        {getTierDisplayName(sub.membershipType)}
+                                                                    </span>
+                                                                </div>
+                                                            </motion.div>
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </Fragment>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>
@@ -1606,86 +1798,87 @@ const Festivals = () => {
 
             {activeTab === 'expenses' && (
                 <div className="glass-card p-3">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <h4 className="mb-0 fw-normal">Expenses</h4>
-                            <p className="text-muted tiny mb-0">Track and manage all festival-related spending.</p>
+                    {/* Expenses Title and Subtitle */}
+                    <div className="mb-1">
+                        <h4 className="mb-0 fw-normal">Expenses</h4>
+                        <p className="text-muted tiny mb-0">Track and manage all festival-related spending.</p>
+                    </div>
+
+                    {/* Toolbar below Title inside the Card */}
+                    <div className="d-flex align-items-center gap-2.5 flex-wrap flex-sm-nowrap overflow-x-auto py-1 mb-2">
+                        {/* SORT */}
+                        <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                            <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
+                            <select
+                                className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                style={{ fontSize: '0.67rem' }}
+                                value={expSort}
+                                onChange={(e) => setExpSort(e.target.value)}
+                                title="Sort Expenses"
+                            >
+                                <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
+                                <option value="oldest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Oldest</option>
+                                <option value="amount-high" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (High-Low)</option>
+                                <option value="amount-low" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (Low-High)</option>
+                                <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Particular (A-Z)</option>
+                            </select>
                         </div>
-                        <div className="d-flex align-items-center gap-2 flex-nowrap overflow-x-auto py-1">
-                            {/* SORT Tab (Left side of Search Bar) */}
-                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={13} /></span>
-                                <select
-                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.72rem' }}
-                                    value={expSort}
-                                    onChange={(e) => setExpSort(e.target.value)}
-                                    title="Sort Expenses"
-                                >
-                                    <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
-                                    <option value="oldest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Oldest</option>
-                                    <option value="amount-high" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (High-Low)</option>
-                                    <option value="amount-low" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (Low-High)</option>
-                                    <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Particular (A-Z)</option>
-                                </select>
-                            </div>
 
-                            {/* FILTER Tab (Left side of Search Bar) */}
-                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={13} className={expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
-                                <select
-                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.72rem' }}
-                                    value={expTypeFilter}
-                                    onChange={(e) => setExpTypeFilter(e.target.value)}
-                                    title="Filter Category"
-                                >
-                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Category: All</option>
-                                    <option value="Venue & Location" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Venue & Location</option>
-                                    <option value="Sound & Lighting" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Sound & Lighting</option>
-                                    <option value="Catering & Food" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Catering & Food</option>
-                                    <option value="Marketing & PR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Marketing & PR</option>
-                                    <option value="Artist & Talent" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Artist & Talent</option>
-                                    <option value="Security & Logistics" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Security & Logistics</option>
-                                    <option value="Miscellaneous" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Miscellaneous</option>
-                                </select>
-                                <select
-                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold border-start border-secondary border-opacity-25"
-                                    style={{ fontSize: '0.72rem' }}
-                                    value={expPaymentFilter}
-                                    onChange={(e) => setExpPaymentFilter(e.target.value)}
-                                    title="Filter Payment Mode"
-                                >
-                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Pay: All</option>
-                                    <option value="Cash" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cash</option>
-                                    <option value="Online" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Online</option>
-                                    <option value="Bank Transfer" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Bank Transfer</option>
-                                    <option value="Cheque" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cheque</option>
-                                    <option value="UPI / QR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>UPI / QR</option>
-                                </select>
-                            </div>
+                        {/* FILTER */}
+                        <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
+                            <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
+                            <select
+                                className="form-select select-cat bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold"
+                                style={{ fontSize: '0.67rem' }}
+                                value={expTypeFilter}
+                                onChange={(e) => setExpTypeFilter(e.target.value)}
+                                title="Filter Category"
+                            >
+                                <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Category: All</option>
+                                <option value="Venue & Location" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Venue & Location</option>
+                                <option value="Sound & Lighting" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Sound & Lighting</option>
+                                <option value="Catering & Food" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Catering & Food</option>
+                                <option value="Marketing & PR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Marketing & PR</option>
+                                <option value="Artist & Talent" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Artist & Talent</option>
+                                <option value="Security & Logistics" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Security & Logistics</option>
+                                <option value="Miscellaneous" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Miscellaneous</option>
+                            </select>
+                            <select
+                                className="form-select select-pay bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold border-start border-secondary border-opacity-25"
+                                style={{ fontSize: '0.67rem' }}
+                                value={expPaymentFilter}
+                                onChange={(e) => setExpPaymentFilter(e.target.value)}
+                                title="Filter Payment Mode"
+                            >
+                                <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Pay: All</option>
+                                <option value="Cash" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cash</option>
+                                <option value="Online" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Online</option>
+                                <option value="Bank Transfer" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Bank Transfer</option>
+                                <option value="Cheque" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cheque</option>
+                                <option value="UPI / QR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>UPI / QR</option>
+                            </select>
+                        </div>
 
-                            {/* Search Expenses */}
-                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={13} /></span>
-                                <input
-                                    type="text"
-                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-2 h-100"
-                                    placeholder="Search expenses..."
-                                    value={expSearch}
-                                    onChange={(e) => setExpSearch(e.target.value)}
-                                    style={{ fontSize: '0.72rem' }}
-                                />
-                            </div>
-                            <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.7rem' }}>
-                                <FileDown size={13} /> <span className="uppercase">All Expenses PDF</span>
+                        {/* Search Expenses */}
+                        <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                            <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
+                            <input
+                                type="text"
+                                className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100"
+                                placeholder="Search expenses..."
+                                value={expSearch}
+                                onChange={(e) => setExpSearch(e.target.value)}
+                                style={{ fontSize: '0.67rem' }}
+                            />
+                        </div>
+                        <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
+                            <FileDown size={11} /> <span className="uppercase">All Expenses PDF</span>
+                        </button>
+                        {!isExpAdding && (
+                            <button onClick={() => setIsExpAdding(true)} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
+                                <Plus size={11} /> <span className="uppercase">New Expense</span>
                             </button>
-                            {!isExpAdding && (
-                                <button onClick={() => setIsExpAdding(true)} className="btn btn-premium btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.7rem' }}>
-                                    <Plus size={13} /> <span className="uppercase">New Expense</span>
-                                </button>
-                            )}
-                        </div>
+                        )}
                     </div>
 
                     {isExpAdding && (
@@ -1855,79 +2048,86 @@ const Festivals = () => {
 
             {activeTab === 'card' && (
                 <div className="py-2">
-                    <div className="mb-5 d-flex justify-content-between align-items-end">
-                        <div>
-                            <h3 className="fw-bold mb-1">Pass Preview</h3>
-                            <p className="text-muted small">Visual representation of active member passes.</p>
-                        </div>
-                        <div className="d-flex align-items-center gap-2 flex-nowrap overflow-x-auto py-1">
-                            {/* SORT Tab (Left side of Search Bar) */}
-                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={13} /></span>
-                                <select
-                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.72rem' }}
-                                    value={cardSort}
-                                    onChange={(e) => setCardSort(e.target.value)}
-                                    title="Sort Cards"
-                                >
-                                    <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (A-Z)</option>
-                                    <option value="name-desc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (Z-A)</option>
-                                    <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
-                                </select>
-                            </div>
+                    {/* Pass Preview Title and Subtitle */}
+                    <div className="mb-1">
+                        <h3 className="fw-bold mb-1">Pass Preview</h3>
+                        <p className="text-muted small">Visual representation of active member passes.</p>
+                    </div>
 
-                            {/* FILTER Tab (Left side of Search Bar) */}
-                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${cardMembershipFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={13} className={cardMembershipFilter !== 'all' ? 'text-primary' : ''} /></span>
-                                <select
-                                    className="form-select bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.72rem' }}
-                                    value={cardMembershipFilter}
-                                    onChange={(e) => setCardMembershipFilter(e.target.value)}
-                                    title="Filter by Tier"
-                                >
-                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Tier: All</option>
-                                    <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP</option>
-                                    <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime</option>
-                                    <option value="Non-Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Non-Prime</option>
-                                    <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
-                                </select>
-                            </div>
-
-                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={13} /></span>
-                                <input
-                                    type="text"
-                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-2 h-100"
-                                    placeholder="Search cards..."
-                                    value={cardSearch}
-                                    onChange={(e) => setCardSearch(e.target.value)}
-                                    style={{ fontSize: '0.72rem' }}
-                                />
-                            </div>
-                            <div className="d-flex align-items-center gap-2 px-2 py-1 bg-dark bg-opacity-20 border border-white border-opacity-5 rounded-pill shadow-sm">
-                                <div className="p-1 bg-primary bg-opacity-10 rounded-circle">
-                                    <History size={12} className="text-primary" />
-                                </div>
-                                <div className="small fw-bold text-white mb-0 me-1" style={{ fontSize: '0.75rem' }}>{cardsList?.length || 0} Issued</div>
-                            </div>
-                            <button onClick={() => {
-                                setCardFormData({
-                                    ...cardFormData,
-                                    name: '',
-                                    address: '',
-                                    membershipType: 'Regular',
-                                    cardId: generateSubID(),
-                                    cardColor: '#1e293b',
-                                    entityName: activeFestival?.entityName || '',
-                                    festOrEventName: activeFestival?.title || ''
-                                })
-                                setIsCardAdding(true)
-                            }} className="btn btn-premium btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.7rem' }}>
-                                <Plus size={13} /> <span className="uppercase">New Pass Card</span>
-                            </button>
+                    {/* Toolbar below Title inside the Card */}
+                    <div className="d-flex align-items-center gap-2.5 flex-wrap flex-sm-nowrap overflow-x-auto py-1 mb-2">
+                        {/* SORT */}
+                        <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                            <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
+                            <select
+                                className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                style={{ fontSize: '0.67rem' }}
+                                value={cardSort}
+                                onChange={(e) => setCardSort(e.target.value)}
+                                title="Sort Cards"
+                            >
+                                <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (A-Z)</option>
+                                <option value="name-desc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (Z-A)</option>
+                                <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
+                            </select>
                         </div>
+
+                        {/* FILTER */}
+                        <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${cardMembershipFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
+                            <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={cardMembershipFilter !== 'all' ? 'text-primary' : ''} /></span>
+                            <select
+                                className="form-select select-tier bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                style={{ fontSize: '0.67rem' }}
+                                value={cardMembershipFilter}
+                                onChange={(e) => setCardMembershipFilter(e.target.value)}
+                                title="Filter by Tier"
+                            >
+                                <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Tier: All</option>
+                                <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP</option>
+                                <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime</option>
+                                <option value="Non-Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Non-Prime</option>
+                                <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
+                            </select>
+                        </div>
+
+                        {/* SEARCH */}
+                        <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                            <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
+                            <input
+                                type="text"
+                                className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100"
+                                placeholder="Search passes..."
+                                value={cardSearch}
+                                onChange={(e) => setCardSearch(e.target.value)}
+                                style={{ fontSize: '0.67rem' }}
+                            />
+                        </div>
+
+                        <div className="d-flex align-items-center gap-1.5 px-2 py-0.5 bg-dark bg-opacity-20 border border-white border-opacity-5 rounded-pill shadow-sm" style={{ height: '26px' }}>
+                            <div className="p-0.5 bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center">
+                                <History size={11} className="text-primary" />
+                            </div>
+                            <div className="small fw-bold text-white mb-0 me-1" style={{ fontSize: '0.68rem' }}>{cardsList?.length || 0} Issued</div>
+                        </div>
+                        <button onClick={() => {
+                            setCardFormData({
+                                ...cardFormData,
+                                name: '',
+                                address: '',
+                                membershipType: 'Regular',
+                                cardColor: '#1e293b',
+                                backgroundImage: 'none',
+                                familyMembers: 0,
+                                fromDate: activeFestival?.startDate ? new Date(activeFestival.startDate).toISOString().split('T')[0] : '',
+                                toDate: activeFestival?.endDate ? new Date(activeFestival.endDate).toISOString().split('T')[0] : '',
+                                festOrEventName: activeFestival?.title || '',
+                                entityName: activeFestival?.entityName || ''
+                            })
+                            setEditingCardId(null)
+                            setIsCardAdding(true)
+                        }} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
+                            <Plus size={11} /> <span className="uppercase">Create Pass</span>
+                        </button>
                     </div>
                     <div className="row g-4">
                         {!selectedPreviewCard ? (
@@ -2196,7 +2396,7 @@ const Festivals = () => {
                                     </div>
                                 </div>
 
-                                <div className="col-12 mt-5">
+                                <div className="col-12 mt-4">
                                     <div className="d-flex gap-3">
                                         <button type="submit" className="btn btn-premium flex-grow-1 py-3 px-5">
                                             <Save size={18} /> {editingFest ? 'Update Festival' : 'Deploy New Festival'}
@@ -2213,8 +2413,8 @@ const Festivals = () => {
             <AnimatePresence>
                 {isSubAdding && (
                     <div className="modal-overlay modal-overlay-light position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 2000 }}>
-                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="w-100 mx-3 p-2 px-3" style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto', backgroundColor: 'var(--modal-bg)', borderRadius: '16px' }}>
-                            <div className="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="w-100 mx-3 p-3 px-4" style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto', backgroundColor: 'var(--modal-bg)', borderRadius: '16px' }}>
+                            <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
                                 <div>
                                     <h2 className="fw-bold mb-0" style={{ fontSize: '1.25rem', color: 'var(--text-main)' }}>
                                         {editingSubId ? 'Modify Subscription' : 'New Subscription'}
@@ -2248,23 +2448,23 @@ const Festivals = () => {
                             }}>
                                 <div className="row g-2 mb-2">
                                     <div className="col-md-6">
-                                        <div className="p-1 px-2 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                            <label className="text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>ID (Auto-Generated)</label>
+                                        <div className="p-2 px-3 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
+                                            <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>ID (Auto-Generated)</label>
                                             <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '28px', height: '28px' }}>
-                                                    <Fingerprint size={14} />
+                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
+                                                    <Fingerprint size={16} />
                                                 </div>
                                                 <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: 'var(--text-main)', letterSpacing: '2px', fontSize: '0.85rem' }} value={subFormData.subId} readOnly />
-                                                <button type="button" className="btn btn-link p-0 pe-2" style={{ color: 'var(--accent-1)' }} onClick={() => navigator.clipboard.writeText(subFormData.subId)}><Copy size={14} /></button>
+                                                <button type="button" className="btn btn-link p-0 pe-2" style={{ color: 'var(--accent-1)' }} onClick={() => navigator.clipboard.writeText(subFormData.subId)}><Copy size={15} /></button>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="col-md-6">
-                                        <div className="p-1 px-2 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                            <label className="text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Subscription Date</label>
+                                        <div className="p-2 px-3 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
+                                            <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Subscription Date</label>
                                             <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '28px', height: '28px' }}>
-                                                    <Calendar size={14} />
+                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
+                                                    <Calendar size={16} />
                                                 </div>
                                                 <input type="date" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} value={subFormData.date} onChange={e => setSubFormData({ ...subFormData, date: e.target.value })} required />
                                             </div>
@@ -2273,11 +2473,11 @@ const Festivals = () => {
                                 </div>
 
                                 <div className="mb-2">
-                                    <div className="p-1 px-2 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                        <label className="text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Attendee Full Name</label>
+                                    <div className="p-2 px-3 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
+                                        <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Attendee Full Name</label>
                                         <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '28px', height: '28px' }}>
-                                                <User size={14} />
+                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
+                                                <User size={16} />
                                             </div>
                                             <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} placeholder="Full Name" value={subFormData.name} onChange={e => setSubFormData({ ...subFormData, name: e.target.value })} required />
                                         </div>
@@ -2285,11 +2485,11 @@ const Festivals = () => {
                                 </div>
 
                                 <div className="mb-2">
-                                    <div className="p-1 px-2 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                        <label className="text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Attendee Residence / Address</label>
+                                    <div className="p-2 px-3 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
+                                        <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Attendee Residence / Address</label>
                                         <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '28px', height: '28px' }}>
-                                                <MapPin size={14} />
+                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
+                                                <MapPin size={16} />
                                             </div>
                                             <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} placeholder="Street name, City, State, District..." value={subFormData.address} onChange={e => setSubFormData({ ...subFormData, address: e.target.value })} />
                                         </div>
@@ -2297,11 +2497,11 @@ const Festivals = () => {
                                 </div>
 
                                 <div className="mb-2">
-                                    <div className="p-1 px-2 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                        <label className="text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Transaction Amount</label>
+                                    <div className="p-2 px-3 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
+                                        <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Transaction Amount</label>
                                         <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '28px', height: '28px' }}>
-                                                <CreditCard size={14} />
+                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
+                                                <CreditCard size={16} />
                                             </div>
                                             <div className="d-flex align-items-center border-end pe-2 me-2" style={{ borderColor: 'var(--glass-border)' }}>
                                                 <select className="border-0 shadow-none bg-transparent fw-bold py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} value={subFormData.currency} onChange={e => setSubFormData({ ...subFormData, currency: e.target.value })}>
@@ -2314,11 +2514,11 @@ const Festivals = () => {
                                 </div>
 
                                 <div className="mb-2">
-                                    <div className="p-1 px-2 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                        <label className="text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Secure Contact Node</label>
+                                    <div className="p-2 px-3 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
+                                        <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Secure Contact Node</label>
                                         <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '28px', height: '28px' }}>
-                                                <Phone size={14} />
+                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
+                                                <Phone size={16} />
                                             </div>
                                             <div className="d-flex align-items-center border-end pe-2 me-2" style={{ borderColor: 'var(--glass-border)' }}>
                                                 <span className="me-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }}>{subFormData.countryCode === '+91' ? '🇮🇳' : subFormData.countryCode === '+1' ? '🇺🇸' : subFormData.countryCode === '+44' ? '🇬🇧' : '🌐'}</span>
@@ -2333,11 +2533,11 @@ const Festivals = () => {
 
                                 <div className="row g-2 mb-2">
                                     <div className="col-md-6">
-                                        <div className="p-1 px-2 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                            <label className="text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Subscription Tier</label>
+                                        <div className="p-2 px-3 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
+                                            <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Subscription Tier</label>
                                             <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '28px', height: '28px' }}>
-                                                    <Crown size={14} />
+                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
+                                                    <Crown size={16} />
                                                 </div>
                                                 <select className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} value={subFormData.membershipType} onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}>
                                                     <option value="Prime">Prime Member</option>
@@ -2349,17 +2549,17 @@ const Festivals = () => {
                                         </div>
                                     </div>
                                     <div className="col-md-6">
-                                        <div className="p-1 px-2 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                            <label className="text-uppercase fw-bold mb-0 d-block" style={{ fontSize: '0.6rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Financial Status</label>
+                                        <div className="p-2 px-3 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
+                                            <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Financial Status</label>
                                             <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: subFormData.paymentType === 'Cash & Paid' ? '#10b981' : subFormData.paymentType === 'Due' ? '#ef4444' : subFormData.paymentType === 'Online' ? '#0ea5e9' : 'var(--text-muted)', width: '28px', height: '28px' }}>
-                                                    <ShieldCheck size={14} />
+                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: subFormData.paymentType === 'Cash & Paid' ? '#10b981' : subFormData.paymentType === 'Due' ? '#ef4444' : subFormData.paymentType === 'Online' ? '#0ea5e9' : 'var(--text-muted)', width: '30px', height: '30px' }}>
+                                                    <ShieldCheck size={16} />
                                                 </div>
                                                 <select className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} value={subFormData.paymentType} onChange={e => setSubFormData({ ...subFormData, paymentType: e.target.value })}>
-                                                    <option value="Cash & Paid">Confirmed (Cash &amp; Paid)</option>
-                                                    <option value="Due">Pending (Due Balance)</option>
-                                                    <option value="Online">Digital (Online Bank)</option>
-                                                    <option value="Coupon or Token">Coupon / Token Voucher</option>
+                                                    <option value="Cash & Paid">Cash &amp; Paid</option>
+                                                    <option value="Due">Due</option>
+                                                    <option value="Online">Online</option>
+                                                    <option value="Coupon or Token">Coupon or Token</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -2382,11 +2582,11 @@ const Festivals = () => {
                                     </div>
                                 )}
 
-                                <div className="d-flex gap-2 mt-2 pt-2 border-top" style={{ borderColor: 'var(--glass-border)' }}>
-                                    <button type="submit" className="btn flex-grow-1 text-white fw-bold d-flex justify-content-center align-items-center gap-2 rounded-3 py-2" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)', border: 'none' }}>
+                                <div className="d-flex gap-2 mt-3 pt-2 border-top" style={{ borderColor: 'var(--glass-border)' }}>
+                                    <button type="submit" className="btn flex-grow-1 text-white fw-bold d-flex justify-content-center align-items-center gap-2 rounded-3 py-2.5 shadow-sm" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)', border: 'none', fontSize: '0.88rem' }}>
                                         <Lock size={16} /> {editingSubId ? 'CONFIRM UPDATES' : 'AUTHORIZE & SAVE MEMBERSHIP'}
                                     </button>
-                                    <button type="button" onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn rounded-3 fw-bold border shadow-sm py-2" style={{ backgroundColor: 'var(--secondary-bg)', color: 'var(--text-main)', borderColor: 'var(--glass-border)', paddingLeft: '2rem', paddingRight: '2rem' }}>
+                                    <button type="button" onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn rounded-3 fw-bold border shadow-sm py-2.5 px-4" style={{ backgroundColor: 'var(--secondary-bg)', color: 'var(--text-main)', borderColor: 'var(--glass-border)', fontSize: '0.88rem' }}>
                                         Cancel
                                     </button>
                                 </div>
@@ -2407,7 +2607,7 @@ const Festivals = () => {
                                     </h2>
                                     <p className="small text-muted mb-0 italic">Customize visual identity and access validity for elite members.</p>
                                 </div>
-                                <div onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-link text-white text-opacity-40 p-0 hover-rotate"><X size={28} /></div>
+                                <div onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-link text-white text-opacity-40 p-0 hover-rotate cursor-pointer"><X size={28} /></div>
                             </div>
 
                             <div className="mb-4 d-flex justify-content-center bg-dark bg-opacity-30 p-4 rounded-4 border border-white border-opacity-5">

@@ -46,10 +46,10 @@ const getPaymentBadgeStyle = (paymentType) => {
 };
 
 const getPaymentDisplayName = (paymentType) => {
-    if (paymentType === 'Cash & Paid') return 'Confirmed (Cash & Paid)';
-    if (paymentType === 'Due') return 'Pending (Due Balance)';
-    if (paymentType === 'Online') return 'Digital (Online Bank)';
-    if (paymentType === 'Coupon or Token') return 'Coupon / Token Voucher';
+    if (paymentType === 'Cash & Paid') return 'Cash & Paid';
+    if (paymentType === 'Due') return 'Due';
+    if (paymentType === 'Online') return 'Online';
+    if (paymentType === 'Coupon or Token') return 'Coupon or Token';
     return paymentType;
 };
 
