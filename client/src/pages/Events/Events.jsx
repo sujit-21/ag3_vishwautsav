@@ -1958,7 +1958,7 @@ const Events = () => {
                                                         <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace" style={{ fontSize: '0.7rem' }}>{exp.expenseId}</span>
                                                     </td>
                                                     <td className="border-0 py-2 px-1 pe-2">
-                                                        <div className="d-inline-flex align-items-center gap-1.5">
+                                                        <div className="d-flex align-items-center justify-content-between gap-1.5 w-100">
                                                             <span className="fw-bold small" style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.25' }}>{exp.particular}</span>
                                                             <button
                                                                 type="button"
