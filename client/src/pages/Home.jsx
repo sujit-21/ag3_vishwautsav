@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { Calendar, Music, Zap, Users, ChevronRight, LayoutDashboard, MessageSquare, LogOut, Sparkles, Ticket } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
@@ -58,6 +59,14 @@ const Home = () => {
 
     return (
         <div className="home-page min-vh-100 bg-transparent py-4">
+            <Helmet>
+                <title>Vishwa Utsav — One World, Many Celebrations</title>
+                <meta name="description" content="Vishwa Utsav is a digital platform for festivals, cultural events, and community programs. Manage festivals, events, passes, and registrations all in one place." />
+                <meta property="og:title" content="Vishwa Utsav — One World, Many Celebrations" />
+                <meta property="og:description" content="Vishwa Utsav is a digital platform for festivals, cultural events, and community programs." />
+                <meta property="og:url" content="https://vishwautsav.com/" />
+                <link rel="canonical" href="https://vishwautsav.com/" />
+            </Helmet>
 
             <div className="container position-relative z-1 pt-3">
                 <div className="text-center mb-4 pb-2">

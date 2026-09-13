@@ -8,6 +8,7 @@ import './index.css'
 
 import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
+import { HelmetProvider } from 'react-helmet-async'
 import axios from 'axios'
 
 // Configure default base URL dynamically (empty string defaults to relative paths / vite proxy in dev)
@@ -39,10 +40,12 @@ axios.interceptors.request.use(config => {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
-        <AuthProvider>
-            <ThemeProvider>
-                <App />
-            </ThemeProvider>
-        </AuthProvider>
+        <HelmetProvider>
+            <AuthProvider>
+                <ThemeProvider>
+                    <App />
+                </ThemeProvider>
+            </AuthProvider>
+        </HelmetProvider>
     </React.StrictMode>,
 )

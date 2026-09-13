@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
-import { Landmark, Calendar, MapPin, Users, LogOut, LayoutDashboard, Flag, X, TrendingUp, TrendingDown, Info, History, Search, Building, CreditCard, ChevronRight, MessageSquare, HelpCircle, User as UserIcon, BarChart3, FileDown, ShieldCheck } from 'lucide-react'
+import { Landmark, Calendar, MapPin, Users, LogOut, LayoutDashboard, Flag, X, TrendingUp, TrendingDown, Info, History, Search, Building, CreditCard, ChevronRight, MessageSquare, HelpCircle, User as UserIcon, BarChart3, FileDown, ShieldCheck, ExternalLink } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import VIPCard from '../components/VIPCard'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -346,8 +347,17 @@ const Dashboard = () => {
         </div>
     )
 
+    const streamlitBase = import.meta.env.VITE_STREAMLIT_URL || 'https://vishwautsav.streamlit.app'
+    const fullStreamlitUrl = `${streamlitBase}/?embed=true${user?.entityName ? `&entity=${encodeURIComponent(user.entityName)}` : ''}`
+    const externalStreamlitUrl = `${streamlitBase}/${user?.entityName ? `?entity=${encodeURIComponent(user.entityName)}` : ''}`
+
     return (
         <div className="container py-4 mt-2">
+            <Helmet>
+                <title>Admin Dashboard — Vishwa Utsav Management Console</title>
+                <meta name="description" content="Vishwa Utsav administration dashboard for managing festivals, events, subscriptions, and financial reports." />
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
             <div className="row g-4 justify-content-center">
                 <div className="col-12">
                     {user?.role === 'admin' ? (
@@ -403,14 +413,37 @@ const Dashboard = () => {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     className="glass-card p-4 border border-secondary border-opacity-10 mb-4 shadow-sm w-100"
-                                    style={{ height: '850px' }}
+                                    style={{ minHeight: '850px' }}
                                 >
+                                    <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary border-opacity-10 gap-2">
+                                        <div>
+                                            <h5 className="fw-bold mb-0 text-main d-flex align-items-center gap-2">
+                                                <BarChart3 className="text-accent-1" size={20} />
+                                                Streamlit Live Intelligence &amp; ML Predictions
+                                            </h5>
+                                            <small className="text-muted">
+                                                Interactive machine learning predictions and financial analytics powered by Streamlit
+                                            </small>
+                                        </div>
+                                        <a
+                                            href={externalStreamlitUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn btn-sm btn-outline-info d-flex align-items-center gap-2 px-3 py-1 rounded-2 fw-semibold"
+                                            title="Open in full screen tab"
+                                        >
+                                            <ExternalLink size={14} /> Open in New Tab
+                                        </a>
+                                    </div>
+
                                     <iframe 
-                                        src={`https://vishwautsav.streamlit.app/?embed=true${user?.entityName ? `&entity=${encodeURIComponent(user.entityName)}` : ''}`} 
+                                        src={fullStreamlitUrl} 
                                         width="100%" 
-                                        height="100%" 
-                                        style={{ border: 'none', borderRadius: '8px' }}
+                                        height="750px" 
+                                        style={{ border: 'none', borderRadius: '8px', background: 'transparent' }} 
                                         title="Admin Analytics Dashboard"
+                                        allow="clipboard-write"
+                                        loading="lazy"
                                     />
                                 </motion.div>
                             )}

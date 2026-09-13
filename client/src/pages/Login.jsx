@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { LogIn, User, Lock, Eye, EyeOff } from 'lucide-react'
@@ -52,6 +53,11 @@ const Login = () => {
 
     return (
         <div className="container py-5 d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+            <Helmet>
+                <title>Login — Vishwa Utsav Portal</title>
+                <meta name="description" content="Login to Vishwa Utsav to manage festivals, events, and your digital pass." />
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
             <div className="w-100" style={{ maxWidth: '400px' }}>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

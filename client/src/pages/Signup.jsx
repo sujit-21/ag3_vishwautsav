@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
 import { UserPlus, User, Lock, Eye, EyeOff } from 'lucide-react'
@@ -41,6 +42,11 @@ const Signup = () => {
 
     return (
         <div className="container py-5 d-flex justify-content-center align-items-center" style={{ minHeight: '85vh' }}>
+            <Helmet>
+                <title>Create Account — Join Vishwa Utsav</title>
+                <meta name="description" content="Sign up for Vishwa Utsav to access digital passes, event registrations, and the festival management portal." />
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
             <div className="w-100" style={{ maxWidth: '400px' }}>
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -18,6 +19,14 @@ const galleryImages = [
 const Gallery = () => {
     return (
         <div className="container py-5 mt-4">
+            <Helmet>
+                <title>Gallery — Vishwa Utsav | Festival Photos & Celebrations</title>
+                <meta name="description" content="Explore our gallery of stunning festival moments — Holi, South Festivals, Live Music Concerts, and more. Visual stories from Vishwa Utsav celebrations." />
+                <meta property="og:title" content="Gallery — Vishwa Utsav | Festival Photos" />
+                <meta property="og:description" content="Explore our gallery of stunning festival moments — Holi, South Festivals, Music Concerts, and more." />
+                <meta property="og:url" content="https://vishwautsav.com/gallery" />
+                <link rel="canonical" href="https://vishwautsav.com/gallery" />
+            </Helmet>
             <div className="d-flex align-items-center mb-5">
                 <Link to="/" className="btn btn-outline-primary rounded-pill px-4 me-4 shadow-sm d-flex align-items-center gap-2" style={{ borderColor: 'var(--accent-1)', color: 'var(--accent-1)' }}>
                     <ArrowLeft size={18} /> Back

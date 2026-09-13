@@ -60,7 +60,7 @@ const VIPCard = ({
                 maxWidth: compact ? '290px' : '420px',
                 aspectRatio: '1.586 / 1',
                 boxShadow: '0 16px 32px -8px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.15)',
-                fontFamily: "'Outfit', sans-serif"
+                fontFamily: "'Satoshi', sans-serif"
             }}
         >
             <div className="d-flex flex-column justify-content-between h-100 position-relative z-1">

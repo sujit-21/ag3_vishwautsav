@@ -1,0 +1,19 @@
+User-agent: * 
+Allow: / 
+Allow: /gallery 
+Allow: /feedback 
+Allow: /support 
+ 
+# Block private/authenticated pages 
+Disallow: /login 
+Disallow: /signup 
+Disallow: /forgot-password 
+Disallow: /dashboard 
+Disallow: /settings 
+Disallow: /role-selection 
+Disallow: /verify-entity 
+Disallow: /my-pass 
+Disallow: /festivals 
+Disallow: /events 
+ 
+Sitemap: https://vishwautsav.com/sitemap.xml

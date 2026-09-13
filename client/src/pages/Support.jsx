@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit3, Save, Mail, User, ShieldCheck, Image as ImageIcon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -65,6 +66,14 @@ const Support = () => {
 
     return (
         <div className="container pt-3 pb-4">
+            <Helmet>
+                <title>Help & Support — Vishwa Utsav | Contact Our Team</title>
+                <meta name="description" content="Get in touch with the Vishwa Utsav support team. Connect with our admins, developers, and coordinators for help with events, registrations, and platform queries." />
+                <meta property="og:title" content="Help & Support — Vishwa Utsav" />
+                <meta property="og:description" content="Connect with the Vishwa Utsav support team for help with events, registrations, and platform queries." />
+                <meta property="og:url" content="https://vishwautsav.com/support" />
+                <link rel="canonical" href="https://vishwautsav.com/support" />
+            </Helmet>
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h1 className="fw-bold fs-2 mb-1">Help & <span className="gradient-text">Support</span></h1>

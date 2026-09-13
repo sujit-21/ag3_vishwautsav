@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { Settings as SettingsIcon, Download, Upload, Save, Key, User, Shield, Trash2, Edit3, Plus, Building, UserCircle, LogOut } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -130,6 +131,11 @@ const Settings = () => {
 
     return (
         <div className="container pt-3 pb-4 mt-2">
+            <Helmet>
+                <title>Account Settings — Vishwa Utsav</title>
+                <meta name="description" content="Manage your Vishwa Utsav account settings, security preferences, and profile information." />
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
             <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="mb-3">
                 <h1 className="fw-bold fs-2 mb-1 d-flex align-items-center gap-2">
                     <SettingsIcon size={32} className="text-primary" /> Settings

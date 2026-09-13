@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Trash2, Edit3, Save, Star, User, Image as ImageIcon, MessageSquare } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
@@ -89,6 +90,14 @@ const Feedback = () => {
 
     return (
         <div className="container pt-3 pb-4">
+            <Helmet>
+                <title>User Feedback & Reviews — Vishwa Utsav Community</title>
+                <meta name="description" content="Read authentic reviews and stories from the Vishwa Utsav festival community. Share your own experience and rating with fellow event-goers." />
+                <meta property="og:title" content="User Feedback & Reviews — Vishwa Utsav Community" />
+                <meta property="og:description" content="Read authentic reviews from the Vishwa Utsav community and share your own festival experience." />
+                <meta property="og:url" content="https://vishwautsav.com/feedback" />
+                <link rel="canonical" href="https://vishwautsav.com/feedback" />
+            </Helmet>
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <div>
                     <h1 className="fw-bold fs-2 mb-1">User <span className="gradient-text">Feedback</span></h1>

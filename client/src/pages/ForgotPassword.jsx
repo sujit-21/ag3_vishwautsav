@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Key, Mail, ChevronLeft, CheckCircle, ShieldAlert } from 'lucide-react'
@@ -25,6 +26,11 @@ const ForgotPassword = () => {
 
     return (
         <div className="container py-5 mt-4">
+            <Helmet>
+                <title>Forgot Password — Vishwa Utsav</title>
+                <meta name="description" content="Reset your Vishwa Utsav account password." />
+                <meta name="robots" content="noindex, nofollow" />
+            </Helmet>
             <div className="row justify-content-center">
                 <div className="col-md-5">
                     <motion.div
