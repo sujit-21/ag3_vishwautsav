@@ -21,3 +21,16 @@ build/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# Python & Streamlit
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+.streamlit/
+secrets.toml
+
