@@ -45,8 +45,8 @@ except Exception as e:
 # ==========================================
 @st.cache_data(ttl=5) # Cache data for only 5 seconds so it feels real-time!
 def get_data():
-    # Fetch subscriptions
-    subs = list(db.subscriptions.find({}, {"_id": 0, "amount": 1, "date": 1, "entityName": 1, "festOrEventName": 1, "paymentType": 1, "membershipType": 1}))
+    # Fetch subscriptions with address included
+    subs = list(db.subscriptions.find({}, {"_id": 0, "amount": 1, "date": 1, "entityName": 1, "festOrEventName": 1, "paymentType": 1, "membershipType": 1, "address": 1}))
     df_subs = pd.DataFrame(subs)
     
     # Fetch expenses
@@ -355,6 +355,124 @@ if not df_subs.empty and 'membershipType' in df_subs.columns:
 else:
     st.write("No tier data available.")
 
+st.divider()
+
+# ==========================================
+# 7. ADDRESS-WISE COLLECTION (Location Analysis)
+# ==========================================
+st.subheader("📍 Address-Wise Collection Analysis")
+st.caption("Identify which locations and areas contribute the most revenue. Sorted by total amount collected.")
+
+if not df_subs.empty:
+    # Function to sanitize, normalize, and handle missing addresses
+    def clean_address(val):
+        if pd.isna(val) or val is None:
+            return "NO FIXED ADDRESS"
+        s = str(val).strip()
+        if not s or s.lower() in ['none', 'nan', 'null', 'undefined', 'n/a', 'na', '-', 'no fixed address']:
+            return "NO FIXED ADDRESS"
+        # Normalize internal multiple spaces and Title Case
+        return ' '.join(s.split()).title()
+
+    if 'address' in df_subs.columns:
+        df_subs['clean_address'] = df_subs['address'].apply(clean_address)
+    else:
+        df_subs['clean_address'] = "NO FIXED ADDRESS"
+
+    # Group by address: calculate sum of amounts and user count
+    addr_stats = df_subs.groupby('clean_address').agg(
+        Total_Amount=('clean_amount', 'sum'),
+        User_Count=('clean_address', 'count')
+    ).reset_index()
+    addr_stats.columns = ['Address', 'Total Amount', 'User Count']
+
+    if not addr_stats.empty and addr_stats['Total Amount'].sum() > 0:
+        total_collection_all = addr_stats['Total Amount'].sum()
+        total_users_all = addr_stats['User Count'].sum()
+        
+        addr_stats['Percentage'] = (addr_stats['Total Amount'] / total_collection_all) * 100
+        addr_stats = addr_stats.sort_values(by='Total Amount', ascending=False).reset_index(drop=True)
+
+        # Summary KPI Cards
+        top_addr_row = addr_stats.iloc[0]
+        no_addr_row = addr_stats[addr_stats['Address'] == "NO FIXED ADDRESS"]
+        no_addr_amt = no_addr_row['Total Amount'].values[0] if not no_addr_row.empty else 0
+        no_addr_cnt = no_addr_row['User Count'].values[0] if not no_addr_row.empty else 0
+
+        a1, a2, a3, a4 = st.columns(4)
+        a1.metric("Total Locations", f"{len(addr_stats):,} areas")
+        a2.metric("🏆 Top Location", f"{top_addr_row['Address']}", f"₹{top_addr_row['Total Amount']:,.0f} ({top_addr_row['Percentage']:.1f}%)")
+        a3.metric("Avg Collection / Area", f"₹{total_collection_all / len(addr_stats):,.0f}", f"{total_users_all} total users")
+        a4.metric("🏠 NO FIXED ADDRESS", f"₹{no_addr_amt:,.0f}", f"{no_addr_cnt} users ({no_addr_amt/total_collection_all*100:.1f}%)" if total_collection_all > 0 else "0 users")
+
+        # View Limit Selector
+        col_ctrl1, col_ctrl2 = st.columns([2, 2])
+        with col_ctrl1:
+            view_option = st.selectbox(
+                "Display Locations",
+                options=["Top 10 Highest Revenue", "Top 15 Highest Revenue", "Top 20 Highest Revenue", "All Locations"],
+                index=0
+            )
+
+        if view_option == "Top 10 Highest Revenue":
+            plot_addr = addr_stats.head(10).copy()
+        elif view_option == "Top 15 Highest Revenue":
+            plot_addr = addr_stats.head(15).copy()
+        elif view_option == "Top 20 Highest Revenue":
+            plot_addr = addr_stats.head(20).copy()
+        else:
+            plot_addr = addr_stats.copy()
+
+        # Format label showing amount first (primary focus), then user count & percentage
+        plot_addr['Label'] = plot_addr.apply(
+            lambda r: f" ₹{r['Total Amount']:,.0f}   ({r['User Count']:,} users • {r['Percentage']:.1f}%)", axis=1
+        )
+
+        # Highlight 'NO FIXED ADDRESS' distinctly with coral, others with vibrant cyan/blue
+        plot_addr['Bar_Color'] = plot_addr['Address'].apply(
+            lambda x: '#F43F5E' if x == 'NO FIXED ADDRESS' else '#06B6D4'
+        )
+
+        max_addr_val = plot_addr['Total Amount'].max()
+
+        # Create Plotly Horizontal Bar Chart
+        fig_addr = px.bar(
+            plot_addr,
+            x='Total Amount',
+            y='Address',
+            orientation='h',
+            text='Label',
+            color='Bar_Color',
+            color_discrete_map='identity',
+            custom_data=['Total Amount', 'User Count', 'Percentage']
+        )
+
+        fig_addr.update_traces(
+            textposition='outside',
+            cliponaxis=False,
+            textfont=dict(size=13),
+            hovertemplate="<b>%{y}</b><br>Total Collection: ₹%{customdata[0]:,.0f}<br>Users: %{customdata[1]:,}<br>Revenue Share: %{customdata[2]:.1f}%<extra></extra>"
+        )
+
+        chart_height = max(320, len(plot_addr) * 36)
+        fig_addr.update_layout(
+            showlegend=False,
+            height=chart_height,
+            bargap=0.28,
+            xaxis_title="Total Amount Collected (₹)",
+            yaxis_title="",
+            xaxis=dict(range=[0, max_addr_val * 1.35] if max_addr_val > 0 else [0, 1]),
+            yaxis={'categoryorder': 'total ascending'},
+            margin=dict(t=10, b=35, l=10, r=40),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)'
+        )
+
+        st.plotly_chart(fig_addr, use_container_width=True)
+    else:
+        st.write("No collection data available by address.")
+else:
+    st.write("No address data available.")
 
 # ==========================================
 # AI PREDICTION PLACEHOLDER
