@@ -191,9 +191,6 @@ else:
 
 st.divider()
 
-# Create two columns for the breakdown charts
-col1, col2 = st.columns(2)
-
 # Clean and parse amount column safely for breakdown charts
 if not df_subs.empty and 'amount' in df_subs.columns:
     df_subs['clean_amount'] = pd.to_numeric(
@@ -206,124 +203,157 @@ elif not df_subs.empty:
 # ==========================================
 # 5. PAYMENT STATUS (Paid, Due, Online)
 # ==========================================
-with col1:
-    st.subheader("User Payment Status")
+st.subheader("💳 User Payment Status")
+
+if not df_subs.empty and 'paymentType' in df_subs.columns:
+    payment_stats = df_subs.groupby('paymentType').agg(
+        Count=('paymentType', 'count'),
+        Total_Amount=('clean_amount', 'sum')
+    ).reset_index()
+    payment_stats.columns = ['Payment Type', 'Count', 'Total Amount']
     
-    if not df_subs.empty and 'paymentType' in df_subs.columns:
-        payment_stats = df_subs.groupby('paymentType').agg(
-            Count=('paymentType', 'count'),
-            Total_Amount=('clean_amount', 'sum')
-        ).reset_index()
-        payment_stats.columns = ['Payment Type', 'Count', 'Total Amount']
+    if not payment_stats.empty:
+        total_payments = payment_stats['Count'].sum()
+        payment_stats['Percentage'] = (payment_stats['Count'] / total_payments) * 100
+        payment_stats['Label'] = payment_stats.apply(
+            lambda r: f" {r['Count']:,} users ({r['Percentage']:.1f}%)   •   ₹{r['Total Amount']:,.0f}", axis=1
+        )
         
-        if not payment_stats.empty:
-            total_payments = payment_stats['Count'].sum()
-            payment_stats['Percentage'] = (payment_stats['Count'] / total_payments) * 100
-            payment_stats['Label'] = payment_stats.apply(
-                lambda r: f" {r['Count']:,} ({r['Percentage']:.1f}%) • ₹{r['Total Amount']:,.0f}", axis=1
-            )
-            
-            color_map = {
-                'Cash & Paid': '#22C55E',       # Vibrant Green
-                'Online': '#3B82F6',            # Vibrant Blue
-                'Due': '#EF4444',               # Clear Alert Red
-                'Coupon or Token': '#F59E0B'    # Amber
-            }
-            
-            max_val = payment_stats['Count'].max()
-            fig1 = px.bar(
-                payment_stats, 
-                x='Count', 
-                y='Payment Type',
-                orientation='h',
-                text='Label',
-                color='Payment Type',
-                color_discrete_map=color_map,
-                custom_data=['Count', 'Percentage', 'Total Amount']
-            )
-            fig1.update_traces(
-                textposition='outside',
-                cliponaxis=False,
-                hovertemplate="<b>%{y}</b><br>Users: %{customdata[0]:,}<br>Share: %{customdata[1]:.1f}%<br>Total Amount: ₹%{customdata[2]:,.0f}<extra></extra>"
-            )
-            fig1.update_layout(
-                showlegend=False,
-                xaxis_title="Number of Users",
-                yaxis_title="",
-                xaxis=dict(range=[0, max_val * 1.45] if max_val > 0 else [0, 1]),
-                yaxis={'categoryorder': 'total ascending'},
-                margin=dict(t=20, b=30, l=10, r=40),
-                plot_bgcolor='rgba(0,0,0,0)',
-                paper_bgcolor='rgba(0,0,0,0)'
-            )
-            
-            st.plotly_chart(fig1, use_container_width=True)
-        else:
-            st.write("No payment data available.")
+        # Summary KPI Metric Cards
+        paid_row = payment_stats[payment_stats['Payment Type'] == 'Cash & Paid']
+        online_row = payment_stats[payment_stats['Payment Type'] == 'Online']
+        due_row = payment_stats[payment_stats['Payment Type'] == 'Due']
+        
+        pm1, pm2, pm3 = st.columns(3)
+        paid_amt = paid_row['Total Amount'].values[0] if not paid_row.empty else 0
+        paid_cnt = paid_row['Count'].values[0] if not paid_row.empty else 0
+        pm1.metric("Cash & Paid", f"₹{paid_amt:,.0f}", f"{paid_cnt} users ({paid_cnt/total_payments*100:.1f}%)")
+        
+        online_amt = online_row['Total Amount'].values[0] if not online_row.empty else 0
+        online_cnt = online_row['Count'].values[0] if not online_row.empty else 0
+        pm2.metric("Online Payment", f"₹{online_amt:,.0f}", f"{online_cnt} users ({online_cnt/total_payments*100:.1f}%)")
+        
+        due_amt = due_row['Total Amount'].values[0] if not due_row.empty else 0
+        due_cnt = due_row['Count'].values[0] if not due_row.empty else 0
+        pm3.metric("Outstanding Due", f"₹{due_amt:,.0f}", f"{due_cnt} users ({due_cnt/total_payments*100:.1f}%)", delta_color="inverse")
+        
+        color_map = {
+            'Cash & Paid': '#22C55E',       # Vibrant Green
+            'Online': '#3B82F6',            # Vibrant Blue
+            'Due': '#EF4444',               # Clear Alert Red
+            'Coupon or Token': '#F59E0B'    # Amber
+        }
+        
+        max_val = payment_stats['Count'].max()
+        fig1 = px.bar(
+            payment_stats, 
+            x='Count', 
+            y='Payment Type',
+            orientation='h',
+            text='Label',
+            color='Payment Type',
+            color_discrete_map=color_map,
+            custom_data=['Count', 'Percentage', 'Total Amount']
+        )
+        fig1.update_traces(
+            textposition='outside',
+            cliponaxis=False,
+            textfont=dict(size=13),
+            hovertemplate="<b>%{y}</b><br>Users: %{customdata[0]:,}<br>Share: %{customdata[1]:.1f}%<br>Total Amount: ₹%{customdata[2]:,.0f}<extra></extra>"
+        )
+        fig1.update_layout(
+            showlegend=False,
+            height=260,
+            bargap=0.3,
+            xaxis_title="Number of Users",
+            yaxis_title="",
+            xaxis=dict(range=[0, max_val * 1.25] if max_val > 0 else [0, 1]),
+            yaxis={'categoryorder': 'total ascending'},
+            margin=dict(t=10, b=30, l=10, r=40),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)'
+        )
+        
+        st.plotly_chart(fig1, use_container_width=True)
     else:
         st.write("No payment data available.")
+else:
+    st.write("No payment data available.")
+
+st.divider()
 
 # ==========================================
 # 6. USER TIER TYPES (None, Prime, VIP, Admin)
 # ==========================================
-with col2:
-    st.subheader("User Tier Breakdown")
+st.subheader("⭐ User Tier Breakdown")
+
+if not df_subs.empty and 'membershipType' in df_subs.columns:
+    tier_stats = df_subs.groupby('membershipType').agg(
+        Count=('membershipType', 'count'),
+        Total_Amount=('clean_amount', 'sum')
+    ).reset_index()
+    tier_stats.columns = ['Tier Type', 'Count', 'Total Amount']
     
-    if not df_subs.empty and 'membershipType' in df_subs.columns:
-        tier_stats = df_subs.groupby('membershipType').agg(
-            Count=('membershipType', 'count'),
-            Total_Amount=('clean_amount', 'sum')
-        ).reset_index()
-        tier_stats.columns = ['Tier Type', 'Count', 'Total Amount']
+    if not tier_stats.empty:
+        total_tiers = tier_stats['Count'].sum()
+        tier_stats['Percentage'] = (tier_stats['Count'] / total_tiers) * 100
+        tier_stats['Label'] = tier_stats.apply(
+            lambda r: f" {r['Count']:,} users ({r['Percentage']:.1f}%)   •   ₹{r['Total Amount']:,.0f}", axis=1
+        )
         
-        if not tier_stats.empty:
-            total_tiers = tier_stats['Count'].sum()
-            tier_stats['Percentage'] = (tier_stats['Count'] / total_tiers) * 100
-            tier_stats['Label'] = tier_stats.apply(
-                lambda r: f" {r['Count']:,} ({r['Percentage']:.1f}%) • ₹{r['Total Amount']:,.0f}", axis=1
-            )
-            
-            # Use high-contrast colors that work in both light and dark mode
-            tier_color_map = {
-                'Non-Prime': '#94A3B8',         # Slate
-                'Prime': '#F59E0B',             # Gold/Amber
-                'VIP': '#A855F7',               # Purple
-                'Admin': '#EC4899',             # Pink / High contrast
-                'Regular': '#3B82F6'            # Blue
-            }
-            
-            max_tier_val = tier_stats['Count'].max()
-            fig2 = px.bar(
-                tier_stats, 
-                x='Count', 
-                y='Tier Type',
-                orientation='h',
-                text='Label',
-                color='Tier Type',
-                color_discrete_map=tier_color_map,
-                custom_data=['Count', 'Percentage', 'Total Amount']
-            )
-            fig2.update_traces(
-                textposition='outside',
-                cliponaxis=False,
-                hovertemplate="<b>%{y}</b><br>Users: %{customdata[0]:,}<br>Share: %{customdata[1]:.1f}%<br>Total Amount: ₹%{customdata[2]:,.0f}<extra></extra>"
-            )
-            fig2.update_layout(
-                showlegend=False,
-                xaxis_title="Number of Users",
-                yaxis_title="",
-                xaxis=dict(range=[0, max_tier_val * 1.45] if max_tier_val > 0 else [0, 1]),
-                yaxis={'categoryorder': 'total ascending'},
-                margin=dict(t=20, b=30, l=10, r=40),
-                plot_bgcolor='rgba(0,0,0,0)',
-                paper_bgcolor='rgba(0,0,0,0)'
-            )
-            
-            st.plotly_chart(fig2, use_container_width=True)
-        else:
-            st.write("No tier data available.")
+        # Summary KPI Metric Cards for Tiers
+        t1, t2, t3, t4 = st.columns(4)
+        for col, tier_name, tier_icon in zip([t1, t2, t3, t4], ['Non-Prime', 'Prime', 'VIP', 'Admin'], ['👥', '⭐', '👑', '🛡️']):
+            r = tier_stats[tier_stats['Tier Type'] == tier_name]
+            cnt = r['Count'].values[0] if not r.empty else 0
+            amt = r['Total Amount'].values[0] if not r.empty else 0
+            pct = r['Percentage'].values[0] if not r.empty else 0
+            col.metric(f"{tier_icon} {tier_name}", f"{cnt} users", f"₹{amt:,.0f} ({pct:.1f}%)")
+        
+        # Use high-contrast colors that work in both light and dark mode
+        tier_color_map = {
+            'Non-Prime': '#94A3B8',         # Slate
+            'Prime': '#F59E0B',             # Gold/Amber
+            'VIP': '#A855F7',               # Purple
+            'Admin': '#EC4899',             # Pink / High contrast
+            'Regular': '#3B82F6'            # Blue
+        }
+        
+        max_tier_val = tier_stats['Count'].max()
+        fig2 = px.bar(
+            tier_stats, 
+            x='Count', 
+            y='Tier Type',
+            orientation='h',
+            text='Label',
+            color='Tier Type',
+            color_discrete_map=tier_color_map,
+            custom_data=['Count', 'Percentage', 'Total Amount']
+        )
+        fig2.update_traces(
+            textposition='outside',
+            cliponaxis=False,
+            textfont=dict(size=13),
+            hovertemplate="<b>%{y}</b><br>Users: %{customdata[0]:,}<br>Share: %{customdata[1]:.1f}%<br>Total Amount: ₹%{customdata[2]:,.0f}<extra></extra>"
+        )
+        fig2.update_layout(
+            showlegend=False,
+            height=260,
+            bargap=0.3,
+            xaxis_title="Number of Users",
+            yaxis_title="",
+            xaxis=dict(range=[0, max_tier_val * 1.25] if max_tier_val > 0 else [0, 1]),
+            yaxis={'categoryorder': 'total ascending'},
+            margin=dict(t=10, b=30, l=10, r=40),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)'
+        )
+        
+        st.plotly_chart(fig2, use_container_width=True)
     else:
         st.write("No tier data available.")
+else:
+    st.write("No tier data available.")
 
 
 # ==========================================
