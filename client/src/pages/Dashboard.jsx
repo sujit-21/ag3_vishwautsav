@@ -412,8 +412,8 @@ const Dashboard = () => {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="glass-card p-4 border border-secondary border-opacity-10 mb-4 shadow-sm w-100"
-                                    style={{ minHeight: '850px' }}
+                                    className="glass-card p-2 p-md-4 border border-secondary border-opacity-10 mb-4 shadow-sm w-100"
+                                    style={{ minHeight: '85vh' }}
                                 >
                                     <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary border-opacity-10 gap-2">
                                         <div>
@@ -439,8 +439,8 @@ const Dashboard = () => {
                                     <iframe 
                                         src={fullStreamlitUrl} 
                                         width="100%" 
-                                        height="750px" 
-                                        style={{ border: 'none', borderRadius: '8px', background: 'transparent' }} 
+                                        height="850px" 
+                                        style={{ border: 'none', borderRadius: '8px', background: 'transparent', minHeight: '80vh' }} 
                                         title="Admin Analytics Dashboard"
                                         allow="clipboard-write"
                                         loading="lazy"

@@ -12,11 +12,47 @@ st.set_page_config(page_title="Vishwautsav Analytics", layout="wide")
 st.markdown(
     """
     <style>
+    /* Responsive styling for smartphones and smaller screens */
+    @media (max-width: 768px) {
+        .block-container {
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+            padding-top: 0.75rem !important;
+            padding-bottom: 2rem !important;
+            max-width: 100% !important;
+        }
+        /* Make KPI metric cards compact and responsive */
+        [data-testid="stMetricValue"] {
+            font-size: 1.35rem !important;
+            font-weight: 700 !important;
+            line-height: 1.2 !important;
+        }
+        [data-testid="stMetricLabel"] {
+            font-size: 0.75rem !important;
+            white-space: normal !important;
+        }
+        [data-testid="stMetricDelta"] {
+            font-size: 0.75rem !important;
+        }
+        /* Allow columns to stay in a 2-by-2 grid on smartphones instead of 1 long column */
+        [data-testid="column"] {
+            min-width: 46% !important;
+            flex: 1 1 46% !important;
+            margin-bottom: 0.5rem !important;
+        }
+        /* Mobile typography */
+        h1 { font-size: 1.45rem !important; }
+        h2 { font-size: 1.25rem !important; }
+        h3 { font-size: 1.1rem !important; }
+        .stSelectbox { font-size: 0.9rem !important; }
+    }
+
+    /* Move Plotly modebar tools below charts so they never overlap data labels */
     .js-plotly-plot .plotly .modebar-container,
     .modebar-container {
         top: auto !important;
-        bottom: 4px !important;
-        right: 15px !important;
+        bottom: 2px !important;
+        right: 10px !important;
     }
     .modebar {
         background: rgba(15, 23, 42, 0.75) !important;
@@ -182,34 +218,56 @@ if not df_subs.empty or not df_exp.empty:
         st.markdown("<br>", unsafe_allow_html=True)
         # ------------------------------------
         
-        # Create a beautiful Grouped Bar Chart using Matplotlib
-        fig, ax = plt.subplots(figsize=(10, 5))
+        # Create a responsive Plotly Grouped Bar Chart
+        df_plot_fin = pd.melt(
+            df_financials,
+            id_vars=['Year'],
+            value_vars=['Subscription_Amount', 'Expenses'],
+            var_name='Category',
+            value_name='Amount'
+        )
+        df_plot_fin['Category'] = df_plot_fin['Category'].replace({
+            'Subscription_Amount': 'Paid Subscriptions',
+            'Expenses': 'Expenses'
+        })
+        df_plot_fin['Year_Str'] = df_plot_fin['Year'].astype(int).astype(str)
+        df_plot_fin['Label'] = df_plot_fin['Amount'].apply(lambda v: f"₹{v:,.0f}")
         
-        # Convert year back to string for the x-axis labels
-        years = df_financials['Year'].astype(int).astype(str).tolist()
-        x = range(len(years))
-        width = 0.35
-        
-        rects1 = ax.bar([i - width/2 for i in x], df_financials['Subscription_Amount'], width, label='Paid Subscriptions', color='#2196F3')
-        rects2 = ax.bar([i + width/2 for i in x], df_financials['Expenses'], width, label='Expenses', color='#F44336')
-        
-        # Add labels directly on top of the bars to look professional!
-        ax.bar_label(rects1, padding=3, fmt='₹{:,.0f}', fontsize=9, color='#2196F3', fontweight='bold')
-        ax.bar_label(rects2, padding=3, fmt='₹{:,.0f}', fontsize=9, color='#F44336', fontweight='bold')
-        
-        ax.set_ylabel('Total Amount (₹)')
-        # Increase the top y-limit slightly so the labels don't get cut off
-        ax.margins(y=0.15)
-        
-        ax.set_xticks(x)
-        ax.set_xticklabels(years)
-        ax.legend()
-        
-        # Make it look clean
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        
-        st.pyplot(fig)
+        fig_fin = px.bar(
+            df_plot_fin,
+            x='Year_Str',
+            y='Amount',
+            color='Category',
+            barmode='group',
+            text='Label',
+            color_discrete_map={
+                'Paid Subscriptions': '#22C55E',
+                'Expenses': '#EF4444'
+            }
+        )
+        fig_fin.update_traces(
+            textposition='outside',
+            cliponaxis=False,
+            textfont=dict(size=11, color='#FFFFFF'),
+            hovertemplate="<b>%{x}</b><br>%{data.name}: ₹%{y:,.0f}<extra></extra>"
+        )
+        max_fin_val = df_plot_fin['Amount'].max()
+        fig_fin.update_layout(
+            xaxis_title="Year",
+            yaxis_title="Amount (₹)",
+            yaxis=dict(range=[0, max_fin_val * 1.2] if max_fin_val > 0 else [0, 1]),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
+            ),
+            margin=dict(t=30, b=45, l=10, r=20),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)'
+        )
+        st.plotly_chart(fig_fin, use_container_width=True, config={'displayModeBar': True, 'displaylogo': False})
     else:
         st.info("No financial data found for the selected filters.")
 else:
@@ -242,7 +300,7 @@ if not df_subs.empty and 'paymentType' in df_subs.columns:
         total_payments = payment_stats['Count'].sum()
         payment_stats['Percentage'] = (payment_stats['Count'] / total_payments) * 100
         payment_stats['Label'] = payment_stats.apply(
-            lambda r: f" {r['Count']:,} users ({r['Percentage']:.1f}%)   •   ₹{r['Total Amount']:,.0f}", axis=1
+            lambda r: f" ₹{r['Total Amount']:,.0f} • {r['Count']:,} ({r['Percentage']:.1f}%)", axis=1
         )
         
         # Summary KPI Metric Cards
@@ -282,9 +340,10 @@ if not df_subs.empty and 'paymentType' in df_subs.columns:
             custom_data=['Count', 'Percentage', 'Total Amount']
         )
         fig1.update_traces(
-            textposition='outside',
+            textposition='auto',
             cliponaxis=False,
-            textfont=dict(size=13),
+            insidetextanchor='start',
+            textfont=dict(size=12, color='#FFFFFF'),
             hovertemplate="<b>%{y}</b><br>Users: %{customdata[0]:,}<br>Share: %{customdata[1]:.1f}%<br>Total Amount: ₹%{customdata[2]:,.0f}<extra></extra>"
         )
         fig1.update_layout(
@@ -293,9 +352,9 @@ if not df_subs.empty and 'paymentType' in df_subs.columns:
             bargap=0.3,
             xaxis_title="Number of Users",
             yaxis_title="",
-            xaxis=dict(range=[0, max_val * 1.25] if max_val > 0 else [0, 1]),
+            xaxis=dict(range=[0, max_val * 1.15] if max_val > 0 else [0, 1]),
             yaxis={'categoryorder': 'total ascending'},
-            margin=dict(t=15, b=45, l=10, r=40),
+            margin=dict(t=15, b=45, l=10, r=20),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)'
         )
@@ -324,7 +383,7 @@ if not df_subs.empty and 'membershipType' in df_subs.columns:
         total_tiers = tier_stats['Count'].sum()
         tier_stats['Percentage'] = (tier_stats['Count'] / total_tiers) * 100
         tier_stats['Label'] = tier_stats.apply(
-            lambda r: f" {r['Count']:,} users ({r['Percentage']:.1f}%)   •   ₹{r['Total Amount']:,.0f}", axis=1
+            lambda r: f" ₹{r['Total Amount']:,.0f} • {r['Count']:,} ({r['Percentage']:.1f}%)", axis=1
         )
         
         # Summary KPI Metric Cards for Tiers
@@ -357,9 +416,10 @@ if not df_subs.empty and 'membershipType' in df_subs.columns:
             custom_data=['Count', 'Percentage', 'Total Amount']
         )
         fig2.update_traces(
-            textposition='outside',
+            textposition='auto',
             cliponaxis=False,
-            textfont=dict(size=13),
+            insidetextanchor='start',
+            textfont=dict(size=12, color='#FFFFFF'),
             hovertemplate="<b>%{y}</b><br>Users: %{customdata[0]:,}<br>Share: %{customdata[1]:.1f}%<br>Total Amount: ₹%{customdata[2]:,.0f}<extra></extra>"
         )
         fig2.update_layout(
@@ -368,9 +428,9 @@ if not df_subs.empty and 'membershipType' in df_subs.columns:
             bargap=0.3,
             xaxis_title="Number of Users",
             yaxis_title="",
-            xaxis=dict(range=[0, max_tier_val * 1.25] if max_tier_val > 0 else [0, 1]),
+            xaxis=dict(range=[0, max_tier_val * 1.15] if max_tier_val > 0 else [0, 1]),
             yaxis={'categoryorder': 'total ascending'},
-            margin=dict(t=15, b=45, l=10, r=40),
+            margin=dict(t=15, b=45, l=10, r=20),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)'
         )
@@ -451,7 +511,7 @@ if not df_subs.empty:
 
         # Format label showing amount first (primary focus), then user count & percentage
         plot_addr['Label'] = plot_addr.apply(
-            lambda r: f" ₹{r['Total Amount']:,.0f}   ({r['User Count']:,} users • {r['Percentage']:.1f}%)", axis=1
+            lambda r: f" ₹{r['Total Amount']:,.0f} • {r['User Count']:,} ({r['Percentage']:.1f}%)", axis=1
         )
 
         # Highlight 'NO FIXED ADDRESS' distinctly with coral, others with vibrant cyan/blue
@@ -474,9 +534,10 @@ if not df_subs.empty:
         )
 
         fig_addr.update_traces(
-            textposition='outside',
+            textposition='auto',
             cliponaxis=False,
-            textfont=dict(size=13),
+            insidetextanchor='start',
+            textfont=dict(size=12, color='#FFFFFF'),
             hovertemplate="<b>%{y}</b><br>Total Collection: ₹%{customdata[0]:,.0f}<br>Users: %{customdata[1]:,}<br>Revenue Share: %{customdata[2]:.1f}%<extra></extra>"
         )
 
@@ -487,9 +548,9 @@ if not df_subs.empty:
             bargap=0.28,
             xaxis_title="Total Amount Collected (₹)",
             yaxis_title="",
-            xaxis=dict(range=[0, max_addr_val * 1.35] if max_addr_val > 0 else [0, 1]),
+            xaxis=dict(range=[0, max_addr_val * 1.15] if max_addr_val > 0 else [0, 1]),
             yaxis={'categoryorder': 'total ascending'},
-            margin=dict(t=15, b=50, l=10, r=40),
+            margin=dict(t=15, b=50, l=10, r=20),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)'
         )
