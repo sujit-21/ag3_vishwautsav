@@ -42,50 +42,63 @@ st.markdown(
             -webkit-overflow-scrolling: touch !important;
         }
 
-        [data-testid="stHorizontalBlock"] > [data-testid="column"] {
-            flex: 1 1 0px !important;
-            min-width: 105px !important;
-            max-width: none !important;
-            width: auto !important;
+        [data-testid="stHorizontalBlock"] > div,
+        [data-testid="stHorizontalBlock"] [data-testid="column"],
+        [data-testid="stHorizontalBlock"] [data-testid="stColumn"] {
+            flex: 0 0 110px !important;
+            width: 110px !important;
+            min-width: 110px !important;
+            max-width: 110px !important;
             margin: 0 !important;
             padding: 0 !important;
+            box-sizing: border-box !important;
         }
 
-        /* Metric card styling with high-contrast solid background */
+        /* Metric card styling with high-contrast solid background and strict compact width */
+        [data-testid="stHorizontalBlock"] [data-testid="stMetric"],
         [data-testid="stMetric"] {
+            width: 110px !important;
+            max-width: 110px !important;
             background: #0f172a !important;
             border: 1px solid rgba(255, 255, 255, 0.16) !important;
-            border-radius: 9px !important;
-            padding: 8px 10px !important;
-            height: 100% !important;
+            border-radius: 8px !important;
+            padding: 5px 6px !important;
+            min-height: 54px !important;
             display: flex !important;
             flex-direction: column !important;
             justify-content: center !important;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+            box-sizing: border-box !important;
         }
 
         /* Make KPI metric cards compact, responsive, and 100% readable */
         [data-testid="stMetricValue"] {
-            font-size: 1.15rem !important;
-            font-weight: 800 !important;
-            line-height: 1.25 !important;
+            font-size: 0.92rem !important;
+            font-weight: 700 !important;
+            line-height: 1.15 !important;
             color: #ffffff !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
         }
         [data-testid="stMetricLabel"] {
-            font-size: 0.72rem !important;
+            font-size: 0.65rem !important;
             font-weight: 600 !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
-            color: #cbd5e1 !important;
+            color: #94a3b8 !important;
             margin-bottom: 2px !important;
         }
         [data-testid="stMetricDelta"] {
-            font-size: 0.68rem !important;
+            font-size: 0.60rem !important;
             white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        [data-testid="stMetricDelta"] svg {
+            width: 10px !important;
+            height: 10px !important;
         }
 
         /* Clean subtle scrollbar for horizontal metric cards row */
