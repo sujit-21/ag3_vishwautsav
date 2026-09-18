@@ -12,38 +12,85 @@ st.set_page_config(page_title="Vishwautsav Analytics", layout="wide")
 st.markdown(
     """
     <style>
+    /* Ensure page content is never hidden behind Streamlit top bar */
+    .block-container {
+        padding-top: 4rem !important;
+    }
+
     /* Responsive styling for smartphones and smaller screens */
     @media (max-width: 768px) {
         .block-container {
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
-            padding-top: 0.75rem !important;
-            padding-bottom: 2rem !important;
+            padding-left: 0.6rem !important;
+            padding-right: 0.6rem !important;
+            padding-top: 4.25rem !important;
+            padding-bottom: 2.5rem !important;
             max-width: 100% !important;
         }
+
+        /* Show ALL metric cards HORIZONTALLY in a sleek swipeable row on mobile */
+        [data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            padding-top: 0.25rem !important;
+            padding-bottom: 0.75rem !important;
+            gap: 0.65rem !important;
+            scroll-snap-type: x mandatory !important;
+        }
+
+        [data-testid="stHorizontalBlock"] > [data-testid="column"] {
+            flex: 0 0 auto !important;
+            min-width: 145px !important;
+            max-width: 185px !important;
+            width: auto !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            border-radius: 12px !important;
+            padding: 0.75rem 0.85rem !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+            scroll-snap-align: start !important;
+        }
+
         /* Make KPI metric cards compact and responsive */
         [data-testid="stMetricValue"] {
-            font-size: 1.35rem !important;
+            font-size: 1.25rem !important;
             font-weight: 700 !important;
             line-height: 1.2 !important;
+            color: #ffffff !important;
         }
         [data-testid="stMetricLabel"] {
             font-size: 0.75rem !important;
             white-space: normal !important;
+            color: #94a3b8 !important;
         }
         [data-testid="stMetricDelta"] {
-            font-size: 0.75rem !important;
+            font-size: 0.72rem !important;
         }
-        /* Allow columns to stay in a 2-by-2 grid on smartphones instead of 1 long column */
-        [data-testid="column"] {
-            min-width: 46% !important;
-            flex: 1 1 46% !important;
+
+        /* Clean scrollbar for horizontal metric cards row */
+        [data-testid="stHorizontalBlock"]::-webkit-scrollbar {
+            height: 4px !important;
+        }
+        [data-testid="stHorizontalBlock"]::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.03) !important;
+        }
+        [data-testid="stHorizontalBlock"]::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.4) !important;
+            border-radius: 4px !important;
+        }
+
+        /* Mobile typography - preventing clipping */
+        h1 { 
+            font-size: 1.35rem !important; 
+            line-height: 1.3 !important;
+            margin-top: 0.25rem !important;
             margin-bottom: 0.5rem !important;
+            overflow: visible !important;
         }
-        /* Mobile typography */
-        h1 { font-size: 1.45rem !important; }
-        h2 { font-size: 1.25rem !important; }
-        h3 { font-size: 1.1rem !important; }
+        h2 { font-size: 1.2rem !important; }
+        h3 { font-size: 1.05rem !important; }
         .stSelectbox { font-size: 0.9rem !important; }
     }
 
