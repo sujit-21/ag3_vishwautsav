@@ -20,65 +20,84 @@ st.markdown(
     /* Responsive styling for smartphones and smaller screens */
     @media (max-width: 768px) {
         .block-container {
-            padding-left: 0.6rem !important;
-            padding-right: 0.6rem !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
             padding-top: 4.25rem !important;
             padding-bottom: 2.5rem !important;
             max-width: 100% !important;
         }
 
-        /* Show ALL metric cards HORIZONTALLY in a sleek swipeable row on mobile */
+        /* Show ALL metric cards HORIZONTALLY with tight gaps - no huge empty spaces */
         [data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: nowrap !important;
+            justify-content: flex-start !important;
+            align-items: stretch !important;
+            gap: 6px !important;
+            padding: 2px 0 8px 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
             overflow-x: auto !important;
             -webkit-overflow-scrolling: touch !important;
-            padding-top: 0.25rem !important;
-            padding-bottom: 0.75rem !important;
-            gap: 0.65rem !important;
-            scroll-snap-type: x mandatory !important;
         }
 
         [data-testid="stHorizontalBlock"] > [data-testid="column"] {
-            flex: 0 0 auto !important;
-            min-width: 145px !important;
-            max-width: 185px !important;
+            flex: 1 1 0px !important;
+            min-width: 105px !important;
+            max-width: none !important;
             width: auto !important;
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.12) !important;
-            border-radius: 12px !important;
-            padding: 0.75rem 0.85rem !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
-            scroll-snap-align: start !important;
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
-        /* Make KPI metric cards compact and responsive */
+        /* Metric card styling with high-contrast solid background */
+        [data-testid="stMetric"] {
+            background: #0f172a !important;
+            border: 1px solid rgba(255, 255, 255, 0.16) !important;
+            border-radius: 9px !important;
+            padding: 8px 10px !important;
+            height: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35) !important;
+        }
+
+        /* Make KPI metric cards compact, responsive, and 100% readable */
         [data-testid="stMetricValue"] {
-            font-size: 1.25rem !important;
-            font-weight: 700 !important;
-            line-height: 1.2 !important;
+            font-size: 1.15rem !important;
+            font-weight: 800 !important;
+            line-height: 1.25 !important;
             color: #ffffff !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
         }
         [data-testid="stMetricLabel"] {
-            font-size: 0.75rem !important;
-            white-space: normal !important;
-            color: #94a3b8 !important;
+            font-size: 0.72rem !important;
+            font-weight: 600 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            color: #cbd5e1 !important;
+            margin-bottom: 2px !important;
         }
         [data-testid="stMetricDelta"] {
-            font-size: 0.72rem !important;
+            font-size: 0.68rem !important;
+            white-space: nowrap !important;
         }
 
-        /* Clean scrollbar for horizontal metric cards row */
+        /* Clean subtle scrollbar for horizontal metric cards row */
         [data-testid="stHorizontalBlock"]::-webkit-scrollbar {
-            height: 4px !important;
+            height: 3px !important;
         }
         [data-testid="stHorizontalBlock"]::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.03) !important;
+            background: transparent !important;
         }
         [data-testid="stHorizontalBlock"]::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.4) !important;
-            border-radius: 4px !important;
+            background: rgba(99, 102, 241, 0.35) !important;
+            border-radius: 3px !important;
         }
 
         /* Mobile typography - preventing clipping */
