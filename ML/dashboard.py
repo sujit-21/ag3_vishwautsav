@@ -8,6 +8,32 @@ from sklearn.ensemble import RandomForestRegressor
 # Set page config for a wider layout
 st.set_page_config(page_title="Vishwautsav Analytics", layout="wide")
 
+# Custom CSS: Move Plotly modebar tools below charts so they never overlap data labels
+st.markdown(
+    """
+    <style>
+    .js-plotly-plot .plotly .modebar-container,
+    .modebar-container {
+        top: auto !important;
+        bottom: 4px !important;
+        right: 15px !important;
+    }
+    .modebar {
+        background: rgba(15, 23, 42, 0.75) !important;
+        border-radius: 6px !important;
+        padding: 2px 6px !important;
+    }
+    .modebar-btn path {
+        fill: rgba(255, 255, 255, 0.65) !important;
+    }
+    .modebar-btn:hover path {
+        fill: #38bdf8 !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # ==========================================
 # 0. QUERY PARAMS (Entity Filtering)
 # ==========================================
@@ -269,12 +295,12 @@ if not df_subs.empty and 'paymentType' in df_subs.columns:
             yaxis_title="",
             xaxis=dict(range=[0, max_val * 1.25] if max_val > 0 else [0, 1]),
             yaxis={'categoryorder': 'total ascending'},
-            margin=dict(t=10, b=30, l=10, r=40),
+            margin=dict(t=15, b=45, l=10, r=40),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)'
         )
         
-        st.plotly_chart(fig1, use_container_width=True)
+        st.plotly_chart(fig1, use_container_width=True, config={'displayModeBar': True, 'displaylogo': False})
     else:
         st.write("No payment data available.")
 else:
@@ -344,12 +370,12 @@ if not df_subs.empty and 'membershipType' in df_subs.columns:
             yaxis_title="",
             xaxis=dict(range=[0, max_tier_val * 1.25] if max_tier_val > 0 else [0, 1]),
             yaxis={'categoryorder': 'total ascending'},
-            margin=dict(t=10, b=30, l=10, r=40),
+            margin=dict(t=15, b=45, l=10, r=40),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)'
         )
         
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig2, use_container_width=True, config={'displayModeBar': True, 'displaylogo': False})
     else:
         st.write("No tier data available.")
 else:
@@ -463,12 +489,12 @@ if not df_subs.empty:
             yaxis_title="",
             xaxis=dict(range=[0, max_addr_val * 1.35] if max_addr_val > 0 else [0, 1]),
             yaxis={'categoryorder': 'total ascending'},
-            margin=dict(t=10, b=35, l=10, r=40),
+            margin=dict(t=15, b=50, l=10, r=40),
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)'
         )
 
-        st.plotly_chart(fig_addr, use_container_width=True)
+        st.plotly_chart(fig_addr, use_container_width=True, config={'displayModeBar': True, 'displaylogo': False})
     else:
         st.write("No collection data available by address.")
 else:
