@@ -6,7 +6,7 @@ from pymongo import MongoClient
 from sklearn.ensemble import RandomForestRegressor
 
 # Set page config for a wider layout
-st.set_page_config(page_title="Vishwautsav Analytics", layout="wide")
+st.set_page_config(page_title="Vishwautsav Analytics", layout="wide", page_icon="📊")
 
 # Custom CSS: Move Plotly modebar tools below charts so they never overlap data labels
 st.markdown(
@@ -150,39 +150,335 @@ st.markdown(
 )
 
 # ==========================================
-# 0. QUERY PARAMS (Entity Filtering)
+# 0. PAGE NAVIGATION
 # ==========================================
+st.sidebar.title("🧭 Navigation")
+page = st.sidebar.radio(
+    "Go to",
+    ["📊 Analytics Dashboard", "✏️ Address Manager"],
+    label_visibility="collapsed"
+)
+st.sidebar.markdown("---")
+
 # Get the 'entity' from the URL (e.g., ?entity=sakaripara)
 url_entity = st.query_params.get("entity", None)
-
-if url_entity:
-    st.title(f"Vishwautsav Analytics Dashboard - {url_entity}")
-    st.markdown(f"Welcome to the **{url_entity}** Dashboard. Here is your specific live data.")
-else:
-    st.title("Vishwautsav Analytics Dashboard")
-    st.markdown("Welcome to the Admin Dashboard. Use the filters on the left to slice the live data from MongoDB.")
 
 # ==========================================
 # 1. MONGODB CONNECTION
 # ==========================================
-# This uses Streamlit's secrets manager to securely connect to your DB
 @st.cache_resource
 def init_connection():
-    # Make sure you add MONGO_URI to your Streamlit Cloud secrets!
     uri = st.secrets["MONGO_URI"]
-    client = MongoClient(uri)
+    # Use a 5-second timeout so the app fails fast locally instead of hanging
+    client = MongoClient(uri, serverSelectionTimeoutMS=5000, connectTimeoutMS=5000)
+    # Ping the server to validate the connection immediately
+    client.admin.command("ping")
     return client
 
 try:
     client = init_connection()
-    # It automatically gets the database name (vishwautsav_db) from your URI string
+    # Gets the database name (vishwautsav_db) directly from the URI string
     db = client.get_default_database()
+except KeyError:
+    st.error("⚠️ **MONGO_URI secret is missing!**")
+    st.info(
+        "**To fix this locally:**\n"
+        "1. Make sure the file `ML/.streamlit/secrets.toml` exists.\n"
+        "2. It must contain: `MONGO_URI = \"your-mongodb-uri\"`"
+    )
+    st.stop()
 except Exception as e:
-    st.error(f"Failed to connect to MongoDB. Did you add MONGO_URI to your Streamlit Secrets? Error: {e}")
+    st.error(f"❌ **Failed to connect to MongoDB.** Error: `{e}`")
+    st.info(
+        "**Common fixes:**\n"
+        "- Check your internet connection (MongoDB Atlas requires internet access).\n"
+        "- Whitelist your current IP address in MongoDB Atlas → Network Access.\n"
+        "- Verify the MONGO_URI in `ML/.streamlit/secrets.toml` is correct."
+    )
     st.stop()
 
 # ==========================================
-# 2. FETCH DATA
+# ADDRESS MANAGER PAGE
+# ==========================================
+if page == "✏️ Address Manager":
+    st.title("✏️ Address Manager")
+    st.markdown("Add or fix addresses for individual people, or bulk-rename a misspelled address across all records.")
+    st.divider()
+
+    # Load all records — include _id for per-record updates
+    @st.cache_data(ttl=10)
+    def get_all_addresses():
+        docs = list(db.subscriptions.find({}, {"_id": 1, "address": 1, "name": 1, "entityName": 1, "contact": 1}))
+        for d in docs:
+            d["_id"] = str(d["_id"])   # ObjectId → str for DataFrame
+        return docs
+
+    all_docs = get_all_addresses()
+
+    if not all_docs:
+        st.warning("No subscription records found in the database.")
+        st.stop()
+
+    df_addr = pd.DataFrame(all_docs)
+    df_addr['address'] = df_addr['address'].fillna('').astype(str).str.strip()
+
+    # --- Summary KPI ---
+    total_records    = len(df_addr)
+    unique_addresses = df_addr['address'].replace('', None).dropna().nunique()
+    blank_count      = (df_addr['address'] == '').sum()
+
+    c1, c2, c3 = st.columns(3)
+    c1.metric("📋 Total Subscriptions", f"{total_records:,}")
+    c2.metric("📍 Unique Addresses",    f"{unique_addresses:,}")
+    c3.metric("⚠️ Blank / Missing",    f"{blank_count:,}")
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # ── Two tabs ──────────────────────────────────────────────────────────
+    tab1, tab2 = st.tabs(["👤 Edit Individual Record", "🔄 Bulk Fix (Rename Address)"])
+
+    # ======================================================================
+    # TAB 1 — Edit a single person's address  (two sub-modes)
+    # ======================================================================
+    with tab1:
+
+        # ── Shared helper: address dropdown + save logic ───────────────────
+        existing_addresses = sorted(df_addr['address'][df_addr['address'] != ''].unique().tolist())
+        CUSTOM_OPTION      = "✏️  Type a new address..."
+        addr_dropdown_opts = [CUSTOM_OPTION] + existing_addresses
+
+        def address_editor(sel_row, dropdown_key, custom_key, save_key):
+            """Renders the Set New Address panel and handles the save."""
+            st.markdown("##### ✏️ Set New Address")
+            cur = sel_row['address']
+            def_idx = (existing_addresses.index(cur) + 1) if (cur and cur in existing_addresses) else 0
+
+            chosen = st.selectbox("Pick from existing addresses", addr_dropdown_opts,
+                                  index=def_idx, key=dropdown_key)
+            if chosen == CUSTOM_OPTION:
+                new_addr = st.text_input("Type the new address", value="",
+                                         placeholder="e.g. Sakaripara, Ward No. 5...",
+                                         key=custom_key)
+            else:
+                new_addr = chosen
+                st.info(f"📍 Selected: **{new_addr}**")
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("💾 Save Address", type="primary", use_container_width=True, key=save_key):
+                if not new_addr.strip():
+                    st.error("❌ Pick an address or type a new one.")
+                elif new_addr.strip() == sel_row['address']:
+                    st.warning("⚠️ No change — address is already the same.")
+                else:
+                    try:
+                        from bson import ObjectId
+                        res = db.subscriptions.update_one(
+                            {"_id": ObjectId(sel_row['_id'])},
+                            {"$set": {"address": new_addr.strip()}}
+                        )
+                        if res.modified_count == 1:
+                            get_all_addresses.clear()
+                            st.success(f"✅ **Saved!** **{sel_row['name']}** → `{new_addr.strip()}`")
+                            st.balloons()
+                        else:
+                            st.warning("⚠️ Not modified. Try again.")
+                    except Exception as ex:
+                        st.error(f"❌ Save failed: {ex}")
+
+        # ── Mode toggle ────────────────────────────────────────────────────
+        mode = st.radio(
+            "How do you want to find the person?",
+            ["📍 Browse by Address (see all persons under an address)",
+             "🔍 Search by Person Name"],
+            horizontal=True,
+            key="tab1_mode"
+        )
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # ==================================================================
+        # MODE A — Browse by Address
+        # ==================================================================
+        if mode.startswith("📍"):
+            # Build address list including a ⚠️ Missing option at the top
+            MISSING_LABEL = f"⚠️  Missing Address  ({blank_count} persons)"
+            browse_options = [MISSING_LABEL] + existing_addresses
+
+            col_addr, col_ent = st.columns([2, 2])
+            with col_addr:
+                sel_addr = st.selectbox("Select Address to browse", browse_options, key="browse_addr_sel")
+            with col_ent:
+                ent_opts2 = ["All Entities"] + sorted(df_addr['entityName'].dropna().unique().tolist())
+                ent_filter2 = st.selectbox("Filter by Entity", ent_opts2, key="browse_entity_filter")
+
+            # Filter records for chosen address
+            if sel_addr == MISSING_LABEL:
+                group = df_addr[df_addr['address'] == ''].copy()
+                group_title = f"⚠️ Persons with NO address ({len(group)} records)"
+            else:
+                group = df_addr[df_addr['address'] == sel_addr].copy()
+                group_title = f"📍 Persons with address: **{sel_addr}** ({len(group)} records)"
+
+            if ent_filter2 != "All Entities":
+                group = group[group['entityName'] == ent_filter2]
+
+            st.markdown(f"### {group_title}")
+
+            if group.empty:
+                st.info("No persons found for this address + entity combination.")
+            else:
+                # Show table of persons
+                display_cols = [c for c in ['name', 'entityName', 'contact', 'address'] if c in group.columns]
+                show_df = group[display_cols].copy()
+                show_df['address'] = show_df['address'].replace('', '⚠️ MISSING')
+                show_df.columns = [c.replace('entityName','Entity').replace('name','Name')
+                                    .replace('contact','Contact').replace('address','Current Address')
+                                    for c in show_df.columns]
+                st.dataframe(show_df.reset_index(drop=True), use_container_width=True, hide_index=True)
+
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("#### ✏️ Select a person below to edit their address")
+
+                def make_label_b(row):
+                    addr   = row['address'] if row['address'] else "⚠️ NO ADDRESS"
+                    entity = row['entityName'] if pd.notna(row.get('entityName')) else "—"
+                    return f"{row['name']}  |  {entity}  |  📍 {addr}"
+
+                group['label'] = group.apply(make_label_b, axis=1)
+                sel_lbl = st.selectbox("Select Person to Edit", group['label'].tolist(), key="browse_person_sel")
+                sel_row = group[group['label'] == sel_lbl].iloc[0]
+
+                st.markdown("<br>", unsafe_allow_html=True)
+                info_c, edit_c = st.columns([1, 1])
+                with info_c:
+                    st.markdown("##### 📄 Current Record")
+                    st.markdown(f"""
+| Field | Value |
+|-------|-------|
+| **Name** | {sel_row['name']} |
+| **Entity** | {sel_row.get('entityName') or '—'} |
+| **Contact** | {sel_row.get('contact') or '—'} |
+| **Current Address** | `{sel_row['address'] if sel_row['address'] else '⚠️ BLANK'}` |
+""")
+                with edit_c:
+                    address_editor(sel_row, "browse_addr_drop", "browse_custom_inp", "browse_save_btn")
+
+        # ==================================================================
+        # MODE B — Search by Person Name
+        # ==================================================================
+        else:
+            col_s1, col_s2 = st.columns([2, 2])
+            with col_s1:
+                name_search = st.text_input("🔍 Search by Name",
+                                            placeholder="e.g. Jitendar, Sravan...", key="name_search")
+            with col_s2:
+                entity_options = ["All Entities"] + sorted(df_addr['entityName'].dropna().unique().tolist())
+                entity_filter  = st.selectbox("Filter by Entity", entity_options, key="entity_filter_am")
+
+            filtered = df_addr.copy()
+            if name_search.strip():
+                filtered = filtered[filtered['name'].str.contains(name_search.strip(), case=False, na=False)]
+            if entity_filter != "All Entities":
+                filtered = filtered[filtered['entityName'] == entity_filter]
+
+            if filtered.empty:
+                st.info("No records match your search. Try a different name.")
+            else:
+                st.markdown(f"**{len(filtered)} record(s) found.** Select one below:")
+
+                def make_label(row):
+                    addr   = row['address'] if row['address'] else "⚠️ NO ADDRESS"
+                    entity = row['entityName'] if pd.notna(row.get('entityName')) else "—"
+                    return f"{row['name']}  |  {entity}  |  📍 {addr}"
+
+                filtered = filtered.copy()
+                filtered['label'] = filtered.apply(make_label, axis=1)
+
+                selected_label = st.selectbox("Select Person to Edit", filtered['label'].tolist(), key="person_select")
+                selected_row   = filtered[filtered['label'] == selected_label].iloc[0]
+
+                st.markdown("<br>", unsafe_allow_html=True)
+                info_col, edit_col = st.columns([1, 1])
+
+                with info_col:
+                    st.markdown("##### 📄 Current Record")
+                    st.markdown(f"""
+| Field | Value |
+|-------|-------|
+| **Name** | {selected_row['name']} |
+| **Entity** | {selected_row.get('entityName') or '—'} |
+| **Contact** | {selected_row.get('contact') or '—'} |
+| **Current Address** | `{selected_row['address'] if selected_row['address'] else '⚠️ BLANK'}` |
+""")
+                with edit_col:
+                    address_editor(selected_row, "srch_addr_drop", "srch_custom_inp", "srch_save_btn")
+
+    # ======================================================================
+    # TAB 2 — Bulk Fix (rename one address across ALL records)
+    # ======================================================================
+    with tab2:
+        st.markdown("#### Rename a misspelled address across ALL matching records at once")
+
+        df_bulk = df_addr.copy()
+        df_bulk['address_display'] = df_bulk['address'].replace('', '⚠️ BLANK / MISSING')
+        freq = df_bulk.groupby('address_display').size().reset_index(name='Count').sort_values('Count', ascending=False)
+
+        bulk_search = st.text_input("🔍 Filter addresses", placeholder="e.g. sakri, ward...", key="bulk_search")
+        if bulk_search.strip():
+            freq = freq[freq['address_display'].str.contains(bulk_search.strip(), case=False, na=False)]
+
+        if freq.empty:
+            st.info("No addresses match your filter.")
+        else:
+            st.dataframe(
+                freq.rename(columns={'address_display': 'Address', 'Count': 'Records using this address'}),
+                use_container_width=True,
+                hide_index=True
+            )
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            selected_wrong  = st.selectbox("Select the WRONG / OLD address", freq['address_display'].tolist(), key="bulk_wrong_sel")
+            actual_wrong    = '' if selected_wrong == '⚠️ BLANK / MISSING' else selected_wrong
+            affected        = df_addr[df_addr['address'] == actual_wrong]
+
+            st.info(f"**{len(affected)} record(s)** will be updated.")
+            with st.expander(f"👁️ Preview affected records ({len(affected)} total)"):
+                preview_cols = [c for c in ['name', 'entityName', 'address'] if c in affected.columns]
+                st.dataframe(affected[preview_cols].reset_index(drop=True), use_container_width=True)
+
+            correct_address = st.text_input(
+                "Type the CORRECT / NEW address",
+                placeholder="e.g. Sakaripara",
+                key="bulk_correct_input"
+            )
+
+            col_btn, _ = st.columns([1, 3])
+            with col_btn:
+                bulk_save = st.button("💾 Fix All Records", type="primary", use_container_width=True, key="bulk_save_btn")
+
+            if bulk_save:
+                if not correct_address.strip():
+                    st.error("❌ Please type the correct address before saving.")
+                elif correct_address.strip() == actual_wrong:
+                    st.warning("⚠️ New address is the same as the old one. Nothing to change.")
+                else:
+                    try:
+                        if actual_wrong == '':
+                            mongo_filter = {"$or": [{"address": ""}, {"address": None}, {"address": {"$exists": False}}]}
+                        else:
+                            mongo_filter = {"address": actual_wrong}
+                        result = db.subscriptions.update_many(
+                            mongo_filter,
+                            {"$set": {"address": correct_address.strip()}}
+                        )
+                        get_all_addresses.clear()
+                        st.success(f"✅ **Done!** Updated **{result.modified_count} record(s)** → `{correct_address.strip()}`")
+                        st.balloons()
+                    except Exception as e:
+                        st.error(f"❌ Update failed: {e}")
+
+    st.stop()  # Don't render the analytics dashboard on this page
+
+# ==========================================
+# 2. FETCH DATA (Analytics Dashboard only)
 # ==========================================
 @st.cache_data(ttl=5) # Cache data for only 5 seconds so it feels real-time!
 def get_data():
@@ -198,6 +494,14 @@ def get_data():
     entities_list = ["All Entities"] + (df_subs['entityName'].dropna().unique().tolist() if not df_subs.empty else [])
 
     return df_subs, df_exp, entities_list
+
+# --- Analytics Dashboard header (only shown on the analytics page) ---
+if url_entity:
+    st.title(f"Vishwautsav Analytics Dashboard - {url_entity}")
+    st.markdown(f"Welcome to the **{url_entity}** Dashboard. Here is your specific live data.")
+else:
+    st.title("📊 Vishwautsav Analytics Dashboard")
+    st.markdown("Welcome to the Admin Dashboard. Use the filters on the left to slice the live data from MongoDB.")
 
 df_subs, df_exp, entities_list = get_data()
 
