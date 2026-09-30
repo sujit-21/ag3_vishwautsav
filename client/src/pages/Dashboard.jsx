@@ -348,7 +348,7 @@ const Dashboard = () => {
     )
 
     const streamlitBase = import.meta.env.VITE_STREAMLIT_URL || 'https://vishwautsav.streamlit.app'
-    const fullStreamlitUrl = `${streamlitBase}/?embed=true${user?.entityName ? `&entity=${encodeURIComponent(user.entityName)}` : ''}`
+    const fullStreamlitUrl = `${streamlitBase}/?embedded=true${user?.entityName ? `&entity=${encodeURIComponent(user.entityName)}` : ''}`
     const externalStreamlitUrl = `${streamlitBase}/${user?.entityName ? `?entity=${encodeURIComponent(user.entityName)}` : ''}`
 
     return (
