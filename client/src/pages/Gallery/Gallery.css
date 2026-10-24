@@ -1,0 +1,12 @@
+/* ==========================================
+   GALLERY PAGE STYLES
+   ========================================== */
+
+.gallery-grid-item {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+}
+
+.gallery-grid-item:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 40px -10px var(--premium-glow);
+}

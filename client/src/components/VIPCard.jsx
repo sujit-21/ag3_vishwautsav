@@ -1,4 +1,5 @@
 import React from 'react'
+import './VIPCard.css'
 import { motion } from 'framer-motion'
 import adminBg from '../images/admin.jpg'
 import primeBg from '../images/primemember.jpg'

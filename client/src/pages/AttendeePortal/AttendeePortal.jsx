@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
+import './AttendeePortal.css'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Download, User, Users, Hash, Building2, CheckCircle, AlertCircle, Loader2, CreditCard, Calendar, MapPin, Phone, Tag, ArrowLeft, FileDown } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
-import VIPCard from '../components/VIPCard'
+import VIPCard from '../../components/VIPCard'
 
 // Import card backgrounds
-import adminBg from '../images/admin.jpg'
-import primeBg from '../images/primemember.jpg'
-import regularBg from '../images/regular.jpg'
-import vipBg from '../images/vip elite.jpg'
+import adminBg from '../../images/admin.jpg'
+import primeBg from '../../images/primemember.jpg'
+import regularBg from '../../images/regular.jpg'
+import vipBg from '../../images/vip elite.jpg'
 
 const getTierBadgeStyle = (tier) => {
     const baseStyle = {

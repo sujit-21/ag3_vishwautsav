@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
+import './Support.css'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit3, Save, Mail, User, ShieldCheck, Image as ImageIcon } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
 
 const Support = () => {

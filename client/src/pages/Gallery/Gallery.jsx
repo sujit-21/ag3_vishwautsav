@@ -1,13 +1,14 @@
 import React from 'react';
+import './Gallery.css'
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-import musicConcertImg from '../homepage_images/Music Concert.jpg'
-import consertImg from '../homepage_images/consert.jpg'
-import holiImg from '../homepage_images/holi.jpg'
-import southFestivalsImg from '../homepage_images/south festivals.jpg'
+import musicConcertImg from '../../homepage_images/Music Concert.jpg'
+import consertImg from '../../homepage_images/consert.jpg'
+import holiImg from '../../homepage_images/holi.jpg'
+import southFestivalsImg from '../../homepage_images/south festivals.jpg'
 
 const galleryImages = [
     { src: musicConcertImg, title: "Music Concert" },

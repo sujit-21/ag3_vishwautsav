@@ -1,0 +1,12 @@
+/* ==========================================
+   ATTENDEE PORTAL PAGE STYLES
+   ========================================== */
+
+.portal-pass-preview {
+    border-radius: 20px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.portal-pass-preview:hover {
+    transform: scale(1.01);
+}

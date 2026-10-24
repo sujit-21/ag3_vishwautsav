@@ -1,0 +1,12 @@
+/* ==========================================
+   SETTINGS PAGE STYLES
+   ========================================== */
+
+.settings-nav-pill {
+    transition: all 0.25s ease;
+}
+
+.settings-nav-pill.active {
+    background: linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust));
+    color: #ffffff;
+}

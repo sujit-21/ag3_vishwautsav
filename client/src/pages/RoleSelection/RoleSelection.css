@@ -1,0 +1,12 @@
+/* ==========================================
+   ROLE SELECTION PAGE STYLES
+   ========================================== */
+
+.role-selection-card {
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.role-selection-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 16px 36px -8px var(--premium-glow);
+}

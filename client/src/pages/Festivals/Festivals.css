@@ -1,0 +1,25 @@
+/* ==========================================
+   FESTIVALS PAGE STYLES
+   ========================================== */
+
+.modal-festival {
+    --modal-accent: #c084fc;
+    --modal-accent-secondary: #6366f1;
+    --modal-glow: rgba(192, 132, 252, 0.25);
+}
+
+.modal-festival .glass-card-premium,
+.festival-theme.glass-card-premium {
+    border-color: rgba(192, 132, 252, 0.2);
+    --modal-accent: #c084fc;
+    --modal-accent-secondary: #6366f1;
+    --modal-glow: rgba(192, 132, 252, 0.25);
+}
+
+.festival-stats-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.festival-stats-card:hover {
+    transform: translateY(-3px);
+}

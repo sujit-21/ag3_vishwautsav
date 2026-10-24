@@ -1,0 +1,12 @@
+/* ==========================================
+   ENTITY PAGE STYLES
+   ========================================== */
+
+.entity-brand-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.entity-brand-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px -8px var(--premium-glow);
+}

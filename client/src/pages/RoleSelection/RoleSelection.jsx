@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
+import './RoleSelection.css'
 import { useNavigate } from 'react-router-dom'
 import { ShieldCheck, UserCircle, ArrowRight } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 
 const RoleSelection = () => {
     const { switchRole, user, setVerifiedEntity } = useAuth()

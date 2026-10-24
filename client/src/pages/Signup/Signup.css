@@ -1,0 +1,15 @@
+/* ==========================================
+   SIGNUP PAGE STYLES
+   ========================================== */
+
+.signup-container {
+    min-height: calc(100vh - 80px);
+}
+
+.signup-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.signup-input-group:focus-within {
+    box-shadow: 0 0 0 3.5px rgba(224, 122, 67, 0.2);
+}

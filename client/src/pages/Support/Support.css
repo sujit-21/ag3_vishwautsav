@@ -1,0 +1,11 @@
+/* ==========================================
+   SUPPORT PAGE STYLES
+   ========================================== */
+
+.support-accordion-item {
+    transition: all 0.25s ease;
+}
+
+.support-accordion-item:hover {
+    border-color: var(--accent-1);
+}

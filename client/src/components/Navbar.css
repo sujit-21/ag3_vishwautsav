@@ -1,0 +1,448 @@
+/* ==========================================================================
+   LIQUID NAVBAR — ALWAYS IN MOTION
+   Direct faithful implementation of liquid gooey morphing navbar
+   ========================================================================== */
+
+:root {
+  --violet: #8b5cf6;
+  --indigo: #6366f1;
+  --cyan:   #22d3ee;
+  --pink:   #e879f9;
+}
+
+/* =========================================
+   NAVBAR WRAPPER & SHELL
+   ========================================= */
+.nav-wrapper {
+  position: sticky;
+  top: 12px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1050;
+  padding: 0 12px;
+  pointer-events: none; /* Let clicks through wrapper */
+}
+
+.nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px clamp(16px, 2.5vw, 36px);
+  width: 100%;
+  max-width: 100%;
+  pointer-events: auto; /* Re-enable pointer events on bar */
+
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.03));
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow:
+    0 26px 60px -24px rgba(0,0,0,.95),
+    0 6px 18px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.22);
+
+  isolation: isolate;
+
+  /* the whole bar breathes / floats slightly */
+  animation: navFloat 7s ease-in-out infinite;
+}
+
+@keyframes navFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-5px); }
+}
+
+/* Light mode support for the shell */
+.light-mode .nav {
+  background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.75));
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow:
+    0 20px 48px -18px rgba(0,0,0,.22),
+    0 6px 16px rgba(0,0,0,.08),
+    inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+/* =========================================
+   BRAND LOGO & TITLE
+   ========================================= */
+.nav__brand {
+  position: relative;
+  z-index: 5;
+  text-decoration: none !important;
+  user-select: none;
+}
+
+.nav__logo-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+  animation: logoPulse 4.5s ease-in-out infinite alternate;
+}
+
+.light-mode .nav__logo-badge {
+  background: rgba(224, 122, 67, 0.12);
+  border-color: rgba(224, 122, 67, 0.25);
+}
+
+@keyframes logoPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+.nav__brand-title {
+  font-size: 1.22rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(100deg, #d9480f, #e879f9 60%, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* =========================================
+   LIQUID TRACK (Desktop Navigation Cluster)
+   ========================================= */
+.nav__track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  isolation: isolate;
+}
+
+/* =========================================
+   LAYER 1 — soft drifting colour (the "liquid")
+   ========================================= */
+.nav__aura {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.aura {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(15px);
+  opacity: .75;
+  will-change: transform;
+}
+
+.aura.a1 { width: 100px; height: 100px; left:  2%; top: -40%; background: #7c3aed; animation: driftA 11s ease-in-out infinite; }
+.aura.a2 { width:  76px; height:  76px; left: 30%; top:  35%; background: #06b6d4; animation: driftB 14s ease-in-out infinite; }
+.aura.a3 { width:  88px; height:  88px; left: 58%; top: -45%; background: #d946ef; animation: driftC  9s ease-in-out infinite; }
+.aura.a4 { width:  66px; height:  66px; left: 82%; top:  40%; background: #3b82f6; animation: driftD 13s ease-in-out infinite; }
+
+@keyframes driftA {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(42px, 18px) scale(1.18); }
+  66%      { transform: translate(16px, -14px) scale(.92); }
+}
+@keyframes driftB {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40%      { transform: translate(-34px, -20px) scale(1.22); }
+  70%      { transform: translate(28px, 10px) scale(.9); }
+}
+@keyframes driftC {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-48px, 22px) scale(1.15); }
+}
+@keyframes driftD {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  35%      { transform: translate(-26px, -18px) scale(1.2); }
+  75%      { transform: translate(14px, 16px) scale(.94); }
+}
+
+/* =========================================
+   LAYER 2 — gooey liquid pill (active indicator)
+   ========================================= */
+.nav__goo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  overflow: hidden;
+  filter: url(#liquid);
+  pointer-events: none;
+}
+
+.indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+
+  background: linear-gradient(135deg, var(--violet), var(--indigo) 45%, var(--cyan));
+  border-radius: 42% 58% 55% 45% / 52% 45% 55% 48%;
+
+  /* the pill itself keeps reshaping — slight constant movement */
+  animation: pillMorph 6.5s ease-in-out infinite;
+
+  transition:
+    transform .62s cubic-bezier(.34, 1.4, .42, 1),
+    width     .55s cubic-bezier(.34, 1.4, .42, 1),
+    height    .55s cubic-bezier(.34, 1.4, .42, 1);
+
+  will-change: transform, width, height, border-radius;
+}
+
+@keyframes pillMorph {
+  0%, 100% { border-radius: 42% 58% 55% 45% / 52% 45% 55% 48%; }
+  25%      { border-radius: 58% 42% 40% 60% / 44% 58% 42% 56%; }
+  50%      { border-radius: 45% 55% 60% 40% / 58% 42% 58% 42%; }
+  75%      { border-radius: 55% 45% 44% 56% / 42% 55% 45% 58%; }
+}
+
+/* two satellite droplets orbit inside the pill → liquid wobble */
+.drop {
+  position: absolute;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--violet), var(--cyan));
+  will-change: transform;
+}
+.drop-a {
+  width: 62%; height: 62%;
+  left: -14%; top: 22%;
+  animation: dropA 5.4s ease-in-out infinite;
+}
+.drop-b {
+  width: 54%; height: 54%;
+  right: -12%; top: -14%;
+  animation: dropB 4.6s ease-in-out infinite;
+}
+
+@keyframes dropA {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(26%, -34%) scale(1.28); }
+}
+@keyframes dropB {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(-30%, 40%) scale(1.22); }
+}
+
+/* =========================================
+   LAYER 3 — glow that mirrors the indicator
+   ========================================= */
+.nav__glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-radius: 999px;
+
+  box-shadow:
+    0 0 24px 2px rgba(139, 92, 246, .55),
+    0 0 58px 8px rgba(34, 211, 238, .22);
+
+  animation: pillMorph 6.5s ease-in-out infinite;
+
+  transition:
+    transform .62s cubic-bezier(.34, 1.4, .42, 1),
+    width     .55s cubic-bezier(.34, 1.4, .42, 1),
+    height    .55s cubic-bezier(.34, 1.4, .42, 1);
+}
+
+/* =========================================
+   LINKS
+   ========================================= */
+.nav__link {
+  position: relative;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 19px;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 500;
+  letter-spacing: .01em;
+  text-decoration: none;
+  white-space: nowrap;
+  color: rgba(255,255,255,.68);
+  transition: color .3s ease, text-shadow .3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.light-mode .nav__link {
+  color: rgba(30, 41, 59, 0.75);
+}
+
+.nav__link:hover,
+.nav__link:focus-visible {
+  color: #fff !important;
+}
+
+.light-mode .nav__link:hover,
+.light-mode .nav__link:focus-visible {
+  color: #0f172a !important;
+}
+
+.nav__link.is-active {
+  color: #fff !important;
+  text-shadow: 0 1px 12px rgba(0,0,0,.5);
+}
+
+.light-mode .nav__link.is-active {
+  color: #ffffff !important;
+  text-shadow: 0 1px 8px rgba(0,0,0,.35);
+}
+
+.nav__link:focus-visible {
+  outline: 2px solid rgba(255,255,255,.6);
+  outline-offset: -4px;
+}
+
+/* =========================================
+   CONTROLS (Right cluster)
+   ========================================= */
+.nav__controls {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav__btn-theme {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.light-mode .nav__btn-theme {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: #334155;
+}
+
+.nav__btn-theme:hover {
+  transform: rotate(15deg) scale(1.08);
+}
+
+.nav__role-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust));
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(224, 122, 67, 0.35);
+}
+
+/* =========================================
+   MOBILE RESPONSIVENESS & DRAWER
+   ========================================= */
+.nav__mobile-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  padding: 6px;
+  color: var(--text-main);
+  cursor: pointer;
+}
+
+.nav__mobile-drawer {
+  display: none;
+  width: 100%;
+  max-width: 100%;
+  margin-top: 8px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(14, 11, 30, 0.92);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6);
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: auto;
+  animation: drawerSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.light-mode .nav__mobile-drawer {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes drawerSlide {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.nav__mobile-link {
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.75);
+  transition: all 0.2s ease;
+}
+
+.light-mode .nav__mobile-link {
+  color: #334155;
+}
+
+.nav__mobile-link.is-active,
+.nav__mobile-link:hover {
+  background: linear-gradient(135deg, var(--violet), var(--indigo));
+  color: #fff !important;
+}
+
+@media (max-width: 991.98px) {
+  .nav {
+    border-radius: 22px;
+    padding: 7px 12px;
+  }
+  .nav__track {
+    display: none !important;
+  }
+  .nav__mobile-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav__mobile-drawer.open {
+    display: flex !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav, .indicator, .glow, .drop, .aura, .bg-blob { animation: none !important; }
+  .indicator, .glow { transition-duration: .01ms; }
+}

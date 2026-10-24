@@ -1,8 +1,10 @@
 import React, { useState, useEffect, Fragment } from 'react'
+import './Festivals.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info } from 'lucide-react'
+import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import VIPCard from '../../components/VIPCard'
 import adminBg from '../../images/admin.jpg'
 import primeBg from '../../images/primemember.jpg'
@@ -143,6 +145,7 @@ const getPaymentColorStyle = (paymentType) => {
 
 const Festivals = () => {
     const { activeFestival, setActiveFestival, user } = useAuth()
+    const toast = useToast()
     const [search, setSearch] = useState('')
     const [subSearch, setSubSearch] = useState('')
     const [expSearch, setExpSearch] = useState('')
@@ -187,6 +190,7 @@ const Festivals = () => {
     const [subscriptionsList, setSubscriptionsList] = useState([])
     const [expensesList, setExpensesList] = useState([])
     const [isSubAdding, setIsSubAdding] = useState(false)
+    const [copiedSubId, setCopiedSubId] = useState(false)
     const [isExpAdding, setIsExpAdding] = useState(false)
     const [editingSubId, setEditingSubId] = useState(null)
     const [editingExpId, setEditingExpId] = useState(null)
@@ -1166,10 +1170,10 @@ const Festivals = () => {
         })
 
     return (
-        <div className="container pt-3 pb-5 text-main" style={{ isolation: 'isolate' }}>
+        <div className="container pt-3 pb-5 text-main">
             {/* Navigation Tabs Bar at the Top */}
-            <div className="d-flex align-items-center mb-4" style={{ isolation: 'isolate' }}>
-                <div className="d-inline-flex flex-wrap align-items-center bg-secondary bg-opacity-10 p-1 rounded-3 gap-1 shadow-sm border border-secondary border-opacity-10" style={{ isolation: 'isolate' }}>
+            <div className="d-flex align-items-center mb-4 position-relative" style={{ zIndex: 1050 }}>
+                <div className="d-inline-flex flex-wrap align-items-center bg-secondary bg-opacity-10 p-1.5 rounded-3 gap-1.5 shadow-sm border border-secondary border-opacity-10 mb-3">
                     {['festivals', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet'].map(tab => {
                         if (tab === 'new_attendee') {
                             return (
@@ -1222,51 +1226,94 @@ const Festivals = () => {
                     {/* DROPDOWN name DATA - Shortcut Downloads */}
                     <div className="position-relative d-inline-block ms-1">
                         <button
-                            onClick={() => !activeFestival ? alert("Select a festival first to access Data reports") : setIsDataOpen(!isDataOpen)}
-                            className={`btn btn-sm px-3 py-1.5 rounded-2 text-capitalize fw-bold transition-all d-flex align-items-center gap-1.5 shadow-sm data-dropdown-btn ${isDataOpen ? 'active-data-open' : ''} ${!activeFestival ? 'opacity-40 cursor-not-allowed' : ''}`}
-                            style={{ fontSize: '0.75rem', height: '34px' }}
+                            type="button"
+                            onClick={() => setIsDataOpen(!isDataOpen)}
+                            className={`btn btn-sm px-3 py-1.5 rounded-2 text-capitalize fw-bold transition-all d-flex align-items-center gap-1.5 shadow-sm data-dropdown-btn ${isDataOpen ? "active-data-open" : ""}`}
+                            style={{ fontSize: "0.75rem", height: "34px" }}
                             title="Quick Download Data Reports"
                         >
-                            <Download size={13} /> DATA <ChevronDown size={12} className={`transition-all ${isDataOpen ? 'rotate-180' : ''}`} />
+                            <Download size={13} /> DATA <ChevronDown size={12} className={`transition-all ${isDataOpen ? "rotate-180" : ""}`} />
                         </button>
-                        {isDataOpen && activeFestival && (
-                            <div 
-                                className="position-absolute end-0 mt-1.5 glass-card shadow-lg p-1.5 rounded-3 border data-dropdown-menu"
-                                style={{ width: '220px', zIndex: 1100 }}
-                            >
-                                <div className="extra-tiny text-muted uppercase fw-bold px-2 py-1 border-bottom border-secondary border-opacity-25 mb-1">
-                                    Data Shortcuts &amp; Downloads
+                        {isDataOpen && (
+                            <>
+                                {/* Mobile touch backdrop to dismiss on outside tap */}
+                                <div
+                                    className="position-fixed top-0 start-0 w-100 h-100 bg-transparent"
+                                    style={{ zIndex: 1099 }}
+                                    onClick={() => setIsDataOpen(false)}
+                                />
+                                <div
+                                    className="position-absolute mt-1.5 glass-card shadow-lg p-2 rounded-3 border data-dropdown-menu"
+                                    style={{ width: "235px", zIndex: 1100 }}
+                                >
+                                    <div className="extra-tiny text-muted text-uppercase fw-bold px-2 py-1 border-bottom border-secondary border-opacity-25 mb-1 d-flex justify-content-between align-items-center">
+                                        <div className="d-flex align-items-center gap-1.5">
+                                            <Download size={13} className="text-warning" />
+                                            <span>Data Reports</span>
+                                        </div>
+                                        <div className="d-flex align-items-center gap-1.5">
+                                            {activeFestival && (
+                                                <span className="badge bg-primary bg-opacity-25 text-primary text-truncate" style={{ maxWidth: "110px" }}>
+                                                    {activeFestival.title}
+                                                </span>
+                                            )}
+                                            <button 
+                                                type="button" 
+                                                className="btn btn-sm btn-link p-0 text-muted ms-1 text-decoration-none d-flex align-items-center" 
+                                                onClick={() => setIsDataOpen(false)}
+                                                aria-label="Close"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {activeFestival ? (
+                                        <>
+                                            <button
+                                                className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1"
+                                                onClick={() => { downloadAllAttendeesPDF(); setIsDataOpen(false); }}
+                                                style={{ fontSize: "0.75rem" }}
+                                            >
+                                                <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-primary" /> Attendee PDF</span>
+                                            </button>
+                                            <button
+                                                className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1"
+                                                onClick={() => { downloadAllExpensesPDF(); setIsDataOpen(false); }}
+                                                style={{ fontSize: "0.75rem" }}
+                                            >
+                                                <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-danger" /> All Expenses PDF</span>
+                                            </button>
+                                            <button
+                                                className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1"
+                                                onClick={() => { downloadBalanceSheetPDF(); setIsDataOpen(false); }}
+                                                style={{ fontSize: "0.75rem" }}
+                                            >
+                                                <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-success" /> BalanceSheet PDF</span>
+                                            </button>
+                                            <div className="dropdown-divider my-1 border-secondary border-opacity-25"></div>
+                                            <button
+                                                className="btn btn-sm w-100 text-start text-white py-2 px-2 rounded-2 fw-bold d-flex align-items-center justify-content-between shadow-sm"
+                                                onClick={() => { downloadMasterDataPDF(); setIsDataOpen(false); }}
+                                                style={{ fontSize: "0.75rem", background: "linear-gradient(135deg, #4f46e5, #9333ea)" }}
+                                            >
+                                                <span className="d-flex align-items-center gap-2"><Sparkles size={14} className="text-warning" /> MASTER DATA PDF</span>
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className="py-2 px-1 text-center">
+                                            <small className="text-muted d-block mb-2" style={{ fontSize: "0.75rem" }}>
+                                                Select a festival from the list below to export data reports.
+                                            </small>
+                                            <button
+                                                className="btn btn-sm btn-outline-primary py-1 px-2 rounded-pill w-100 extra-tiny fw-bold"
+                                                onClick={() => { setActiveTab("festivals"); setIsDataOpen(false); }}
+                                            >
+                                                View Festivals List
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
-                                <button 
-                                    className="btn btn-sm w-100 text-start text-white py-1.5 px-2 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1" 
-                                    onClick={() => { downloadAllAttendeesPDF(); setIsDataOpen(false); }}
-                                    style={{ fontSize: '0.75rem' }}
-                                >
-                                    <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-primary" /> Attendee PDF</span>
-                                </button>
-                                <button 
-                                    className="btn btn-sm w-100 text-start text-white py-1.5 px-2 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1" 
-                                    onClick={() => { downloadAllExpensesPDF(); setIsDataOpen(false); }}
-                                    style={{ fontSize: '0.75rem' }}
-                                >
-                                    <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-danger" /> All Expenses PDF</span>
-                                </button>
-                                <button 
-                                    className="btn btn-sm w-100 text-start text-white py-1.5 px-2 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1" 
-                                    onClick={() => { downloadBalanceSheetPDF(); setIsDataOpen(false); }}
-                                    style={{ fontSize: '0.75rem' }}
-                                >
-                                    <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-success" /> BalanceSheet PDF</span>
-                                </button>
-                                <div className="dropdown-divider my-1 border-secondary border-opacity-25"></div>
-                                <button 
-                                    className="btn btn-sm w-100 text-start text-white py-2 px-2 rounded-2 fw-bold d-flex align-items-center justify-content-between shadow-sm" 
-                                    onClick={() => { downloadMasterDataPDF(); setIsDataOpen(false); }}
-                                    style={{ fontSize: '0.75rem', background: 'linear-gradient(135deg, #4f46e5, #9333ea)' }}
-                                >
-                                    <span className="d-flex align-items-center gap-2"><Sparkles size={14} className="text-warning" /> MASTER DATA PDF</span>
-                                </button>
-                            </div>
+                            </>
                         )}
                     </div>
                 </div>
@@ -2420,7 +2467,7 @@ const Festivals = () => {
 
             <AnimatePresence>
                 {isModalOpen && (
-                    <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: 'rgba(2, 6, 23, 0.85)', backdropFilter: 'blur(12px)', zIndex: 2000 }}>
+                    <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: 'rgba(2, 6, 23, 0.85)', backdropFilter: 'blur(12px)', zIndex: 99999 }}>
                         <motion.div initial={{ scale: 0.9, y: 30, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 30, opacity: 0 }} className="modal-content-premium modal-festival w-100 mx-3 shadow-2xl" style={{ maxWidth: '800px' }}>
                             <div className="d-flex justify-content-between align-items-center mb-3">
                                 <div>
@@ -2505,16 +2552,23 @@ const Festivals = () => {
 
             <AnimatePresence>
                 {isSubAdding && (
-                    <div className="modal-overlay modal-overlay-light position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 2000 }}>
-                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="w-100 mx-3 p-3 px-4" style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto', backgroundColor: 'var(--modal-bg)', borderRadius: '16px' }}>
-                            <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
-                                <div>
-                                    <h2 className="fw-bold mb-0" style={{ fontSize: '1.25rem', color: 'var(--text-main)' }}>
-                                        {editingSubId ? 'Modify Subscription' : 'New Subscription'}
-                                    </h2>
-                                    <p className="mb-0" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Secure membership access protocol for active attendees.</p>
+                    <div className="modal-overlay modal-overlay-light position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" style={{ zIndex: 99999 }}>
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="luxury-modal-card w-100 p-3 p-sm-4 shadow-2xl" style={{ maxWidth: '760px', maxHeight: '90vh', overflowY: 'auto' }}>
+                            <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
+                                <div className="d-flex align-items-center gap-3">
+                                    <div className="d-flex align-items-center justify-content-center rounded-3 shadow-sm flex-shrink-0" style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust))', color: '#ffffff' }}>
+                                        <Sparkles size={20} />
+                                    </div>
+                                    <div>
+                                        <h2 className="fw-bold mb-0" style={{ fontSize: '1.25rem', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
+                                            {editingSubId ? 'Modify Subscription' : 'New Subscription'}
+                                        </h2>
+                                        <p className="mb-0 text-muted extra-tiny">Secure membership protocol • Instant pass issuance</p>
+                                    </div>
                                 </div>
-                                <button onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-light rounded-3 p-1 px-2 shadow-sm hover-scale" style={{ backgroundColor: 'var(--secondary-bg)', borderColor: 'var(--glass-border)' }}><X size={18} style={{ color: 'var(--text-main)' }} /></button>
+                                <button onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-close-custom rounded-circle p-2 border shadow-sm hover-scale" style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--glass-border)' }} aria-label="Close">
+                                    <X size={18} style={{ color: 'var(--text-main)' }} />
+                                </button>
                             </div>
                             
                             <form onSubmit={async (e) => {
@@ -2526,6 +2580,7 @@ const Festivals = () => {
                                         const { _id, __v, createdAt, ...postData } = subFormData;
                                         await axios.post('/api/subscriptions', { ...postData, type: 'festival' })
                                     }
+                                    toast.success(editingSubId ? 'Subscription updated successfully!' : 'Membership pass authorized!')
                                     fetchSubscriptions()
                                     setIsSubAdding(false)
                                     setEditingSubId(null)
@@ -2536,150 +2591,202 @@ const Festivals = () => {
                                         paymentType: 'Cash & Paid', referenceName: '', membershipType: 'Non-Prime', cardColor: '#1e293b', clubOrOrg: '', festOrEventName: '', onlineParticulars: '', onlineReference: ''
                                     })
                                 } catch (err) {
-                                    alert(err.response?.data?.message || 'Error saving subscription')
+                                    toast.error(err.response?.data?.message || 'Error saving subscription')
                                 }
                             }}>
-                                <div className="row g-2 mb-2">
-                                    <div className="col-md-6">
-                                        <div className="p-2 px-3 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                            <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>ID (Auto-Generated)</label>
-                                            <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
-                                                    <Fingerprint size={16} />
-                                                </div>
-                                                <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: 'var(--text-main)', letterSpacing: '2px', fontSize: '0.85rem' }} value={subFormData.subId} readOnly />
-                                                <button type="button" className="btn btn-link p-0 pe-2" style={{ color: 'var(--accent-1)' }} onClick={() => navigator.clipboard.writeText(subFormData.subId)}><Copy size={15} /></button>
+                                <div className="row g-3 mb-3">
+                                    {/* ID Field */}
+                                    <div className="col-12 col-md-6">
+                                        <div className="d-flex justify-content-between align-items-center mb-1">
+                                            <label className="luxury-label mb-0">ID (Auto-Generated)</label>
+                                            {copiedSubId && <span className="extra-tiny fw-bold text-success animate-in fade-in">✓ Copied</span>}
+                                        </div>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
+                                                <Fingerprint size={16} />
                                             </div>
+                                            <input type="text" className="luxury-input-field fw-bold font-monospace" style={{ letterSpacing: '1.5px' }} value={subFormData.subId} readOnly />
+                                            <button
+                                                type="button"
+                                                className="btn btn-link p-0 pe-1 text-decoration-none d-flex align-items-center gap-1"
+                                                style={{ color: copiedSubId ? '#10b981' : 'var(--palette-terracotta)' }}
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(subFormData.subId);
+                                                    setCopiedSubId(true);
+                                                    setTimeout(() => setCopiedSubId(false), 2000);
+                                                }}
+                                                title="Copy ID"
+                                            >
+                                                {copiedSubId ? <Check size={15} className="text-success" /> : <Copy size={15} />}
+                                            </button>
                                         </div>
                                     </div>
-                                    <div className="col-md-6">
-                                        <div className="p-2 px-3 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                            <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Subscription Date</label>
-                                            <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
-                                                    <Calendar size={16} />
-                                                </div>
-                                                <input type="date" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} value={subFormData.date} onChange={e => setSubFormData({ ...subFormData, date: e.target.value })} required />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div className="mb-2">
-                                    <div className="p-2 px-3 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                        <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Attendee Full Name</label>
-                                        <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
+                                    {/* Date Field */}
+                                    <div className="col-12 col-md-6">
+                                        <label className="luxury-label mb-1">Subscription Date</label>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
+                                                <Calendar size={16} />
+                                            </div>
+                                            <input type="date" className="luxury-input-field" value={subFormData.date} onChange={e => setSubFormData({ ...subFormData, date: e.target.value })} required />
+                                        </div>
+                                    </div>
+
+                                    {/* Full Name */}
+                                    <div className="col-12 col-md-6">
+                                        <label className="luxury-label mb-1">Attendee Full Name</label>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
                                                 <User size={16} />
                                             </div>
-                                            <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} placeholder="Full Name" value={subFormData.name} onChange={e => setSubFormData({ ...subFormData, name: e.target.value })} required />
+                                            <input type="text" className="luxury-input-field" placeholder="Full legal name" value={subFormData.name} onChange={e => setSubFormData({ ...subFormData, name: e.target.value })} required />
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="mb-2">
-                                    <div className="p-2 px-3 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                        <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Attendee Residence / Address</label>
-                                        <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
-                                                <MapPin size={16} />
-                                            </div>
-                                            <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} placeholder="Street name, City, State, District..." value={subFormData.address} onChange={e => setSubFormData({ ...subFormData, address: e.target.value })} />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="mb-2">
-                                    <div className="p-2 px-3 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                        <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Transaction Amount</label>
-                                        <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
-                                                <CreditCard size={16} />
-                                            </div>
-                                            <div className="d-flex align-items-center border-end pe-2 me-2" style={{ borderColor: 'var(--glass-border)' }}>
-                                                <select className="border-0 shadow-none bg-transparent fw-bold py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} value={subFormData.currency} onChange={e => setSubFormData({ ...subFormData, currency: e.target.value })}>
-                                                    {currencies.map(c => <option key={c.code} value={c.symbol}>{c.symbol} ({c.code})</option>)}
-                                                </select>
-                                            </div>
-                                            <input type="number" className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} placeholder="0.00" value={subFormData.amount} onChange={e => setSubFormData({ ...subFormData, amount: e.target.value })} required />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="mb-2">
-                                    <div className="p-2 px-3 rounded-3 border shadow-sm bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                        <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Secure Contact Node</label>
-                                        <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                            <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
+                                    {/* Contact */}
+                                    <div className="col-12 col-md-6">
+                                        <label className="luxury-label mb-1">Secure Contact Node</label>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
                                                 <Phone size={16} />
                                             </div>
-                                            <div className="d-flex align-items-center border-end pe-2 me-2" style={{ borderColor: 'var(--glass-border)' }}>
-                                                <span className="me-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }}>{subFormData.countryCode === '+91' ? '🇮🇳' : subFormData.countryCode === '+1' ? '🇺🇸' : subFormData.countryCode === '+44' ? '🇬🇧' : '🌐'}</span>
-                                                <select className="border-0 shadow-none bg-transparent fw-bold py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} value={subFormData.countryCode} onChange={e => setSubFormData({ ...subFormData, countryCode: e.target.value })}>
+                                            <div className="d-flex align-items-center border-end pe-2 me-1" style={{ borderColor: 'var(--glass-border)' }}>
+                                                <span className="me-1 extra-tiny">{subFormData.countryCode === '+91' ? '🇮🇳' : subFormData.countryCode === '+1' ? '🇺🇸' : subFormData.countryCode === '+44' ? '🇬🇧' : '🌐'}</span>
+                                                <select className="border-0 bg-transparent fw-bold p-0 text-main extra-tiny outline-none" style={{ cursor: 'pointer' }} value={subFormData.countryCode} onChange={e => setSubFormData({ ...subFormData, countryCode: e.target.value })}>
                                                     {countryCodes.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
                                                 </select>
                                             </div>
-                                            <input type="text" className="border-0 flex-grow-1 shadow-none bg-transparent py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} placeholder="Mobile / Contact Number" value={subFormData.contact} onChange={e => setSubFormData({ ...subFormData, contact: e.target.value })} required />
+                                            <input type="tel" className="luxury-input-field" placeholder="Mobile / Phone number" value={subFormData.contact} onChange={e => setSubFormData({ ...subFormData, contact: e.target.value })} required />
                                         </div>
                                     </div>
-                                </div>
 
-                                <div className="row g-2 mb-2">
-                                    <div className="col-md-6">
-                                        <div className="p-2 px-3 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                            <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Subscription Tier</label>
-                                            <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: 'var(--accent-1)', width: '30px', height: '30px' }}>
-                                                    <Crown size={16} />
-                                                </div>
-                                                <select className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} value={subFormData.membershipType} onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}>
-                                                    <option value="Prime">Prime Member</option>
-                                                    <option value="None">None</option>
-                                                    <option value="VIP">VIP Access</option>
-                                                    <option value="Admin">Administrative</option>
-                                                </select>
+                                    {/* Residence / Address */}
+                                    <div className="col-12">
+                                        <label className="luxury-label mb-1">Attendee Residence / Address</label>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
+                                                <MapPin size={16} />
                                             </div>
+                                            <input type="text" className="luxury-input-field" placeholder="Street address, city, district, state..." value={subFormData.address} onChange={e => setSubFormData({ ...subFormData, address: e.target.value })} />
                                         </div>
                                     </div>
-                                    <div className="col-md-6">
-                                        <div className="p-2 px-3 rounded-3 border shadow-sm h-100 bg-secondary-bg" style={{ borderColor: 'var(--glass-border)' }}>
-                                            <label className="text-uppercase fw-bold mb-1 d-block" style={{ fontSize: '0.65rem', letterSpacing: '0.5px', color: 'var(--text-muted)' }}>Financial Status</label>
-                                            <div className="d-flex align-items-center rounded-3 p-0 ps-1" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
-                                                <div className="d-flex justify-content-center align-items-center rounded-2 me-2 my-0" style={{ backgroundColor: 'var(--premium-glow)', color: subFormData.paymentType === 'Cash & Paid' ? '#10b981' : subFormData.paymentType === 'Due' ? '#ef4444' : subFormData.paymentType === 'Online' ? '#0ea5e9' : 'var(--text-muted)', width: '30px', height: '30px' }}>
-                                                    <ShieldCheck size={16} />
-                                                </div>
-                                                <select className="border-0 flex-grow-1 shadow-none bg-transparent fw-bold py-1" style={{ color: 'var(--text-main)', fontSize: '0.85rem' }} value={subFormData.paymentType} onChange={e => setSubFormData({ ...subFormData, paymentType: e.target.value })}>
-                                                    <option value="Cash & Paid">Cash &amp; Paid</option>
-                                                    <option value="Due">Due</option>
-                                                    <option value="Online">Online</option>
-                                                    <option value="Coupon or Token">Coupon or Token</option>
+
+                                    {/* Amount with Quick-Fill Chips */}
+                                    <div className="col-12 col-md-6">
+                                        <div className="d-flex justify-content-between align-items-center mb-1">
+                                            <label className="luxury-label mb-0">Transaction Amount</label>
+                                            <span className="extra-tiny text-muted fw-semibold" style={{ fontSize: '0.62rem' }}>Quick Presets</span>
+                                        </div>
+                                        <div className="luxury-input-wrapper mb-2">
+                                            <div className="luxury-icon-box">
+                                                <CreditCard size={16} />
+                                            </div>
+                                            <div className="d-flex align-items-center border-end pe-2 me-1" style={{ borderColor: 'var(--glass-border)' }}>
+                                                <select className="border-0 bg-transparent fw-bold p-0 text-main extra-tiny outline-none" style={{ cursor: 'pointer' }} value={subFormData.currency} onChange={e => setSubFormData({ ...subFormData, currency: e.target.value })}>
+                                                    {currencies.map(c => <option key={c.code} value={c.symbol}>{c.symbol} ({c.code})</option>)}
                                                 </select>
                                             </div>
+                                            <input type="number" step="any" className="luxury-input-field fw-bold" placeholder="0.00" value={subFormData.amount} onChange={e => setSubFormData({ ...subFormData, amount: e.target.value })} required />
+                                        </div>
+                                        <div className="d-flex gap-1.5 flex-wrap">
+                                            {[501, 1100, 2100, 5100, 11000].map(amt => (
+                                                <button
+                                                    key={amt}
+                                                    type="button"
+                                                    onClick={() => setSubFormData({ ...subFormData, amount: amt.toString() })}
+                                                    className="btn py-0 px-2 rounded-pill extra-tiny fw-bold transition-all"
+                                                    style={{
+                                                        fontSize: '0.68rem',
+                                                        height: '22px',
+                                                        lineHeight: '20px',
+                                                        border: subFormData.amount == amt ? 'none' : '1px solid var(--glass-border)',
+                                                        background: subFormData.amount == amt ? 'linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust))' : 'var(--input-bg)',
+                                                        color: subFormData.amount == amt ? '#ffffff' : 'var(--text-muted)',
+                                                        boxShadow: subFormData.amount == amt ? '0 2px 6px rgba(217,90,34,0.3)' : 'none'
+                                                    }}
+                                                >
+                                                    ₹{amt.toLocaleString('en-IN')}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Financial Status with dynamic indicator */}
+                                    <div className="col-12 col-md-6">
+                                        <div className="d-flex justify-content-between align-items-center mb-1">
+                                            <label className="luxury-label mb-0">Financial Status</label>
+                                            <span className="d-flex align-items-center gap-1 extra-tiny fw-bold" style={{
+                                                fontSize: '0.65rem',
+                                                color: subFormData.paymentType === 'Cash & Paid' ? '#10b981' : subFormData.paymentType === 'Due' ? '#ef4444' : subFormData.paymentType === 'Online' ? '#0ea5e9' : '#f59e0b'
+                                            }}>
+                                                <span className="rounded-circle d-inline-block" style={{ width: '6px', height: '6px', backgroundColor: 'currentColor' }}></span>
+                                                {subFormData.paymentType}
+                                            </span>
+                                        </div>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box" style={{ color: subFormData.paymentType === 'Cash & Paid' ? '#10b981' : subFormData.paymentType === 'Due' ? '#ef4444' : '#0ea5e9' }}>
+                                                <ShieldCheck size={16} />
+                                            </div>
+                                            <select className="luxury-input-field fw-semibold" style={{ cursor: 'pointer' }} value={subFormData.paymentType} onChange={e => setSubFormData({ ...subFormData, paymentType: e.target.value })}>
+                                                <option value="Cash & Paid">Cash &amp; Paid</option>
+                                                <option value="Due">Due</option>
+                                                <option value="Online">Online</option>
+                                                <option value="Coupon or Token">Coupon or Token</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Subscription Tier with dynamic badge */}
+                                    <div className="col-12 col-md-6">
+                                        <div className="d-flex justify-content-between align-items-center mb-1">
+                                            <label className="luxury-label mb-0">Subscription Tier</label>
+                                            <span className="badge rounded-pill extra-tiny px-2 py-0.5" style={{
+                                                fontSize: '0.65rem',
+                                                background: subFormData.membershipType === 'VIP' ? 'rgba(245, 158, 11, 0.15)' : subFormData.membershipType === 'Prime' ? 'rgba(168, 85, 247, 0.15)' : subFormData.membershipType === 'Admin' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(148, 163, 184, 0.15)',
+                                                color: subFormData.membershipType === 'VIP' ? '#d97706' : subFormData.membershipType === 'Prime' ? '#9333ea' : subFormData.membershipType === 'Admin' ? '#059669' : '#64748b',
+                                                border: '1px solid currentColor'
+                                            }}>
+                                                {subFormData.membershipType === 'VIP' ? '★ VIP Privileges' : subFormData.membershipType === 'Prime' ? '✦ Prime Pass' : subFormData.membershipType === 'Admin' ? '🛡 Admin Protocol' : 'Standard'}
+                                            </span>
+                                        </div>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box" style={{
+                                                color: subFormData.membershipType === 'VIP' ? '#d97706' : subFormData.membershipType === 'Prime' ? '#9333ea' : subFormData.membershipType === 'Admin' ? '#059669' : 'var(--palette-terracotta)'
+                                            }}>
+                                                <Crown size={16} />
+                                            </div>
+                                            <select className="luxury-input-field fw-semibold" style={{ cursor: 'pointer' }} value={subFormData.membershipType} onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}>
+                                                <option value="Prime">Prime Member</option>
+                                                <option value="None">None</option>
+                                                <option value="VIP">VIP Access</option>
+                                                <option value="Admin">Administrative</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
 
                                 {subFormData.paymentType === 'Online' && (
-                                    <div className="col-12 p-2 mt-2 rounded-3 border border-info border-opacity-25 bg-info bg-opacity-10 shadow-sm animate-in zoom-in duration-300">
-                                        <h6 className="fw-bold text-info mb-1 d-flex align-items-center gap-2" style={{ fontSize: '0.75rem' }}><Zap size={14} /> Digital Payment Details</h6>
+                                    <div className="col-12 p-3 mb-3 rounded-3 border border-info border-opacity-25 bg-info bg-opacity-10 shadow-sm animate-in zoom-in duration-300">
+                                        <h6 className="fw-bold text-info mb-2 d-flex align-items-center gap-2" style={{ fontSize: '0.78rem' }}><Zap size={14} /> Digital Payment Details</h6>
                                         <div className="row g-2">
                                             <div className="col-md-6">
-                                                <label className="text-info text-opacity-75 small uppercase ls-1 mb-0 fw-bold" style={{ fontSize: '0.6rem' }}>Particulars / Bank Name</label>
-                                                <input type="text" className="form-input border-info border-opacity-25 py-1" style={{ fontSize: '0.85rem' }} placeholder="e.g. HDFC Bank Transfer" value={subFormData.onlineParticulars || ''} onChange={e => setSubFormData({ ...subFormData, onlineParticulars: e.target.value })} required />
+                                                <label className="luxury-label text-info">Particulars / Bank Name</label>
+                                                <input type="text" className="luxury-input-wrapper w-100 luxury-input-field px-3 py-1.5 border-info border-opacity-25" placeholder="e.g. HDFC Bank Transfer" value={subFormData.onlineParticulars || ''} onChange={e => setSubFormData({ ...subFormData, onlineParticulars: e.target.value })} required />
                                             </div>
                                             <div className="col-md-6">
-                                                <label className="text-info text-opacity-75 small uppercase ls-1 mb-0 fw-bold" style={{ fontSize: '0.6rem' }}>Transaction Reference No.</label>
-                                                <input type="text" className="form-input border-info border-opacity-25 font-monospace py-1" style={{ fontSize: '0.85rem' }} placeholder="e.g. UTR / Ref Number" value={subFormData.onlineReference || ''} onChange={e => setSubFormData({ ...subFormData, onlineReference: e.target.value })} required />
+                                                <label className="luxury-label text-info">Transaction Reference No.</label>
+                                                <input type="text" className="luxury-input-wrapper w-100 luxury-input-field px-3 py-1.5 border-info border-opacity-25 font-monospace" placeholder="e.g. UTR / Ref Number" value={subFormData.onlineReference || ''} onChange={e => setSubFormData({ ...subFormData, onlineReference: e.target.value })} required />
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="d-flex gap-2 mt-3 pt-2 border-top" style={{ borderColor: 'var(--glass-border)' }}>
-                                    <button type="submit" className="btn flex-grow-1 text-white fw-bold d-flex justify-content-center align-items-center gap-2 rounded-3 py-2.5 shadow-sm" style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)', border: 'none', fontSize: '0.88rem' }}>
-                                        <Lock size={16} /> {editingSubId ? 'CONFIRM UPDATES' : 'AUTHORIZE & SAVE MEMBERSHIP'}
+                                <div className="d-flex gap-2 gap-sm-3 mt-4 pt-3 border-top" style={{ borderColor: 'var(--glass-border)' }}>
+                                    <button type="submit" className="btn btn-premium flex-grow-1 py-2.5 px-4 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 shadow-sm text-nowrap" style={{ background: 'linear-gradient(135deg, var(--palette-terracotta) 0%, var(--palette-rust) 100%)', border: 'none', fontSize: '0.88rem' }}>
+                                        <Lock size={16} /> {editingSubId ? 'CONFIRM & UPDATE' : 'AUTHORIZE & SAVE MEMBERSHIP'}
                                     </button>
-                                    <button type="button" onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn rounded-3 fw-bold border shadow-sm py-2.5 px-4" style={{ backgroundColor: 'var(--secondary-bg)', color: 'var(--text-main)', borderColor: 'var(--glass-border)', fontSize: '0.88rem' }}>
+                                    <button type="button" onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-outline-secondary px-4 py-2.5 rounded-pill fw-bold border-opacity-50 text-nowrap" style={{ fontSize: '0.88rem' }}>
                                         Cancel
                                     </button>
                                 </div>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
+import './Entity.css'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Building2, Key, Download, RefreshCcw, ArrowRight, ShieldCheck, LogOut, Search, Info, Eye, EyeOff } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 

@@ -1,0 +1,37 @@
+/* ==========================================
+   HOME PAGE STYLES
+   ========================================== */
+
+/* Hero Banner & Fluid Typography */
+.hero-badge-pill {
+    border-radius: 9999px;
+    max-width: 100%;
+}
+
+.hero-heading {
+    font-size: clamp(1.35rem, 3.8vw + 0.4rem, 2.5rem);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+}
+
+.hero-subheading {
+    font-size: clamp(0.62rem, 1.6vw, 0.85rem);
+    letter-spacing: 0.12em;
+}
+
+.gallery-preview-card {
+    min-height: 350px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-preview-card:hover {
+    transform: translateY(-4px);
+}
+
+.home-shortcut-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.home-shortcut-card:hover {
+    transform: translateY(-5px);
+}

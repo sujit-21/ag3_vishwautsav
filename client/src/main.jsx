@@ -8,6 +8,7 @@ import './index.css'
 
 import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
+import { ToastProvider } from './context/ToastContext'
 import { HelmetProvider } from 'react-helmet-async'
 import axios from 'axios'
 
@@ -43,7 +44,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <HelmetProvider>
             <AuthProvider>
                 <ThemeProvider>
-                    <App />
+                    <ToastProvider>
+                        <App />
+                    </ToastProvider>
                 </ThemeProvider>
             </AuthProvider>
         </HelmetProvider>

@@ -1,30 +1,26 @@
 import { useState, useEffect } from 'react'
+import './Signup.css'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { Link, useNavigate } from 'react-router-dom'
-import { LogIn, User, Lock, Eye, EyeOff } from 'lucide-react'
+import { UserPlus, User, Lock, Eye, EyeOff } from 'lucide-react'
 import axios from 'axios'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 
-const Login = () => {
+const Signup = () => {
     const navigate = useNavigate()
-    const { login, isAuthenticated } = useAuth()
+    const { isAuthenticated } = useAuth()
     const [formData, setFormData] = useState({
+        name: '',
         email: '',
-        password: ''
+        password: '',
+        role: 'user'
     })
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
     const [showPassword, setShowPassword] = useState(false)
-    const [rememberMe, setRememberMe] = useState(false)
 
     useEffect(() => {
-        const savedEmail = localStorage.getItem('rememberedEmail')
-        if (savedEmail) {
-            setFormData(prev => ({ ...prev, email: savedEmail }))
-            setRememberMe(true)
-        }
-        
         if (isAuthenticated) {
             navigate('/role-selection')
         }
@@ -35,27 +31,21 @@ const Login = () => {
         setError('')
         setLoading(true)
         try {
-            if (rememberMe) {
-                localStorage.setItem('rememberedEmail', formData.email)
-            } else {
-                localStorage.removeItem('rememberedEmail')
-            }
-            
-            const res = await axios.post('/api/auth/login', formData)
-            login(res.data.user, res.data.token, rememberMe) // Updated global auth state with rememberMe
-            navigate('/role-selection')
+            await axios.post('/api/auth/signup', formData)
+            alert('Account created successfully! Please login.')
+            navigate('/login')
         } catch (err) {
-            setError(err.response?.data?.message || 'Invalid credentials')
+            setError(err.response?.data?.message || 'Something went wrong')
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <div className="container py-5 d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
+        <div className="container py-5 d-flex justify-content-center align-items-center" style={{ minHeight: '85vh' }}>
             <Helmet>
-                <title>Login — Vishwa Utsav Portal</title>
-                <meta name="description" content="Login to Vishwa Utsav to manage festivals, events, and your digital pass." />
+                <title>Create Account — Join Vishwa Utsav</title>
+                <meta name="description" content="Sign up for Vishwa Utsav to access digital passes, event registrations, and the festival management portal." />
                 <meta name="robots" content="noindex, nofollow" />
             </Helmet>
             <div className="w-100" style={{ maxWidth: '400px' }}>
@@ -67,10 +57,10 @@ const Login = () => {
                 >
                     <div className="text-center mb-4">
                         <div className="d-flex align-items-center justify-content-center rounded-circle mx-auto mb-3" style={{ width: '56px', height: '56px', background: 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(192,132,252,0.15) 100%)', border: '1.5px solid rgba(192,132,252,0.2)' }}>
-                            <LogIn size={24} style={{ color: 'var(--accent-1)' }} />
+                            <UserPlus size={24} style={{ color: 'var(--accent-1)' }} />
                         </div>
-                        <h3 className="fw-bold mb-1" style={{ color: 'var(--text-main)' }}>Welcome Back</h3>
-                        <p className="text-muted small">Login to access your account</p>
+                        <h3 className="fw-bold mb-1" style={{ color: 'var(--text-main)' }}>Create Account</h3>
+                        <p className="text-muted small">Join Vishwa Utsav today</p>
                     </div>
 
                     {error && (
@@ -80,6 +70,21 @@ const Login = () => {
                     )}
 
                     <form onSubmit={handleSubmit}>
+                        <div className="mb-3 text-start">
+                            <label className="form-label text-muted text-uppercase fw-bold mb-1.5" style={{ fontSize: '0.68rem', letterSpacing: '1px' }}>Full Name</label>
+                            <div className="input-group-premium align-items-center" style={{ height: '44px' }}>
+                                <User size={16} className="text-muted ms-3" />
+                                <input
+                                    type="text"
+                                    placeholder="Name"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    required
+                                    className="form-control-custom"
+                                />
+                            </div>
+                        </div>
+
                         <div className="mb-3 text-start">
                             <label className="form-label text-muted text-uppercase fw-bold mb-1.5" style={{ fontSize: '0.68rem', letterSpacing: '1px' }}>Email or Phone Number</label>
                             <div className="input-group-premium align-items-center" style={{ height: '44px' }}>
@@ -118,31 +123,12 @@ const Login = () => {
                             </div>
                         </div>
 
-                        <div className="d-flex justify-content-between align-items-center mb-4">
-                            <div className="d-flex align-items-center">
-                                <input 
-                                    className="form-check-input mt-0 me-2" 
-                                    type="checkbox" 
-                                    id="rememberMe" 
-                                    checked={rememberMe}
-                                    onChange={(e) => setRememberMe(e.target.checked)}
-                                    style={{ cursor: 'pointer' }}
-                                />
-                                <label className="text-muted text-uppercase fw-bold mb-0" htmlFor="rememberMe" style={{ cursor: 'pointer', fontSize: '0.68rem', letterSpacing: '1px' }}>
-                                    Remember me
-                                </label>
-                            </div>
-                            <Link to="/forgot-password" className="small text-primary text-decoration-none fw-bold" style={{ fontSize: '0.75rem' }}>
-                                Forgot Password?
-                            </Link>
-                        </div>
-
                         <button type="submit" className="btn btn-premium w-100 mb-3 py-2.5 rounded-pill fw-bold text-uppercase shadow-premium" style={{ letterSpacing: '1px', fontSize: '0.85rem' }} disabled={loading}>
-                            {loading ? 'Logging in...' : 'Login'}
+                            {loading ? 'Creating Account...' : 'Create Account'}
                         </button>
 
                         <div className="text-center">
-                            <p className="small text-muted mb-0" style={{ fontSize: '0.8rem' }}>Don't have an account? <Link to="/signup" className="text-primary text-decoration-none fw-bold">Sign Up</Link></p>
+                            <p className="small text-muted mb-0" style={{ fontSize: '0.8rem' }}>Already have an account? <Link to="/login" className="text-primary text-decoration-none fw-bold">Login</Link></p>
                         </div>
                     </form>
                 </motion.div>
@@ -151,4 +137,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default Signup

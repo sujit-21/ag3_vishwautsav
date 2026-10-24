@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
+import './Dashboard.css'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { Landmark, Calendar, MapPin, Users, LogOut, LayoutDashboard, Flag, X, TrendingUp, TrendingDown, Info, History, Search, Building, CreditCard, ChevronRight, MessageSquare, HelpCircle, User as UserIcon, BarChart3, FileDown, ShieldCheck, ExternalLink } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
-import VIPCard from '../components/VIPCard'
+import { useAuth } from '../../context/AuthContext'
+import VIPCard from '../../components/VIPCard'
 import { Link, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 

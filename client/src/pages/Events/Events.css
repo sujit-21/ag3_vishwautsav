@@ -1,0 +1,25 @@
+/* ==========================================
+   EVENTS PAGE STYLES
+   ========================================== */
+
+.modal-event {
+    --modal-accent: #10b981;
+    --modal-accent-secondary: #06b6d4;
+    --modal-glow: rgba(16, 185, 129, 0.25);
+}
+
+.modal-event .glass-card-premium,
+.event-theme.glass-card-premium {
+    border-color: rgba(16, 185, 129, 0.2);
+    --modal-accent: #10b981;
+    --modal-accent-secondary: #06b6d4;
+    --modal-glow: rgba(16, 185, 129, 0.25);
+}
+
+.event-stats-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.event-stats-card:hover {
+    transform: translateY(-3px);
+}

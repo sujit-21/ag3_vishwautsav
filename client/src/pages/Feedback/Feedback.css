@@ -1,0 +1,11 @@
+/* ==========================================
+   FEEDBACK PAGE STYLES
+   ========================================== */
+
+.feedback-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.feedback-card:hover {
+    transform: translateY(-3px);
+}

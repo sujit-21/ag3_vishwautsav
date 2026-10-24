@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 import Home from './pages/Home'
-import Festivals from './pages/Festivals/Festivals'
+import Festivals from './pages/Festivals'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
-import Events from './pages/Events/Events'
+import Events from './pages/Events'
 import Settings from './pages/Settings'
 import Support from './pages/Support'
 import Feedback from './pages/Feedback'
@@ -16,6 +17,7 @@ import AttendeePortal from './pages/AttendeePortal'
 import ProtectedRoute from './components/ProtectedRoute'
 import ForgotPassword from './pages/ForgotPassword'
 import RoleSelection from './pages/RoleSelection'
+import NotFound from './pages/NotFound'
 
 import musicConcertImg from './homepage_images/Music Concert.jpg'
 import consertImg from './homepage_images/consert.jpg'
@@ -81,8 +83,9 @@ function App() {
                     <Route path="/my-pass" element={<ProtectedRoute skipEntityCheck><AttendeePortal /></ProtectedRoute>} />
 
                     {/* Catch All */}
-                    <Route path="*" element={<Navigate to="/" replace />} />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
+                <Footer />
             </div>
         </Router>
     )

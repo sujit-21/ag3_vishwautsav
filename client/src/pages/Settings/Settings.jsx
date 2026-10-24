@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
+import './Settings.css'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { Settings as SettingsIcon, Download, Upload, Save, Key, User, Shield, Trash2, Edit3, Plus, Building, UserCircle, LogOut } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
+import './Feedback.css'
 import { Helmet } from 'react-helmet-async'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Trash2, Edit3, Save, Star, User, Image as ImageIcon, MessageSquare } from 'lucide-react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
 
 const Feedback = () => {

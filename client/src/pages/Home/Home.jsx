@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
+import './Home.css'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
 import { Calendar, Music, Zap, Users, ChevronRight, LayoutDashboard, MessageSquare, LogOut, Sparkles, Ticket } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import musicConcertImg from '../homepage_images/Music Concert.jpg'
-import consertImg from '../homepage_images/consert.jpg'
-import holiImg from '../homepage_images/holi.jpg'
-import southFestivalsImg from '../homepage_images/south festivals.jpg'
+import { useAuth } from '../../context/AuthContext'
+import musicConcertImg from '../../homepage_images/Music Concert.jpg'
+import consertImg from '../../homepage_images/consert.jpg'
+import holiImg from '../../homepage_images/holi.jpg'
+import southFestivalsImg from '../../homepage_images/south festivals.jpg'
 
 const bgImages = [musicConcertImg, consertImg, holiImg, southFestivalsImg]
 const Home = () => {
@@ -68,51 +69,55 @@ const Home = () => {
                 <link rel="canonical" href="https://vishwautsav.com/" />
             </Helmet>
 
-            <div className="container position-relative z-1 pt-3">
-                <div className="text-center mb-4 pb-2">
+            <div className="container position-relative z-1 pt-2 pt-sm-3 px-3 px-sm-4">
+                <div className="text-center mb-4 pb-1 pb-sm-2">
                     <motion.div
-                        className="bg-white bg-opacity-50 rounded-pill px-3 py-1 d-inline-block shadow-sm border border-white border-opacity-50"
+                        className="hero-badge-pill glass-card px-3 px-sm-4 py-2 d-inline-block shadow-sm mw-100"
                         style={{ backdropFilter: 'blur(10px)' }}
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <h1 className="display-6 fw-extrabold mb-1" style={{ color: '#D9480F' }}>
-                            {"Welcome to ".split('').map((char, index) => (
-                                <motion.span
-                                    key={`w-${index}`}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{
-                                        duration: 0.5,
-                                        delay: index * 0.1,
-                                        repeat: Infinity,
-                                        repeatDelay: 5
-                                    }}
-                                    style={{ display: "inline-block", whiteSpace: "pre" }}
-                                >
-                                    {char}
-                                </motion.span>
-                            ))}
-                            {"Vishwa Utsav".split('').map((char, index) => (
-                                <motion.span
-                                    key={`v-${index}`}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{
-                                        duration: 0.5,
-                                        delay: ("Welcome to ".length + index) * 0.1,
-                                        repeat: Infinity,
-                                        repeatDelay: 5
-                                    }}
-                                    style={{ display: "inline-block", whiteSpace: "pre", color: "#D9480F" }}
-                                >
-                                    {char}
-                                </motion.span>
-                            ))}
+                        <h1 className="hero-heading fw-extrabold mb-1" style={{ color: '#D9480F' }}>
+                            <span className="d-inline-block me-2">
+                                {"Welcome to".split('').map((char, index) => (
+                                    <motion.span
+                                        key={`w-${index}`}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{
+                                            duration: 0.5,
+                                            delay: index * 0.1,
+                                            repeat: Infinity,
+                                            repeatDelay: 5
+                                        }}
+                                        style={{ display: "inline-block", whiteSpace: "pre" }}
+                                    >
+                                        {char}
+                                    </motion.span>
+                                ))}
+                            </span>
+                            <span className="d-inline-block">
+                                {"Vishwa Utsav".split('').map((char, index) => (
+                                    <motion.span
+                                        key={`v-${index}`}
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{
+                                            duration: 0.5,
+                                            delay: ("Welcome to ".length + index) * 0.1,
+                                            repeat: Infinity,
+                                            repeatDelay: 5
+                                        }}
+                                        style={{ display: "inline-block", whiteSpace: "pre", color: "#D9480F" }}
+                                    >
+                                        {char}
+                                    </motion.span>
+                                ))}
+                            </span>
                         </h1>
                         <motion.p 
-                            className="small ls-2 text-uppercase fw-semibold mb-0" 
+                            className="hero-subheading text-uppercase fw-semibold mb-0" 
                             style={{ color: 'var(--text-muted)' }}
                             initial={{ opacity: 0, y: 15 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -123,18 +128,19 @@ const Home = () => {
                     </motion.div>
                 </div>
 
-                <div className="row g-4 justify-content-center">
+                <div className="row g-3 g-sm-4 justify-content-center">
                     {shortcuts.map((item, idx) => (
-                        <div key={idx} className="col-lg-3 col-md-6">
+                        <div key={idx} className="col-12 col-sm-6 col-lg-3">
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1, duration: 0.5 }}
                                 whileHover={{ y: -8, scale: 1.02 }}
+                                className="h-100"
                             >
                                 <Link to={isAuthenticated ? item.path : '/login'} className="text-decoration-none h-100 d-block">
                                     <div 
-                                        className="shortcut-card p-4 h-100 d-flex flex-column"
+                                        className="shortcut-card p-3 p-sm-4 h-100 d-flex flex-column"
                                         style={{
                                             '--card-accent': item.color,
                                             '--card-accent-glow': `${item.color}25`,
@@ -144,12 +150,12 @@ const Home = () => {
                                             '--card-border-light': `${item.color}18`
                                         }}
                                     >
-                                        <div className="d-flex justify-content-between align-items-center mb-4">
+                                        <div className="d-flex justify-content-between align-items-center mb-3 mb-sm-4">
                                             <div 
                                                 className="d-flex align-items-center justify-content-center rounded-3" 
                                                 style={{ 
-                                                    width: '48px', 
-                                                    height: '48px', 
+                                                    width: '44px', 
+                                                    height: '44px', 
                                                     backgroundColor: `${item.color}15`,
                                                     color: item.color,
                                                     border: `1.5px solid ${item.color}30`
@@ -168,10 +174,10 @@ const Home = () => {
                                                 {item.badge}
                                             </span>
                                         </div>
-                                        <h5 className="fw-bold mb-2 d-flex align-items-center gap-2" style={{ color: '#D9480F' }}>
+                                        <h5 className="fw-bold mb-2 d-flex align-items-center gap-2 fs-6 fs-sm-5" style={{ color: '#D9480F' }}>
                                             {item.title}
                                         </h5>
-                                        <p className="tiny mb-4 flex-grow-1" style={{ color: 'var(--text-muted)' }}>
+                                        <p className="tiny mb-3 mb-sm-4 flex-grow-1" style={{ color: 'var(--text-muted)' }}>
                                             {item.desc}
                                         </p>
                                         <div 
@@ -187,17 +193,17 @@ const Home = () => {
                     ))}
                 </div>
 
-                <div className="row mt-4 g-4 align-items-stretch">
+                <div className="row mt-3 mt-sm-4 g-3 g-sm-4 align-items-stretch">
                     {/* Gallery Section */}
-                    <div className="col-lg-6 d-flex">
+                    <div className="col-12 col-lg-6 d-flex">
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3, duration: 0.8 }}
                             whileHover={{ scale: 1.02 }}
                             onClick={() => navigate('/gallery')}
-                            className="about-card w-100 h-100 position-relative overflow-hidden shadow-sm"
-                            style={{ minHeight: '350px', cursor: 'pointer' }}
+                            className="about-card gallery-preview-card w-100 h-100 position-relative overflow-hidden shadow-sm"
+                            style={{ cursor: 'pointer' }}
                         >
                             {/* Full bleed images */}
                             {bgImages.map((img, idx) => (
@@ -217,33 +223,38 @@ const Home = () => {
                                 />
                             ))}
                             {/* Floating Badge */}
-                            <div className="position-absolute top-0 start-0 w-100 p-4 text-center" style={{ zIndex: 1 }}>
+                            <div className="position-absolute top-0 start-0 w-100 p-3 p-sm-4 text-center" style={{ zIndex: 1 }}>
                                 <span className="badge bg-white bg-opacity-75 text-dark px-4 py-2 rounded-pill shadow-sm border border-white border-opacity-50 uppercase ls-2 tiny fw-bold d-inline-flex align-items-center justify-content-center" style={{ backdropFilter: 'blur(5px)', lineHeight: 1 }}>Gallery</span>
                             </div>
                         </motion.div>
                     </div>
 
                     {/* About Section */}
-                    <div className="col-lg-6 d-flex">
+                    <div className="col-12 col-lg-6 d-flex">
                         <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.5, duration: 0.8 }}
                             className="w-100 d-flex"
                         >
-                            <div className="about-card p-4 w-100 d-flex flex-column justify-content-center">
+                            <div className="about-card p-3 p-sm-4 w-100 d-flex flex-column justify-content-center">
                                 <div className="text-center">
                                     <span className="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 border border-primary border-opacity-20 uppercase ls-2 tiny fw-bold d-inline-flex align-items-center justify-content-center" style={{ lineHeight: 1 }}>About</span>
                                 </div>
-                                <p className="text-muted mb-0" style={{ fontSize: '0.95rem', lineHeight: '1.6', textAlign: 'justify' }}>
-                                    Celebrating Culture. Connecting Communities.
-
-Vishwa Utsav is a digital platform for festivals, cultural events, and community programs that enables paperless registrations, digital passes, subscriptions, donations, and seamless event management.
-
-Our platform connects organizers, participants, volunteers, sponsors, and communities through one unified digital ecosystem.
-
-Our vision is to create a smart, connected, and eco-friendly event ecosystem that brings people, culture, and celebrations together through technology.
-                                </p>
+                                <div className="text-muted mb-0" style={{ fontSize: '0.92rem', lineHeight: '1.6' }}>
+                                    <p className="fw-bold mb-2 text-center text-sm-start" style={{ color: 'var(--text-main)', fontSize: '1rem' }}>
+                                        Celebrating Culture. Connecting Communities.
+                                    </p>
+                                    <p className="mb-2 text-start">
+                                        Vishwa Utsav is a digital platform for festivals, cultural events, and community programs that enables paperless registrations, digital passes, subscriptions, donations, and seamless event management.
+                                    </p>
+                                    <p className="mb-2 text-start">
+                                        Our platform connects organizers, participants, volunteers, sponsors, and communities through one unified digital ecosystem.
+                                    </p>
+                                    <p className="mb-0 text-start">
+                                        Our vision is to create a smart, connected, and eco-friendly event ecosystem that brings people, culture, and celebrations together through technology.
+                                    </p>
+                                </div>
                             </div>
                         </motion.div>
                     </div>
@@ -272,7 +283,7 @@ Our vision is to create a smart, connected, and eco-friendly event ecosystem tha
                         transition={{ delay: 1 }}
                         className="text-center mt-4 pt-2"
                     >
-                        <Link to="/login" className="btn btn-premium px-5 py-3 rounded-pill">
+                        <Link to="/login" className="btn btn-premium px-4 px-sm-5 py-2.5 py-sm-3 rounded-pill text-nowrap">
                             Unlock Full Portal <Zap size={18} className="ms-2" />
                         </Link>
                     </motion.div>

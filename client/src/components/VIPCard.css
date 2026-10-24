@@ -1,0 +1,33 @@
+/* ==========================================
+   VIP CARD COMPONENT STYLES
+   ========================================== */
+
+.vip-card {
+    --vip-card-padding: 2.5rem;
+    --vip-card-h3-size: 1.5rem;
+    --vip-card-h2-size: 1.8rem;
+    --vip-card-p-size: 0.7rem;
+    --vip-card-valid-size: 0.95rem;
+    --vip-card-group-size: 1.1rem;
+    --vip-card-tier-size: 1.1rem;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vip-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 576px) {
+    .vip-card {
+        --vip-card-padding: 1.25rem;
+        --vip-card-h3-size: 1.1rem;
+        --vip-card-h2-size: 1.3rem;
+        --vip-card-p-size: 0.6rem;
+        --vip-card-valid-size: 0.8rem;
+        --vip-card-group-size: 0.9rem;
+        --vip-card-tier-size: 0.9rem;
+    }
+}
