@@ -5,7 +5,7 @@ import { User, Menu, X, LogOut, ChevronRight, Sun, Moon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import axios from 'axios'
-import logoImage from '../images/VISHWA UTSAV.png'
+import logoImage from '../images/logo-emblem.png'
 
 const Navbar = () => {
     const { user, logout, isAuthenticated, verifiedEntity, setVerifiedEntity } = useAuth()
@@ -116,9 +116,9 @@ const Navbar = () => {
             {/* ================= NAVBAR ================= */}
             <nav className="nav" id="nav" aria-label="Primary">
                 {/* Brand / Logo */}
-                <Link to="/" className="nav__brand d-flex align-items-center gap-2 gap-sm-3" onClick={closeMobile}>
+                <Link to="/" className="nav__brand" onClick={closeMobile}>
                     <div className="nav__logo-badge">
-                        <img src={logoImage} alt="Vishwa Utsav" style={{ width: '80%', height: '80%', objectFit: 'contain' }} />
+                        <img src={logoImage} alt="Vishwa Utsav" className="nav__logo-img" />
                     </div>
                     <span className="nav__brand-title">VishwaUtsav</span>
                 </Link>
@@ -129,13 +129,6 @@ const Navbar = () => {
                     ref={trackRef}
                     onPointerLeave={() => syncActive(true)}
                 >
-                    {/* Layer 1: slowly drifting liquid colour */}
-                    <div className="nav__aura" aria-hidden="true">
-                        <span className="aura a1" />
-                        <span className="aura a2" />
-                        <span className="aura a3" />
-                        <span className="aura a4" />
-                    </div>
 
                     {/* Layer 2: gooey liquid pill */}
                     <div className="nav__goo" id="goo" ref={gooRef} aria-hidden="true">
@@ -236,25 +229,22 @@ const Navbar = () => {
 
                     {/* Role Indicator */}
                     {isAuthenticated && (
-                        <span className="nav__role-badge d-none d-sm-inline-block">
+                        <span className="nav__role-badge d-none d-sm-inline-flex">
                             {user?.role === 'admin' ? 'ADMIN' : 'USER'}
                         </span>
                     )}
 
                     {/* User Dropdown or Login Button */}
                     {isAuthenticated ? (
-                        <div className="dropdown">
+                        <div className="dropdown d-flex align-items-center">
                             <button
-                                className="btn btn-link dropdown-toggle d-flex align-items-center gap-2 p-0 border-0 no-caret text-decoration-none"
+                                className="btn btn-link dropdown-toggle d-flex align-items-center p-0 border-0 no-caret text-decoration-none"
                                 type="button"
                                 id="userMenu"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false"
                             >
-                                <div
-                                    className="d-flex align-items-center justify-content-center text-white rounded-circle shadow-sm"
-                                    style={{ width: '36px', height: '36px', background: 'linear-gradient(135deg, var(--violet), var(--indigo))' }}
-                                >
+                                <div className="nav__user-avatar text-white">
                                     <User size={18} />
                                 </div>
                             </button>

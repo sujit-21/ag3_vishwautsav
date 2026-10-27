@@ -198,4 +198,5 @@ router.post('/forgot-key', auth, async (req, res) => {
     }
 });
 
+router.migrateDataToEntity = migrateDataToEntity;
 module.exports = router;

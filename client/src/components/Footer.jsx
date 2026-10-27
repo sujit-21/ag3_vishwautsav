@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Sparkles, ShieldCheck, Heart, ArrowUp, Calendar, Ticket, MessageSquare, HelpCircle, Image as ImageIcon } from 'lucide-react'
-import logoImage from '../images/VISHWA UTSAV.png'
+import logoImage from '../images/logo-emblem.png'
 import './Footer.css'
 
 export default function Footer() {

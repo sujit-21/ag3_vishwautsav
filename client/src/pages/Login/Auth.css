@@ -1,0 +1,189 @@
+/* ==========================================
+   UNIFIED AUTHENTICATION (LOGIN & SIGNUP)
+   ========================================== */
+
+.auth-card-container {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+.auth-nav-tabs {
+    display: flex;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 999px;
+    padding: 4px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.light-mode .auth-nav-tabs {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.auth-tab-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: all 0.25s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.auth-tab-btn.active {
+    background: linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust));
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(224, 122, 67, 0.35);
+}
+
+/* Role Selector Options */
+.role-choice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.role-choice-card {
+    border: 1.5px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 10px 12px;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.03);
+    transition: all 0.2s ease;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+}
+
+.light-mode .role-choice-card {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.role-choice-card:hover {
+    border-color: rgba(224, 122, 67, 0.4);
+    transform: translateY(-1px);
+}
+
+.role-choice-card.selected {
+    border-color: var(--palette-terracotta);
+    background: rgba(224, 122, 67, 0.08);
+    box-shadow: 0 0 0 1px var(--palette-terracotta), 0 4px 16px rgba(224, 122, 67, 0.15);
+}
+
+.role-choice-card .role-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.role-choice-card .role-subtitle {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    line-height: 1.25;
+}
+
+/* Sub-Mode Pill (Create vs Join) */
+.submode-pill-group {
+    display: flex;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 4px;
+}
+
+.light-mode .submode-pill-group {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+
+.submode-pill-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.submode-pill-btn.active {
+    background: rgba(224, 122, 67, 0.15);
+    color: var(--palette-terracotta);
+    border: 1px solid rgba(224, 122, 67, 0.3);
+    font-weight: 700;
+}
+
+.dark-mode .submode-pill-btn.active {
+    background: rgba(224, 122, 67, 0.25);
+    color: #ff9d66;
+}
+
+/* Entity dropdown container */
+.entity-select-dropdown {
+    max-height: 180px;
+    overflow-y: auto;
+    border-radius: 10px;
+    background: var(--secondary-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.entity-select-item {
+    padding: 8px 12px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.entity-select-item:hover {
+    background: rgba(224, 122, 67, 0.12);
+    color: var(--palette-terracotta);
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1.25rem 0;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.auth-divider span {
+    padding: 0 10px;
+}

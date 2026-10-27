@@ -1,39 +1,113 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const Entity = require('../models/Entity');
 const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
+const entityRoute = require('./entity');
 
 // Signup
 router.post('/signup', async (req, res) => {
     try {
-        const { name, email, password, role, entityName } = req.body;
+        const { name, email, password, role = 'user', entityMode, entityName, securityKey } = req.body;
+        
         let user = await User.findOne({ email });
-        if (user) return res.status(400).json({ message: 'User already exists' });
+        if (user) return res.status(400).json({ message: 'An account with this email already exists' });
+
+        const effectiveRole = role === 'admin' ? 'admin' : 'user';
+        let assignedEntityName = null;
+        let verifiedEntityObj = null;
+        let createdNewEntity = false;
+
+        if (effectiveRole === 'admin') {
+            if (!entityName || !entityName.trim()) {
+                return res.status(400).json({ message: 'Entity / Organization Name is required for Administrator accounts' });
+            }
+            if (!securityKey || !securityKey.trim()) {
+                return res.status(400).json({ message: 'Security Key is required for Entity access' });
+            }
+
+            const trimmedName = entityName.trim();
+            const escName = trimmedName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const trimmedKey = securityKey.trim();
+
+            let existingEntity = await Entity.findOne({ 
+                name: { $regex: new RegExp("^" + escName + "$", "i") } 
+            });
+
+            if (entityMode === 'join' || (!entityMode && existingEntity)) {
+                // Joining existing entity
+                if (!existingEntity) {
+                    return res.status(404).json({ message: `Entity "${trimmedName}" was not found. Please verify the name or select "Create New Entity".` });
+                }
+                if (existingEntity.securityKey !== trimmedKey) {
+                    return res.status(400).json({ message: 'Invalid security key for this Entity' });
+                }
+                assignedEntityName = existingEntity.name;
+                verifiedEntityObj = { name: existingEntity.name, _id: existingEntity._id };
+            } else {
+                // Creating new entity
+                if (existingEntity) {
+                    // If entity already exists and user provided matching security key, let them join as equal admin
+                    if (existingEntity.securityKey === trimmedKey) {
+                        assignedEntityName = existingEntity.name;
+                        verifiedEntityObj = { name: existingEntity.name, _id: existingEntity._id };
+                    } else {
+                        return res.status(400).json({ 
+                            message: `An Entity named "${existingEntity.name}" already exists. If you want to join as an Admin, please choose "Join Existing Entity" and enter its security key.` 
+                        });
+                    }
+                } else {
+                    const newEntity = new Entity({
+                        name: trimmedName,
+                        securityKey: trimmedKey
+                    });
+                    await newEntity.save();
+                    assignedEntityName = newEntity.name;
+                    verifiedEntityObj = { name: newEntity.name, _id: newEntity._id };
+                    createdNewEntity = true;
+                }
+            }
+        }
 
         user = new User({ 
             name, 
             email, 
             password, 
-            role: role || 'user',
-            baseRole: role || 'user',  // Permanent role — never changed by switch-role
-            entityName: entityName || null 
+            role: effectiveRole,
+            baseRole: effectiveRole,
+            entityName: assignedEntityName 
         });
         await user.save();
+
+        if (verifiedEntityObj && createdNewEntity) {
+            await Entity.findByIdAndUpdate(verifiedEntityObj._id, { owner: user._id });
+        }
+
+        if (assignedEntityName && entityRoute.migrateDataToEntity) {
+            try {
+                await entityRoute.migrateDataToEntity(user._id, assignedEntityName);
+            } catch (mErr) {
+                console.warn('Entity migration note:', mErr.message);
+            }
+        }
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
         res.status(201).json({ 
             token, 
             user: { 
                 id: user._id, 
-                name, 
-                email, 
+                name: user.name, 
+                email: user.email, 
                 role: user.role,
                 entityName: user.entityName 
-            } 
+            },
+            entity: verifiedEntityObj,
+            isNewEntity: createdNewEntity
         });
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        console.error('Signup error:', err);
+        res.status(500).json({ message: err.message || 'Error creating account' });
     }
 });
 
@@ -47,16 +121,27 @@ router.post('/login', async (req, res) => {
         const isMatch = await user.comparePassword(password);
         if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
 
+        // Lookup linked entity if user has entityName
+        let entity = null;
+        if (user.entityName) {
+            const escName = user.entityName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            entity = await Entity.findOne({ name: { $regex: new RegExp("^" + escName + "$", "i") } });
+            if (!entity) {
+                entity = { name: user.entityName };
+            }
+        }
+
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
         res.json({ 
             token, 
             user: { 
                 id: user._id, 
                 name: user.name, 
-                email, 
+                email: user.email, 
                 role: user.role,
                 entityName: user.entityName 
-            } 
+            },
+            entity
         });
     } catch (err) {
         res.status(500).json({ message: err.message });
