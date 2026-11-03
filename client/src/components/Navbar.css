@@ -77,34 +77,41 @@
   user-select: none;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-shrink: 0;
+  margin-left: 8px; /* Slightly shifted right for optimum visual nesting in rounded navbar */
+  transition: transform 0.2s ease;
+}
+
+.nav__brand:hover {
+  transform: translateY(-1px);
 }
 
 .nav__logo-badge {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 3px 12px rgba(224, 122, 67, 0.18);
   overflow: hidden;
   padding: 3px;
   flex-shrink: 0;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
 }
 
 .nav__brand:hover .nav__logo-badge {
   transform: scale(1.06);
+  box-shadow: 0 4px 16px rgba(224, 122, 67, 0.28);
 }
 
 .light-mode .nav__logo-badge {
-  background: rgba(224, 122, 67, 0.1);
-  border-color: rgba(224, 122, 67, 0.22);
-  box-shadow: 0 2px 8px rgba(224, 122, 67, 0.12);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(224, 122, 67, 0.28);
+  box-shadow: 0 3px 12px rgba(224, 122, 67, 0.16);
 }
 
 .nav__logo-img {
@@ -112,19 +119,39 @@
   height: 100%;
   object-fit: contain;
   display: block;
+  transform: translateX(1.5px); /* Subtly shift emblem to the right for optical perfection */
+  transition: transform 0.25s ease;
+}
+
+.nav__brand:hover .nav__logo-img {
+  transform: translateX(1.5px) scale(1.04);
 }
 
 .nav__brand-title {
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-size: 1.28rem;
+  font-weight: 850;
   letter-spacing: -0.02em;
   line-height: 1;
   display: inline-flex;
   align-items: center;
-  background: linear-gradient(100deg, #d9480f, #e879f9 60%, #22d3ee);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  background: linear-gradient(
+    90deg,
+    #ea4325 0%,
+    #ed4948 12%,
+    #ee4e77 24%,
+    #de52a4 36%,
+    #cd55be 48%,
+    #ba59d8 60%,
+    #a85ff1 72%,
+    #8f6ef4 82%,
+    #6488f8 92%,
+    #22d3ee 100%
+  ) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+  filter: drop-shadow(0 1px 2px rgba(234, 67, 37, 0.15));
 }
 
 /* =========================================

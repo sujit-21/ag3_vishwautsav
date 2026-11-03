@@ -49,10 +49,10 @@ const Home = () => {
             badge: 'Analytics'
         },
         {
-            title: 'Feedback',
-            desc: 'Provide feedback to the developers.',
+            title: 'Feed & Support',
+            desc: 'Community reviews & help desk.',
             icon: <MessageSquare size={24} />,
-            path: '/feedback',
+            path: '/feed-support',
             color: '#10b981',
             badge: 'Community'
         }
@@ -294,3 +294,4 @@ const Home = () => {
 }
 
 export default Home
+

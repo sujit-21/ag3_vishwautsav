@@ -155,12 +155,12 @@ const Navbar = () => {
                     </NavLink>
 
                     <NavLink
-                        to={isAuthenticated ? "/feedback" : "/login"}
-                        className={({ isActive }) => `nav__link ${isActive ? 'is-active' : ''}`}
+                        to={isAuthenticated ? "/feed-support" : "/login"}
+                        className={({ isActive }) => `nav__link ${isActive || location.pathname === '/feedback' || location.pathname === '/support' || location.pathname === '/feed-support' ? 'is-active' : ''}`}
                         onPointerEnter={(e) => place(e.currentTarget, true)}
                         onFocus={(e) => place(e.currentTarget, true)}
                     >
-                        Feed
+                        Feed & Support
                     </NavLink>
 
                     <NavLink
@@ -170,15 +170,6 @@ const Navbar = () => {
                         onFocus={(e) => place(e.currentTarget, true)}
                     >
                         Attendee Portal
-                    </NavLink>
-
-                    <NavLink
-                        to={isAuthenticated ? "/support" : "/login"}
-                        className={({ isActive }) => `nav__link ${isActive ? 'is-active' : ''}`}
-                        onPointerEnter={(e) => place(e.currentTarget, true)}
-                        onFocus={(e) => place(e.currentTarget, true)}
-                    >
-                        Support
                     </NavLink>
 
                     {isAuthenticated && isAdmin && hasEntity && (
@@ -295,14 +286,15 @@ const Navbar = () => {
                 <NavLink to="/" end className={({ isActive }) => `nav__mobile-link ${isActive ? 'is-active' : ''}`} onClick={closeMobile}>
                     Home
                 </NavLink>
-                <NavLink to={isAuthenticated ? "/feedback" : "/login"} className={({ isActive }) => `nav__mobile-link ${isActive ? 'is-active' : ''}`} onClick={closeMobile}>
-                    Feed
+                <NavLink
+                    to={isAuthenticated ? "/feed-support" : "/login"}
+                    className={({ isActive }) => `nav__mobile-link ${isActive || location.pathname === '/feedback' || location.pathname === '/support' || location.pathname === '/feed-support' ? 'is-active' : ''}`}
+                    onClick={closeMobile}
+                >
+                    Feed & Support
                 </NavLink>
                 <NavLink to={isAuthenticated ? "/my-pass" : "/login"} className={({ isActive }) => `nav__mobile-link ${isActive ? 'is-active' : ''}`} onClick={closeMobile}>
                     Attendee Portal
-                </NavLink>
-                <NavLink to={isAuthenticated ? "/support" : "/login"} className={({ isActive }) => `nav__mobile-link ${isActive ? 'is-active' : ''}`} onClick={closeMobile}>
-                    Support
                 </NavLink>
                 {isAuthenticated && isAdmin && hasEntity && (
                     <>

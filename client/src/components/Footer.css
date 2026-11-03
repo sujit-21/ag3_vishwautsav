@@ -13,6 +13,12 @@
     transition: all 0.3s ease;
 }
 
+.footer-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    width: 100%;
+}
+
 .footer-top-accent {
     position: absolute;
     top: 0;
@@ -48,40 +54,6 @@
     text-transform: uppercase;
     color: var(--text-main);
     margin-bottom: 1.15rem;
-}
-
-.footer-badge-pill {
-    background: rgba(224, 122, 67, 0.12);
-    border: 1px solid rgba(224, 122, 67, 0.25);
-    color: var(--palette-terracotta);
-    border-radius: 9999px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    padding: 0.25rem 0.75rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.footer-status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background-color: #10b981;
-    box-shadow: 0 0 8px #10b981;
-    display: inline-block;
-    animation: statusPulse 2s infinite ease-in-out;
-}
-
-@keyframes statusPulse {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.5;
-        transform: scale(1.2);
-    }
 }
 
 /* Scroll to top floating button */

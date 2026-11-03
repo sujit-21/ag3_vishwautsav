@@ -6,7 +6,7 @@ export const useTheme = () => useContext(ThemeContext)
 
 export const ThemeProvider = ({ children }) => {
     const [isDarkMode, setIsDarkMode] = useState(false)
-    const [themeColor, setThemeColor] = useState('#3b82f6') // Default Blue for Light mode
+    const [themeColor, setThemeColor] = useState('#E07A43') // Festival Terracotta / Saffron branding
 
     useEffect(() => {
         const root = document.documentElement

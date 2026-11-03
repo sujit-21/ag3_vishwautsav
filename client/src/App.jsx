@@ -9,8 +9,7 @@ import Signup from './pages/Signup'
 import Dashboard from './pages/Dashboard'
 import Events from './pages/Events'
 import Settings from './pages/Settings'
-import Support from './pages/Support'
-import Feedback from './pages/Feedback'
+import FeedSupport from './pages/FeedSupport'
 import Gallery from './pages/Gallery'
 import Entity from './pages/Entity'
 import AttendeePortal from './pages/AttendeePortal'
@@ -70,8 +69,12 @@ function App() {
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/role-selection" element={<ProtectedRoute skipClubCheck><RoleSelection /></ProtectedRoute>} />
                     <Route path="/verify-entity" element={<ProtectedRoute adminOnly skipClubCheck><Entity /></ProtectedRoute>} />
-                    <Route path="/support" element={<Support />} />
-                    <Route path="/feedback" element={<Feedback />} />
+                    
+                    {/* Merged Feed & Support Route + Backwards Compatible Aliases */}
+                    <Route path="/feed-support" element={<FeedSupport />} />
+                    <Route path="/support" element={<FeedSupport />} />
+                    <Route path="/feedback" element={<FeedSupport />} />
+                    
                     <Route path="/gallery" element={<Gallery />} />
 
                     {/* Protected Routes */}

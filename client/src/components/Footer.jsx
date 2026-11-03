@@ -27,29 +27,21 @@ export default function Footer() {
         <>
             <footer className="footer-luxury py-5 px-3 px-sm-4 px-lg-5">
                 <div className="footer-top-accent" />
-                <div className="container-fluid px-xl-5">
+                <div className="container footer-container">
                     <div className="row g-4 g-lg-5">
                         {/* Brand Column */}
                         <div className="col-12 col-lg-4">
                             <Link to="/" className="d-flex align-items-center gap-2 mb-3 text-decoration-none">
                                 <div className="d-flex align-items-center justify-content-center p-1 rounded-3 shadow-glow" style={{ width: '38px', height: '38px', background: 'rgba(67, 130, 149, 0.2)', border: '1px solid rgba(163, 217, 201, 0.3)' }}>
-                                    <img src={logoImage} alt="Vishwa Utsav Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                                    <img src={logoImage} alt="Vishwa Utsav Logo" style={{ width: "100%", height: "100%", objectFit: "contain", transform: "translateX(1.5px)" }} />
                                 </div>
-                                <span className="fs-4 fw-extrabold mb-0 tracking-tight" style={{ color: '#D9480F', fontFamily: 'var(--font-heading)' }}>
+                                <span className="fs-4 fw-extrabold mb-0 tracking-tight nav__brand-title" style={{ fontFamily: "var(--font-heading)" }}>
                                     VishwaUtsav
                                 </span>
                             </Link>
-                            <p className="text-muted small mb-3" style={{ lineHeight: '1.65', maxWidth: '340px' }}>
+                            <p className="text-muted small mb-0" style={{ lineHeight: '1.65', maxWidth: '340px' }}>
                                 The modern digital ecosystem for cultural festivals and public celebrations. Enabling paperless registrations, instant digital passes, and transparent event management.
                             </p>
-                            <div className="d-flex align-items-center gap-2 flex-wrap">
-                                <span className="footer-badge-pill">
-                                    <span className="footer-status-dot" /> Live Platform
-                                </span>
-                                <span className="footer-badge-pill">
-                                    <ShieldCheck size={13} /> 256-bit Encrypted
-                                </span>
-                            </div>
                         </div>
 
                         {/* Navigation: Explore */}
@@ -75,8 +67,8 @@ export default function Footer() {
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link to="/feedback" className="footer-link d-flex align-items-center gap-1.5">
-                                        <MessageSquare size={14} className="text-muted" /> Community Feed
+                                    <Link to="/feed-support?tab=feed" className="footer-link d-flex align-items-center gap-1.5">
+                                        <MessageSquare size={14} className="text-muted" /> Feed &amp; Support
                                     </Link>
                                 </li>
                             </ul>
@@ -95,7 +87,7 @@ export default function Footer() {
                                     <Link to="/verify-entity" className="footer-link">Organization Access</Link>
                                 </li>
                                 <li>
-                                    <Link to="/support" className="footer-link d-flex align-items-center gap-1.5">
+                                    <Link to="/feed-support?tab=support" className="footer-link d-flex align-items-center gap-1.5">
                                         <HelpCircle size={14} className="text-muted" /> Help &amp; Support
                                     </Link>
                                 </li>

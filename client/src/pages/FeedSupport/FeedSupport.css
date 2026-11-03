@@ -1,0 +1,121 @@
+/* ==========================================================================
+   FEED & SUPPORT PAGE STYLES - Vishwa Utsav
+   ========================================================================== */
+
+.feed-support-container {
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
+/* Tab Navigation Switcher */
+.feed-support-nav-pill-group {
+    display: inline-flex;
+    background: var(--bg-card, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    border-radius: 9999px;
+    padding: 0.35rem;
+    gap: 0.4rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.feed-support-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 1.4rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-muted, #94a3b8);
+    background: transparent;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.feed-support-tab-btn:hover {
+    color: var(--text-main, #f8fafc);
+}
+
+.feed-support-tab-btn.active {
+    color: #ffffff;
+    background: linear-gradient(135deg, #e07a5f 0%, #d97706 100%);
+    box-shadow: 0 4px 16px rgba(224, 122, 95, 0.35);
+}
+
+.feed-support-badge-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+    background: rgba(255, 255, 255, 0.2);
+    color: inherit;
+}
+
+.feed-support-tab-btn:not(.active) .feed-support-badge-count {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-muted, #94a3b8);
+}
+
+/* Cards & Elements */
+.feed-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.feed-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2) !important;
+}
+
+.support-contact-card {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.support-contact-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2) !important;
+}
+
+.support-avatar-wrap {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    margin: 0 auto;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid rgba(224, 122, 95, 0.25);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.support-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Quick Assist Banner */
+.quick-assist-box {
+    background: linear-gradient(135deg, rgba(224, 122, 95, 0.1) 0%, rgba(217, 119, 6, 0.06) 100%);
+    border: 1px solid rgba(224, 122, 95, 0.25);
+    border-radius: 1rem;
+    padding: 1.25rem 1.5rem;
+}
+
+/* Star rating interactive hover */
+.cursor-pointer {
+    cursor: pointer;
+}
+
