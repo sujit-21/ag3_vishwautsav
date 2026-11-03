@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Fragment } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import './Festivals.css'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info } from 'lucide-react'
@@ -186,7 +187,73 @@ const Festivals = () => {
         entityName: '',
         description: ''
     })
-    const [activeTab, setActiveTab] = useState(activeFestival ? 'subscriptions' : 'festivals')
+    const [searchParams, setSearchParams] = useSearchParams()
+    const validTabs = ['festivals', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'data']
+    const urlTab = searchParams.get('tab')
+    const [activeTab, setActiveTab] = useState(
+        urlTab && validTabs.includes(urlTab)
+            ? (urlTab === 'new_attendee' || urlTab === 'data' ? (activeFestival ? 'subscriptions' : 'festivals') : urlTab)
+            : (activeFestival ? 'subscriptions' : 'festivals')
+    )
+
+    // Synchronize activeTab and actions (new_attendee, data) if URL query param changes
+    useEffect(() => {
+        const tab = searchParams.get('tab')
+        if (!tab) return
+
+        if (tab === 'new_attendee') {
+            setActiveTab('subscriptions')
+            setIsSubAdding(true)
+            if (activeFestival) {
+                setSubFormData(prev => ({
+                    ...prev,
+                    subId: generateSubID(),
+                    date: new Date().toISOString().split('T')[0],
+                    festOrEventName: activeFestival.title || '',
+                    entityName: activeFestival.entityName || ''
+                }))
+            }
+        } else if (tab === 'data') {
+            setIsDataOpen(true)
+        } else if (validTabs.includes(tab) && tab !== activeTab) {
+            setActiveTab(tab)
+        }
+    }, [searchParams, activeFestival])
+
+    // If a subtab is accessed via URL but no festival is currently selected, auto-select first available
+    useEffect(() => {
+        if (!activeFestival && festivals.length > 0) {
+            const tab = searchParams.get('tab')
+            if (tab && tab !== 'festivals' && validTabs.includes(tab)) {
+                setActiveFestival(festivals[0])
+            }
+        }
+    }, [festivals, activeFestival, searchParams])
+
+    const handleTabChange = (newTab) => {
+        if (newTab === 'new_attendee') {
+            setActiveTab('subscriptions')
+            setIsSubAdding(true)
+            if (activeFestival) {
+                setSubFormData(prev => ({
+                    ...prev,
+                    subId: generateSubID(),
+                    date: new Date().toISOString().split('T')[0],
+                    festOrEventName: activeFestival.title || '',
+                    entityName: activeFestival.entityName || ''
+                }))
+            }
+        } else if (newTab === 'data') {
+            setIsDataOpen(true)
+        } else {
+            setActiveTab(newTab)
+        }
+        setSearchParams(prev => {
+            const next = new URLSearchParams(prev)
+            next.set('tab', newTab)
+            return next
+        }, { replace: true })
+    }
     const [subscriptionsList, setSubscriptionsList] = useState([])
     const [expensesList, setExpensesList] = useState([])
     const [isSubAdding, setIsSubAdding] = useState(false)
@@ -1171,153 +1238,87 @@ const Festivals = () => {
 
     return (
         <div className="container pt-3 pb-5 text-main">
-            {/* Navigation Tabs Bar at the Top */}
-            <div className="d-flex align-items-center mb-4 position-relative" style={{ zIndex: 1050 }}>
-                <div className="d-inline-flex flex-wrap align-items-center bg-secondary bg-opacity-10 p-1.5 rounded-3 gap-1.5 shadow-sm border border-secondary border-opacity-10 mb-3">
-                    {['festivals', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet'].map(tab => {
-                        if (tab === 'new_attendee') {
-                            return (
-                                <button
-                                    key="new_attendee"
-                                    onClick={() => {
-                                        if (activeFestival) {
-                                            setIsSubAdding(true);
-                                            setSubFormData({
-                                                ...subFormData,
-                                                subId: generateSubID(),
-                                                date: new Date().toISOString().split('T')[0],
-                                                festOrEventName: activeFestival.title || '',
-                                                entityName: activeFestival.entityName || ''
-                                            });
-                                        }
-                                    }}
-                                    className={`btn btn-sm px-3 py-1.5 rounded-pill fw-bold text-white transition-all shadow-sm mx-1 ${!activeFestival ? 'opacity-40 cursor-not-allowed' : ''}`}
-                                    style={{ fontSize: '0.75rem', height: '34px', backgroundColor: '#e25822', borderColor: '#e25822' }}
-                                    disabled={!activeFestival}
-                                    title={!activeFestival ? "Select a festival first" : ""}
-                                >
-                                    <Plus size={13} className="me-1 d-inline-block" style={{marginTop:'-2px'}} /> New Attende
-                                </button>
-                            );
-                        }
-
-                        const isDisabled = tab !== 'festivals' && !activeFestival
-                        const labels = {
-                            festivals: 'List',
-                            subscriptions: 'Attendees',
-                            expenses: 'Expenses',
-                            card: 'Cards',
-                            balanceSheet: 'Audit'
-                        }
-                        return (
-                            <button
-                                key={tab}
-                                onClick={() => !isDisabled && setActiveTab(tab)}
-                                className={`btn btn-sm px-3 py-1.5 rounded-2 text-capitalize fw-bold transition-all ${activeTab === tab ? 'btn-primary text-white shadow-sm' : 'text-muted border-0'} ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
-                                style={{ fontSize: '0.75rem', height: '34px' }}
-                                disabled={isDisabled}
-                                title={isDisabled ? "Select a festival first" : ""}
-                            >
-                                {labels[tab] || tab}
-                            </button>
-                        )
-                    })}
-
-                    {/* DROPDOWN name DATA - Shortcut Downloads */}
-                    <div className="position-relative d-inline-block ms-1">
-                        <button
-                            type="button"
-                            onClick={() => setIsDataOpen(!isDataOpen)}
-                            className={`btn btn-sm px-3 py-1.5 rounded-2 text-capitalize fw-bold transition-all d-flex align-items-center gap-1.5 shadow-sm data-dropdown-btn ${isDataOpen ? "active-data-open" : ""}`}
-                            style={{ fontSize: "0.75rem", height: "34px" }}
-                            title="Quick Download Data Reports"
-                        >
-                            <Download size={13} /> DATA <ChevronDown size={12} className={`transition-all ${isDataOpen ? "rotate-180" : ""}`} />
-                        </button>
-                        {isDataOpen && (
-                            <>
-                                {/* Mobile touch backdrop to dismiss on outside tap */}
-                                <div
-                                    className="position-fixed top-0 start-0 w-100 h-100 bg-transparent"
-                                    style={{ zIndex: 1099 }}
+            {/* DATA Reports Download Modal (Triggered via Navbar / Sidebar / URL ?tab=data) */}
+            {isDataOpen && (
+                <div 
+                    className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" 
+                    style={{ zIndex: 100000, background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+                    onClick={() => setIsDataOpen(false)}
+                >
+                    <div 
+                        className="glass-card shadow-2xl p-3 p-sm-4 rounded-4 border data-dropdown-menu" 
+                        style={{ width: "340px", maxWidth: "92vw", background: 'var(--secondary-bg)', borderColor: 'var(--glass-border)' }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="d-flex justify-content-between align-items-center pb-2.5 mb-3 border-bottom border-secondary border-opacity-25">
+                            <div className="d-flex align-items-center gap-2">
+                                <Download size={17} className="text-warning" />
+                                <span className="fw-bold small text-main text-uppercase ls-1">Data Reports</span>
+                            </div>
+                            <div className="d-flex align-items-center gap-1.5">
+                                {activeFestival && (
+                                    <span className="badge bg-primary bg-opacity-25 text-primary text-truncate" style={{ maxWidth: "120px" }}>
+                                        {activeFestival.title}
+                                    </span>
+                                )}
+                                <button 
+                                    type="button" 
+                                    className="btn btn-sm btn-link p-0 text-muted ms-1 text-decoration-none d-flex align-items-center" 
                                     onClick={() => setIsDataOpen(false)}
-                                />
-                                <div
-                                    className="position-absolute mt-1.5 glass-card shadow-lg p-2 rounded-3 border data-dropdown-menu"
-                                    style={{ width: "235px", zIndex: 1100 }}
+                                    aria-label="Close"
                                 >
-                                    <div className="extra-tiny text-muted text-uppercase fw-bold px-2 py-1 border-bottom border-secondary border-opacity-25 mb-1 d-flex justify-content-between align-items-center">
-                                        <div className="d-flex align-items-center gap-1.5">
-                                            <Download size={13} className="text-warning" />
-                                            <span>Data Reports</span>
-                                        </div>
-                                        <div className="d-flex align-items-center gap-1.5">
-                                            {activeFestival && (
-                                                <span className="badge bg-primary bg-opacity-25 text-primary text-truncate" style={{ maxWidth: "110px" }}>
-                                                    {activeFestival.title}
-                                                </span>
-                                            )}
-                                            <button 
-                                                type="button" 
-                                                className="btn btn-sm btn-link p-0 text-muted ms-1 text-decoration-none d-flex align-items-center" 
-                                                onClick={() => setIsDataOpen(false)}
-                                                aria-label="Close"
-                                            >
-                                                <X size={16} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    {activeFestival ? (
-                                        <>
-                                            <button
-                                                className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1"
-                                                onClick={() => { downloadAllAttendeesPDF(); setIsDataOpen(false); }}
-                                                style={{ fontSize: "0.75rem" }}
-                                            >
-                                                <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-primary" /> Attendee PDF</span>
-                                            </button>
-                                            <button
-                                                className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1"
-                                                onClick={() => { downloadAllExpensesPDF(); setIsDataOpen(false); }}
-                                                style={{ fontSize: "0.75rem" }}
-                                            >
-                                                <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-danger" /> All Expenses PDF</span>
-                                            </button>
-                                            <button
-                                                className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item mb-1"
-                                                onClick={() => { downloadBalanceSheetPDF(); setIsDataOpen(false); }}
-                                                style={{ fontSize: "0.75rem" }}
-                                            >
-                                                <span className="d-flex align-items-center gap-2"><FileDown size={14} className="text-success" /> BalanceSheet PDF</span>
-                                            </button>
-                                            <div className="dropdown-divider my-1 border-secondary border-opacity-25"></div>
-                                            <button
-                                                className="btn btn-sm w-100 text-start text-white py-2 px-2 rounded-2 fw-bold d-flex align-items-center justify-content-between shadow-sm"
-                                                onClick={() => { downloadMasterDataPDF(); setIsDataOpen(false); }}
-                                                style={{ fontSize: "0.75rem", background: "linear-gradient(135deg, #4f46e5, #9333ea)" }}
-                                            >
-                                                <span className="d-flex align-items-center gap-2"><Sparkles size={14} className="text-warning" /> MASTER DATA PDF</span>
-                                            </button>
-                                        </>
-                                    ) : (
-                                        <div className="py-2 px-1 text-center">
-                                            <small className="text-muted d-block mb-2" style={{ fontSize: "0.75rem" }}>
-                                                Select a festival from the list below to export data reports.
-                                            </small>
-                                            <button
-                                                className="btn btn-sm btn-outline-primary py-1 px-2 rounded-pill w-100 extra-tiny fw-bold"
-                                                onClick={() => { setActiveTab("festivals"); setIsDataOpen(false); }}
-                                            >
-                                                View Festivals List
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            </>
+                                    <X size={18} />
+                                </button>
+                            </div>
+                        </div>
+                        {activeFestival ? (
+                            <div className="d-flex flex-column gap-2">
+                                <button
+                                    className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item"
+                                    onClick={() => { downloadAllAttendeesPDF(); setIsDataOpen(false); }}
+                                    style={{ fontSize: "0.82rem" }}
+                                >
+                                    <span className="d-flex align-items-center gap-2"><FileDown size={15} className="text-primary" /> Attendee PDF</span>
+                                </button>
+                                <button
+                                    className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item"
+                                    onClick={() => { downloadAllExpensesPDF(); setIsDataOpen(false); }}
+                                    style={{ fontSize: "0.82rem" }}
+                                >
+                                    <span className="d-flex align-items-center gap-2"><FileDown size={15} className="text-danger" /> All Expenses PDF</span>
+                                </button>
+                                <button
+                                    className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item"
+                                    onClick={() => { downloadBalanceSheetPDF(); setIsDataOpen(false); }}
+                                    style={{ fontSize: "0.82rem" }}
+                                >
+                                    <span className="d-flex align-items-center gap-2"><FileDown size={15} className="text-success" /> BalanceSheet PDF</span>
+                                </button>
+                                <div className="dropdown-divider my-1 border-secondary border-opacity-25"></div>
+                                <button
+                                    className="btn btn-sm w-100 text-start text-white py-2.5 px-3 rounded-2 fw-bold d-flex align-items-center justify-content-between shadow-sm"
+                                    onClick={() => { downloadMasterDataPDF(); setIsDataOpen(false); }}
+                                    style={{ fontSize: "0.82rem", background: "linear-gradient(135deg, #4f46e5, #9333ea)" }}
+                                >
+                                    <span className="d-flex align-items-center gap-2"><Sparkles size={15} className="text-warning" /> MASTER DATA PDF</span>
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="py-3 px-1 text-center">
+                                <small className="text-muted d-block mb-3" style={{ fontSize: "0.82rem" }}>
+                                    Select a festival from the directory to export data reports.
+                                </small>
+                                <button
+                                    className="btn btn-sm btn-outline-primary py-1.5 px-3 rounded-pill w-100 small fw-bold"
+                                    onClick={() => { setActiveTab("festivals"); setIsDataOpen(false); }}
+                                >
+                                    View Festivals Directory
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Subscriptions Modal moved to end */}
 
