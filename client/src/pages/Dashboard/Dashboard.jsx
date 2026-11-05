@@ -243,171 +243,210 @@ const Dashboard = () => {
         </div>
     )
 
-    // ── Shared Verify Search Panel (used in both admin Verify tab & user role) ──
+    // ── Shared Verify Search Panel (Merged Unified Master Terminal) ──
     const renderVerifyPanel = () => (
-        <div className="row g-4 justify-content-center">
-            <div className="col-lg-5">
-                <div className="verify-terminal-card">
-                    <div className="d-flex align-items-center gap-3 mb-4">
-                        <div className="d-flex align-items-center justify-content-center rounded-3 shadow-sm flex-shrink-0" style={{ width: '44px', height: '44px', background: 'linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust))', color: '#ffffff' }}>
-                            <ShieldCheck size={22} />
-                        </div>
-                        <div>
-                            <h4 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.02em' }}>Verify <span className="gradient-text">Record</span></h4>
-                            <p className="text-muted extra-tiny mb-0">Search &amp; validate identity by Entity &amp; Pass ID</p>
-                        </div>
+        <div className="verify-unified-card">
+            {/* Top Header Bar */}
+            <div className="verify-unified-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div className="d-flex align-items-center gap-3">
+                    <div className="d-flex align-items-center justify-content-center rounded-3 shadow-sm flex-shrink-0" style={{ width: '46px', height: '46px', background: 'linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust))', color: '#ffffff' }}>
+                        <ShieldCheck size={24} />
                     </div>
-
-                    <form onSubmit={handleUserSearch}>
-                        <div className="mb-3">
-                            <label className="luxury-label mb-1.5">
-                                <Building size={13} /> Select Entity / Organization
-                            </label>
-                            <div className="luxury-input-wrapper">
-                                <div className="luxury-icon-box">
-                                    <Building size={16} />
-                                </div>
-                                <select 
-                                    className="luxury-input-field fw-semibold" 
-                                    style={{ cursor: 'pointer' }}
-                                    value={searchEntity} 
-                                    onChange={e => setSearchEntity(e.target.value)} 
-                                    required
-                                >
-                                    <option value="">-- Choose Entity --</option>
-                                    {entities.map(c => (
-                                        <option key={c._id} value={c.name}>{c.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="luxury-label mb-1.5">
-                                <Fingerprint size={13} /> Enter 10-Digit Pass ID
-                            </label>
-                            <div className="luxury-input-wrapper">
-                                <div className="luxury-icon-box">
-                                    <CreditCard size={16} />
-                                </div>
-                                <input 
-                                    type="text" 
-                                    className="luxury-input-field fw-bold font-monospace" 
-                                    style={{ letterSpacing: '2px', textTransform: 'uppercase' }}
-                                    placeholder="e.g. 1SAXCVSQPK" 
-                                    maxLength="10" 
-                                    value={searchId} 
-                                    onChange={e => setSearchId(e.target.value.toUpperCase())} 
-                                    required 
-                                />
-                            </div>
-                        </div>
-
-                        <button type="submit" disabled={searchLoading} className="btn-verify-action">
-                            {searchLoading ? (
-                                <>
-                                    <span className="spinner-border spinner-border-sm" role="status"></span>
-                                    <span>Authenticating Record...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Search size={18} />
-                                    <span>Authenticate &amp; Verify</span>
-                                    <ChevronRight size={16} />
-                                </>
-                            )}
-                        </button>
-
-                        {searchError && (
-                            <div className="mt-3 p-3 rounded-3 bg-danger bg-opacity-10 text-danger extra-tiny fw-bold text-center border border-danger border-opacity-25 animate-in fade-in">
-                                ⚠️ {searchError}
-                            </div>
-                        )}
-                    </form>
+                    <div>
+                        <h4 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.02em' }}>
+                            Verify <span className="gradient-text">Record</span>
+                        </h4>
+                        <p className="text-muted extra-tiny mb-0">Search &amp; validate identity by Entity &amp; Pass ID</p>
+                    </div>
+                </div>
+                <div className="d-flex align-items-center gap-2">
+                    <span className="badge rounded-pill extra-tiny px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#059669', border: '1px solid rgba(16, 185, 129, 0.25)' }}>
+                        <span className="rounded-circle d-inline-block" style={{ width: '6px', height: '6px', backgroundColor: '#10b981' }}></span>
+                        AUTHENTICATION PROTOCOL ONLINE
+                    </span>
                 </div>
             </div>
 
-            {/* Results Column */}
-            <div className="col-lg-7">
-                {searchResult ? (
-                    <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="d-flex flex-column gap-3">
-                        <VIPCard subscription={searchResult} />
-                        <div className="verify-terminal-card p-4">
-                            <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
-                                <h6 className="fw-bold d-flex align-items-center gap-2 mb-0 text-main">
-                                    <CheckCircle2 size={18} className="text-success" />
-                                    <span>Verified Membership Record</span>
-                                </h6>
-                                <span className="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-2.5 py-1 rounded-pill extra-tiny fw-bold">
-                                    ● Authenticated
-                                </span>
-                            </div>
-                            <div className="row g-2.5">
-                                <div className="col-12 col-sm-6">
-                                    <div className="verify-info-tile">
-                                        <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
-                                            <Building size={12} /> Entity
-                                        </p>
-                                        <p className="small mb-0 fw-extrabold text-main">{searchResult.entityName}</p>
+            {/* Split Content Body Merged in Single Card */}
+            <div className="row g-0">
+                {/* Left Panel: Search Form */}
+                <div className="col-12 col-lg-5 p-3.5 p-sm-4 p-xl-5 verify-form-panel d-flex flex-column justify-content-between">
+                    <div>
+                        <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
+                            <span className="extra-tiny fw-bold text-muted text-uppercase ls-1">Authentication Credentials</span>
+                            <span className="extra-tiny text-muted fw-semibold">Step 1 of 2</span>
+                        </div>
+
+                        <form onSubmit={handleUserSearch}>
+                            <div className="mb-3.5">
+                                <label className="luxury-label mb-1.5">
+                                    <Building size={13} /> Select Entity / Organization
+                                </label>
+                                <div className="luxury-input-wrapper">
+                                    <div className="luxury-icon-box">
+                                        <Building size={16} />
                                     </div>
-                                </div>
-                                <div className="col-12 col-sm-6">
-                                    <div className="verify-info-tile">
-                                        <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
-                                            <Sparkles size={12} /> Event / Festival
-                                        </p>
-                                        <p className="small mb-0 fw-extrabold text-main">{searchResult.festOrEventName}</p>
-                                    </div>
-                                </div>
-                                <div className="col-12 col-sm-6">
-                                    <div className="verify-info-tile">
-                                        <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
-                                            <CreditCard size={12} /> Pass Tier
-                                        </p>
-                                        <p className="small mb-0 fw-extrabold text-primary">{searchResult.membershipType}</p>
-                                    </div>
-                                </div>
-                                <div className="col-12 col-sm-6">
-                                    <div className="verify-info-tile">
-                                        <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
-                                            <Calendar size={12} /> Purchase Date
-                                        </p>
-                                        <p className="small mb-0 fw-extrabold text-main">{new Date(searchResult.date).toLocaleDateString()}</p>
-                                    </div>
-                                </div>
-                                <div className="col-12">
-                                    <div className="verify-info-tile d-flex justify-content-between align-items-center" style={{ background: 'rgba(16, 185, 129, 0.08)', borderColor: 'rgba(16, 185, 129, 0.25)' }}>
-                                        <div>
-                                            <p className="extra-tiny text-success uppercase fw-bold mb-0.5">Authorized Contribution</p>
-                                            <p className="fs-5 mb-0 fw-extrabold text-success">₹{(Number(String(searchResult.amount || 0).replace(/[^0-9.]/g, '')) || 0).toLocaleString('en-IN')}</p>
-                                        </div>
-                                        <div className="p-2 rounded-circle bg-success bg-opacity-20 text-success">
-                                            <CheckCircle2 size={20} />
-                                        </div>
-                                    </div>
+                                    <select 
+                                        className="luxury-input-field fw-semibold" 
+                                        style={{ cursor: 'pointer' }}
+                                        value={searchEntity} 
+                                        onChange={e => setSearchEntity(e.target.value)} 
+                                        required
+                                    >
+                                        <option value="">-- Choose Entity --</option>
+                                        {entities.map(c => (
+                                            <option key={c._id} value={c.name}>{c.name}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 
-                            <button
-                                onClick={() => downloadCardPDF(searchResult)}
-                                className="btn btn-luxury-submit w-100 mt-3.5 py-2.5 d-flex align-items-center justify-content-center gap-2 shadow-sm"
-                            >
-                                <FileDown size={18} />
-                                <span>Download Official Pass PDF</span>
+                            <div className="mb-4">
+                                <label className="luxury-label mb-1.5">
+                                    <CreditCard size={13} /> Enter 10-Digit Pass ID
+                                </label>
+                                <div className="luxury-input-wrapper">
+                                    <div className="luxury-icon-box">
+                                        <Fingerprint size={16} />
+                                    </div>
+                                    <input 
+                                        type="text" 
+                                        className="luxury-input-field fw-bold font-monospace" 
+                                        style={{ letterSpacing: '2px', textTransform: 'uppercase' }}
+                                        placeholder="e.g. 1SAXCVSQPK" 
+                                        maxLength="10" 
+                                        value={searchId} 
+                                        onChange={e => setSearchId(e.target.value.toUpperCase())} 
+                                        required 
+                                    />
+                                </div>
+                            </div>
+
+                            <button type="submit" disabled={searchLoading} className="btn-verify-action">
+                                {searchLoading ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm" role="status"></span>
+                                        <span>Authenticating Pass...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Search size={18} />
+                                        <span>Authenticate &amp; Verify</span>
+                                        <ChevronRight size={16} />
+                                    </>
+                                )}
                             </button>
-                        </div>
-                    </motion.div>
-                ) : (
-                    <div className="verify-empty-state">
-                        <div className="verify-empty-icon-box">
-                            <ShieldCheck size={38} />
-                        </div>
-                        <h5 className="fw-bold text-main mb-1.5">Awaiting Pass Authentication</h5>
-                        <p className="small text-muted mb-0" style={{ maxWidth: '340px' }}>
-                            Select the host entity and enter the 10-digit unique pass ID to verify credentials and download the pass.
-                        </p>
+
+                            {searchError && (
+                                <div className="mt-3 p-3 rounded-3 bg-danger bg-opacity-10 text-danger extra-tiny fw-bold text-center border border-danger border-opacity-25 animate-in fade-in">
+                                    ⚠️ {searchError}
+                                </div>
+                            )}
+                        </form>
                     </div>
-                )}
+
+                    <div className="mt-4 pt-3 border-top d-flex align-items-center gap-2 extra-tiny text-muted" style={{ borderColor: 'var(--glass-border)' }}>
+                        <ShieldCheck size={14} className="text-success flex-shrink-0" />
+                        <span>Pass IDs are 10-character cryptographic identifiers issued upon subscription authorization.</span>
+                    </div>
+                </div>
+
+                {/* Right Panel: Integrated Verification Stage */}
+                <div className="col-12 col-lg-7 p-3.5 p-sm-4 p-xl-5 verify-stage-panel">
+                    {searchResult ? (
+                        <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="d-flex flex-column gap-3.5">
+                            <VIPCard subscription={searchResult} />
+                            
+                            <div className="verify-terminal-card p-3.5 p-md-4 shadow-sm">
+                                <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
+                                    <h6 className="fw-bold d-flex align-items-center gap-2 mb-0 text-main">
+                                        <CheckCircle2 size={18} className="text-success" />
+                                        <span>Verified Membership Record</span>
+                                    </h6>
+                                    <span className="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-2.5 py-1 rounded-pill extra-tiny fw-bold">
+                                        ● Authenticated
+                                    </span>
+                                </div>
+                                <div className="row g-2.5">
+                                    <div className="col-12 col-sm-6">
+                                        <div className="verify-info-tile">
+                                            <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
+                                                <Building size={12} /> Entity
+                                            </p>
+                                            <p className="small mb-0 fw-extrabold text-main">{searchResult.entityName}</p>
+                                        </div>
+                                    </div>
+                                    <div className="col-12 col-sm-6">
+                                        <div className="verify-info-tile">
+                                            <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
+                                                <Sparkles size={12} /> Event / Festival
+                                            </p>
+                                            <p className="small mb-0 fw-extrabold text-main">{searchResult.festOrEventName}</p>
+                                        </div>
+                                    </div>
+                                    <div className="col-12 col-sm-6">
+                                        <div className="verify-info-tile">
+                                            <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
+                                                <CreditCard size={12} /> Pass Tier
+                                            </p>
+                                            <p className="small mb-0 fw-extrabold text-primary">{searchResult.membershipType}</p>
+                                        </div>
+                                    </div>
+                                    <div className="col-12 col-sm-6">
+                                        <div className="verify-info-tile">
+                                            <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
+                                                <Calendar size={12} /> Purchase Date
+                                            </p>
+                                            <p className="small mb-0 fw-extrabold text-main">{new Date(searchResult.date).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                    <div className="col-12">
+                                        <div className="verify-info-tile d-flex justify-content-between align-items-center" style={{ background: 'rgba(16, 185, 129, 0.08)', borderColor: 'rgba(16, 185, 129, 0.25)' }}>
+                                            <div>
+                                                <p className="extra-tiny text-success uppercase fw-bold mb-0.5">Authorized Contribution</p>
+                                                <p className="fs-5 mb-0 fw-extrabold text-success">₹{(Number(String(searchResult.amount || 0).replace(/[^0-9.]/g, '')) || 0).toLocaleString('en-IN')}</p>
+                                            </div>
+                                            <div className="p-2 rounded-circle bg-success bg-opacity-20 text-success">
+                                                <CheckCircle2 size={20} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => downloadCardPDF(searchResult)}
+                                    className="btn btn-luxury-submit w-100 mt-3.5 py-2.5 d-flex align-items-center justify-content-center gap-2 shadow-sm"
+                                >
+                                    <FileDown size={18} />
+                                    <span>Download Official Pass PDF</span>
+                                </button>
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <div className="verify-stage-placeholder">
+                            <div className="verify-stage-emblem">
+                                <ShieldCheck size={42} />
+                            </div>
+                            <h5 className="fw-extrabold text-main mb-1.5" style={{ fontSize: '1.25rem' }}>
+                                Awaiting Pass Authentication
+                            </h5>
+                            <p className="small text-muted mb-4" style={{ maxWidth: '380px' }}>
+                                Select the host entity and enter the 10-digit unique pass ID to verify credentials, inspect validity, and download the pass.
+                            </p>
+                            <div className="d-flex flex-wrap justify-content-center gap-2">
+                                <span className="verify-feature-pill">
+                                    <ShieldCheck size={13} className="text-success" /> Cryptographic Validation
+                                </span>
+                                <span className="verify-feature-pill">
+                                    <Sparkles size={13} className="text-warning" /> Instant Pass Decryption
+                                </span>
+                                <span className="verify-feature-pill">
+                                    <FileDown size={13} className="text-primary" /> High-Res PDF Export
+                                </span>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )

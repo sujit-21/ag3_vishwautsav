@@ -15,26 +15,90 @@
     border-radius: 18px;
 }
 
-/* ─── Verify Terminal Card ─── */
-.verify-terminal-card {
+/* ─── Unified Master Verification Console ─── */
+.verify-unified-card {
     background: var(--card-bg, #ffffff);
-    border: 1.5px solid var(--glass-border);
-    border-radius: 22px;
-    padding: 1.75rem;
-    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
-    position: relative;
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
     overflow: hidden;
+    width: 100%;
     transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.verify-terminal-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #6366f1, var(--palette-terracotta, #ea580c), #10b981);
+.verify-unified-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--glass-border);
+    background: var(--card-bg, #ffffff);
+}
+
+.verify-form-panel {
+    background: var(--card-bg, #ffffff);
+}
+
+.verify-stage-panel {
+    background: var(--input-bg, rgba(15, 23, 42, 0.02));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 480px;
+}
+
+@media (min-width: 992px) {
+    .verify-stage-panel {
+        border-left: 1px solid var(--glass-border);
+    }
+}
+
+@media (max-width: 991px) {
+    .verify-stage-panel {
+        border-top: 1px solid var(--glass-border);
+    }
+}
+
+/* ─── Integrated Live Stage Preview ─── */
+.verify-stage-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2.5rem 1.5rem;
+    height: 100%;
+}
+
+.verify-stage-emblem {
+    width: 84px;
+    height: 84px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(217, 90, 34, 0.1), rgba(99, 102, 241, 0.1));
+    border: 1.5px solid rgba(217, 90, 34, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    color: var(--palette-terracotta, #ea580c);
+    box-shadow: 0 8px 24px rgba(217, 90, 34, 0.15);
+    transition: all 0.3s ease;
+}
+
+.verify-stage-placeholder:hover .verify-stage-emblem {
+    transform: scale(1.05) rotate(3deg);
+    box-shadow: 0 12px 28px rgba(217, 90, 34, 0.25);
+}
+
+.verify-feature-pill {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--glass-border);
+    border-radius: 9999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .btn-verify-action {
@@ -78,33 +142,6 @@
 .verify-info-tile:hover {
     border-color: rgba(99, 102, 241, 0.3);
     background: var(--input-bg, rgba(15, 23, 42, 0.05));
-}
-
-.verify-empty-state {
-    background: var(--card-bg, #ffffff);
-    border: 2px dashed var(--glass-border);
-    border-radius: 22px;
-    padding: 3.5rem 2rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    height: 100%;
-    min-height: 420px;
-}
-
-.verify-empty-icon-box {
-    width: 80px;
-    height: 80px;
-    border-radius: 24px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(217, 90, 34, 0.1));
-    border: 1.5px solid rgba(99, 102, 241, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1.25rem;
-    color: #6366f1;
 }
 
 /* ─── Console Entity Card ─── */
