@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './Festivals.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info } from 'lucide-react'
+import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -2468,43 +2468,70 @@ const Festivals = () => {
 
             <AnimatePresence>
                 {isModalOpen && (
-                    <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ background: 'rgba(2, 6, 23, 0.85)', backdropFilter: 'blur(12px)', zIndex: 99999 }}>
-                        <motion.div initial={{ scale: 0.9, y: 30, opacity: 0 }} animate={{ scale: 1, y: 0, opacity: 1 }} exit={{ scale: 0.9, y: 30, opacity: 0 }} className="modal-content-premium modal-festival w-100 mx-3 shadow-2xl" style={{ maxWidth: '800px' }}>
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    <h2 className="fw-extrabold mb-1 fs-3 gradient-text">
-                                        {editingFest ? 'Configure' : 'Initiate'} Festival
-                                    </h2>
-                                    <p className="small text-muted mb-0 italic">Define core parameters for the upcoming grand celebration.</p>
-                                </div>
-                                <button onClick={closeModal} className="btn btn-link text-white text-opacity-40 p-0 hover-rotate"><X size={28} /></button>
-                            </div>
-                            <form onSubmit={handleSubmit} className="row g-3">
-                                <div className="col-lg-7">
-                                    <div className="row g-3">
-                                        <div className="col-12">
-                                            <label>Festival Title</label>
-                                            <input type="text" placeholder="Festival Name" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="form-input" required />
-                                        </div>
-                                        <div className="col-12">
-                                            <label>Entity</label>
-                                            <input type="text" placeholder="Entity Name" value={formData.entityName} onChange={e => setFormData({ ...formData, entityName: e.target.value })} className="form-input" />
-                                        </div>
-                                        <div className="col-md-6">
-                                            <label>Start Date</label>
-                                            <input type="date" value={formData.startDate} onChange={e => setFormData({ ...formData, startDate: e.target.value })} className="form-input" required />
-                                        </div>
-                                        <div className="col-md-6">
-                                            <label>End Date</label>
-                                            <input type="date" value={formData.endDate} onChange={e => setFormData({ ...formData, endDate: e.target.value })} className="form-input" required />
-                                        </div>
+                    <div className="modal-overlay modal-overlay-light position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" style={{ zIndex: 99999 }}>
+                        <motion.div 
+                            initial={{ scale: 0.95, opacity: 0 }} 
+                            animate={{ scale: 1, opacity: 1 }} 
+                            exit={{ scale: 0.95, opacity: 0 }} 
+                            className="luxury-modal-card w-100 p-3 p-sm-4 shadow-2xl" 
+                            style={{ maxWidth: '820px', maxHeight: '92vh', overflowY: 'auto' }}
+                        >
+                            {/* Modal Header */}
+                            <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
+                                <div className="d-flex align-items-center gap-3">
+                                    <div className="d-flex align-items-center justify-content-center rounded-3 shadow-sm flex-shrink-0" style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust))', color: '#ffffff' }}>
+                                        <Sparkles size={20} />
+                                    </div>
+                                    <div>
+                                        <h2 className="fw-bold mb-0" style={{ fontSize: '1.25rem', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>
+                                            {editingFest ? 'Configure Festival' : 'Initiate New Festival'}
+                                        </h2>
+                                        <p className="mb-0 text-muted extra-tiny">Define core parameters for the upcoming grand celebration.</p>
                                     </div>
                                 </div>
+                                <button 
+                                    type="button"
+                                    onClick={closeModal} 
+                                    className="btn btn-close-custom rounded-circle p-2 border shadow-sm hover-scale" 
+                                    style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--glass-border)' }} 
+                                    aria-label="Close"
+                                >
+                                    <X size={18} style={{ color: 'var(--text-main)' }} />
+                                </button>
+                            </div>
 
-                                <div className="col-lg-5">
-                                    <div className="row g-3">
-                                        <div className="col-12">
-                                            <label>Country</label>
+                            {/* Responsive 12-Column Unified Form Grid */}
+                            <form onSubmit={handleSubmit}>
+                                <div className="row g-3 mb-3">
+                                    {/* Festival Title */}
+                                    <div className="col-12 col-md-8">
+                                        <label className="luxury-label mb-1">
+                                            <Tag size={12} className="text-muted" /> Festival Title
+                                        </label>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
+                                                <Sparkles size={16} />
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                placeholder="e.g. Chhath Puja, Durga Puja, Tomorrowland" 
+                                                value={formData.title} 
+                                                onChange={e => setFormData({ ...formData, title: e.target.value })} 
+                                                className="luxury-input-field fw-bold" 
+                                                required 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Country */}
+                                    <div className="col-12 col-md-4">
+                                        <label className="luxury-label mb-1">
+                                            <Globe size={12} className="text-muted" /> Country
+                                        </label>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
+                                                <Globe size={16} />
+                                            </div>
                                             <select
                                                 value={formData.country}
                                                 onChange={e => {
@@ -2512,37 +2539,160 @@ const Festivals = () => {
                                                     setFormData({
                                                         ...formData,
                                                         country: newCountry,
-                                                        category: countryData[newCountry][0]
+                                                        category: countryData[newCountry] ? countryData[newCountry][0] : 'Cultural'
                                                     });
                                                 }}
-                                                className="form-input"
+                                                className="luxury-input-field fw-semibold"
+                                                style={{ cursor: 'pointer' }}
                                             >
-                                                {Object.keys(countryData).map(c => <option key={c} value={c}>{c}</option>)}
+                                                {Object.keys(countryData).map(c => (
+                                                    <option key={c} value={c} style={{ backgroundColor: 'var(--secondary-bg)', color: 'var(--text-main)' }}>
+                                                        {c}
+                                                    </option>
+                                                ))}
                                             </select>
                                         </div>
-                                        <div className="col-md-6">
-                                            <label>Location</label>
-                                            <input type="text" placeholder="City" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} className="form-input" required />
+                                    </div>
+
+                                    {/* Entity */}
+                                    <div className="col-12 col-md-6">
+                                        <label className="luxury-label mb-1">
+                                            <ShieldCheck size={12} className="text-muted" /> Entity / Organization
+                                        </label>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
+                                                <ShieldCheck size={16} />
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                placeholder="e.g. Sakaripara Committee, Trust, Club" 
+                                                value={formData.entityName} 
+                                                onChange={e => setFormData({ ...formData, entityName: e.target.value })} 
+                                                className="luxury-input-field" 
+                                            />
                                         </div>
-                                        <div className="col-md-6">
-                                            <label>Category</label>
-                                            <select value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} className="form-input">
-                                                {countryData[formData.country].map(cat => <option key={cat}>{cat}</option>)}
+                                    </div>
+
+                                    {/* Category */}
+                                    <div className="col-12 col-md-6">
+                                        <label className="luxury-label mb-1">
+                                            <Tag size={12} className="text-muted" /> Category
+                                        </label>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
+                                                <Tag size={16} />
+                                            </div>
+                                            <select 
+                                                value={formData.category} 
+                                                onChange={e => setFormData({ ...formData, category: e.target.value })} 
+                                                className="luxury-input-field fw-semibold"
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                {(countryData[formData.country] || ['Cultural', 'Music', 'Arts', 'Religious']).map(cat => (
+                                                    <option key={cat} value={cat} style={{ backgroundColor: 'var(--secondary-bg)', color: 'var(--text-main)' }}>
+                                                        {cat}
+                                                    </option>
+                                                ))}
                                             </select>
                                         </div>
-                                        <div className="col-12">
-                                            <label>Description</label>
-                                            <textarea placeholder="Festival details..." rows="3" className="form-input" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })}></textarea>
+                                    </div>
+
+                                    {/* Location / Venue */}
+                                    <div className="col-12 col-md-6">
+                                        <label className="luxury-label mb-1">
+                                            <MapPin size={12} className="text-muted" /> Location / Venue
+                                        </label>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
+                                                <MapPin size={16} />
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                placeholder="e.g. 1 No. Sakaripara, City, Ground" 
+                                                value={formData.location} 
+                                                onChange={e => setFormData({ ...formData, location: e.target.value })} 
+                                                className="luxury-input-field" 
+                                                required 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Start Date */}
+                                    <div className="col-6 col-md-3">
+                                        <label className="luxury-label mb-1">
+                                            <Calendar size={12} className="text-muted" /> Start Date
+                                        </label>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
+                                                <Calendar size={16} />
+                                            </div>
+                                            <input 
+                                                type="date" 
+                                                value={formData.startDate} 
+                                                onChange={e => setFormData({ ...formData, startDate: e.target.value })} 
+                                                className="luxury-input-field" 
+                                                required 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* End Date */}
+                                    <div className="col-6 col-md-3">
+                                        <label className="luxury-label mb-1">
+                                            <Calendar size={12} className="text-muted" /> End Date
+                                        </label>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box">
+                                                <Calendar size={16} />
+                                            </div>
+                                            <input 
+                                                type="date" 
+                                                value={formData.endDate} 
+                                                onChange={e => setFormData({ ...formData, endDate: e.target.value })} 
+                                                className="luxury-input-field" 
+                                                required 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Description */}
+                                    <div className="col-12">
+                                        <label className="luxury-label mb-1">
+                                            <Sparkles size={12} className="text-muted" /> Description &amp; Highlights
+                                        </label>
+                                        <div className="luxury-input-wrapper align-items-start py-2">
+                                            <div className="luxury-icon-box mt-1">
+                                                <Sparkles size={16} />
+                                            </div>
+                                            <textarea 
+                                                placeholder="Enter celebration details, rituals, schedules, highlights..." 
+                                                rows="3" 
+                                                className="luxury-input-field" 
+                                                style={{ resize: 'vertical', minHeight: '75px' }}
+                                                value={formData.description} 
+                                                onChange={e => setFormData({ ...formData, description: e.target.value })}
+                                            />
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="col-12 mt-4">
-                                    <div className="d-flex gap-3">
-                                        <button type="submit" className="btn btn-premium flex-grow-1 py-3 px-5">
-                                            <Save size={18} /> {editingFest ? 'Update Festival' : 'Deploy New Festival'}
+                                {/* Modal Actions */}
+                                <div className="col-12 mt-4 pt-3 border-top" style={{ borderColor: 'var(--glass-border)' }}>
+                                    <div className="d-flex flex-column-reverse flex-sm-row justify-content-end align-items-stretch align-items-sm-center gap-3">
+                                        <button 
+                                            type="button" 
+                                            onClick={closeModal} 
+                                            className="btn-luxury-cancel"
+                                        >
+                                            Cancel
                                         </button>
-                                        <button type="button" onClick={closeModal} className="btn btn-cancel py-3 px-5">Cancel</button>
+                                        <button 
+                                            type="submit" 
+                                            className="btn-luxury-submit"
+                                        >
+                                            <Save size={18} />
+                                            <span>{editingFest ? 'Update Festival' : 'Deploy New Festival'}</span>
+                                        </button>
                                     </div>
                                 </div>
                             </form>
@@ -2554,7 +2704,7 @@ const Festivals = () => {
             <AnimatePresence>
                 {isSubAdding && (
                     <div className="modal-overlay modal-overlay-light position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" style={{ zIndex: 99999 }}>
-                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="luxury-modal-card w-100 p-3 p-sm-4 shadow-2xl" style={{ maxWidth: '760px', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="luxury-modal-card w-100 p-3 p-sm-4 shadow-2xl" style={{ maxWidth: '780px', maxHeight: '92vh', overflowY: 'auto' }}>
                             <div className="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
                                 <div className="d-flex align-items-center gap-3">
                                     <div className="d-flex align-items-center justify-content-center rounded-3 shadow-sm flex-shrink-0" style={{ width: '42px', height: '42px', background: 'linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust))', color: '#ffffff' }}>
@@ -2673,72 +2823,7 @@ const Festivals = () => {
                                         </div>
                                     </div>
 
-                                    {/* Amount with Quick-Fill Chips */}
-                                    <div className="col-12 col-md-6">
-                                        <div className="d-flex justify-content-between align-items-center mb-1">
-                                            <label className="luxury-label mb-0">Transaction Amount</label>
-                                            <span className="extra-tiny text-muted fw-semibold" style={{ fontSize: '0.62rem' }}>Quick Presets</span>
-                                        </div>
-                                        <div className="luxury-input-wrapper mb-2">
-                                            <div className="luxury-icon-box">
-                                                <CreditCard size={16} />
-                                            </div>
-                                            <div className="d-flex align-items-center border-end pe-2 me-1" style={{ borderColor: 'var(--glass-border)' }}>
-                                                <select className="border-0 bg-transparent fw-bold p-0 text-main extra-tiny outline-none" style={{ cursor: 'pointer' }} value={subFormData.currency} onChange={e => setSubFormData({ ...subFormData, currency: e.target.value })}>
-                                                    {currencies.map(c => <option key={c.code} value={c.symbol}>{c.symbol} ({c.code})</option>)}
-                                                </select>
-                                            </div>
-                                            <input type="number" step="any" className="luxury-input-field fw-bold" placeholder="0.00" value={subFormData.amount} onChange={e => setSubFormData({ ...subFormData, amount: e.target.value })} required />
-                                        </div>
-                                        <div className="d-flex gap-1.5 flex-wrap">
-                                            {[501, 1100, 2100, 5100, 11000].map(amt => (
-                                                <button
-                                                    key={amt}
-                                                    type="button"
-                                                    onClick={() => setSubFormData({ ...subFormData, amount: amt.toString() })}
-                                                    className="btn py-0 px-2 rounded-pill extra-tiny fw-bold transition-all"
-                                                    style={{
-                                                        fontSize: '0.68rem',
-                                                        height: '22px',
-                                                        lineHeight: '20px',
-                                                        border: subFormData.amount == amt ? 'none' : '1px solid var(--glass-border)',
-                                                        background: subFormData.amount == amt ? 'linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust))' : 'var(--input-bg)',
-                                                        color: subFormData.amount == amt ? '#ffffff' : 'var(--text-muted)',
-                                                        boxShadow: subFormData.amount == amt ? '0 2px 6px rgba(217,90,34,0.3)' : 'none'
-                                                    }}
-                                                >
-                                                    ₹{amt.toLocaleString('en-IN')}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Financial Status with dynamic indicator */}
-                                    <div className="col-12 col-md-6">
-                                        <div className="d-flex justify-content-between align-items-center mb-1">
-                                            <label className="luxury-label mb-0">Financial Status</label>
-                                            <span className="d-flex align-items-center gap-1 extra-tiny fw-bold" style={{
-                                                fontSize: '0.65rem',
-                                                color: subFormData.paymentType === 'Cash & Paid' ? '#10b981' : subFormData.paymentType === 'Due' ? '#ef4444' : subFormData.paymentType === 'Online' ? '#0ea5e9' : '#f59e0b'
-                                            }}>
-                                                <span className="rounded-circle d-inline-block" style={{ width: '6px', height: '6px', backgroundColor: 'currentColor' }}></span>
-                                                {subFormData.paymentType}
-                                            </span>
-                                        </div>
-                                        <div className="luxury-input-wrapper">
-                                            <div className="luxury-icon-box" style={{ color: subFormData.paymentType === 'Cash & Paid' ? '#10b981' : subFormData.paymentType === 'Due' ? '#ef4444' : '#0ea5e9' }}>
-                                                <ShieldCheck size={16} />
-                                            </div>
-                                            <select className="luxury-input-field fw-semibold" style={{ cursor: 'pointer' }} value={subFormData.paymentType} onChange={e => setSubFormData({ ...subFormData, paymentType: e.target.value })}>
-                                                <option value="Cash & Paid">Cash &amp; Paid</option>
-                                                <option value="Due">Due</option>
-                                                <option value="Online">Online</option>
-                                                <option value="Coupon or Token">Coupon or Token</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    {/* Subscription Tier with dynamic badge */}
+                                    {/* Subscription Tier */}
                                     <div className="col-12 col-md-6">
                                         <div className="d-flex justify-content-between align-items-center mb-1">
                                             <label className="luxury-label mb-0">Subscription Tier</label>
@@ -2765,6 +2850,76 @@ const Festivals = () => {
                                             </select>
                                         </div>
                                     </div>
+
+                                    {/* Financial Status */}
+                                    <div className="col-12 col-md-6">
+                                        <div className="d-flex justify-content-between align-items-center mb-1">
+                                            <label className="luxury-label mb-0">Financial Status</label>
+                                            <span className="d-flex align-items-center gap-1 extra-tiny fw-bold" style={{
+                                                fontSize: '0.65rem',
+                                                color: subFormData.paymentType === 'Cash & Paid' ? '#10b981' : subFormData.paymentType === 'Due' ? '#ef4444' : subFormData.paymentType === 'Online' ? '#0ea5e9' : '#f59e0b'
+                                            }}>
+                                                <span className="rounded-circle d-inline-block" style={{ width: '6px', height: '6px', backgroundColor: 'currentColor' }}></span>
+                                                {subFormData.paymentType}
+                                            </span>
+                                        </div>
+                                        <div className="luxury-input-wrapper">
+                                            <div className="luxury-icon-box" style={{ color: subFormData.paymentType === 'Cash & Paid' ? '#10b981' : subFormData.paymentType === 'Due' ? '#ef4444' : '#0ea5e9' }}>
+                                                <ShieldCheck size={16} />
+                                            </div>
+                                            <select className="luxury-input-field fw-semibold" style={{ cursor: 'pointer' }} value={subFormData.paymentType} onChange={e => setSubFormData({ ...subFormData, paymentType: e.target.value })}>
+                                                <option value="Cash & Paid">Cash &amp; Paid</option>
+                                                <option value="Due">Due</option>
+                                                <option value="Online">Online</option>
+                                                <option value="Coupon or Token">Coupon or Token</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Transaction Amount with Full-Width Quick Presets */}
+                                    <div className="col-12">
+                                        <div className="d-flex justify-content-between align-items-center mb-1">
+                                            <label className="luxury-label mb-0">Transaction Amount</label>
+                                            <span className="extra-tiny text-muted fw-semibold" style={{ fontSize: '0.66rem' }}>Select Preset or Enter Amount</span>
+                                        </div>
+                                        <div className="luxury-input-wrapper mb-2">
+                                            <div className="luxury-icon-box">
+                                                <CreditCard size={16} />
+                                            </div>
+                                            <div className="d-flex align-items-center border-end pe-2 me-1" style={{ borderColor: 'var(--glass-border)' }}>
+                                                <select className="border-0 bg-transparent fw-bold p-0 text-main extra-tiny outline-none" style={{ cursor: 'pointer' }} value={subFormData.currency} onChange={e => setSubFormData({ ...subFormData, currency: e.target.value })}>
+                                                    {currencies.map(c => <option key={c.code} value={c.symbol}>{c.symbol} ({c.code})</option>)}
+                                                </select>
+                                            </div>
+                                            <input type="number" step="any" className="luxury-input-field fw-bold" placeholder="0.00" value={subFormData.amount} onChange={e => setSubFormData({ ...subFormData, amount: e.target.value })} required />
+                                        </div>
+                                        <div className="d-flex gap-1.5 flex-wrap align-items-center pt-0.5">
+                                            {[101, 201, 251, 301, 501, 1100, 2100, 5100, 11000].map(amt => {
+                                                const curr = subFormData.currency || '₹';
+                                                const isSelected = subFormData.amount == amt;
+                                                return (
+                                                    <button
+                                                        key={amt}
+                                                        type="button"
+                                                        onClick={() => setSubFormData({ ...subFormData, amount: amt.toString() })}
+                                                        className="btn rounded-pill fw-bold transition-all"
+                                                        style={{
+                                                            fontSize: '0.74rem',
+                                                            height: '26px',
+                                                            padding: '0 10px',
+                                                            lineHeight: '24px',
+                                                            border: isSelected ? 'none' : '1px solid var(--glass-border)',
+                                                            background: isSelected ? 'linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust))' : 'var(--input-bg)',
+                                                            color: isSelected ? '#ffffff' : 'var(--text-muted)',
+                                                            boxShadow: isSelected ? '0 2px 8px rgba(217,90,34,0.35)' : 'none'
+                                                        }}
+                                                    >
+                                                        {curr}{amt.toLocaleString('en-IN')}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {subFormData.paymentType === 'Online' && (
@@ -2783,7 +2938,7 @@ const Festivals = () => {
                                     </div>
                                 )}
 
-                                <div className="d-flex gap-2 gap-sm-3 mt-4 pt-3 border-top" style={{ borderColor: 'var(--glass-border)' }}>
+                                <div className="d-flex gap-2 gap-sm-3 mt-3 pt-3 border-top" style={{ borderColor: 'var(--glass-border)' }}>
                                     <button type="submit" className="btn btn-premium flex-grow-1 py-2.5 px-4 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 shadow-sm text-nowrap" style={{ background: 'linear-gradient(135deg, var(--palette-terracotta) 0%, var(--palette-rust) 100%)', border: 'none', fontSize: '0.88rem' }}>
                                         <Lock size={16} /> {editingSubId ? 'CONFIRM & UPDATE' : 'AUTHORIZE & SAVE MEMBERSHIP'}
                                     </button>

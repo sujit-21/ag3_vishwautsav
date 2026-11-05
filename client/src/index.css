@@ -1901,4 +1901,63 @@ html, body, #root, .app-container {
     gap: 0.35rem;
 }
 
+/* Luxury Form Action Buttons */
+.btn-luxury-cancel {
+    background: var(--input-bg);
+    border: 1.5px solid var(--glass-border);
+    color: var(--text-main);
+    padding: 0.65rem 1.4rem;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    text-decoration: none;
+    user-select: none;
+}
+
+.btn-luxury-cancel:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-luxury-submit {
+    background: linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust));
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff !important;
+    padding: 0.65rem 1.75rem;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(217, 90, 34, 0.35);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    text-decoration: none;
+    user-select: none;
+}
+
+.btn-luxury-submit:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 8px 22px rgba(217, 90, 34, 0.5);
+    color: #ffffff !important;
+}
+
+.btn-luxury-submit:active,
+.btn-luxury-cancel:active {
+    transform: translateY(0);
+}
+
 
