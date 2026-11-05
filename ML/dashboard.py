@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -168,7 +169,15 @@ url_entity = st.query_params.get("entity", None)
 # ==========================================
 @st.cache_resource
 def init_connection():
-    uri = st.secrets["MONGO_URI"]
+    # Support both OS environment variables (Render, Heroku, Docker) and st.secrets (Streamlit Cloud, local)
+    uri = os.environ.get("MONGO_URI")
+    if not uri:
+        try:
+            uri = st.secrets.get("MONGO_URI") if hasattr(st, "secrets") else None
+        except Exception:
+            pass
+    if not uri:
+        raise KeyError("MONGO_URI is not set in environment variables or Streamlit secrets.")
     # Use a 5-second timeout so the app fails fast locally instead of hanging
     client = MongoClient(uri, serverSelectionTimeoutMS=5000, connectTimeoutMS=5000)
     # Ping the server to validate the connection immediately

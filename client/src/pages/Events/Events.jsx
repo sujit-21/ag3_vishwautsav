@@ -2861,7 +2861,7 @@ const Events = () => {
                                             </div>
                                             <input type="number" step="any" className="luxury-input-field fw-bold" placeholder="0.00" value={subFormData.amount} onChange={e => setSubFormData({ ...subFormData, amount: e.target.value })} required />
                                         </div>
-                                        <div className="d-flex gap-1.5 flex-wrap align-items-center pt-0.5">
+                                        <div className="d-flex flex-wrap align-items-center pt-1" style={{ gap: '6px' }}>
                                             {[101, 201, 251, 301, 501, 1100, 2100, 5100, 11000].map(amt => {
                                                 const curr = subFormData.currency || '₹';
                                                 const isSelected = subFormData.amount == amt;
@@ -2870,17 +2870,7 @@ const Events = () => {
                                                         key={amt}
                                                         type="button"
                                                         onClick={() => setSubFormData({ ...subFormData, amount: amt.toString() })}
-                                                        className="btn rounded-pill fw-bold transition-all"
-                                                        style={{
-                                                            fontSize: '0.74rem',
-                                                            height: '26px',
-                                                            padding: '0 10px',
-                                                            lineHeight: '24px',
-                                                            border: isSelected ? 'none' : '1px solid var(--glass-border)',
-                                                            background: isSelected ? 'linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust))' : 'var(--input-bg)',
-                                                            color: isSelected ? '#ffffff' : 'var(--text-muted)',
-                                                            boxShadow: isSelected ? '0 2px 8px rgba(217,90,34,0.35)' : 'none'
-                                                        }}
+                                                        className={`luxury-preset-chip ${isSelected ? 'active' : ''}`}
                                                     >
                                                         {curr}{amt.toLocaleString('en-IN')}
                                                     </button>
@@ -2906,13 +2896,23 @@ const Events = () => {
                                     </div>
                                 )}
 
-                                <div className="d-flex gap-2 gap-sm-3 mt-3 pt-3 border-top" style={{ borderColor: 'var(--glass-border)' }}>
-                                    <button type="submit" className="btn btn-premium flex-grow-1 py-2.5 px-4 rounded-pill fw-bold d-flex justify-content-center align-items-center gap-2 shadow-sm text-nowrap" style={{ background: 'linear-gradient(135deg, var(--palette-terracotta) 0%, var(--palette-rust) 100%)', border: 'none', fontSize: '0.88rem' }}>
-                                        <Lock size={16} /> {editingSubId ? 'CONFIRM & UPDATE PASS' : 'AUTHORIZE & SAVE ENTRY PASS'}
-                                    </button>
-                                    <button type="button" onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} className="btn btn-outline-secondary px-4 py-2.5 rounded-pill fw-bold border-opacity-50 text-nowrap" style={{ fontSize: '0.88rem' }}>
-                                        Cancel
-                                    </button>
+                                <div className="col-12 mt-4 pt-3 border-top" style={{ borderColor: 'var(--glass-border)' }}>
+                                    <div className="d-flex flex-column-reverse flex-sm-row justify-content-end align-items-stretch align-items-sm-center gap-3">
+                                        <button 
+                                            type="button" 
+                                            onClick={() => { setIsSubAdding(false); setEditingSubId(null); }} 
+                                            className="btn-luxury-cancel"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button 
+                                            type="submit" 
+                                            className="btn-luxury-submit"
+                                        >
+                                            <Lock size={17} />
+                                            <span>{editingSubId ? 'Confirm & Update Pass' : 'Authorize & Save Entry Pass'}</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </form>
                         </motion.div>
