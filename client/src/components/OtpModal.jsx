@@ -123,8 +123,11 @@ const OtpModal = ({
             let rawMsg = err.message || '';
             let formattedError = rawMsg.replace('Firebase: ', '');
 
-            if (rawMsg.includes('api-key-not-valid') || rawMsg.includes('auth/invalid-api-key')) {
-                formattedError = 'Phone Auth is not yet enabled in Firebase Console (Click "Get Started" in Firebase -> Authentication). You can verify with Gmail OTP below!';
+            if (rawMsg.includes('operation-not-allowed') || rawMsg.includes('region')) {
+                formattedError = 'SMS Region Policy: In Firebase -> Authentication -> Settings -> SMS region policy, allow India (+91), or verify with Gmail OTP below.';
+                setShowEmailInput(true);
+            } else if (rawMsg.includes('api-key-not-valid') || rawMsg.includes('auth/invalid-api-key')) {
+                formattedError = 'Firebase API key updating. You can verify instantly with Gmail OTP below!';
                 setShowEmailInput(true);
             } else if (rawMsg.includes('captcha-check-failed') || rawMsg.includes('app-not-authorized')) {
                 formattedError = 'SMS domain not whitelisted. Add your URL to Firebase Authorized Domains, or verify with Gmail OTP below.';
