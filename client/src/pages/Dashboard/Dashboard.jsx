@@ -363,8 +363,8 @@ const Dashboard = () => {
                                         <CheckCircle2 size={18} className="text-success" />
                                         <span>Verified Membership Record</span>
                                     </h6>
-                                    <span className="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-2.5 py-1 rounded-pill extra-tiny fw-bold">
-                                        ● Authenticated
+                                    <span className="badge-status-success">
+                                        <CheckCircle2 size={13} /> Authenticated Pass
                                     </span>
                                 </div>
                                 <div className="row g-2.5">
@@ -389,7 +389,9 @@ const Dashboard = () => {
                                             <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
                                                 <CreditCard size={12} /> Pass Tier
                                             </p>
-                                            <p className="small mb-0 fw-extrabold text-primary">{searchResult.membershipType}</p>
+                                            <p className="small mb-0 fw-extrabold">
+                                                <span className="badge-status-info">{searchResult.membershipType || 'Standard'}</span>
+                                            </p>
                                         </div>
                                     </div>
                                     <div className="col-12 col-sm-6">
@@ -403,11 +405,11 @@ const Dashboard = () => {
                                     <div className="col-12">
                                         <div className="verify-info-tile d-flex justify-content-between align-items-center" style={{ background: 'rgba(16, 185, 129, 0.08)', borderColor: 'rgba(16, 185, 129, 0.25)' }}>
                                             <div>
-                                                <p className="extra-tiny text-success uppercase fw-bold mb-0.5">Authorized Contribution</p>
-                                                <p className="fs-5 mb-0 fw-extrabold text-success">₹{(Number(String(searchResult.amount || 0).replace(/[^0-9.]/g, '')) || 0).toLocaleString('en-IN')}</p>
+                                                <p className="extra-tiny uppercase fw-bold mb-0.5" style={{ color: '#047857' }}>Authorized Contribution</p>
+                                                <p className="fs-5 mb-0 fw-extrabold" style={{ color: '#047857' }}>₹{(Number(String(searchResult.amount || 0).replace(/[^0-9.]/g, '')) || 0).toLocaleString('en-IN')}</p>
                                             </div>
-                                            <div className="p-2 rounded-circle bg-success bg-opacity-20 text-success">
-                                                <CheckCircle2 size={20} />
+                                            <div className="auth-check-circle">
+                                                <CheckCircle2 size={22} />
                                             </div>
                                         </div>
                                     </div>
@@ -563,17 +565,17 @@ const Dashboard = () => {
                                     transition={{ delay: idx * 0.08 }}
                                     className="console-entity-card"
                                 >
-                                    <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom gap-2" style={{ borderColor: 'var(--glass-border)' }}>
-                                        <div className="d-flex align-items-center gap-2.5">
-                                            <div className="d-flex align-items-center justify-content-center rounded-3 shadow-xs" style={{ width: '38px', height: '38px', background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(217,90,34,0.15))', border: '1px solid rgba(99,102,241,0.25)', color: 'var(--palette-terracotta)' }}>
-                                                <Building size={18} />
+                                    <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom gap-3" style={{ borderColor: 'var(--glass-border)' }}>
+                                        <div className="d-flex align-items-center gap-3">
+                                            <div className="entity-emblem-badge">
+                                                <Building size={20} />
                                             </div>
-                                            <div>
-                                                <h4 className="fw-extrabold text-main mb-0" style={{ letterSpacing: '-0.02em', fontSize: '1.25rem' }}>
+                                            <div className="d-flex flex-column justify-content-center">
+                                                <h4 className="fw-extrabold text-main mb-0" style={{ letterSpacing: '-0.02em', fontSize: '1.25rem', lineHeight: 1.3 }}>
                                                     {org.orgName}
                                                 </h4>
-                                                <p className="extra-tiny text-muted mb-0 fw-semibold">
-                                                    {org.festivals.length} Festivals • {org.events.length} Events
+                                                <p className="extra-tiny text-muted mb-0 fw-semibold d-flex align-items-center gap-1.5" style={{ marginTop: '2px' }}>
+                                                    <Calendar size={12} className="text-primary" /> {org.festivals.length} Festivals • <Flag size={12} style={{ color: 'var(--palette-terracotta)' }} /> {org.events.length} Events
                                                 </p>
                                             </div>
                                         </div>
@@ -812,7 +814,7 @@ const Dashboard = () => {
                                                 <div className="console-yearly-badge h-100">
                                                     <div className="d-flex justify-content-between align-items-center mb-2 pb-1.5 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
                                                         <span className="fw-bold fs-5 text-primary">{year}</span>
-                                                        <span className={`badge ${isPositive ? 'bg-success' : 'bg-danger'} bg-opacity-15 ${isPositive ? 'text-success' : 'text-danger'} border ${isPositive ? 'border-success' : 'border-danger'} border-opacity-25 px-2 py-0.5 rounded-pill extra-tiny fw-bold`}>
+                                                        <span className={isPositive ? "badge-status-success" : "badge-status-danger"}>
                                                             {isPositive ? '+' : '-'}₹{Math.abs(net).toLocaleString('en-IN')}
                                                         </span>
                                                     </div>
@@ -857,16 +859,16 @@ const Dashboard = () => {
                                                             <td className="py-2.5 px-3 text-muted">{new Date(item.date).toLocaleDateString()}</td>
                                                             <td className="py-2.5 fw-bold text-main">{item.particular || item.name}</td>
                                                             <td className="py-2.5">
-                                                                <span className={`badge ${isSub ? 'bg-success' : 'bg-danger'} bg-opacity-15 ${isSub ? 'text-success' : 'text-danger'} border ${isSub ? 'border-success' : 'border-danger'} border-opacity-25 px-2 py-0.5 rounded-pill`}>
+                                                                <span className={isSub ? "badge-status-success" : "badge-status-danger"}>
                                                                     {isSub ? 'Pass Subscription' : 'Outflow Expense'}
                                                                 </span>
                                                             </td>
                                                             <td className="py-2.5">
-                                                                <span className={`badge ${item.paymentType === 'Online' ? 'bg-info bg-opacity-15 text-info' : item.paymentType === 'Due' ? 'bg-danger bg-opacity-15 text-danger' : 'bg-success bg-opacity-15 text-success'} border border-opacity-25 px-2 py-0.5 rounded-pill`}>
+                                                                <span className={item.paymentType === 'Online' ? "badge-status-info" : item.paymentType === 'Due' ? "badge-status-danger" : "badge-status-success"}>
                                                                     {item.paymentType === 'Online' && item.onlineParticulars ? `Online (${item.onlineParticulars})` : (item.paymentType || '—')}
                                                                 </span>
                                                             </td>
-                                                            <td className={`py-2.5 text-end px-3 fw-bold font-monospace ${isSub ? 'text-success' : 'text-danger'}`}>
+                                                            <td className="py-2.5 text-end px-3 font-monospace" style={{ color: isSub ? '#047857' : '#b91c1c', fontWeight: 800 }}>
                                                                 {isSub ? '+' : '-'}₹{(Number(String(item.amount || 0).replace(/[^0-9.]/g, '')) || 0).toLocaleString('en-IN')}
                                                             </td>
                                                         </tr>

@@ -15,6 +15,107 @@
     border-radius: 18px;
 }
 
+/* ─── Entity Emblem Badge in Header ─── */
+.entity-emblem-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(217, 90, 34, 0.12), rgba(99, 102, 241, 0.12));
+    border: 1.5px solid rgba(217, 90, 34, 0.25);
+    color: var(--palette-terracotta, #ea580c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(217, 90, 34, 0.1);
+    flex-shrink: 0;
+}
+
+/* ─── High-Contrast Crystal-Clear Badges & Pills (Fixing Green/Red Blobs) ─── */
+.badge-status-success {
+    background-color: rgba(16, 185, 129, 0.14) !important;
+    color: #047857 !important;
+    border: 1px solid rgba(16, 185, 129, 0.4) !important;
+    font-weight: 800 !important;
+    border-radius: 9999px !important;
+    padding: 0.28rem 0.75rem !important;
+    font-size: 0.72rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    letter-spacing: 0.02em !important;
+    text-shadow: none !important;
+    white-space: nowrap !important;
+}
+
+.badge-status-danger {
+    background-color: rgba(239, 68, 68, 0.14) !important;
+    color: #b91c1c !important;
+    border: 1px solid rgba(239, 68, 68, 0.4) !important;
+    font-weight: 800 !important;
+    border-radius: 9999px !important;
+    padding: 0.28rem 0.75rem !important;
+    font-size: 0.72rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    letter-spacing: 0.02em !important;
+    text-shadow: none !important;
+    white-space: nowrap !important;
+}
+
+.badge-status-info {
+    background-color: rgba(14, 165, 233, 0.14) !important;
+    color: #0369a1 !important;
+    border: 1px solid rgba(14, 165, 233, 0.4) !important;
+    font-weight: 800 !important;
+    border-radius: 9999px !important;
+    padding: 0.28rem 0.75rem !important;
+    font-size: 0.72rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    letter-spacing: 0.02em !important;
+    text-shadow: none !important;
+    white-space: nowrap !important;
+}
+
+.badge-status-warning {
+    background-color: rgba(245, 158, 11, 0.14) !important;
+    color: #b45309 !important;
+    border: 1px solid rgba(245, 158, 11, 0.4) !important;
+    font-weight: 800 !important;
+    border-radius: 9999px !important;
+    padding: 0.28rem 0.75rem !important;
+    font-size: 0.72rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    letter-spacing: 0.02em !important;
+    text-shadow: none !important;
+    white-space: nowrap !important;
+}
+
+.dark-mode .badge-status-success {
+    background-color: rgba(16, 185, 129, 0.22) !important;
+    color: #34d399 !important;
+    border-color: rgba(16, 185, 129, 0.5) !important;
+}
+.dark-mode .badge-status-danger {
+    background-color: rgba(239, 68, 68, 0.22) !important;
+    color: #f87171 !important;
+    border-color: rgba(239, 68, 68, 0.5) !important;
+}
+.dark-mode .badge-status-info {
+    background-color: rgba(14, 165, 233, 0.22) !important;
+    color: #38bdf8 !important;
+    border-color: rgba(14, 165, 233, 0.5) !important;
+}
+.dark-mode .badge-status-warning {
+    background-color: rgba(245, 158, 11, 0.22) !important;
+    color: #fbbf24 !important;
+    border-color: rgba(245, 158, 11, 0.5) !important;
+}
+
 /* ─── Unified Master Verification Console ─── */
 .verify-unified-card {
     background: var(--card-bg, #ffffff);
@@ -332,5 +433,162 @@
     border-color: rgba(99, 102, 241, 0.35);
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
+/* ─── High-Contrast Status Badges (Never solid blobs) ─── */
+.badge-status-success {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    background: rgba(16, 185, 129, 0.14) !important;
+    color: #047857 !important;
+    border: 1px solid rgba(16, 185, 129, 0.38) !important;
+    border-radius: 9999px !important;
+    padding: 0.28rem 0.65rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+[data-theme='dark'] .badge-status-success {
+    background: rgba(16, 185, 129, 0.22) !important;
+    color: #34d399 !important;
+    border-color: rgba(52, 211, 153, 0.45) !important;
+}
+
+.badge-status-danger {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    background: rgba(239, 68, 68, 0.14) !important;
+    color: #b91c1c !important;
+    border: 1px solid rgba(239, 68, 68, 0.38) !important;
+    border-radius: 9999px !important;
+    padding: 0.28rem 0.65rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+[data-theme='dark'] .badge-status-danger {
+    background: rgba(239, 68, 68, 0.22) !important;
+    color: #f87171 !important;
+    border-color: rgba(248, 113, 113, 0.45) !important;
+}
+
+.badge-status-info {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    background: rgba(14, 165, 233, 0.14) !important;
+    color: #0369a1 !important;
+    border: 1px solid rgba(14, 165, 233, 0.38) !important;
+    border-radius: 9999px !important;
+    padding: 0.28rem 0.65rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+[data-theme='dark'] .badge-status-info {
+    background: rgba(14, 165, 233, 0.22) !important;
+    color: #38bdf8 !important;
+    border-color: rgba(56, 189, 248, 0.45) !important;
+}
+
+.badge-status-warning {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    background: rgba(245, 158, 11, 0.14) !important;
+    color: #b45309 !important;
+    border: 1px solid rgba(245, 158, 11, 0.38) !important;
+    border-radius: 9999px !important;
+    padding: 0.28rem 0.65rem !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+
+[data-theme='dark'] .badge-status-warning {
+    background: rgba(245, 158, 11, 0.22) !important;
+    color: #fbbf24 !important;
+    border-color: rgba(251, 191, 36, 0.45) !important;
+}
+
+/* ─── Entity Header Emblem Badge ─── */
+.entity-emblem-badge {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(217, 90, 34, 0.12));
+    border: 1.5px solid rgba(99, 102, 241, 0.22);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--palette-terracotta, #d95a22);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.08);
+    flex-shrink: 0;
+}
+
+/* ─── Check circle in verified card ─── */
+.auth-check-circle {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 12px;
+    background: rgba(16, 185, 129, 0.16);
+    color: #047857;
+    border: 1.5px solid rgba(16, 185, 129, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+[data-theme='dark'] .auth-check-circle {
+    background: rgba(16, 185, 129, 0.25);
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.45);
+}
+
+/* ─── Full Mobile Responsiveness Polish ─── */
+@media (max-width: 576px) {
+    .console-entity-card {
+        padding: 1.15rem;
+        border-radius: 16px;
+    }
+
+    .console-kpi-card {
+        padding: 0.95rem;
+        border-radius: 14px;
+    }
+
+    .console-kpi-card h3 {
+        font-size: 1.15rem !important;
+    }
+
+    .console-detail-modal-card {
+        border-radius: 16px;
+        margin: 0.5rem;
+    }
+
+    .console-detail-header {
+        padding: 1.1rem 1.25rem;
+    }
+
+    .verify-unified-header {
+        padding: 1.1rem 1.25rem;
+    }
+
+    .btn-verify-action {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.88rem;
+    }
 }
 
