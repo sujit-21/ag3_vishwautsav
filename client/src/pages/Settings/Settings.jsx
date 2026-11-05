@@ -269,15 +269,19 @@ const Settings = () => {
                         </div>
 
                         <div className="settings-table-container">
+                            <div className="d-flex d-md-none align-items-center gap-1 extra-tiny text-muted px-2 pb-2">
+                                <ChevronRight size={13} className="text-primary flex-shrink-0" />
+                                <span>Swipe horizontally to view all columns &amp; actions</span>
+                            </div>
                             <div className="table-responsive">
                                 <table className="settings-table">
                                     <thead>
                                         <tr>
-                                            <th>User Profile</th>
-                                            <th>Email Address</th>
-                                            <th>Phone / Contact</th>
-                                            <th>Access Role</th>
-                                            <th className="text-end">Actions</th>
+                                            <th style={{ minWidth: '220px' }}>User Profile</th>
+                                            <th style={{ minWidth: '240px' }}>Email Address</th>
+                                            <th style={{ minWidth: '160px' }}>Phone / Contact</th>
+                                            <th style={{ minWidth: '130px' }}>Access Role</th>
+                                            <th className="text-end" style={{ minWidth: '100px' }}>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -290,17 +294,17 @@ const Settings = () => {
                                                 <tr key={u._id}>
                                                     {/* User Profile */}
                                                     <td>
-                                                        <div className="d-flex align-items-center gap-2.5">
+                                                        <div className="d-flex align-items-center" style={{ gap: '14px' }}>
                                                             <div className={`settings-avatar-circle ${isAdmin ? 'admin' : ''}`}>
                                                                 {initial}
                                                             </div>
-                                                            <div>
-                                                                <div className="fw-extrabold text-main" style={{ fontSize: '0.92rem' }}>
+                                                            <div style={{ minWidth: 0 }}>
+                                                                <div className="fw-extrabold text-main text-nowrap" style={{ fontSize: '0.94rem', lineHeight: 1.25 }}>
                                                                     {u.name}
                                                                 </div>
                                                                 {u.entityName && (
-                                                                    <span className="extra-tiny text-muted fw-semibold d-flex align-items-center gap-1" style={{ marginTop: '2px' }}>
-                                                                        <Building2 size={10} /> {u.entityName}
+                                                                    <span className="extra-tiny text-muted fw-semibold d-flex align-items-center gap-1 text-nowrap" style={{ marginTop: '3px' }}>
+                                                                        <Building2 size={11} className="flex-shrink-0" /> {u.entityName}
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -404,14 +408,18 @@ const Settings = () => {
                             </div>
 
                             <div className="settings-table-container">
+                                <div className="d-flex d-md-none align-items-center gap-1 extra-tiny text-muted px-2 pb-2">
+                                    <ChevronRight size={13} className="text-primary flex-shrink-0" />
+                                    <span>Swipe horizontally to view all columns &amp; actions</span>
+                                </div>
                                 <div className="table-responsive">
-                                    <table className="settings-table">
+                                    <table className="settings-table entity-table">
                                         <thead>
                                             <tr>
-                                                <th>Entity Name</th>
-                                                <th>Security Key</th>
-                                                <th>Created On</th>
-                                                <th className="text-end">Actions</th>
+                                                <th style={{ minWidth: '200px' }}>Entity Name</th>
+                                                <th style={{ minWidth: '240px' }}>Security Key</th>
+                                                <th style={{ minWidth: '140px' }}>Created On</th>
+                                                <th className="text-end" style={{ minWidth: '100px' }}>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>

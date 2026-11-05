@@ -112,8 +112,13 @@
 
 .settings-table {
     width: 100%;
+    min-width: 760px !important;
     margin-bottom: 0;
     vertical-align: middle;
+}
+
+.settings-table.entity-table {
+    min-width: 640px !important;
 }
 
 .settings-table thead th {
@@ -125,6 +130,7 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--text-muted, #64748b);
+    white-space: nowrap;
 }
 
 .settings-table tbody tr {
@@ -148,12 +154,13 @@
 
 /* ─── User Avatar & Info ─── */
 .settings-avatar-circle {
-    width: 38px;
-    height: 38px;
-    min-width: 38px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    max-width: 40px;
     border-radius: 12px;
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(234, 88, 12, 0.15));
-    border: 1.5px solid rgba(99, 102, 241, 0.25);
+    border: 1.5px solid rgba(99, 102, 241, 0.3);
     color: var(--palette-terracotta, #ea580c);
     font-weight: 800;
     font-size: 0.95rem;
@@ -161,6 +168,7 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .settings-avatar-circle.admin {
