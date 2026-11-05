@@ -429,7 +429,7 @@ const Dashboard = () => {
                                             href={externalStreamlitUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2 px-3 py-1.5 rounded-pill fw-semibold w-100 w-sm-auto text-nowrap"
+                                            className="btn-analytics-fullscreen"
                                             title="Open in full screen tab"
                                         >
                                             <ExternalLink size={14} /> <span>Open Fullscreen</span>
@@ -440,6 +440,7 @@ const Dashboard = () => {
                                         <iframe 
                                             src={fullStreamlitUrl} 
                                             className="analytics-responsive-iframe"
+                                            style={{ width: '100%', height: '100%', minHeight: '850px', border: 'none', display: 'block' }}
                                             title="Admin Analytics Dashboard"
                                             allow="clipboard-write"
                                             loading="lazy"

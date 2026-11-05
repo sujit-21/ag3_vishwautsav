@@ -2007,17 +2007,17 @@ html, body, #root, .app-container {
 .analytics-iframe-container {
     position: relative;
     width: 100%;
-    height: 86vh;
-    min-height: 750px;
+    height: 88vh;
+    min-height: 850px;
     border-radius: 14px;
     overflow: hidden;
-    background: transparent;
+    background: #0f172a;
 }
 
 @media (max-width: 992px) {
     .analytics-iframe-container {
         height: 82vh;
-        min-height: 640px;
+        min-height: 680px;
         border-radius: 12px;
     }
 }
@@ -2029,17 +2029,66 @@ html, body, #root, .app-container {
     }
     .analytics-iframe-container {
         height: 78vh;
-        min-height: 540px;
+        min-height: 560px;
         border-radius: 10px;
     }
 }
 
+.analytics-responsive-iframe,
 .analytics-iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 850px;
+    border: none !important;
+    display: block !important;
+    background: transparent !important;
+}
+
+@media (max-width: 992px) {
+    .analytics-responsive-iframe,
+    .analytics-iframe {
+        min-height: 680px;
+    }
+}
+
+@media (max-width: 576px) {
+    .analytics-responsive-iframe,
+    .analytics-iframe {
+        min-height: 560px;
+    }
+}
+
+/* Open Fullscreen Button */
+.btn-analytics-fullscreen {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    border: 1.5px solid var(--palette-terracotta, #ea580c);
+    color: var(--palette-terracotta, #ea580c);
     background: transparent;
+    font-size: 0.84rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+}
+
+.btn-analytics-fullscreen:hover {
+    background: linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust));
+    color: #ffffff !important;
+    border-color: transparent;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(217, 90, 34, 0.35);
+}
+
+@media (max-width: 576px) {
+    .btn-analytics-fullscreen {
+        width: 100%;
+    }
 }
 
 
