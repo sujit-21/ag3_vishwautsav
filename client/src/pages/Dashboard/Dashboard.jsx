@@ -270,7 +270,7 @@ const Dashboard = () => {
             {/* Split Content Body Merged in Single Card */}
             <div className="row g-0">
                 {/* Left Panel: Search Form */}
-                <div className="col-12 col-lg-5 p-3.5 p-sm-4 p-xl-5 verify-form-panel d-flex flex-column justify-content-between">
+                <div className="col-12 col-lg-5 p-3 p-sm-4 p-xl-5 verify-form-panel d-flex flex-column justify-content-between">
                     <div>
                         <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
                             <span className="extra-tiny fw-bold text-muted text-uppercase ls-1">Authentication Credentials</span>
@@ -352,12 +352,19 @@ const Dashboard = () => {
                 </div>
 
                 {/* Right Panel: Integrated Verification Stage */}
-                <div className="col-12 col-lg-7 p-3.5 p-sm-4 p-xl-5 verify-stage-panel">
+                <div className={`col-12 col-lg-7 p-3 p-sm-4 p-xl-4 verify-stage-panel ${!searchResult ? 'justify-content-center' : ''}`}>
                     {searchResult ? (
-                        <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="d-flex flex-column gap-3.5">
-                            <VIPCard subscription={searchResult} />
+                        <motion.div 
+                            initial={{ opacity: 0, y: 15 }} 
+                            animate={{ opacity: 1, y: 0 }} 
+                            transition={{ duration: 0.3 }}
+                            className="d-flex flex-column w-100"
+                        >
+                            <div className="vip-card-preview-wrapper d-flex justify-content-center w-100 mb-4 pb-2">
+                                <VIPCard subscription={searchResult} />
+                            </div>
                             
-                            <div className="verify-terminal-card p-3.5 p-md-4 shadow-sm">
+                            <div className="verify-terminal-card p-3 p-md-4 shadow-sm">
                                 <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
                                     <h6 className="fw-bold d-flex align-items-center gap-2 mb-0 text-main">
                                         <CheckCircle2 size={18} className="text-success" />

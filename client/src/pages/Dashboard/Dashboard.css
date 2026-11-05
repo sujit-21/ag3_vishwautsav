@@ -141,8 +141,30 @@
     background: var(--input-bg, rgba(15, 23, 42, 0.02));
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     min-height: 480px;
+    position: relative;
+}
+
+.vip-card-preview-wrapper {
+    position: relative;
+    z-index: 2;
+    padding-bottom: 0.5rem;
+}
+
+.verify-terminal-card {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    position: relative;
+    z-index: 1;
+}
+
+[data-theme='dark'] .verify-terminal-card {
+    background: rgba(30, 41, 59, 0.7);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 @media (min-width: 992px) {
