@@ -25,16 +25,17 @@ router.get('/profile', auth, async (req, res) => {
 // UPDATE current user's own profile
 router.put('/profile', auth, async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const { name, email, phone, password } = req.body;
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
         if (name) user.name = name;
         if (email) user.email = email;
+        if (phone !== undefined) user.phone = phone;
         if (password) user.password = password;
 
         await user.save();
-        res.json({ message: 'Profile updated successfully', user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+        res.json({ message: 'Profile updated successfully', user: { id: user._id, name: user.name, email: user.email, phone: user.phone, role: user.role } });
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
@@ -67,10 +68,11 @@ router.get('/', auth, adminOnly, async (req, res) => {
 // Add new user (scoped to admin/entity)
 router.post('/', auth, adminOnly, async (req, res) => {
     try {
-        const { name, email, password, role, entityName } = req.body;
+        const { name, email, phone, password, role, entityName } = req.body;
         const user = new User({ 
             name, 
             email, 
+            phone,
             password, 
             role: role || 'user', 
             createdBy: req.user.id,
@@ -86,7 +88,7 @@ router.post('/', auth, adminOnly, async (req, res) => {
 // Update user (scoped to entity)
 router.put('/:id', auth, adminOnly, async (req, res) => {
     try {
-        const { password, role, name, email, entityName } = req.body;
+        const { password, role, name, email, phone, entityName } = req.body;
         const query = req.user.entityName 
             ? { _id: req.params.id, entityName: req.user.entityName }
             : { _id: req.params.id, createdBy: req.user.id };
@@ -98,6 +100,7 @@ router.put('/:id', auth, adminOnly, async (req, res) => {
         if (role) user.role = role;
         if (name) user.name = name;
         if (email) user.email = email;
+        if (phone !== undefined) user.phone = phone;
         if (entityName) user.entityName = entityName;
 
         await user.save();

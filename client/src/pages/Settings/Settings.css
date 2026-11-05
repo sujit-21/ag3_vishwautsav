@@ -1,12 +1,402 @@
 /* ==========================================
-   SETTINGS PAGE STYLES
+   SETTINGS PAGE - ULTRA-MODERN LUXURY EDITION
    ========================================== */
 
-.settings-nav-pill {
-    transition: all 0.25s ease;
+.settings-header-banner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
 }
 
-.settings-nav-pill.active {
-    background: linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust));
+.settings-header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, rgba(217, 90, 34, 0.12), rgba(99, 102, 241, 0.12));
+    border: 1px solid rgba(217, 90, 34, 0.25);
+    color: var(--palette-terracotta, #ea580c);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* ─── Luxury Card Container ─── */
+.settings-luxury-card {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.settings-luxury-card:hover {
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+    border-color: rgba(99, 102, 241, 0.25);
+}
+
+.settings-card-header {
+    padding: 1.5rem 1.75rem;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    background: var(--card-bg, #ffffff);
+}
+
+[data-theme='dark'] .settings-card-header {
+    background: rgba(30, 41, 59, 0.4);
+}
+
+.settings-emblem-box {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+}
+
+.settings-emblem-box.credentials {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
     color: #ffffff;
+}
+
+.settings-emblem-box.entities {
+    background: linear-gradient(135deg, var(--palette-terracotta, #ea580c), #d97706);
+    color: #ffffff;
+}
+
+.btn-luxury-action {
+    background: linear-gradient(135deg, var(--palette-terracotta, #ea580c), #c2410c);
+    color: #ffffff !important;
+    border: none;
+    border-radius: 12px;
+    padding: 0.6rem 1.15rem;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(234, 88, 12, 0.35);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+}
+
+.btn-luxury-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(234, 88, 12, 0.5);
+    color: #ffffff !important;
+}
+
+/* ─── Modern Tables ─── */
+.settings-table-container {
+    padding: 0.5rem 1.25rem 1.25rem;
+}
+
+.settings-table {
+    width: 100%;
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+
+.settings-table thead th {
+    background: transparent;
+    border-bottom: 1.5px solid var(--glass-border);
+    padding: 0.9rem 1rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted, #64748b);
+}
+
+.settings-table tbody tr {
+    border-bottom: 1px solid var(--glass-border);
+    transition: background-color 0.18s ease;
+}
+
+.settings-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.settings-table tbody tr:hover {
+    background-color: var(--input-bg, rgba(15, 23, 42, 0.025));
+}
+
+.settings-table tbody td {
+    padding: 1rem 1rem;
+    border: none;
+    vertical-align: middle;
+}
+
+/* ─── User Avatar & Info ─── */
+.settings-avatar-circle {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(234, 88, 12, 0.15));
+    border: 1.5px solid rgba(99, 102, 241, 0.25);
+    color: var(--palette-terracotta, #ea580c);
+    font-weight: 800;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.settings-avatar-circle.admin {
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.18), rgba(99, 102, 241, 0.22));
+    border-color: rgba(99, 102, 241, 0.4);
+    color: #4f46e5;
+}
+
+[data-theme='dark'] .settings-avatar-circle.admin {
+    color: #818cf8;
+}
+
+/* ─── Dedicated Email & Phone Badges ─── */
+.settings-email-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: var(--input-bg, rgba(15, 23, 42, 0.03));
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-main, #0f172a);
+    transition: all 0.2s ease;
+}
+
+.settings-email-pill:hover {
+    border-color: rgba(99, 102, 241, 0.35);
+}
+
+.badge-email-empty {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(245, 158, 11, 0.12);
+    color: #b45309;
+    border: 1px dashed rgba(245, 158, 11, 0.4);
+    border-radius: 8px;
+    padding: 0.25rem 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+[data-theme='dark'] .badge-email-empty {
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.4);
+}
+
+.settings-phone-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-main, #0f172a);
+    letter-spacing: 0.03em;
+}
+
+/* ─── Role Badges ─── */
+.badge-role-admin {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(99, 102, 241, 0.15));
+    color: #4f46e5 !important;
+    border: 1px solid rgba(79, 70, 229, 0.35);
+    border-radius: 9999px;
+    padding: 0.28rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.1);
+}
+
+[data-theme='dark'] .badge-role-admin {
+    background: rgba(79, 70, 229, 0.25);
+    color: #a5b4fc !important;
+    border-color: rgba(129, 140, 248, 0.45);
+}
+
+.badge-role-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: rgba(14, 165, 233, 0.12);
+    color: #0369a1 !important;
+    border: 1px solid rgba(14, 165, 233, 0.35);
+    border-radius: 9999px;
+    padding: 0.28rem 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+[data-theme='dark'] .badge-role-user {
+    color: #38bdf8 !important;
+}
+
+/* ─── Action Buttons ─── */
+.settings-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-border);
+    background: var(--input-bg, rgba(15, 23, 42, 0.03));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    margin-left: 0.35rem;
+}
+
+.settings-action-btn:hover {
+    transform: translateY(-2px);
+}
+
+.settings-action-btn.edit:hover {
+    background: rgba(99, 102, 241, 0.15);
+    color: #4f46e5;
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.settings-action-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.4);
+}
+
+/* ─── Modern Form Modals ─── */
+.settings-modal-card {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+[data-theme='dark'] .settings-modal-card {
+    background: #0f172a;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.settings-modal-header {
+    padding: 1.5rem 1.75rem;
+    border-bottom: 1px solid var(--glass-border);
+    background: linear-gradient(135deg, rgba(217, 90, 34, 0.06), rgba(99, 102, 241, 0.06));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.settings-input-group {
+    margin-bottom: 1.25rem;
+}
+
+.settings-input-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-main, #0f172a);
+    margin-bottom: 0.45rem;
+}
+
+.settings-field-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.settings-field-icon {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-muted, #94a3b8);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+}
+
+.settings-text-input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border-radius: 14px;
+    border: 1.5px solid var(--glass-border);
+    background: var(--input-bg, rgba(15, 23, 42, 0.03));
+    color: var(--text-main, #0f172a);
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.settings-text-input:focus {
+    border-color: var(--palette-terracotta, #ea580c);
+    box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.15);
+    background: var(--card-bg, #ffffff);
+}
+
+[data-theme='dark'] .settings-text-input {
+    background: rgba(30, 41, 59, 0.6);
+    color: #ffffff;
+}
+
+[data-theme='dark'] .settings-text-input:focus {
+    background: rgba(30, 41, 59, 0.9);
+}
+
+/* ─── Mobile Responsiveness ─── */
+@media (max-width: 768px) {
+    .settings-header-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .settings-card-header {
+        padding: 1.15rem 1.25rem;
+    }
+
+    .settings-table-container {
+        padding: 0.25rem 0.5rem 1rem;
+    }
+
+    .settings-table tbody td,
+    .settings-table thead th {
+        padding: 0.75rem 0.65rem;
+    }
 }

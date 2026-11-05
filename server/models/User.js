@@ -10,6 +10,7 @@ const UserSchema = new mongoose.Schema({
     // It determines the user's actual access level (admin vs sub-user) regardless of display role.
     baseRole: { type: String, enum: ['user', 'admin', 'superadmin'], default: 'user' },
     entityName: { type: String }, // Links user to an entity
+    phone: { type: String, trim: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Reference to the creator admin
     createdAt: { type: Date, default: Date.now },
 });
