@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './Dashboard.css'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
-import { Landmark, Calendar, MapPin, Users, LogOut, LayoutDashboard, Flag, X, TrendingUp, TrendingDown, Info, History, Search, Building, CreditCard, ChevronRight, MessageSquare, HelpCircle, User as UserIcon, BarChart3, FileDown, ShieldCheck, ExternalLink } from 'lucide-react'
+import { Landmark, Calendar, MapPin, Users, LogOut, LayoutDashboard, Flag, X, TrendingUp, TrendingDown, Info, History, Search, Building, CreditCard, ChevronRight, MessageSquare, HelpCircle, User as UserIcon, BarChart3, FileDown, ShieldCheck, ExternalLink, Fingerprint, Clock, Wallet, CheckCircle2, Sparkles, Receipt } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import VIPCard from '../../components/VIPCard'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -247,42 +247,82 @@ const Dashboard = () => {
     const renderVerifyPanel = () => (
         <div className="row g-4 justify-content-center">
             <div className="col-lg-5">
-                <div className="glass-card p-4 h-100 border border-white border-opacity-10">
+                <div className="verify-terminal-card">
                     <div className="d-flex align-items-center gap-3 mb-4">
-                        <div className="p-2 bg-primary bg-opacity-10 rounded-3">
-                            <ShieldCheck className="text-primary" size={24} />
+                        <div className="d-flex align-items-center justify-content-center rounded-3 shadow-sm flex-shrink-0" style={{ width: '44px', height: '44px', background: 'linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust))', color: '#ffffff' }}>
+                            <ShieldCheck size={22} />
                         </div>
                         <div>
-                            <h4 className="fw-bold mb-0">Verify <span className="gradient-text">Record</span></h4>
-                            <p className="text-muted tiny mb-0">Search by Entity &amp; Subscription ID</p>
+                            <h4 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.02em' }}>Verify <span className="gradient-text">Record</span></h4>
+                            <p className="text-muted extra-tiny mb-0">Search &amp; validate identity by Entity &amp; Pass ID</p>
                         </div>
                     </div>
 
                     <form onSubmit={handleUserSearch}>
                         <div className="mb-3">
-                            <label className="tiny fw-bold text-muted mb-2 uppercase ls-1 d-flex align-items-center gap-2">
-                                <Building size={14} /> Select Entity
+                            <label className="luxury-label mb-1.5">
+                                <Building size={13} /> Select Entity / Organization
                             </label>
-                            <select className="form-select bg-secondary bg-opacity-10 border-0 text-main py-2 shadow-sm" value={searchEntity} onChange={e => setSearchEntity(e.target.value)} required>
-                                <option value="">-- Choose Entity --</option>
-                                {entities.map(c => (
-                                    <option key={c._id} value={c.name} className="bg-dark text-white">{c.name}</option>
-                                ))}
-                            </select>
+                            <div className="luxury-input-wrapper">
+                                <div className="luxury-icon-box">
+                                    <Building size={16} />
+                                </div>
+                                <select 
+                                    className="luxury-input-field fw-semibold" 
+                                    style={{ cursor: 'pointer' }}
+                                    value={searchEntity} 
+                                    onChange={e => setSearchEntity(e.target.value)} 
+                                    required
+                                >
+                                    <option value="">-- Choose Entity --</option>
+                                    {entities.map(c => (
+                                        <option key={c._id} value={c.name}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
 
                         <div className="mb-4">
-                            <label className="tiny fw-bold text-muted mb-2 uppercase ls-1 d-flex align-items-center gap-2">
-                                <CreditCard size={14} /> Enter 10-Digit ID
+                            <label className="luxury-label mb-1.5">
+                                <Fingerprint size={13} /> Enter 10-Digit Pass ID
                             </label>
-                            <input type="text" className="form-control bg-secondary bg-opacity-10 border-0 text-main py-2 shadow-sm" placeholder="e.g. 1SAXCVSQPK" maxLength="10" value={searchId} onChange={e => setSearchId(e.target.value)} required />
+                            <div className="luxury-input-wrapper">
+                                <div className="luxury-icon-box">
+                                    <CreditCard size={16} />
+                                </div>
+                                <input 
+                                    type="text" 
+                                    className="luxury-input-field fw-bold font-monospace" 
+                                    style={{ letterSpacing: '2px', textTransform: 'uppercase' }}
+                                    placeholder="e.g. 1SAXCVSQPK" 
+                                    maxLength="10" 
+                                    value={searchId} 
+                                    onChange={e => setSearchId(e.target.value.toUpperCase())} 
+                                    required 
+                                />
+                            </div>
                         </div>
 
-                        <button type="submit" disabled={searchLoading} className="btn btn-premium w-100 py-3 d-flex align-items-center justify-content-center gap-2">
-                            {searchLoading ? <span className="spinner-border spinner-border-sm" role="status"></span> : <>Search &amp; Verify <ChevronRight size={18} /></>}
+                        <button type="submit" disabled={searchLoading} className="btn-verify-action">
+                            {searchLoading ? (
+                                <>
+                                    <span className="spinner-border spinner-border-sm" role="status"></span>
+                                    <span>Authenticating Record...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Search size={18} />
+                                    <span>Authenticate &amp; Verify</span>
+                                    <ChevronRight size={16} />
+                                </>
+                            )}
                         </button>
 
-                        {searchError && <div className="mt-3 p-2 bg-danger bg-opacity-10 text-danger tiny rounded-3 text-center border border-danger border-opacity-20">{searchError}</div>}
+                        {searchError && (
+                            <div className="mt-3 p-3 rounded-3 bg-danger bg-opacity-10 text-danger extra-tiny fw-bold text-center border border-danger border-opacity-25 animate-in fade-in">
+                                ⚠️ {searchError}
+                            </div>
+                        )}
                     </form>
                 </div>
             </div>
@@ -290,58 +330,82 @@ const Dashboard = () => {
             {/* Results Column */}
             <div className="col-lg-7">
                 {searchResult ? (
-                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}>
+                    <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} className="d-flex flex-column gap-3">
                         <VIPCard subscription={searchResult} />
-                        <div className="mt-4 glass-card p-4">
-                            <h6 className="fw-bold d-flex align-items-center gap-2 mb-3">
-                                <Info size={18} className="text-primary" /> Verified Record Details
-                            </h6>
-                            <div className="row g-3">
-                                <div className="col-md-6">
-                                    <div className="p-3 dashboard-item-card rounded-3">
-                                        <p className="tiny text-muted uppercase fw-bold mb-1">Entity</p>
-                                        <p className="small mb-0 fw-bold">{searchResult.entityName}</p>
+                        <div className="verify-terminal-card p-4">
+                            <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
+                                <h6 className="fw-bold d-flex align-items-center gap-2 mb-0 text-main">
+                                    <CheckCircle2 size={18} className="text-success" />
+                                    <span>Verified Membership Record</span>
+                                </h6>
+                                <span className="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-2.5 py-1 rounded-pill extra-tiny fw-bold">
+                                    ● Authenticated
+                                </span>
+                            </div>
+                            <div className="row g-2.5">
+                                <div className="col-12 col-sm-6">
+                                    <div className="verify-info-tile">
+                                        <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
+                                            <Building size={12} /> Entity
+                                        </p>
+                                        <p className="small mb-0 fw-extrabold text-main">{searchResult.entityName}</p>
                                     </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <div className="p-3 dashboard-item-card rounded-3">
-                                        <p className="tiny text-muted uppercase fw-bold mb-1">Event / Festival</p>
-                                        <p className="small mb-0 fw-bold">{searchResult.festOrEventName}</p>
+                                <div className="col-12 col-sm-6">
+                                    <div className="verify-info-tile">
+                                        <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
+                                            <Sparkles size={12} /> Event / Festival
+                                        </p>
+                                        <p className="small mb-0 fw-extrabold text-main">{searchResult.festOrEventName}</p>
                                     </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <div className="p-3 dashboard-item-card rounded-3">
-                                        <p className="tiny text-muted uppercase fw-bold mb-1">Pass Tier</p>
-                                        <p className="small mb-0 fw-bold text-primary">{searchResult.membershipType}</p>
+                                <div className="col-12 col-sm-6">
+                                    <div className="verify-info-tile">
+                                        <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
+                                            <CreditCard size={12} /> Pass Tier
+                                        </p>
+                                        <p className="small mb-0 fw-extrabold text-primary">{searchResult.membershipType}</p>
                                     </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <div className="p-3 dashboard-item-card rounded-3">
-                                        <p className="tiny text-muted uppercase fw-bold mb-1">Purchase Date</p>
-                                        <p className="small mb-0 fw-bold">{new Date(searchResult.date).toLocaleDateString()}</p>
+                                <div className="col-12 col-sm-6">
+                                    <div className="verify-info-tile">
+                                        <p className="extra-tiny text-muted uppercase fw-bold mb-1 d-flex align-items-center gap-1.5">
+                                            <Calendar size={12} /> Purchase Date
+                                        </p>
+                                        <p className="small mb-0 fw-extrabold text-main">{new Date(searchResult.date).toLocaleDateString()}</p>
                                     </div>
                                 </div>
-                                <div className="col-md-6">
-                                    <div className="p-3 bg-success bg-opacity-5 rounded-3 border border-success border-opacity-10">
-                                        <p className="tiny text-success uppercase fw-bold mb-1">Amount Paid</p>
-                                        <p className="small mb-0 fw-bold text-success fs-5">₹{(Number(String(searchResult.amount || 0).replace(/[^0-9.]/g, '')) || 0).toLocaleString()}</p>
+                                <div className="col-12">
+                                    <div className="verify-info-tile d-flex justify-content-between align-items-center" style={{ background: 'rgba(16, 185, 129, 0.08)', borderColor: 'rgba(16, 185, 129, 0.25)' }}>
+                                        <div>
+                                            <p className="extra-tiny text-success uppercase fw-bold mb-0.5">Authorized Contribution</p>
+                                            <p className="fs-5 mb-0 fw-extrabold text-success">₹{(Number(String(searchResult.amount || 0).replace(/[^0-9.]/g, '')) || 0).toLocaleString('en-IN')}</p>
+                                        </div>
+                                        <div className="p-2 rounded-circle bg-success bg-opacity-20 text-success">
+                                            <CheckCircle2 size={20} />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <button
                                 onClick={() => downloadCardPDF(searchResult)}
-                                className="btn btn-premium w-100 mt-4 py-3 d-flex align-items-center justify-content-center gap-2 shadow-lg"
+                                className="btn btn-luxury-submit w-100 mt-3.5 py-2.5 d-flex align-items-center justify-content-center gap-2 shadow-sm"
                             >
-                                <FileDown size={20} /> Download Card PDF
+                                <FileDown size={18} />
+                                <span>Download Official Pass PDF</span>
                             </button>
                         </div>
                     </motion.div>
                 ) : (
-                    <div className="glass-card h-100 p-5 d-flex flex-column align-items-center justify-content-center text-center text-muted border border-dashed border-white border-opacity-20 rounded-4">
-                        <ShieldCheck size={48} className="mb-3 opacity-20" />
-                        <h5 className="fw-bold text-main opacity-50">Awaiting Verification</h5>
-                        <p className="small mb-0">Enter an entity and 10-digit ID to verify the record.</p>
+                    <div className="verify-empty-state">
+                        <div className="verify-empty-icon-box">
+                            <ShieldCheck size={38} />
+                        </div>
+                        <h5 className="fw-bold text-main mb-1.5">Awaiting Pass Authentication</h5>
+                        <p className="small text-muted mb-0" style={{ maxWidth: '340px' }}>
+                            Select the host entity and enter the 10-digit unique pass ID to verify credentials and download the pass.
+                        </p>
                     </div>
                 )}
             </div>
@@ -457,51 +521,66 @@ const Dashboard = () => {
                                     key={idx}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: idx * 0.1 }}
-                                    className="glass-card p-4 border border-secondary border-opacity-10 mb-4 shadow-sm position-relative overflow-hidden"
+                                    transition={{ delay: idx * 0.08 }}
+                                    className="console-entity-card"
                                 >
-                                    <div className="d-flex justify-content-between align-items-center mb-4">
-                                        <h4 className="fw-extrabold text-main mb-0 d-flex align-items-center gap-2">
-                                            <Flag className="text-accent-1" size={22} />
-                                            {org.orgName}
-                                        </h4>
+                                    <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom gap-2" style={{ borderColor: 'var(--glass-border)' }}>
+                                        <div className="d-flex align-items-center gap-2.5">
+                                            <div className="d-flex align-items-center justify-content-center rounded-3 shadow-xs" style={{ width: '38px', height: '38px', background: 'linear-gradient(135deg, rgba(99,102,241,0.15), rgba(217,90,34,0.15))', border: '1px solid rgba(99,102,241,0.25)', color: 'var(--palette-terracotta)' }}>
+                                                <Building size={18} />
+                                            </div>
+                                            <div>
+                                                <h4 className="fw-extrabold text-main mb-0" style={{ letterSpacing: '-0.02em', fontSize: '1.25rem' }}>
+                                                    {org.orgName}
+                                                </h4>
+                                                <p className="extra-tiny text-muted mb-0 fw-semibold">
+                                                    {org.festivals.length} Festivals • {org.events.length} Events
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <span className="badge rounded-pill extra-tiny px-3 py-1 fw-bold" style={{ background: 'var(--input-bg)', border: '1px solid var(--glass-border)', color: 'var(--text-muted)' }}>
+                                            Active Operating Node
+                                        </span>
                                     </div>
                                     
-                                    <div className="row g-2 mb-3">
+                                    {/* Festivals & Events List */}
+                                    <div className="row g-2.5 mb-4">
                                         {org.festivals.map(fest => (
                                             <div key={fest._id} className="col-12">
                                                 <div 
-                                                    className="py-2 px-3 dashboard-item-card border-start border-primary border-3 rounded-3 cursor-pointer d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 bg-white shadow-sm transition-all hover-glow"
+                                                    className="console-record-item"
+                                                    style={{ '--record-accent': '#6366f1' }}
                                                     onClick={() => setSelectedItem({ ...fest, type: 'festival' })}
                                                     role="button"
                                                 >
-                                                    <div className="d-flex align-items-center gap-2">
-                                                        <div className="badge bg-primary text-white px-2 py-1 tiny fw-bold shadow-sm" style={{ width: '75px', textAlign: 'center', fontSize: '0.65rem' }}>FESTIVAL</div>
-                                                        <h6 className="fw-extrabold mb-0 text-main fs-6">{fest.title}</h6>
+                                                    <div className="d-flex align-items-center gap-2.5">
+                                                        <span className="console-record-pill-fest">
+                                                            <Sparkles size={11} /> FESTIVAL
+                                                        </span>
+                                                        <h6 className="fw-bold mb-0 text-main" style={{ fontSize: '0.94rem' }}>{fest.title}</h6>
                                                     </div>
                                                     
-                                                    <div className="d-flex align-items-center gap-2">
+                                                    <div className="d-flex align-items-center gap-2 justify-content-between justify-content-md-end">
                                                         {(() => {
                                                             const base = getBaseName(fest.title)
                                                             const history = attendeeAttendance[base]
                                                             if (history) {
                                                                 return (
-                                                                    <div className="d-flex align-items-center gap-2">
-                                                                        <span className="text-primary tiny fw-bold d-none d-md-block"><Users size={12} className="me-1"/>History:</span>
-                                                                        <div className="d-flex flex-wrap gap-1">
-                                                                            {Object.entries(history).sort(([a], [b]) => b - a).map(([yr, count]) => (
-                                                                                <div key={yr} className="bg-primary bg-opacity-10 text-primary px-2 py-0 rounded-2 tiny font-monospace fw-bold" style={{ fontSize: '0.65rem' }}>
-                                                                                    {yr}: <span className="text-dark">{count}</span>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
+                                                                    <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                                                                        <span className="extra-tiny text-muted fw-bold d-none d-sm-inline"><Users size={11} className="me-1" />Attendance:</span>
+                                                                        {Object.entries(history).sort(([a], [b]) => b - a).map(([yr, count]) => (
+                                                                            <span key={yr} className="console-history-chip">
+                                                                                <span>{yr}:</span>
+                                                                                <strong className="text-primary">{count}</strong>
+                                                                            </span>
+                                                                        ))}
                                                                     </div>
                                                                 )
                                                             }
                                                             return null
                                                         })()}
-                                                        <div className="btn btn-sm btn-light rounded-circle p-1 ms-1 shadow-sm d-none d-md-flex">
-                                                            <Info size={14} className="text-primary" />
+                                                        <div className="btn btn-sm btn-light rounded-circle p-1 ms-1 d-flex align-items-center justify-content-center shadow-xs" style={{ width: '28px', height: '28px', background: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
+                                                            <ChevronRight size={14} className="text-primary" />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -510,37 +589,39 @@ const Dashboard = () => {
                                         {org.events.map(ev => (
                                             <div key={ev._id} className="col-12">
                                                 <div 
-                                                    className="py-2 px-3 dashboard-item-card border-start border-warning border-3 rounded-3 cursor-pointer d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 bg-white shadow-sm transition-all hover-glow"
+                                                    className="console-record-item"
+                                                    style={{ '--record-accent': 'var(--palette-terracotta, #ea580c)' }}
                                                     onClick={() => setSelectedItem({ ...ev, type: 'event' })}
                                                     role="button"
                                                 >
-                                                    <div className="d-flex align-items-center gap-2">
-                                                        <div className="badge bg-warning text-dark px-2 py-1 tiny fw-bold shadow-sm" style={{ width: '75px', textAlign: 'center', fontSize: '0.65rem' }}>EVENT</div>
-                                                        <h6 className="fw-extrabold mb-0 text-main fs-6">{ev.title}</h6>
+                                                    <div className="d-flex align-items-center gap-2.5">
+                                                        <span className="console-record-pill-event">
+                                                            <Flag size={11} /> EVENT
+                                                        </span>
+                                                        <h6 className="fw-bold mb-0 text-main" style={{ fontSize: '0.94rem' }}>{ev.title}</h6>
                                                     </div>
                                                     
-                                                    <div className="d-flex align-items-center gap-2">
+                                                    <div className="d-flex align-items-center gap-2 justify-content-between justify-content-md-end">
                                                         {(() => {
                                                             const base = getBaseName(ev.title)
                                                             const history = attendeeAttendance[base]
                                                             if (history) {
                                                                 return (
-                                                                    <div className="d-flex align-items-center gap-2">
-                                                                        <span className="text-warning tiny fw-bold d-none d-md-block"><Users size={12} className="me-1"/>History:</span>
-                                                                        <div className="d-flex flex-wrap gap-1">
-                                                                            {Object.entries(history).sort(([a], [b]) => b - a).map(([yr, count]) => (
-                                                                                <div key={yr} className="bg-warning bg-opacity-10 text-dark px-2 py-0 rounded-2 tiny font-monospace fw-bold" style={{ fontSize: '0.65rem' }}>
-                                                                                    {yr}: <span className="text-dark">{count}</span>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
+                                                                    <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                                                                        <span className="extra-tiny text-muted fw-bold d-none d-sm-inline"><Users size={11} className="me-1" />Attendance:</span>
+                                                                        {Object.entries(history).sort(([a], [b]) => b - a).map(([yr, count]) => (
+                                                                            <span key={yr} className="console-history-chip">
+                                                                                <span>{yr}:</span>
+                                                                                <strong style={{ color: 'var(--palette-terracotta)' }}>{count}</strong>
+                                                                            </span>
+                                                                        ))}
                                                                     </div>
                                                                 )
                                                             }
                                                             return null
                                                         })()}
-                                                        <div className="btn btn-sm btn-light rounded-circle p-1 ms-1 shadow-sm d-none d-md-flex">
-                                                            <Info size={14} className="text-warning" />
+                                                        <div className="btn btn-sm btn-light rounded-circle p-1 ms-1 d-flex align-items-center justify-content-center shadow-xs" style={{ width: '28px', height: '28px', background: 'var(--input-bg)', border: '1px solid var(--glass-border)' }}>
+                                                            <ChevronRight size={14} style={{ color: 'var(--palette-terracotta)' }} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -548,37 +629,71 @@ const Dashboard = () => {
                                         ))}
                                     </div>
 
-                                    {/* Financial Summary Cards - PREMIUM GRADIENTS FOR MAX VISIBILITY */}
-                                    <div className="row g-3 border-top border-secondary border-opacity-10 pt-4">
-                                        <div className="col-sm-6 col-md-3">
-                                            <div className="p-3 bg-gradient-success rounded-3 d-flex flex-column justify-content-center shadow-lg border-0 h-100">
-                                                <h6 className="text-white text-opacity-80 tiny text-uppercase mb-1 fw-bold">Total Collection</h6>
-                                                <h3 className="fw-extrabold text-white mb-0 fs-3 text-truncate">₹{org.collection.toLocaleString()}</h3>
+                                    {/* Financial Summary Cards - MODERN LUXURY KPI CARDS */}
+                                    <div className="row g-3 pt-3 border-top" style={{ borderColor: 'var(--glass-border)' }}>
+                                        <div className="col-6 col-lg-3">
+                                            <div className="console-kpi-card console-kpi-collection">
+                                                <div className="d-flex justify-content-between align-items-start mb-2">
+                                                    <span className="extra-tiny text-uppercase fw-bold text-white text-opacity-85">Total Collection</span>
+                                                    <div className="console-kpi-icon-circle">
+                                                        <TrendingUp size={16} />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h3 className="fw-extrabold text-white mb-0" style={{ fontSize: '1.45rem' }}>₹{org.collection.toLocaleString('en-IN')}</h3>
+                                                    <span className="extra-tiny text-white text-opacity-75">Gross Subscriptions</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="col-sm-6 col-md-3">
-                                            <div className="p-3 bg-gradient-danger rounded-3 d-flex flex-column justify-content-center shadow-lg border-0 h-100">
-                                                <h6 className="text-white text-opacity-80 tiny text-uppercase mb-1 fw-bold">Total Expenses</h6>
-                                                <h3 className="fw-extrabold text-white mb-0 fs-3 text-truncate">₹{org.expenses.toLocaleString()}</h3>
+                                        <div className="col-6 col-lg-3">
+                                            <div className="console-kpi-card console-kpi-expenses">
+                                                <div className="d-flex justify-content-between align-items-start mb-2">
+                                                    <span className="extra-tiny text-uppercase fw-bold text-white text-opacity-85">Total Expenses</span>
+                                                    <div className="console-kpi-icon-circle">
+                                                        <Receipt size={16} />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h3 className="fw-extrabold text-white mb-0" style={{ fontSize: '1.45rem' }}>₹{org.expenses.toLocaleString('en-IN')}</h3>
+                                                    <span className="extra-tiny text-white text-opacity-75">Outflow &amp; Operations</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="col-sm-6 col-md-3">
-                                            <div className="p-3 bg-gradient-warning rounded-3 d-flex flex-column justify-content-center shadow-lg border-0 h-100">
-                                                <h6 className="text-white text-opacity-80 tiny text-uppercase mb-1 fw-bold">Total Due</h6>
-                                                <h3 className="fw-extrabold text-white mb-0 fs-3 text-truncate">₹{org.due.toLocaleString()}</h3>
+                                        <div className="col-6 col-lg-3">
+                                            <div className="console-kpi-card console-kpi-due">
+                                                <div className="d-flex justify-content-between align-items-start mb-2">
+                                                    <span className="extra-tiny text-uppercase fw-bold text-white text-opacity-85">Pending Due</span>
+                                                    <div className="console-kpi-icon-circle">
+                                                        <Clock size={16} />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h3 className="fw-extrabold text-white mb-0" style={{ fontSize: '1.45rem' }}>₹{org.due.toLocaleString('en-IN')}</h3>
+                                                    <span className="extra-tiny text-white text-opacity-75">Receivables</span>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="col-sm-6 col-md-3">
-                                            <div className="p-3 bg-gradient-primary rounded-3 d-flex flex-column justify-content-center shadow-lg border-0 h-100">
-                                                <h6 className="text-white text-opacity-80 tiny text-uppercase mb-1 fw-bold">Total Savings</h6>
-                                                <h3 className="fw-extrabold text-white mb-0 fs-3 text-truncate">₹{org.savings.toLocaleString()}</h3>
+                                        <div className="col-6 col-lg-3">
+                                            <div className="console-kpi-card console-kpi-savings">
+                                                <div className="d-flex justify-content-between align-items-start mb-2">
+                                                    <span className="extra-tiny text-uppercase fw-bold text-white text-opacity-85">Net Reserve</span>
+                                                    <div className="console-kpi-icon-circle">
+                                                        <Wallet size={16} />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h3 className="fw-extrabold text-white mb-0" style={{ fontSize: '1.45rem' }}>₹{org.savings.toLocaleString('en-IN')}</h3>
+                                                    <span className="extra-tiny text-white text-opacity-75">Net Surplus</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </motion.div>
                             )) : (
-                                <div className="text-center py-5 glass-card">
-                                    <p className="text-muted mb-0">No entity data found.</p>
+                                <div className="text-center py-5 console-entity-card">
+                                    <Building size={40} className="text-muted opacity-30 mb-2" />
+                                    <h5 className="fw-bold text-main">No Entity Records Found</h5>
+                                    <p className="text-muted extra-tiny mb-0">Deploy a festival or event to initialize console metrics.</p>
                                 </div>
                             )}
                             </>
@@ -615,25 +730,27 @@ const Dashboard = () => {
 
             {/* Modal Detail Overlay */}
             {user?.role === 'admin' && selectedItem && (
-                <div className="modal-overlay" onClick={() => setSelectedItem(null)}>
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="modal-container glass-card p-0 overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '900px' }}>
-                        <div className="p-4 border-bottom border-white border-opacity-10 d-flex justify-content-between align-items-center bg-dark text-white shadow-2xl">
+                <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" style={{ background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)', zIndex: 99999 }} onClick={() => setSelectedItem(null)}>
+                    <motion.div initial={{ opacity: 0, scale: 0.95, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="console-detail-modal-card shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <div className="console-detail-header d-flex justify-content-between align-items-center">
                             <div>
-                                <div className="badge bg-primary text-white px-2 py-1 tiny fw-bold mb-2 uppercase">MISSION: {selectedItem.type.toUpperCase()}</div>
-                                <h4 className="fw-extrabold mb-0">{selectedItem.title}</h4>
-                                <p className="text-white text-opacity-50 tiny mb-0 d-flex align-items-center gap-2 mt-1">
-                                    <MapPin size={12} className="text-primary" /> {selectedItem.location || 'Location Not Set'}
+                                <span className={selectedItem.type === 'festival' ? 'console-record-pill-fest mb-2' : 'console-record-pill-event mb-2'}>
+                                    <Sparkles size={11} /> {selectedItem.type.toUpperCase()} SUMMARY
+                                </span>
+                                <h3 className="fw-extrabold mb-1 text-white" style={{ letterSpacing: '-0.02em' }}>{selectedItem.title}</h3>
+                                <p className="text-white text-opacity-70 extra-tiny mb-0 d-flex align-items-center gap-1.5">
+                                    <MapPin size={13} className="text-primary" /> {selectedItem.location || 'Location Not Set'}
                                 </p>
                             </div>
-                            <button className="btn btn-close btn-close-white" onClick={() => setSelectedItem(null)}></button>
+                            <button className="btn btn-close btn-close-white p-2 rounded-circle hover-rotate" onClick={() => setSelectedItem(null)} aria-label="Close"></button>
                         </div>
 
-                        <div className="p-4 bg-light bg-opacity-5">
+                        <div className="p-3.5 p-md-4 overflow-auto" style={{ maxHeight: 'calc(90vh - 120px)' }}>
                             <div className="mb-4">
-                                <h6 className="fw-bold mb-3 d-flex align-items-center gap-2 text-main">
-                                    <TrendingUp size={18} className="text-primary" /> Yearly Performance Summary
+                                <h6 className="fw-extrabold mb-3 d-flex align-items-center gap-2 text-main" style={{ fontSize: '0.96rem' }}>
+                                    <TrendingUp size={18} className="text-primary" /> Yearly Financial Performance
                                 </h6>
-                                <div className="row g-3">
+                                <div className="row g-2.5">
                                     {Object.entries(
                                         [...allSubscriptions, ...allExpenses]
                                             .filter(x => x.festOrEventName === selectedItem.title)
@@ -648,42 +765,46 @@ const Dashboard = () => {
                                                 }
                                                 return acc
                                             }, {})
-                                    ).sort(([a], [b]) => b - a).map(([year, data]) => (
-                                        <div key={year} className="col-md-6 col-lg-4">
-                                            <div className="p-3 dashboard-item-card rounded-3">
-                                                <div className="d-flex justify-content-between align-items-center mb-2">
-                                                    <span className="fw-bold fs-5 text-primary">{year}</span>
-                                                    <span className={`badge ${data.collection - data.expenses >= 0 ? 'bg-success' : 'bg-danger'} bg-opacity-20 ${data.collection - data.expenses >= 0 ? 'text-success' : 'text-danger'} fw-bold`}>
-                                                        {data.collection - data.expenses >= 0 ? '+' : '-'}₹{Math.abs(data.collection - data.expenses).toLocaleString()}
-                                                    </span>
-                                                </div>
-                                                <div className="d-flex justify-content-between tiny mb-1 text-muted">
-                                                    <span>Collection:</span>
-                                                    <span className="fw-bold text-dark">₹{data.collection.toLocaleString()}</span>
-                                                </div>
-                                                <div className="d-flex justify-content-between tiny text-muted">
-                                                    <span>Expenses:</span>
-                                                    <span className="fw-bold text-dark">₹{data.expenses.toLocaleString()}</span>
+                                    ).sort(([a], [b]) => b - a).map(([year, data]) => {
+                                        const net = data.collection - data.expenses;
+                                        const isPositive = net >= 0;
+                                        return (
+                                            <div key={year} className="col-12 col-md-6 col-lg-4">
+                                                <div className="console-yearly-badge h-100">
+                                                    <div className="d-flex justify-content-between align-items-center mb-2 pb-1.5 border-bottom" style={{ borderColor: 'var(--glass-border)' }}>
+                                                        <span className="fw-bold fs-5 text-primary">{year}</span>
+                                                        <span className={`badge ${isPositive ? 'bg-success' : 'bg-danger'} bg-opacity-15 ${isPositive ? 'text-success' : 'text-danger'} border ${isPositive ? 'border-success' : 'border-danger'} border-opacity-25 px-2 py-0.5 rounded-pill extra-tiny fw-bold`}>
+                                                            {isPositive ? '+' : '-'}₹{Math.abs(net).toLocaleString('en-IN')}
+                                                        </span>
+                                                    </div>
+                                                    <div className="d-flex justify-content-between extra-tiny mb-1 text-muted">
+                                                        <span>Collection:</span>
+                                                        <span className="fw-bold text-main">₹{data.collection.toLocaleString('en-IN')}</span>
+                                                    </div>
+                                                    <div className="d-flex justify-content-between extra-tiny text-muted">
+                                                        <span>Expenses:</span>
+                                                        <span className="fw-bold text-main">₹{data.expenses.toLocaleString('en-IN')}</span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
 
-                            <div className="bg-white p-3 rounded-4 shadow-inner">
-                                <h6 className="fw-bold mb-3 d-flex align-items-center gap-2 text-dark">
-                                    <History size={18} className="text-primary" /> Transaction Database
+                            <div className="verify-terminal-card p-3 p-md-4 shadow-sm">
+                                <h6 className="fw-extrabold mb-3 d-flex align-items-center gap-2 text-main" style={{ fontSize: '0.96rem' }}>
+                                    <History size={18} className="text-primary" /> Transaction Ledger
                                 </h6>
-                                <div className="table-responsive rounded-3 border border-secondary border-opacity-10">
-                                    <table className="table table-hover mb-0 tiny">
-                                        <thead className="bg-secondary bg-opacity-5">
-                                            <tr>
-                                                <th className="py-3 px-3">Date</th>
-                                                <th className="py-3">Particular/Payer</th>
-                                                <th className="py-3">Type</th>
-                                                <th className="py-3">Payment</th>
-                                                <th className="py-3 text-end px-3">Amount</th>
+                                <div className="table-responsive rounded-3 border" style={{ borderColor: 'var(--glass-border)' }}>
+                                    <table className="table table-hover mb-0 extra-tiny align-middle">
+                                        <thead style={{ background: 'var(--input-bg)' }}>
+                                            <tr className="text-muted text-uppercase fw-bold" style={{ fontSize: '0.66rem' }}>
+                                                <th className="py-2.5 px-3">Date</th>
+                                                <th className="py-2.5">Payer / Particular</th>
+                                                <th className="py-2.5">Ledger Type</th>
+                                                <th className="py-2.5">Method</th>
+                                                <th className="py-2.5 text-end px-3">Amount</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -694,20 +815,20 @@ const Dashboard = () => {
                                                     const isSub = allSubscriptions.some(s => s._id === item._id)
                                                     return (
                                                         <tr key={idx}>
-                                                            <td className="py-3 px-3 text-muted">{new Date(item.date).toLocaleDateString()}</td>
-                                                            <td className="py-3 fw-bold text-dark">{item.particular || item.name}</td>
-                                                            <td className="py-3">
-                                                                <span className={`badge ${isSub ? 'bg-success' : 'bg-danger'} bg-opacity-10 ${isSub ? 'text-success' : 'text-danger'}`}>
-                                                                    {isSub ? 'Subscription' : 'Expense'}
+                                                            <td className="py-2.5 px-3 text-muted">{new Date(item.date).toLocaleDateString()}</td>
+                                                            <td className="py-2.5 fw-bold text-main">{item.particular || item.name}</td>
+                                                            <td className="py-2.5">
+                                                                <span className={`badge ${isSub ? 'bg-success' : 'bg-danger'} bg-opacity-15 ${isSub ? 'text-success' : 'text-danger'} border ${isSub ? 'border-success' : 'border-danger'} border-opacity-25 px-2 py-0.5 rounded-pill`}>
+                                                                    {isSub ? 'Pass Subscription' : 'Outflow Expense'}
                                                                 </span>
                                                             </td>
-                                                            <td className="py-3">
-                                                                 <span className={`badge ${item.paymentType === 'Online' ? 'bg-info bg-opacity-10 text-info' : item.paymentType === 'Due' ? 'bg-danger bg-opacity-10 text-danger' : 'bg-success bg-opacity-10 text-success'}`}>
-                                                                     {item.paymentType === 'Online' && item.onlineParticulars ? `Online (${item.onlineParticulars})` : (item.paymentType || '—')}
-                                                                 </span>
-                                                             </td>
-                                                             <td className={`py-3 text-end px-3 fw-bold ${isSub ? 'text-success' : 'text-danger'}`}>
-                                                                {isSub ? '+' : '-'}₹{(Number(String(item.amount || 0).replace(/[^0-9.]/g, '')) || 0).toLocaleString()}
+                                                            <td className="py-2.5">
+                                                                <span className={`badge ${item.paymentType === 'Online' ? 'bg-info bg-opacity-15 text-info' : item.paymentType === 'Due' ? 'bg-danger bg-opacity-15 text-danger' : 'bg-success bg-opacity-15 text-success'} border border-opacity-25 px-2 py-0.5 rounded-pill`}>
+                                                                    {item.paymentType === 'Online' && item.onlineParticulars ? `Online (${item.onlineParticulars})` : (item.paymentType || '—')}
+                                                                </span>
+                                                            </td>
+                                                            <td className={`py-2.5 text-end px-3 fw-bold font-monospace ${isSub ? 'text-success' : 'text-danger'}`}>
+                                                                {isSub ? '+' : '-'}₹{(Number(String(item.amount || 0).replace(/[^0-9.]/g, '')) || 0).toLocaleString('en-IN')}
                                                             </td>
                                                         </tr>
                                                     )

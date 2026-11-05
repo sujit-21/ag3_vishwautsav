@@ -1,5 +1,5 @@
 /* ==========================================
-   DASHBOARD PAGE STYLES
+   DASHBOARD PAGE STYLES - MODERN LUXURY EDITION
    ========================================== */
 
 .dashboard-stat-card {
@@ -14,3 +14,286 @@
 .dashboard-chart-container {
     border-radius: 18px;
 }
+
+/* ─── Verify Terminal Card ─── */
+.verify-terminal-card {
+    background: var(--card-bg, #ffffff);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 22px;
+    padding: 1.75rem;
+    box-shadow: 0 12px 36px rgba(15, 23, 42, 0.08);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.verify-terminal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #6366f1, var(--palette-terracotta, #ea580c), #10b981);
+}
+
+.btn-verify-action {
+    background: linear-gradient(135deg, var(--palette-terracotta), var(--palette-rust));
+    color: #ffffff !important;
+    border: none;
+    border-radius: 14px;
+    padding: 0.85rem 1.5rem;
+    font-weight: 700;
+    font-size: 0.92rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    width: 100%;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(217, 90, 34, 0.35);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-verify-action:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(217, 90, 34, 0.5);
+    color: #ffffff !important;
+}
+
+.btn-verify-action:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* ─── Verify Result Tiles ─── */
+.verify-info-tile {
+    background: var(--input-bg, rgba(15, 23, 42, 0.03));
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 1rem 1.15rem;
+    transition: all 0.2s ease;
+}
+
+.verify-info-tile:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+    background: var(--input-bg, rgba(15, 23, 42, 0.05));
+}
+
+.verify-empty-state {
+    background: var(--card-bg, #ffffff);
+    border: 2px dashed var(--glass-border);
+    border-radius: 22px;
+    padding: 3.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    min-height: 420px;
+}
+
+.verify-empty-icon-box {
+    width: 80px;
+    height: 80px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(217, 90, 34, 0.1));
+    border: 1.5px solid rgba(99, 102, 241, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    color: #6366f1;
+}
+
+/* ─── Console Entity Card ─── */
+.console-entity-card {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--glass-border);
+    border-radius: 22px;
+    padding: 1.75rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.console-entity-card:hover {
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.1);
+}
+
+/* ─── Console Record Item (Festivals & Events) ─── */
+.console-record-item {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+@media (min-width: 768px) {
+    .console-record-item {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.console-record-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--record-accent, #6366f1);
+    transition: width 0.2s ease;
+}
+
+.console-record-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--record-accent, #6366f1);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+}
+
+.console-record-item:hover::before {
+    width: 6px;
+}
+
+.console-record-pill-fest {
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #ffffff !important;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    padding: 0.3rem 0.65rem;
+    border-radius: 8px;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.console-record-pill-event {
+    background: linear-gradient(135deg, var(--palette-terracotta, #ea580c), #d97706);
+    color: #ffffff !important;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    padding: 0.3rem 0.65rem;
+    border-radius: 8px;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.console-history-chip {
+    background: var(--input-bg, rgba(15, 23, 42, 0.04));
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 0.2rem 0.55rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-main);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* ─── Financial KPI Cards in Console ─── */
+.console-kpi-card {
+    border-radius: 16px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.console-kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.2);
+}
+
+.console-kpi-collection {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.console-kpi-expenses {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.console-kpi-due {
+    background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.console-kpi-savings {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.console-kpi-icon-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+}
+
+/* ─── Console Detail Modal ─── */
+.console-detail-modal-card {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    width: 100%;
+    max-width: 920px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.console-detail-header {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    color: #ffffff;
+    padding: 1.5rem 1.75rem;
+    position: relative;
+}
+
+.console-yearly-badge {
+    border-radius: 14px;
+    background: var(--input-bg, rgba(15, 23, 42, 0.03));
+    border: 1px solid var(--glass-border);
+    padding: 1rem 1.15rem;
+    transition: all 0.2s ease;
+}
+
+.console-yearly-badge:hover {
+    border-color: rgba(99, 102, 241, 0.35);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+}
+
