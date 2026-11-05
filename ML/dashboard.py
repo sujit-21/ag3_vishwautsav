@@ -170,14 +170,18 @@ url_entity = st.query_params.get("entity", None)
 @st.cache_resource
 def init_connection():
     # Support both OS environment variables (Render, Heroku, Docker) and st.secrets (Streamlit Cloud, local)
-    uri = os.environ.get("MONGO_URI")
+    uri = os.environ.get("MONGO_URI") or os.environ.get("MONGODB_URI")
     if not uri:
         try:
-            uri = st.secrets.get("MONGO_URI") if hasattr(st, "secrets") else None
+            uri = st.secrets.get("MONGO_URI") or st.secrets.get("MONGODB_URI") if hasattr(st, "secrets") else None
         except Exception:
             pass
     if not uri:
-        raise KeyError("MONGO_URI is not set in environment variables or Streamlit secrets.")
+        raise KeyError("MONGO_URI (or MONGODB_URI) is not set in environment variables or Streamlit secrets.")
+    
+    # Strip any accidental wrapping quotes or whitespace
+    uri = uri.strip().strip('"').strip("'")
+    
     # Use a 5-second timeout so the app fails fast locally instead of hanging
     client = MongoClient(uri, serverSelectionTimeoutMS=5000, connectTimeoutMS=5000)
     # Ping the server to validate the connection immediately
