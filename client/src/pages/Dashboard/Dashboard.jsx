@@ -374,36 +374,36 @@ const Dashboard = () => {
                                         <p className="text-muted tiny mb-0">Management &amp; Record Verification</p>
                                     </div>
                                 </div>
-                                <div className="d-flex gap-2 p-1 rounded-3" style={{ background: 'rgba(99,102,241,0.08)', border: '1.5px solid rgba(99,102,241,0.18)' }}>
+                                <div className="d-flex gap-1.5 gap-sm-2 p-1 rounded-3 w-100 w-sm-auto justify-content-between justify-content-sm-start" style={{ background: 'rgba(99,102,241,0.08)', border: '1.5px solid rgba(99,102,241,0.18)' }}>
                                     <button
                                         onClick={() => setActiveAdminTab('console')}
-                                        className="btn border-0 px-4 py-2 rounded-2 small fw-extrabold transition-all d-flex align-items-center gap-2"
+                                        className="btn border-0 flex-grow-1 flex-sm-grow-0 px-2.5 px-sm-4 py-2 rounded-2 small fw-extrabold transition-all d-flex align-items-center justify-content-center gap-1.5"
                                         style={{
                                             background: activeAdminTab === 'console' ? '#6366f1' : 'transparent',
                                             color: activeAdminTab === 'console' ? '#ffffff' : '#64748b'
                                         }}
                                     >
-                                        <LayoutDashboard size={16} /> Console
+                                        <LayoutDashboard size={15} /> Console
                                     </button>
                                     <button
                                         onClick={() => { setActiveAdminTab('verify'); setSearchResult(null); setSearchError(''); }}
-                                        className="btn border-0 px-4 py-2 rounded-2 small fw-extrabold transition-all d-flex align-items-center gap-2"
+                                        className="btn border-0 flex-grow-1 flex-sm-grow-0 px-2.5 px-sm-4 py-2 rounded-2 small fw-extrabold transition-all d-flex align-items-center justify-content-center gap-1.5"
                                         style={{
                                             background: activeAdminTab === 'verify' ? '#6366f1' : 'transparent',
                                             color: activeAdminTab === 'verify' ? '#ffffff' : '#64748b'
                                         }}
                                     >
-                                        <ShieldCheck size={16} /> Verify
+                                        <ShieldCheck size={15} /> Verify
                                     </button>
                                     <button
                                         onClick={() => { setActiveAdminTab('analytics'); setSearchResult(null); setSearchError(''); }}
-                                        className="btn border-0 px-4 py-2 rounded-2 small fw-extrabold transition-all d-flex align-items-center gap-2"
+                                        className="btn border-0 flex-grow-1 flex-sm-grow-0 px-2.5 px-sm-4 py-2 rounded-2 small fw-extrabold transition-all d-flex align-items-center justify-content-center gap-1.5"
                                         style={{
                                             background: activeAdminTab === 'analytics' ? '#6366f1' : 'transparent',
                                             color: activeAdminTab === 'analytics' ? '#ffffff' : '#64748b'
                                         }}
                                     >
-                                        <BarChart3 size={16} /> Analytics
+                                        <BarChart3 size={15} /> Analytics
                                     </button>
                                 </div>
                             </div>
@@ -413,16 +413,15 @@ const Dashboard = () => {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className="glass-card p-2 p-md-4 border border-secondary border-opacity-10 mb-4 shadow-sm w-100"
-                                    style={{ minHeight: '85vh' }}
+                                    className="analytics-glass-card p-3 p-md-4 mb-4 shadow-sm w-100"
                                 >
-                                    <div className="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-3 border-bottom border-secondary border-opacity-10 gap-2">
+                                    <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-3 pb-3 border-bottom border-secondary border-opacity-10 gap-3">
                                         <div>
-                                            <h5 className="fw-bold mb-0 text-main d-flex align-items-center gap-2">
+                                            <h5 className="fw-bold mb-1 text-main d-flex align-items-center gap-2" style={{ fontSize: '1.05rem' }}>
                                                 <BarChart3 className="text-accent-1" size={20} />
                                                 Streamlit Live Intelligence &amp; ML Predictions
                                             </h5>
-                                            <small className="text-muted">
+                                            <small className="text-muted d-block" style={{ fontSize: '0.8rem' }}>
                                                 Interactive machine learning predictions and financial analytics powered by Streamlit
                                             </small>
                                         </div>
@@ -430,22 +429,22 @@ const Dashboard = () => {
                                             href={externalStreamlitUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="btn btn-sm btn-outline-info d-flex align-items-center gap-2 px-3 py-1 rounded-2 fw-semibold"
+                                            className="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center gap-2 px-3 py-1.5 rounded-pill fw-semibold w-100 w-sm-auto text-nowrap"
                                             title="Open in full screen tab"
                                         >
-                                            <ExternalLink size={14} /> Open in New Tab
+                                            <ExternalLink size={14} /> <span>Open Fullscreen</span>
                                         </a>
                                     </div>
 
-                                    <iframe 
-                                        src={fullStreamlitUrl} 
-                                        width="100%" 
-                                        height="850px" 
-                                        style={{ border: 'none', borderRadius: '8px', background: 'transparent', minHeight: '80vh' }} 
-                                        title="Admin Analytics Dashboard"
-                                        allow="clipboard-write"
-                                        loading="lazy"
-                                    />
+                                    <div className="analytics-iframe-container">
+                                        <iframe 
+                                            src={fullStreamlitUrl} 
+                                            className="analytics-responsive-iframe"
+                                            title="Admin Analytics Dashboard"
+                                            allow="clipboard-write"
+                                            loading="lazy"
+                                        />
+                                    </div>
                                 </motion.div>
                             )}
 

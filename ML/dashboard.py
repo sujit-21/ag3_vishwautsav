@@ -9,100 +9,167 @@ from sklearn.ensemble import RandomForestRegressor
 # Set page config for a wider layout
 st.set_page_config(page_title="Vishwautsav Analytics", layout="wide", page_icon="📊")
 
-# Custom CSS: Move Plotly modebar tools below charts so they never overlap data labels
+# Custom CSS: Modern responsive design for smartphones, tablets, and laptops
 st.markdown(
     """
     <style>
-    /* Ensure page content is never hidden behind Streamlit top bar */
+    /* Global Container Setup */
     .block-container {
-        padding-top: 4rem !important;
+        padding-top: 2rem !important;
+        padding-bottom: 3rem !important;
+        max-width: 100% !important;
     }
 
-    /* Responsive styling for smartphones and smaller screens */
+    header[data-testid="stHeader"] {
+        background: transparent !important;
+    }
+
+    /* Desktop KPI Metric Cards */
+    [data-testid="stMetric"] {
+        background: linear-gradient(145deg, #1e293b, #0f172a) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+        box-sizing: border-box !important;
+    }
+    [data-testid="stMetric"]:hover {
+        transform: translateY(-2px);
+        border-color: rgba(99, 102, 241, 0.45) !important;
+    }
+    [data-testid="stMetricValue"] {
+        font-weight: 800 !important;
+        color: #ffffff !important;
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 0.78rem !important;
+        font-weight: 600 !important;
+        color: #94a3b8 !important;
+    }
+
+    /* Responsive Plotly Charts & Tables */
+    .js-plotly-plot, .plotly {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 12px !important;
+    }
+    [data-testid="stDataFrame"], .stTable {
+        width: 100% !important;
+        overflow-x: auto !important;
+        border-radius: 10px !important;
+    }
+
+    /* Floating Sidebar Toggle Button */
+    [data-testid="collapsedControl"] {
+        top: 12px !important;
+        left: 12px !important;
+        background: #1e293b !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        border-radius: 10px !important;
+        padding: 4px !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+        z-index: 999999 !important;
+    }
+
+    /* Move Plotly modebar tools below charts so they never overlap data labels */
+    .js-plotly-plot .plotly .modebar-container,
+    .modebar-container {
+        top: auto !important;
+        bottom: 2px !important;
+        right: 10px !important;
+    }
+    .modebar {
+        background: rgba(15, 23, 42, 0.85) !important;
+        border-radius: 6px !important;
+        padding: 2px 6px !important;
+    }
+    .modebar-btn path {
+        fill: rgba(255, 255, 255, 0.65) !important;
+    }
+    .modebar-btn:hover path {
+        fill: #38bdf8 !important;
+    }
+
+    /* ─── Tablet & Mobile Responsive Breakpoints (≤ 768px) ─── */
     @media (max-width: 768px) {
         .block-container {
-            padding-left: 0.5rem !important;
-            padding-right: 0.5rem !important;
-            padding-top: 4.25rem !important;
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+            padding-top: 1.5rem !important;
             padding-bottom: 2.5rem !important;
             max-width: 100% !important;
         }
 
-        /* Show ALL metric cards HORIZONTALLY with tight gaps - no huge empty spaces */
-        [data-testid="stHorizontalBlock"] {
+        /* Metric cards in horizontal blocks: smooth touch-scrollable row */
+        [data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) {
             display: flex !important;
             flex-direction: row !important;
             flex-wrap: nowrap !important;
             justify-content: flex-start !important;
             align-items: stretch !important;
-            gap: 6px !important;
-            padding: 2px 0 8px 0 !important;
+            gap: 8px !important;
+            padding: 4px 0 10px 0 !important;
             margin: 0 !important;
             width: 100% !important;
             overflow-x: auto !important;
             -webkit-overflow-scrolling: touch !important;
         }
 
-        [data-testid="stHorizontalBlock"] > div,
-        [data-testid="stHorizontalBlock"] [data-testid="column"],
-        [data-testid="stHorizontalBlock"] [data-testid="stColumn"] {
-            flex: 0 0 110px !important;
-            width: 110px !important;
-            min-width: 110px !important;
-            max-width: 110px !important;
+        [data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > [data-testid="column"],
+        [data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) > div {
+            flex: 0 0 auto !important;
+            min-width: 125px !important;
+            max-width: 155px !important;
+            width: auto !important;
             margin: 0 !important;
             padding: 0 !important;
-            box-sizing: border-box !important;
         }
 
-        /* Metric card styling with high-contrast solid background and strict compact width */
-        [data-testid="stHorizontalBlock"] [data-testid="stMetric"],
-        [data-testid="stMetric"] {
-            width: 110px !important;
-            max-width: 110px !important;
-            background: #0f172a !important;
-            border: 1px solid rgba(255, 255, 255, 0.16) !important;
-            border-radius: 8px !important;
-            padding: 5px 6px !important;
-            min-height: 54px !important;
+        [data-testid="stHorizontalBlock"]:has([data-testid="stMetric"]) [data-testid="stMetric"] {
+            min-height: 60px !important;
+            padding: 8px 10px !important;
+            border-radius: 10px !important;
+        }
+
+        /* Regular non-metric columns (forms, inputs, charts): stack naturally 100% width on mobile */
+        [data-testid="stHorizontalBlock"]:not(:has([data-testid="stMetric"])) {
             display: flex !important;
             flex-direction: column !important;
-            justify-content: center !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
-            box-sizing: border-box !important;
+            gap: 12px !important;
+            width: 100% !important;
         }
 
-        /* Make KPI metric cards compact, responsive, and 100% readable */
+        [data-testid="stHorizontalBlock"]:not(:has([data-testid="stMetric"])) > [data-testid="column"],
+        [data-testid="stHorizontalBlock"]:not(:has([data-testid="stMetric"])) > div {
+            width: 100% !important;
+            min-width: 100% !important;
+            flex: 1 1 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Mobile metric typography */
         [data-testid="stMetricValue"] {
-            font-size: 0.92rem !important;
-            font-weight: 700 !important;
-            line-height: 1.15 !important;
-            color: #ffffff !important;
+            font-size: 1.05rem !important;
+            line-height: 1.2 !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
         }
         [data-testid="stMetricLabel"] {
-            font-size: 0.65rem !important;
-            font-weight: 600 !important;
+            font-size: 0.68rem !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
-            color: #94a3b8 !important;
             margin-bottom: 2px !important;
         }
         [data-testid="stMetricDelta"] {
-            font-size: 0.60rem !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-        }
-        [data-testid="stMetricDelta"] svg {
-            width: 10px !important;
-            height: 10px !important;
+            font-size: 0.65rem !important;
         }
 
-        /* Clean subtle scrollbar for horizontal metric cards row */
+        /* Subtle scrollbar */
         [data-testid="stHorizontalBlock"]::-webkit-scrollbar {
             height: 3px !important;
         }
@@ -110,21 +177,17 @@ st.markdown(
             background: transparent !important;
         }
         [data-testid="stHorizontalBlock"]::-webkit-scrollbar-thumb {
-            background: rgba(99, 102, 241, 0.35) !important;
+            background: rgba(99, 102, 241, 0.4) !important;
             border-radius: 3px !important;
         }
 
-        /* Mobile typography - preventing clipping */
-        h1 { 
-            font-size: 1.35rem !important; 
-            line-height: 1.3 !important;
-            margin-top: 0.25rem !important;
-            margin-bottom: 0.5rem !important;
-            overflow: visible !important;
+        /* Mobile Typography Scaling */
+        h1 { font-size: 1.4rem !important; line-height: 1.25 !important; }
+        h2 { font-size: 1.2rem !important; line-height: 1.25 !important; }
+        h3 { font-size: 1.05rem !important; line-height: 1.25 !important; }
+        .stSelectbox, .stTextInput, .stDateInput, .stButton {
+            width: 100% !important;
         }
-        h2 { font-size: 1.2rem !important; }
-        h3 { font-size: 1.05rem !important; }
-        .stSelectbox { font-size: 0.9rem !important; }
     }
 
     /* Move Plotly modebar tools below charts so they never overlap data labels */
