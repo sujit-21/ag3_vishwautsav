@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Landmark, Calendar, MapPin, Users, LogOut, LayoutDashboard, Flag, X, TrendingUp, TrendingDown, Info, History, Search, Building, CreditCard, ChevronRight, MessageSquare, HelpCircle, User as UserIcon, BarChart3, FileDown, ShieldCheck, ExternalLink, Fingerprint, Clock, Wallet, CheckCircle2, Sparkles, Receipt } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import VIPCard from '../../components/VIPCard'
+import OtpModal from '../../components/OtpModal'
 import { Link, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 
@@ -30,6 +31,8 @@ const Dashboard = () => {
     const [searchResult, setSearchResult] = useState(null)
     const [searchLoading, setSearchLoading] = useState(false)
     const [searchError, setSearchError] = useState('')
+    const [showPassOtpModal, setShowPassOtpModal] = useState(false)
+    const [passVerifiedWithOtp, setPassVerifiedWithOtp] = useState(false)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -423,11 +426,17 @@ const Dashboard = () => {
                                 </div>
 
                                 <button
-                                    onClick={() => downloadCardPDF(searchResult)}
+                                    onClick={() => {
+                                        if (passVerifiedWithOtp) {
+                                            downloadCardPDF(searchResult);
+                                        } else {
+                                            setShowPassOtpModal(true);
+                                        }
+                                    }}
                                     className="btn btn-luxury-submit w-100 mt-3.5 py-2.5 d-flex align-items-center justify-content-center gap-2 shadow-sm"
                                 >
-                                    <FileDown size={18} />
-                                    <span>Download Official Pass PDF</span>
+                                    {passVerifiedWithOtp ? <FileDown size={18} /> : <ShieldCheck size={18} />}
+                                    <span>{passVerifiedWithOtp ? 'Download Official Pass PDF' : 'Verify Ownership & Download PDF'}</span>
                                 </button>
                             </div>
                         </motion.div>
@@ -889,6 +898,23 @@ const Dashboard = () => {
                     </motion.div>
                 </div>
             )}
+            {/* Pass Download Ownership OTP Verification Modal */}
+            <OtpModal
+                isOpen={showPassOtpModal}
+                onClose={() => setShowPassOtpModal(false)}
+                email={searchResult?.contact?.includes('@') ? searchResult.contact : (user?.email || '')}
+                phone={searchResult?.contact && !searchResult.contact.includes('@') ? searchResult.contact : ''}
+                userName={searchResult?.name || 'Passholder'}
+                purpose="pass_download"
+                title="Verify Pass Ownership"
+                description="To ensure security and prevent unauthorized access, verify with your registered email or phone."
+                onSuccess={() => {
+                    setPassVerifiedWithOtp(true);
+                    if (searchResult) {
+                        downloadCardPDF(searchResult);
+                    }
+                }}
+            />
         </div>
     )
 }
