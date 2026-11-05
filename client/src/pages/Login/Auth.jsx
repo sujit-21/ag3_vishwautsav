@@ -255,10 +255,13 @@ IMPORTANT:
 
         try {
             const isEmail = contact.type === 'email'
+            const userEmail = contact.email || (isEmail ? contact.target : '')
+            const userPhone = contact.phone || (!isEmail ? contact.target : '')
+
             const payload = {
                 name: signupData.name.trim(),
-                email: isEmail ? contact.target : (contact.raw ? `${contact.raw}@phone.vishwautsav.internal` : contact.target),
-                phone: isEmail ? '' : contact.target,
+                email: userEmail || (userPhone ? `${contact.raw || 'user'}@phone.vishwautsav.internal` : signupData.email),
+                phone: userPhone || '',
                 password: signupData.password,
                 role: signupData.role,
                 entityMode: signupData.entityMode,
@@ -317,9 +320,17 @@ IMPORTANT:
     const handleOtpVerified = async (result) => {
         const contact = detectContact(signupData.email)
         setIsVerified(true)
-        setVerifiedContact(contact.target)
+        const activeTarget = result.verifiedTarget || contact.target
+        setVerifiedContact(activeTarget)
         setSuccessMsg(`Identity verified via ${result.method === 'email' ? 'Gmail' : 'SMS'}! Finalizing your account...`)
-        await completeRegistration(contact)
+
+        await completeRegistration({
+            ...contact,
+            type: result.method,
+            target: activeTarget,
+            email: result.method === 'email' ? activeTarget : (contact.type === 'email' ? contact.target : ''),
+            phone: contact.type === 'phone' ? contact.target : (result.method === 'phone' ? activeTarget : '')
+        })
     }
 
     // Filtered entities for dropdown

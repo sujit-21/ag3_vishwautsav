@@ -20,16 +20,22 @@ const OtpModal = ({
 }) => {
     // Active verification mode
     const [mode, setMode] = useState(phone && !email ? 'phone' : initialMode);
+    const [fallbackEmail, setFallbackEmail] = useState(email || '');
+    const [showEmailInput, setShowEmailInput] = useState(false);
 
     useEffect(() => {
-        if (phone && !email) {
+        if (email) setFallbackEmail(email);
+    }, [email]);
+
+    useEffect(() => {
+        if (phone && !email && !fallbackEmail) {
             setMode('phone');
-        } else if (email && !phone) {
+        } else if ((email || fallbackEmail) && !phone) {
             setMode('email');
         } else if (initialMode) {
             setMode(initialMode);
         }
-    }, [isOpen, initialMode, email, phone]);
+    }, [isOpen, initialMode, email, phone, fallbackEmail]);
     
     // 6-digit code array
     const [digits, setDigits] = useState(['', '', '', '', '', '']);
@@ -114,7 +120,21 @@ const OtpModal = ({
             setTimeout(() => setSuccessMessage(''), 3500);
         } catch (err) {
             console.error('Firebase Phone Auth Error:', err);
-            setError(err.message?.replace('Firebase: ', '') || 'Failed to dispatch phone SMS OTP');
+            let rawMsg = err.message || '';
+            let formattedError = rawMsg.replace('Firebase: ', '');
+
+            if (rawMsg.includes('api-key-not-valid') || rawMsg.includes('auth/invalid-api-key')) {
+                formattedError = 'Phone Auth is not yet enabled in Firebase Console (Click "Get Started" in Firebase -> Authentication). You can verify with Gmail OTP below!';
+                setShowEmailInput(true);
+            } else if (rawMsg.includes('captcha-check-failed') || rawMsg.includes('app-not-authorized')) {
+                formattedError = 'SMS domain not whitelisted. Add your URL to Firebase Authorized Domains, or verify with Gmail OTP below.';
+                setShowEmailInput(true);
+            } else if (rawMsg.includes('quota-exceeded')) {
+                formattedError = 'SMS quota reached. Please use Gmail verification below.';
+                setShowEmailInput(true);
+            }
+
+            setError(formattedError);
             if (recaptchaVerifierRef.current) {
                 try { recaptchaVerifierRef.current.clear(); } catch (e) {}
                 recaptchaVerifierRef.current = null;
@@ -126,11 +146,17 @@ const OtpModal = ({
 
     // Send Email OTP via Resend
     const sendEmailOtp = async (targetEmail) => {
+        const dest = (targetEmail || fallbackEmail || email || '').trim();
+        if (!dest || !dest.includes('@')) {
+            setError('Please enter a valid Gmail / email address.');
+            return;
+        }
+
         setError('');
         setResendLoading(true);
         try {
             const res = await axios.post('/api/otp/send', {
-                email: targetEmail,
+                email: dest,
                 purpose,
                 userName
             });
@@ -138,7 +164,7 @@ const OtpModal = ({
             if (res.data.success) {
                 setTimer(60);
                 setCanResend(false);
-                setSuccessMessage(`Email code sent to ${maskEmail(targetEmail)}`);
+                setSuccessMessage(`Email code sent to ${maskEmail(dest)}`);
                 setTimeout(() => setSuccessMessage(''), 3500);
             }
         } catch (err) {
@@ -234,8 +260,9 @@ const OtpModal = ({
                 }, 800);
             } else {
                 // Email verification via Resend
+                const dest = (fallbackEmail || email || '').trim();
                 const res = await axios.post('/api/otp/verify', {
-                    email,
+                    email: dest,
                     otp: code,
                     purpose
                 });
@@ -243,7 +270,7 @@ const OtpModal = ({
                 if (res.data.success) {
                     setSuccessMessage('Email identity verified successfully!');
                     setTimeout(() => {
-                        if (onSuccess) onSuccess({ method: 'email', ...res.data });
+                        if (onSuccess) onSuccess({ method: 'email', ...res.data, verifiedTarget: dest });
                         onClose();
                     }, 800);
                 }
@@ -404,6 +431,48 @@ const OtpModal = ({
                                 </span>
                             )}
                         </div>
+
+                        {/* Direct switch to Gmail OTP fallback */}
+                        {mode === 'phone' && (
+                            <div className="mt-3 pt-2 text-center border-top" style={{ borderColor: 'var(--glass-border)' }}>
+                                {!showEmailInput ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowEmailInput(true)}
+                                        className="btn btn-link extra-tiny text-decoration-none fw-bold p-0 text-primary d-inline-flex align-items-center gap-1"
+                                    >
+                                        <Mail size={12} /> Switch to Gmail OTP verification
+                                    </button>
+                                ) : (
+                                    <div className="p-2.5 rounded-3 border mt-1 text-start" style={{ background: 'var(--input-bg)' }}>
+                                        <label className="extra-tiny fw-bold text-muted text-uppercase mb-1 d-block">
+                                            Receive 6-Digit OTP via Gmail:
+                                        </label>
+                                        <div className="d-flex gap-1.5">
+                                            <input
+                                                type="email"
+                                                placeholder="Enter your Gmail address"
+                                                value={fallbackEmail}
+                                                onChange={(e) => setFallbackEmail(e.target.value)}
+                                                className="form-control form-control-sm extra-tiny rounded-3"
+                                                style={{ fontSize: '0.8rem' }}
+                                            />
+                                            <button
+                                                type="button"
+                                                disabled={resendLoading || !fallbackEmail || !fallbackEmail.includes('@')}
+                                                onClick={() => {
+                                                    setMode('email');
+                                                    sendEmailOtp(fallbackEmail);
+                                                }}
+                                                className="btn btn-primary btn-sm extra-tiny fw-bold px-3 rounded-3 text-nowrap"
+                                            >
+                                                {resendLoading ? 'Sending...' : 'Send to Gmail'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </motion.div>
             </div>
