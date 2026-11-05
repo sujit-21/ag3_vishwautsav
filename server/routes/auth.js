@@ -6,13 +6,80 @@ const jwt = require('jsonwebtoken');
 const auth = require('../middleware/auth');
 const entityRoute = require('./entity');
 
+// Pre-check availability before sending OTP
+router.post('/check-availability', async (req, res) => {
+    try {
+        const { identifier } = req.body;
+        if (!identifier || !identifier.trim()) {
+            return res.status(400).json({ available: false, message: 'Email or phone number is required' });
+        }
+
+        const clean = identifier.trim();
+        const isEmail = clean.includes('@');
+        let existingUser = null;
+
+        if (isEmail) {
+            existingUser = await User.findOne({ email: clean.toLowerCase() });
+        } else {
+            const digits = clean.replace(/[^0-9]/g, '');
+            const queries = [{ email: clean }, { phone: clean }];
+            if (digits) {
+                queries.push({ phone: digits });
+                queries.push({ email: digits });
+                queries.push({ phone: `+91${digits.replace(/^91/, '')}` });
+            }
+            existingUser = await User.findOne({ $or: queries });
+        }
+
+        if (existingUser) {
+            return res.status(400).json({
+                available: false,
+                message: isEmail 
+                    ? 'An account with this email already exists. Please sign in.' 
+                    : 'An account with this phone number already exists. Please sign in.'
+            });
+        }
+
+        return res.json({ available: true });
+    } catch (err) {
+        console.error('Check availability error:', err);
+        return res.status(500).json({ available: false, message: 'Error checking account availability' });
+    }
+});
+
 // Signup
 router.post('/signup', async (req, res) => {
     try {
-        const { name, email, password, role = 'user', entityMode, entityName, securityKey } = req.body;
+        const { name, email, phone, password, role = 'user', entityMode, entityName, securityKey } = req.body;
         
-        let user = await User.findOne({ email });
-        if (user) return res.status(400).json({ message: 'An account with this email already exists' });
+        const cleanEmail = email && email.includes('@') ? email.toLowerCase().trim() : null;
+        const cleanPhone = phone ? phone.trim() : (!cleanEmail && email ? email.trim() : null);
+
+        if (!cleanEmail && !cleanPhone) {
+            return res.status(400).json({ message: 'Email or mobile phone number is required' });
+        }
+
+        // Build uniqueness query
+        const uniquenessQuery = [];
+        if (cleanEmail) uniquenessQuery.push({ email: cleanEmail });
+        if (cleanPhone) {
+            uniquenessQuery.push({ phone: cleanPhone });
+            uniquenessQuery.push({ email: cleanPhone });
+            const digits = cleanPhone.replace(/[^0-9]/g, '');
+            if (digits) {
+                uniquenessQuery.push({ phone: digits });
+                uniquenessQuery.push({ phone: `+91${digits.replace(/^91/, '')}` });
+            }
+        }
+
+        let user = await User.findOne({ $or: uniquenessQuery });
+        if (user) {
+            return res.status(400).json({ 
+                message: cleanEmail && user.email === cleanEmail
+                    ? 'An account with this email already exists' 
+                    : 'An account with this phone number already exists' 
+            });
+        }
 
         const effectiveRole = role === 'admin' ? 'admin' : 'user';
         let assignedEntityName = null;
@@ -72,7 +139,8 @@ router.post('/signup', async (req, res) => {
 
         user = new User({ 
             name, 
-            email, 
+            email: cleanEmail || cleanPhone, 
+            phone: cleanPhone || '',
             password, 
             role: effectiveRole,
             baseRole: effectiveRole,
@@ -99,6 +167,7 @@ router.post('/signup', async (req, res) => {
                 id: user._id, 
                 name: user.name, 
                 email: user.email, 
+                phone: user.phone,
                 role: user.role,
                 entityName: user.entityName 
             },
@@ -114,12 +183,33 @@ router.post('/signup', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+        const { email, identifier, password } = req.body;
+        const targetId = (identifier || email || '').trim();
+
+        if (!targetId || !password) {
+            return res.status(400).json({ message: 'Email or phone and password are required' });
+        }
+
+        const isEmail = targetId.includes('@');
+        let user = null;
+
+        if (isEmail) {
+            user = await User.findOne({ email: targetId.toLowerCase() });
+        } else {
+            const digits = targetId.replace(/[^0-9]/g, '');
+            const queries = [{ email: targetId }, { phone: targetId }];
+            if (digits) {
+                queries.push({ phone: digits });
+                queries.push({ email: digits });
+                queries.push({ phone: `+91${digits.replace(/^91/, '')}` });
+            }
+            user = await User.findOne({ $or: queries });
+        }
+
+        if (!user) return res.status(400).json({ message: 'Invalid credentials. User not found.' });
 
         const isMatch = await user.comparePassword(password);
-        if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+        if (!isMatch) return res.status(400).json({ message: 'Invalid credentials. Incorrect password.' });
 
         // Lookup linked entity if user has entityName
         let entity = null;
@@ -138,6 +228,7 @@ router.post('/login', async (req, res) => {
                 id: user._id, 
                 name: user.name, 
                 email: user.email, 
+                phone: user.phone,
                 role: user.role,
                 entityName: user.entityName 
             },

@@ -20,6 +20,16 @@ const OtpModal = ({
 }) => {
     // Active verification mode
     const [mode, setMode] = useState(phone && !email ? 'phone' : initialMode);
+
+    useEffect(() => {
+        if (phone && !email) {
+            setMode('phone');
+        } else if (email && !phone) {
+            setMode('email');
+        } else if (initialMode) {
+            setMode(initialMode);
+        }
+    }, [isOpen, initialMode, email, phone]);
     
     // 6-digit code array
     const [digits, setDigits] = useState(['', '', '', '', '', '']);
@@ -86,6 +96,9 @@ const OtpModal = ({
 
         try {
             // Setup reCAPTCHA
+            const container = document.getElementById('recaptcha-container');
+            if (container) container.innerHTML = '';
+
             if (!recaptchaVerifierRef.current) {
                 recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
                     size: 'invisible',
