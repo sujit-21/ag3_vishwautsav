@@ -51,11 +51,10 @@ const Auth = ({ defaultTab = 'login' }) => {
     const [entitySearch, setEntitySearch] = useState('')
     const [isEntityDropdownOpen, setIsEntityDropdownOpen] = useState(false)
 
-    // Dual-channel OTP Verification State
+    // Gmail OTP Verification State
     const [isOtpModalOpen, setIsOtpModalOpen] = useState(false)
     const [isVerified, setIsVerified] = useState(false)
     const [verifiedContact, setVerifiedContact] = useState('')
-    const [otpTarget, setOtpTarget] = useState({ email: '', phone: '', mode: 'email' })
 
     // Load remembered email and check redirect
     useEffect(() => {
@@ -178,22 +177,7 @@ IMPORTANT:
         }
     }
 
-    // Helper: Detect contact method (Email/Gmail vs Phone)
-    const detectContact = (val) => {
-        const str = (val || '').trim()
-        if (!str) return { type: 'empty', target: '', email: '', phone: '' }
-        if (str.includes('@')) {
-            return { type: 'email', target: str.toLowerCase(), email: str.toLowerCase(), phone: '' }
-        }
-        const digits = str.replace(/[^0-9]/g, '')
-        if (digits.length >= 7) {
-            const formatted = str.startsWith('+') ? str : `+91${digits.replace(/^91/, '')}`
-            return { type: 'phone', target: formatted, email: '', phone: formatted, raw: digits }
-        }
-        return { type: 'partial', target: str, email: '', phone: '' }
-    }
-
-    // Trigger OTP Verification for either Gmail or Phone
+    // Trigger OTP Verification for Gmail / Email
     const triggerVerification = async () => {
         setError('')
         setSuccessMsg('')
@@ -202,9 +186,9 @@ IMPORTANT:
             setError('Please enter your full name')
             return false
         }
-        const contact = detectContact(signupData.email)
-        if (contact.type === 'empty' || contact.type === 'partial') {
-            setError('Please enter a valid Gmail address or mobile phone number')
+        const cleanEmail = signupData.email.trim().toLowerCase()
+        if (!cleanEmail || !cleanEmail.includes('@')) {
+            setError('Please enter a valid Gmail or official email address')
             return false
         }
         if (!signupData.password || signupData.password.length < 6) {
@@ -225,9 +209,9 @@ IMPORTANT:
         // Check availability on backend before triggering OTP dispatch
         setLoading(true)
         try {
-            const checkRes = await axios.post('/api/auth/check-availability', { identifier: contact.target })
+            const checkRes = await axios.post('/api/auth/check-availability', { identifier: cleanEmail })
             if (!checkRes.data.available) {
-                setError(checkRes.data.message || 'An account with this email/phone already exists.')
+                setError(checkRes.data.message || 'An account with this email already exists.')
                 setLoading(false)
                 return false
             }
@@ -239,29 +223,19 @@ IMPORTANT:
             setLoading(false)
         }
 
-        setOtpTarget({
-            email: contact.type === 'email' ? contact.target : '',
-            phone: contact.type === 'phone' ? contact.target : '',
-            mode: contact.type === 'email' ? 'email' : 'phone'
-        })
         setIsOtpModalOpen(true)
         return true
     }
 
-    // Complete Registration once verified
-    const completeRegistration = async (contact) => {
+    // Complete Registration once email OTP is verified
+    const completeRegistration = async (verifiedEmail) => {
         setLoading(true)
         setError('')
 
         try {
-            const isEmail = contact.type === 'email'
-            const userEmail = contact.email || (isEmail ? contact.target : '')
-            const userPhone = contact.phone || (!isEmail ? contact.target : '')
-
             const payload = {
                 name: signupData.name.trim(),
-                email: userEmail || (userPhone ? `${contact.raw || 'user'}@phone.vishwautsav.internal` : signupData.email),
-                phone: userPhone || '',
+                email: verifiedEmail || signupData.email.trim().toLowerCase(),
                 password: signupData.password,
                 role: signupData.role,
                 entityMode: signupData.entityMode,
@@ -298,39 +272,31 @@ IMPORTANT:
         }
     }
 
-    // Handle Signup Submit (Enforces OTP Verification for both Participant & Admin)
+    // Handle Signup Submit (Enforces Gmail OTP Verification for both Participant & Admin)
     const handleSignupSubmit = async (e) => {
         if (e) e.preventDefault()
         setError('')
         setSuccessMsg('')
 
-        const contact = detectContact(signupData.email)
+        const cleanEmail = signupData.email.trim().toLowerCase()
 
-        // If not yet verified with OTP or user changed email/phone after verification
-        if (!isVerified || verifiedContact !== contact.target) {
+        // If not yet verified with OTP or user changed email after verification
+        if (!isVerified || verifiedContact !== cleanEmail) {
             await triggerVerification()
             return
         }
 
         // Already verified -> complete registration
-        await completeRegistration(contact)
+        await completeRegistration(cleanEmail)
     }
 
     // Callback on successful OTP verification from OtpModal
     const handleOtpVerified = async (result) => {
-        const contact = detectContact(signupData.email)
+        const cleanEmail = (result.verifiedTarget || signupData.email).trim().toLowerCase()
         setIsVerified(true)
-        const activeTarget = result.verifiedTarget || contact.target
-        setVerifiedContact(activeTarget)
-        setSuccessMsg(`Identity verified via ${result.method === 'email' ? 'Gmail' : 'SMS'}! Finalizing your account...`)
-
-        await completeRegistration({
-            ...contact,
-            type: result.method,
-            target: activeTarget,
-            email: result.method === 'email' ? activeTarget : (contact.type === 'email' ? contact.target : ''),
-            phone: contact.type === 'phone' ? contact.target : (result.method === 'phone' ? activeTarget : '')
-        })
+        setVerifiedContact(cleanEmail)
+        setSuccessMsg('Email verified successfully! Creating your account...')
+        await completeRegistration(cleanEmail)
     }
 
     // Filtered entities for dropdown
@@ -544,20 +510,16 @@ IMPORTANT:
                                 </div>
                             </div>
 
-                            {/* Email or Phone Number with Dynamic OTP Detection */}
+                            {/* Email Address with Dynamic Gmail OTP Detection */}
                             <div className="mb-3 text-start">
                                 <label className="form-label text-muted text-uppercase fw-bold mb-1" style={{ fontSize: '0.68rem', letterSpacing: '1px' }}>
-                                    Email or Phone Number
+                                    Official Email Address (Gmail)
                                 </label>
                                 <div className="input-group-premium align-items-center" style={{ height: '44px' }}>
-                                    {detectContact(signupData.email).type === 'phone' ? (
-                                        <Phone size={16} className="text-muted ms-3" />
-                                    ) : (
-                                        <User size={16} className="text-muted ms-3" />
-                                    )}
+                                    <Mail size={16} className="text-muted ms-3" />
                                     <input
-                                        type="text"
-                                        placeholder="Email (Gmail) or Phone Number"
+                                        type="email"
+                                        placeholder="e.g. yourname@gmail.com"
                                         value={signupData.email}
                                         onChange={(e) => {
                                             setSignupData({ ...signupData, email: e.target.value })
@@ -572,38 +534,31 @@ IMPORTANT:
                                 {/* Dynamic Verification Channel Pill */}
                                 {signupData.email.trim() && (
                                     <div className="mt-2 p-2 px-2.5 rounded-3 d-flex align-items-center justify-content-between" style={{
-                                        background: isVerified 
-                                            ? 'rgba(16, 185, 129, 0.08)' 
-                                            : (detectContact(signupData.email).type === 'email' ? 'rgba(79, 70, 229, 0.06)' : 'rgba(234, 88, 12, 0.06)'),
+                                        background: isVerified ? 'rgba(16, 185, 129, 0.08)' : 'rgba(79, 70, 229, 0.06)',
                                         border: `1px solid ${isVerified ? 'rgba(16, 185, 129, 0.25)' : 'var(--glass-border)'}`
                                     }}>
                                         <div className="d-flex align-items-center gap-1.5 extra-tiny fw-semibold" style={{
-                                            color: isVerified ? '#10b981' : (detectContact(signupData.email).type === 'email' ? '#4f46e5' : '#ea580c')
+                                            color: isVerified ? '#10b981' : '#4f46e5'
                                         }}>
                                             {isVerified ? (
                                                 <>
                                                     <CheckCircle2 size={13} className="text-success flex-shrink-0" />
-                                                    <span>Verified via {otpTarget.mode === 'email' ? 'Gmail OTP' : 'SMS OTP'}</span>
+                                                    <span>Verified via Gmail OTP</span>
                                                 </>
-                                            ) : detectContact(signupData.email).type === 'email' ? (
+                                            ) : signupData.email.includes('@') ? (
                                                 <>
                                                     <Mail size={13} className="text-primary flex-shrink-0" />
-                                                    <span>Gmail detected • OTP arrives in inbox</span>
-                                                </>
-                                            ) : detectContact(signupData.email).type === 'phone' ? (
-                                                <>
-                                                    <Phone size={13} className="text-success flex-shrink-0" />
-                                                    <span>Phone detected • OTP arrives via SMS</span>
+                                                    <span>Gmail detected • 6-digit OTP will arrive in inbox</span>
                                                 </>
                                             ) : (
                                                 <>
                                                     <AlertCircle size={13} className="text-muted flex-shrink-0" />
-                                                    <span>Enter a valid Gmail or phone number</span>
+                                                    <span>Enter your full email address (e.g. @gmail.com)</span>
                                                 </>
                                             )}
                                         </div>
 
-                                        {!isVerified && (detectContact(signupData.email).type === 'email' || detectContact(signupData.email).type === 'phone') && (
+                                        {!isVerified && signupData.email.includes('@') && (
                                             <button
                                                 type="button"
                                                 onClick={triggerVerification}
@@ -813,19 +768,15 @@ IMPORTANT:
                 </motion.div>
             </div>
 
-            {/* Dual-Channel OTP Verification Modal */}
+            {/* 100% Free Gmail OTP Verification Modal */}
             <OtpModal
                 isOpen={isOtpModalOpen}
                 onClose={() => setIsOtpModalOpen(false)}
-                email={otpTarget.email}
-                phone={otpTarget.phone}
-                initialMode={otpTarget.mode}
+                email={signupData.email}
                 purpose="signup"
                 userName={signupData.name}
                 title={signupData.role === 'admin' ? "Admin Security Verification" : "Participant Security Verification"}
-                description={otpTarget.mode === 'email' 
-                    ? `Enter the 6-digit verification code sent to your Gmail inbox.` 
-                    : `Enter the 6-digit SMS verification code sent to your mobile phone.`}
+                description="Enter the 6-digit verification code sent to your Gmail / Email inbox."
                 onSuccess={handleOtpVerified}
             />
         </div>

@@ -1,42 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './OtpModal.css';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, Mail, Phone, ArrowRight, RotateCw, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Mail, ArrowRight, RotateCw, X, CheckCircle2, AlertCircle } from 'lucide-react';
 import axios from 'axios';
-import { auth } from '../config/firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
 
 const OtpModal = ({
     isOpen,
     onClose,
     email = '',
-    phone = '',
-    initialMode = 'email', // 'email' | 'phone'
     purpose = 'signup',
     userName = '',
     title = 'Security Verification',
     description = '',
     onSuccess
 }) => {
-    // Active verification mode
-    const [mode, setMode] = useState(phone && !email ? 'phone' : initialMode);
-    const [fallbackEmail, setFallbackEmail] = useState(email || '');
-    const [showEmailInput, setShowEmailInput] = useState(false);
-
-    useEffect(() => {
-        if (email) setFallbackEmail(email);
-    }, [email]);
-
-    useEffect(() => {
-        if (phone && !email && !fallbackEmail) {
-            setMode('phone');
-        } else if ((email || fallbackEmail) && !phone) {
-            setMode('email');
-        } else if (initialMode) {
-            setMode(initialMode);
-        }
-    }, [isOpen, initialMode, email, phone, fallbackEmail]);
-    
     // 6-digit code array
     const [digits, setDigits] = useState(['', '', '', '', '', '']);
     const [loading, setLoading] = useState(false);
@@ -45,25 +22,14 @@ const OtpModal = ({
     const [successMessage, setSuccessMessage] = useState('');
     const [timer, setTimer] = useState(60);
     const [canResend, setCanResend] = useState(false);
-
-    // Firebase Phone Auth confirmation object
-    const [confirmationResult, setConfirmationResult] = useState(null);
-    const recaptchaVerifierRef = useRef(null);
     const inputRefs = useRef([]);
 
-    // Mask display
+    // Mask display for privacy
     const maskEmail = (str) => {
         if (!str || !str.includes('@')) return str || 'your email';
         const [name, domain] = str.split('@');
         if (name.length <= 2) return `${name[0]}*@${domain}`;
-        return `${name[0]}${'*'.repeat(name.length - 2)}${name[name.length - 1]}@${domain}`;
-    };
-
-    const maskPhone = (str) => {
-        if (!str) return 'your phone';
-        const clean = str.replace(/\s+/g, '');
-        if (clean.length < 6) return clean;
-        return `${clean.slice(0, 3)} **** ${clean.slice(-4)}`;
+        return `${name[0]}${'*'.repeat(Math.max(name.length - 2, 1))}${name[name.length - 1]}@${domain}`;
     };
 
     // Countdown Timer
@@ -80,81 +46,11 @@ const OtpModal = ({
         return () => clearInterval(interval);
     }, [isOpen, timer]);
 
-    // Cleanup Recaptcha on unmount or close
-    useEffect(() => {
-        return () => {
-            if (recaptchaVerifierRef.current) {
-                try {
-                    recaptchaVerifierRef.current.clear();
-                } catch (e) {
-                    // Ignore cleanup error
-                }
-                recaptchaVerifierRef.current = null;
-            }
-        };
-    }, []);
-
-    // Send Phone SMS via Firebase
-    const sendPhoneSms = async (targetPhone) => {
-        const fullPhone = targetPhone.startsWith('+') ? targetPhone : `+91${targetPhone.replace(/^0+/, '')}`;
-        setError('');
-        setResendLoading(true);
-
-        try {
-            // Setup reCAPTCHA
-            const container = document.getElementById('recaptcha-container');
-            if (container) container.innerHTML = '';
-
-            if (!recaptchaVerifierRef.current) {
-                recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                    size: 'invisible',
-                    callback: () => {}
-                });
-            }
-
-            const confirmation = await signInWithPhoneNumber(auth, fullPhone, recaptchaVerifierRef.current);
-            setConfirmationResult(confirmation);
-            setTimer(60);
-            setCanResend(false);
-            setSuccessMessage(`SMS OTP sent to ${maskPhone(fullPhone)}`);
-            setTimeout(() => setSuccessMessage(''), 3500);
-        } catch (err) {
-            console.error('Firebase Phone Auth Error:', err);
-            let rawMsg = err.message || '';
-            let formattedError = rawMsg.replace('Firebase: ', '');
-
-            if (rawMsg.includes('billing-not-enabled')) {
-                formattedError = 'Firebase requires a Billing account (Blaze plan) to send real carrier SMS. Please verify with Gmail OTP below (100% free), or add this number as a Test Phone Number in Firebase!';
-                setShowEmailInput(true);
-            } else if (rawMsg.includes('operation-not-allowed') || rawMsg.includes('region')) {
-                formattedError = 'SMS Region Policy: In Firebase -> Authentication -> Settings -> SMS region policy, allow India (+91), or verify with Gmail OTP below.';
-                setShowEmailInput(true);
-            } else if (rawMsg.includes('api-key-not-valid') || rawMsg.includes('auth/invalid-api-key')) {
-                formattedError = 'Firebase API key updating. You can verify instantly with Gmail OTP below!';
-                setShowEmailInput(true);
-            } else if (rawMsg.includes('captcha-check-failed') || rawMsg.includes('app-not-authorized')) {
-                formattedError = 'SMS domain not whitelisted. Add your URL to Firebase Authorized Domains, or verify with Gmail OTP below.';
-                setShowEmailInput(true);
-            } else if (rawMsg.includes('quota-exceeded')) {
-                formattedError = 'SMS quota reached. Please use Gmail verification below.';
-                setShowEmailInput(true);
-            }
-
-            setError(formattedError);
-            if (recaptchaVerifierRef.current) {
-                try { recaptchaVerifierRef.current.clear(); } catch (e) {}
-                recaptchaVerifierRef.current = null;
-            }
-        } finally {
-            setResendLoading(false);
-        }
-    };
-
     // Send Email OTP via Resend
     const sendEmailOtp = async (targetEmail) => {
-        const dest = (targetEmail || fallbackEmail || email || '').trim();
+        const dest = (targetEmail || email || '').trim();
         if (!dest || !dest.includes('@')) {
-            setError('Please enter a valid Gmail / email address.');
+            setError('Please provide a valid Gmail or email address');
             return;
         }
 
@@ -170,36 +66,31 @@ const OtpModal = ({
             if (res.data.success) {
                 setTimer(60);
                 setCanResend(false);
-                setSuccessMessage(`Email code sent to ${maskEmail(dest)}`);
+                setSuccessMessage(`Verification code sent to ${maskEmail(dest)}`);
                 setTimeout(() => setSuccessMessage(''), 3500);
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to deliver email OTP');
+            setError(err.response?.data?.message || 'Failed to deliver verification email. Please check the address.');
         } finally {
             setResendLoading(false);
         }
     };
 
-    // Initialize when modal opens or mode changes
+    // Auto-dispatch on open
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && email) {
             setDigits(['', '', '', '', '', '']);
             setError('');
             setSuccessMessage('');
             setTimer(60);
             setCanResend(false);
-
-            if (mode === 'email' && email) {
-                sendEmailOtp(email);
-            } else if (mode === 'phone' && phone) {
-                sendPhoneSms(phone);
-            }
+            sendEmailOtp(email);
 
             setTimeout(() => {
                 inputRefs.current[0]?.focus();
             }, 150);
         }
-    }, [isOpen, mode]);
+    }, [isOpen, email]);
 
     const handleDigitChange = (index, value) => {
         const clean = value.replace(/[^0-9]/g, '');
@@ -254,40 +145,22 @@ const OtpModal = ({
         setError('');
 
         try {
-            if (mode === 'phone') {
-                if (!confirmationResult) {
-                    throw new Error('No active SMS confirmation found. Please request a new code.');
-                }
-                const result = await confirmationResult.confirm(code);
-                setSuccessMessage('Phone identity verified successfully!');
-                setTimeout(() => {
-                    if (onSuccess) onSuccess({ method: 'phone', user: result.user });
-                    onClose();
-                }, 800);
-            } else {
-                // Email verification via Resend
-                const dest = (fallbackEmail || email || '').trim();
-                const res = await axios.post('/api/otp/verify', {
-                    email: dest,
-                    otp: code,
-                    purpose
-                });
+            const res = await axios.post('/api/otp/verify', {
+                email: email.trim().toLowerCase(),
+                otp: code,
+                purpose
+            });
 
-                if (res.data.success) {
-                    setSuccessMessage('Email identity verified successfully!');
-                    setTimeout(() => {
-                        if (onSuccess) onSuccess({ method: 'email', ...res.data, verifiedTarget: dest });
-                        onClose();
-                    }, 800);
-                }
+            if (res.data.success) {
+                setSuccessMessage('Email verified successfully!');
+                setTimeout(() => {
+                    if (onSuccess) onSuccess({ method: 'email', ...res.data, verifiedTarget: email.trim().toLowerCase() });
+                    onClose();
+                }, 700);
             }
         } catch (err) {
             console.error('Verification error:', err);
-            setError(
-                err.response?.data?.message || 
-                err.message?.replace('Firebase: ', '') || 
-                'Invalid code. Please check and try again.'
-            );
+            setError(err.response?.data?.message || 'Invalid or expired code. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -297,11 +170,7 @@ const OtpModal = ({
         if (!canResend || resendLoading) return;
         setDigits(['', '', '', '', '', '']);
         inputRefs.current[0]?.focus();
-        if (mode === 'email' && email) {
-            sendEmailOtp(email);
-        } else if (mode === 'phone' && phone) {
-            sendPhoneSms(phone);
-        }
+        sendEmailOtp(email);
     };
 
     if (!isOpen) return null;
@@ -311,9 +180,6 @@ const OtpModal = ({
     return (
         <AnimatePresence>
             <div className="otp-modal-backdrop" onClick={onClose}>
-                {/* Invisible reCAPTCHA container for Firebase Phone Auth */}
-                <div id="recaptcha-container"></div>
-
                 <motion.div
                     initial={{ opacity: 0, scale: 0.94, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -331,43 +197,23 @@ const OtpModal = ({
                         <X size={18} />
                     </button>
 
-                    <div className="otp-modal-header">
-                        <div className="otp-emblem-circle">
-                            <ShieldCheck size={30} />
+                    <div className="otp-modal-header text-center pb-2">
+                        <div className="otp-icon-emblem mx-auto mb-2">
+                            <ShieldCheck size={28} />
                         </div>
                         <h4 className="fw-extrabold text-main mb-1" style={{ letterSpacing: '-0.02em', fontSize: '1.25rem' }}>
                             {title}
                         </h4>
 
-                        {/* Dual Mode Switcher (if both email & phone are available) */}
-                        {email && phone && (
-                            <div className="d-flex justify-content-center gap-2 mt-2.5">
-                                <button
-                                    type="button"
-                                    onClick={() => { setMode('email'); }}
-                                    className={`btn btn-sm rounded-pill px-3 py-1 fw-bold extra-tiny d-flex align-items-center gap-1.5 transition-all ${mode === 'email' ? 'btn-primary' : 'btn-light border'}`}
-                                >
-                                    <Mail size={12} /> Email Code
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => { setMode('phone'); }}
-                                    className={`btn btn-sm rounded-pill px-3 py-1 fw-bold extra-tiny d-flex align-items-center gap-1.5 transition-all ${mode === 'phone' ? 'btn-primary' : 'btn-light border'}`}
-                                >
-                                    <Phone size={12} /> Phone SMS
-                                </button>
-                            </div>
-                        )}
-
                         <p className="extra-tiny text-muted mb-0 mt-2 d-flex align-items-center justify-content-center gap-1.5">
-                            {mode === 'phone' ? <Phone size={13} className="text-primary" /> : <Mail size={13} className="text-primary" />}
-                            <span>Sent to: <strong className="text-main">{mode === 'phone' ? maskPhone(phone) : maskEmail(email)}</strong></span>
+                            <Mail size={13} className="text-primary" />
+                            <span>Verification code sent to: <strong className="text-main">{maskEmail(email)}</strong></span>
                         </p>
                     </div>
 
                     <div className="p-4">
                         <p className="small text-muted text-center mb-1" style={{ fontSize: '0.85rem' }}>
-                            {description || `Enter the 6-digit code dispatched to ${mode === 'phone' ? 'your mobile phone' : 'your email address'}.`}
+                            {description || 'Enter the 6-digit code dispatched to your Gmail / Email inbox.'}
                         </p>
 
                         <div className="otp-input-container" onPaste={handlePaste}>
@@ -421,7 +267,7 @@ const OtpModal = ({
                         </button>
 
                         <div className="text-center pt-1 border-top" style={{ borderColor: 'var(--glass-border)' }}>
-                            <span className="extra-tiny text-muted me-1">Didn't receive the {mode === 'phone' ? 'SMS' : 'email'}?</span>
+                            <span className="extra-tiny text-muted me-1">Didn't receive the email?</span>
                             {canResend ? (
                                 <button
                                     onClick={handleResend}
@@ -437,48 +283,6 @@ const OtpModal = ({
                                 </span>
                             )}
                         </div>
-
-                        {/* Direct switch to Gmail OTP fallback */}
-                        {mode === 'phone' && (
-                            <div className="mt-3 pt-2 text-center border-top" style={{ borderColor: 'var(--glass-border)' }}>
-                                {!showEmailInput ? (
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowEmailInput(true)}
-                                        className="btn btn-link extra-tiny text-decoration-none fw-bold p-0 text-primary d-inline-flex align-items-center gap-1"
-                                    >
-                                        <Mail size={12} /> Switch to Gmail OTP verification
-                                    </button>
-                                ) : (
-                                    <div className="p-2.5 rounded-3 border mt-1 text-start" style={{ background: 'var(--input-bg)' }}>
-                                        <label className="extra-tiny fw-bold text-muted text-uppercase mb-1 d-block">
-                                            Receive 6-Digit OTP via Gmail:
-                                        </label>
-                                        <div className="d-flex gap-1.5">
-                                            <input
-                                                type="email"
-                                                placeholder="Enter your Gmail address"
-                                                value={fallbackEmail}
-                                                onChange={(e) => setFallbackEmail(e.target.value)}
-                                                className="form-control form-control-sm extra-tiny rounded-3"
-                                                style={{ fontSize: '0.8rem' }}
-                                            />
-                                            <button
-                                                type="button"
-                                                disabled={resendLoading || !fallbackEmail || !fallbackEmail.includes('@')}
-                                                onClick={() => {
-                                                    setMode('email');
-                                                    sendEmailOtp(fallbackEmail);
-                                                }}
-                                                className="btn btn-primary btn-sm extra-tiny fw-bold px-3 rounded-3 text-nowrap"
-                                            >
-                                                {resendLoading ? 'Sending...' : 'Send to Gmail'}
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        )}
                     </div>
                 </motion.div>
             </div>
