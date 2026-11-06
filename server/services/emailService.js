@@ -7,24 +7,21 @@ const getTransporter = () => {
         const user = process.env.EMAIL_USER || process.env.GMAIL_USER;
         const pass = process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD;
 
-        if (!user || !pass) {
-            console.warn('⚠️ EMAIL_USER or EMAIL_PASS not set. Emails cannot be dispatched via SMTP.');
-            return null;
+        if (user && pass) {
+            transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: user.trim(),
+                    pass: pass.trim().replace(/\s+/g, '')
+                }
+            });
         }
-
-        transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: user.trim(),
-                pass: pass.trim().replace(/\s+/g, '') // sanitize 16-character Google App Password
-            }
-        });
     }
     return transporter;
 };
 
 /**
- * Send Branded OTP Email via Nodemailer (Gmail SMTP)
+ * Send Branded OTP Email via Brevo HTTPS API (or Nodemailer fallback)
  * @param {Object} params
  * @param {string} params.to - Recipient email address
  * @param {string} params.otp - 6-digit OTP code
@@ -32,10 +29,9 @@ const getTransporter = () => {
  * @param {string} [params.userName] - Optional recipient name
  */
 const sendOtpEmail = async ({ to, otp, purpose = 'Verification', userName = 'Valued Member' }) => {
-    const transport = getTransporter();
-    if (!transport) {
-        throw new Error('Email credentials not configured. Please set EMAIL_USER and EMAIL_PASS in your environment.');
-    }
+    const brevoApiKey = process.env.BREVO_API_KEY;
+    const senderEmail = (process.env.EMAIL_USER || process.env.BREVO_SENDER_EMAIL || 'sovitgupta70@gmail.com').trim();
+    const senderName = process.env.EMAIL_SENDER_NAME || 'VishwaUtsav';
 
     const purposeTitles = {
         signup: 'Account Registration Verification',
@@ -45,7 +41,6 @@ const sendOtpEmail = async ({ to, otp, purpose = 'Verification', userName = 'Val
     };
 
     const title = purposeTitles[purpose] || 'Security Verification Code';
-    const senderEmail = (process.env.EMAIL_USER || process.env.GMAIL_USER || 'no-reply@vishwautsav.com').trim();
 
     const htmlContent = `
     <!DOCTYPE html>
@@ -109,15 +104,50 @@ const sendOtpEmail = async ({ to, otp, purpose = 'Verification', userName = 'Val
     </html>
     `;
 
-    const mailOptions = {
-        from: `VishwaUtsav <${senderEmail}>`,
-        to,
-        subject: `[VishwaUtsav] Your Verification Code is ${otp}`,
-        html: htmlContent
-    };
+    // 1. Primary Dispatch: Brevo HTTPS REST API (Port 443 - 100% reliable on Render)
+    if (brevoApiKey) {
+        const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: {
+                'api-key': brevoApiKey.trim(),
+                'content-type': 'application/json',
+                'accept': 'application/json'
+            },
+            body: JSON.stringify({
+                sender: {
+                    name: senderName,
+                    email: senderEmail
+                },
+                to: [
+                    { email: to, name: userName }
+                ],
+                subject: `[VishwaUtsav] Your Verification Code is ${otp}`,
+                htmlContent: htmlContent
+            })
+        });
 
-    const info = await transport.sendMail(mailOptions);
-    return info;
+        const data = await response.json();
+        if (!response.ok) {
+            console.error('Brevo API Error:', data);
+            throw new Error(data.message || 'Failed to dispatch email via Brevo');
+        }
+
+        return data;
+    }
+
+    // 2. Secondary Dispatch: Nodemailer SMTP
+    const transport = getTransporter();
+    if (transport) {
+        const mailOptions = {
+            from: `${senderName} <${senderEmail}>`,
+            to,
+            subject: `[VishwaUtsav] Your Verification Code is ${otp}`,
+            html: htmlContent
+        };
+        return await transport.sendMail(mailOptions);
+    }
+
+    throw new Error('Email credentials not configured. Please set BREVO_API_KEY in your environment.');
 };
 
 module.exports = {
