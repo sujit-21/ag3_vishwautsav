@@ -123,7 +123,10 @@ const OtpModal = ({
             let rawMsg = err.message || '';
             let formattedError = rawMsg.replace('Firebase: ', '');
 
-            if (rawMsg.includes('operation-not-allowed') || rawMsg.includes('region')) {
+            if (rawMsg.includes('billing-not-enabled')) {
+                formattedError = 'Firebase requires a Billing account (Blaze plan) to send real carrier SMS. Please verify with Gmail OTP below (100% free), or add this number as a Test Phone Number in Firebase!';
+                setShowEmailInput(true);
+            } else if (rawMsg.includes('operation-not-allowed') || rawMsg.includes('region')) {
                 formattedError = 'SMS Region Policy: In Firebase -> Authentication -> Settings -> SMS region policy, allow India (+91), or verify with Gmail OTP below.';
                 setShowEmailInput(true);
             } else if (rawMsg.includes('api-key-not-valid') || rawMsg.includes('auth/invalid-api-key')) {
