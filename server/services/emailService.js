@@ -1,16 +1,30 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-let resendClient = null;
+let transporter = null;
 
-const getResendClient = () => {
-    if (!resendClient && process.env.RESEND_API_KEY) {
-        resendClient = new Resend(process.env.RESEND_API_KEY);
+const getTransporter = () => {
+    if (!transporter) {
+        const user = process.env.EMAIL_USER || process.env.GMAIL_USER;
+        const pass = process.env.EMAIL_PASS || process.env.GMAIL_APP_PASSWORD;
+
+        if (!user || !pass) {
+            console.warn('⚠️ EMAIL_USER or EMAIL_PASS not set. Emails cannot be dispatched via SMTP.');
+            return null;
+        }
+
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: user.trim(),
+                pass: pass.trim().replace(/\s+/g, '') // sanitize 16-character Google App Password
+            }
+        });
     }
-    return resendClient;
+    return transporter;
 };
 
 /**
- * Send Branded OTP Email via Resend
+ * Send Branded OTP Email via Nodemailer (Gmail SMTP)
  * @param {Object} params
  * @param {string} params.to - Recipient email address
  * @param {string} params.otp - 6-digit OTP code
@@ -18,9 +32,9 @@ const getResendClient = () => {
  * @param {string} [params.userName] - Optional recipient name
  */
 const sendOtpEmail = async ({ to, otp, purpose = 'Verification', userName = 'Valued Member' }) => {
-    const resend = getResendClient();
-    if (!resend) {
-        throw new Error('Resend client is not initialized. Please set RESEND_API_KEY in server/.env');
+    const transport = getTransporter();
+    if (!transport) {
+        throw new Error('Email credentials not configured. Please set EMAIL_USER and EMAIL_PASS in your environment.');
     }
 
     const purposeTitles = {
@@ -31,7 +45,7 @@ const sendOtpEmail = async ({ to, otp, purpose = 'Verification', userName = 'Val
     };
 
     const title = purposeTitles[purpose] || 'Security Verification Code';
-    const fromAddress = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+    const senderEmail = (process.env.EMAIL_USER || process.env.GMAIL_USER || 'no-reply@vishwautsav.com').trim();
 
     const htmlContent = `
     <!DOCTYPE html>
@@ -95,22 +109,17 @@ const sendOtpEmail = async ({ to, otp, purpose = 'Verification', userName = 'Val
     </html>
     `;
 
-    const { data, error } = await resend.emails.send({
-        from: `VishwaUtsav <${fromAddress}>`,
-        to: [to],
+    const mailOptions = {
+        from: `VishwaUtsav <${senderEmail}>`,
+        to,
         subject: `[VishwaUtsav] Your Verification Code is ${otp}`,
         html: htmlContent
-    });
+    };
 
-    if (error) {
-        console.error('Resend API Error:', error);
-        throw new Error(error.message || 'Failed to dispatch email via Resend');
-    }
-
-    return data;
+    const info = await transport.sendMail(mailOptions);
+    return info;
 };
 
 module.exports = {
     sendOtpEmail
 };
-

@@ -46,7 +46,7 @@ const OtpModal = ({
         return () => clearInterval(interval);
     }, [isOpen, timer]);
 
-    // Send Email OTP via Resend
+    // Send Email OTP via Gmail SMTP
     const sendEmailOtp = async (targetEmail) => {
         const dest = (targetEmail || email || '').trim();
         if (!dest || !dest.includes('@')) {

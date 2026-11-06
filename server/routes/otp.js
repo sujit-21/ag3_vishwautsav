@@ -6,7 +6,7 @@ const { sendOtpEmail } = require('../services/emailService');
 
 /**
  * @route   POST /api/otp/send
- * @desc    Generate and send 6-digit OTP via Resend
+ * @desc    Generate and send 6-digit OTP via Nodemailer (Gmail SMTP)
  * @access  Public
  */
 router.post('/send', async (req, res) => {
@@ -45,7 +45,7 @@ router.post('/send', async (req, res) => {
             attempts: 0
         });
 
-        // Send via Resend Email Service
+        // Send via Nodemailer Email Service (Gmail SMTP)
         try {
             await sendOtpEmail({
                 to: normalizedEmail,
@@ -55,8 +55,6 @@ router.post('/send', async (req, res) => {
             });
         } catch (emailError) {
             console.error('Email dispatch error:', emailError.message);
-            // In case of Resend test domain restriction (onboarding@resend.dev can only send to account owner email),
-            // return a clear error message with a fallback for local testing
             return res.status(500).json({
                 success: false,
                 message: `Failed to deliver email: ${emailError.message}`
