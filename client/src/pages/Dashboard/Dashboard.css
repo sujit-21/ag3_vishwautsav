@@ -614,3 +614,111 @@
     }
 }
 
+/* ==========================================
+   DASHBOARD DARK MODE SPECIFICATIONS
+   ========================================== */
+.dark-mode .console-entity-card,
+[data-theme='dark'] .console-entity-card {
+    background: var(--card-bg, #1e4755) !important;
+    border-color: var(--glass-border) !important;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dark-mode .console-record-item,
+[data-theme='dark'] .console-record-item {
+    background: var(--card-bg-subtle, rgba(20, 48, 57, 0.7)) !important;
+    border-color: var(--glass-border) !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25) !important;
+}
+
+.dark-mode .console-record-item:hover,
+[data-theme='dark'] .console-record-item:hover {
+    background: rgba(20, 48, 57, 0.95) !important;
+    border-color: var(--record-accent, #6366f1) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+.dark-mode .console-history-chip,
+[data-theme='dark'] .console-history-chip {
+    background: rgba(20, 48, 57, 0.85) !important;
+    border-color: var(--glass-border) !important;
+    color: var(--text-main) !important;
+}
+
+.dark-mode .entity-emblem-badge,
+[data-theme='dark'] .entity-emblem-badge {
+    background: rgba(224, 122, 67, 0.16) !important;
+    border-color: rgba(224, 122, 67, 0.35) !important;
+    color: var(--accent-2) !important;
+}
+
+.dark-mode .verify-unified-card,
+[data-theme='dark'] .verify-unified-card {
+    background: var(--card-bg, #1e4755) !important;
+    border-color: var(--glass-border) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45) !important;
+}
+
+.dark-mode .verify-unified-header,
+[data-theme='dark'] .verify-unified-header {
+    background: rgba(20, 48, 57, 0.6) !important;
+    border-bottom-color: var(--glass-border) !important;
+}
+
+.dark-mode .verify-form-panel,
+[data-theme='dark'] .verify-form-panel {
+    background: transparent !important;
+}
+
+.dark-mode .verify-stage-panel,
+[data-theme='dark'] .verify-stage-panel {
+    background: rgba(20, 48, 57, 0.45) !important;
+    border-color: var(--glass-border) !important;
+}
+
+.dark-mode .verify-terminal-card,
+[data-theme='dark'] .verify-terminal-card {
+    background: rgba(20, 48, 57, 0.75) !important;
+    border-color: var(--glass-border) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35) !important;
+}
+
+.dark-mode .verify-info-tile,
+[data-theme='dark'] .verify-info-tile {
+    background: rgba(20, 48, 57, 0.6) !important;
+    border-color: var(--glass-border) !important;
+}
+
+.dark-mode .verify-info-tile:hover,
+[data-theme='dark'] .verify-info-tile:hover {
+    background: rgba(20, 48, 57, 0.95) !important;
+    border-color: rgba(99, 102, 241, 0.45) !important;
+}
+
+.dark-mode .verify-feature-pill,
+[data-theme='dark'] .verify-feature-pill {
+    background: rgba(20, 48, 57, 0.8) !important;
+    border-color: var(--glass-border) !important;
+    color: var(--text-muted) !important;
+}
+
+.dark-mode .console-detail-modal-card,
+[data-theme='dark'] .console-detail-modal-card {
+    background: #1e4755 !important;
+    border-color: var(--glass-border) !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65) !important;
+}
+
+.dark-mode .console-yearly-badge,
+[data-theme='dark'] .console-yearly-badge {
+    background: rgba(20, 48, 57, 0.7) !important;
+    border-color: var(--glass-border) !important;
+}
+
+.dark-mode .console-yearly-badge:hover,
+[data-theme='dark'] .console-yearly-badge:hover {
+    background: rgba(20, 48, 57, 0.95) !important;
+    border-color: rgba(99, 102, 241, 0.5) !important;
+}
+
+

@@ -495,13 +495,13 @@ const Dashboard = () => {
                                         <p className="text-muted tiny mb-0">Management &amp; Record Verification</p>
                                     </div>
                                 </div>
-                                <div className="d-flex gap-1.5 gap-sm-2 p-1 rounded-3 w-100 w-sm-auto justify-content-between justify-content-sm-start" style={{ background: 'rgba(99,102,241,0.08)', border: '1.5px solid rgba(99,102,241,0.18)' }}>
+                                <div className="d-flex gap-1.5 gap-sm-2 p-1 rounded-3 w-100 w-sm-auto justify-content-between justify-content-sm-start" style={{ background: 'var(--input-bg)', border: '1.5px solid var(--glass-border)' }}>
                                     <button
                                         onClick={() => setActiveAdminTab('console')}
                                         className="btn border-0 flex-grow-1 flex-sm-grow-0 px-2.5 px-sm-4 py-2 rounded-2 small fw-extrabold transition-all d-flex align-items-center justify-content-center gap-1.5"
                                         style={{
                                             background: activeAdminTab === 'console' ? '#6366f1' : 'transparent',
-                                            color: activeAdminTab === 'console' ? '#ffffff' : '#64748b'
+                                            color: activeAdminTab === 'console' ? '#ffffff' : 'var(--text-muted)'
                                         }}
                                     >
                                         <LayoutDashboard size={15} /> Console
@@ -511,7 +511,7 @@ const Dashboard = () => {
                                         className="btn border-0 flex-grow-1 flex-sm-grow-0 px-2.5 px-sm-4 py-2 rounded-2 small fw-extrabold transition-all d-flex align-items-center justify-content-center gap-1.5"
                                         style={{
                                             background: activeAdminTab === 'verify' ? '#6366f1' : 'transparent',
-                                            color: activeAdminTab === 'verify' ? '#ffffff' : '#64748b'
+                                            color: activeAdminTab === 'verify' ? '#ffffff' : 'var(--text-muted)'
                                         }}
                                     >
                                         <ShieldCheck size={15} /> Verify
@@ -521,7 +521,7 @@ const Dashboard = () => {
                                         className="btn border-0 flex-grow-1 flex-sm-grow-0 px-2.5 px-sm-4 py-2 rounded-2 small fw-extrabold transition-all d-flex align-items-center justify-content-center gap-1.5"
                                         style={{
                                             background: activeAdminTab === 'analytics' ? '#6366f1' : 'transparent',
-                                            color: activeAdminTab === 'analytics' ? '#ffffff' : '#64748b'
+                                            color: activeAdminTab === 'analytics' ? '#ffffff' : 'var(--text-muted)'
                                         }}
                                     >
                                         <BarChart3 size={15} /> Analytics

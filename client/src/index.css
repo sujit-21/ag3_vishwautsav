@@ -28,6 +28,8 @@
     --text-muted: #6D4C41;
     --glass-bg: rgba(255, 255, 255, 0.88);
     --glass-border: rgba(224, 122, 67, 0.22);
+    --card-bg: #FFFFFF;
+    --card-bg-subtle: #FFF7ED;
     --premium-glow: rgba(224, 122, 67, 0.25);
     --overlay-gradient: linear-gradient(to bottom, rgba(255, 240, 224, 0.35) 0%, rgba(255, 240, 224, 0.65) 60%, rgba(255, 232, 214, 0.95) 100%);
     --bg-image-opacity: 0.92;
@@ -45,6 +47,8 @@
     --glass-bg: rgba(255, 255, 255, 0.88);
     --glass-border: rgba(224, 122, 67, 0.22);
     --modal-bg: #FFFFFF;
+    --card-bg: #FFFFFF;
+    --card-bg-subtle: #FFF7ED;
     --input-bg: rgba(255, 255, 255, 0.95);
     --input-text: #3E2723;
     --input-border: rgba(224, 122, 67, 0.32);
@@ -63,12 +67,29 @@
     --glass-bg: rgba(30, 71, 85, 0.75);
     --glass-border: rgba(163, 217, 201, 0.25);
     --modal-bg: #1e4755;         /* Deep Ocean Teal Modal - NO BLACK! */
+    --card-bg: #1e4755;          /* Deep Ocean Slate Card Background */
+    --card-bg-subtle: #173843;   /* Nested Record Contrast Background */
     --input-bg: rgba(20, 48, 57, 0.7);
     --input-text: #f0f9f8;
     --input-border: rgba(163, 217, 201, 0.3);
     --premium-glow: rgba(249, 179, 98, 0.35);
     --overlay-gradient: linear-gradient(to bottom, rgba(20, 48, 57, 0.5) 0%, rgba(20, 48, 57, 0.75) 60%, rgba(20, 48, 57, 0.98) 100%);
     --bg-image-opacity: 0.92;
+}
+
+[data-theme='dark'] {
+    --primary-bg: #143039;
+    --secondary-bg: #1e4755;
+    --text-main: #f0f9f8;
+    --text-muted: #A3D9C9;
+    --card-bg: #1e4755;
+    --card-bg-subtle: #173843;
+    --glass-bg: rgba(30, 71, 85, 0.75);
+    --glass-border: rgba(163, 217, 201, 0.25);
+    --modal-bg: #1e4755;
+    --input-bg: rgba(20, 48, 57, 0.7);
+    --input-text: #f0f9f8;
+    --input-border: rgba(163, 217, 201, 0.3);
 }
 
 /* Premium Background Slideshow Classes */

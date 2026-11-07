@@ -13,9 +13,13 @@ export const ThemeProvider = ({ children }) => {
         if (isDarkMode) {
             root.classList.add('dark-mode')
             root.classList.remove('light-mode')
+            root.setAttribute('data-theme', 'dark')
+            root.setAttribute('data-bs-theme', 'dark')
         } else {
             root.classList.add('light-mode')
             root.classList.remove('dark-mode')
+            root.setAttribute('data-theme', 'light')
+            root.setAttribute('data-bs-theme', 'light')
         }
         root.style.setProperty('--accent-1', themeColor)
     }, [isDarkMode, themeColor])
