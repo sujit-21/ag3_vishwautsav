@@ -1440,7 +1440,7 @@ const Events = () => {
             )}
 
             {activeTab === 'subscriptions' && (
-                <div className="glass-card py-3 px-3 px-sm-4 shadow-sm mx-auto w-100" style={{ maxWidth: '720px' }}>
+                <div className="glass-card py-3 px-3 px-sm-4 shadow-sm mx-auto w-100 subscriptions-wrapper-card">
                     {/* Subscriptions Title, Subtitle, and Badge */}
                     <div className="d-flex justify-content-between align-items-center mb-2">
                         <div>
@@ -1550,7 +1550,8 @@ const Events = () => {
                         </div>
                     </div>
 
-                    <div className="table-responsive rounded-2" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    {/* Desktop & Laptop Table View (Screens >= 768px) */}
+                    <div className="table-responsive rounded-2 d-none d-md-block" style={{ WebkitOverflowScrolling: 'touch' }}>
                         <table className="table table-hover align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%', minWidth: '540px' }}>
                             <colgroup>
                                 <col style={{ width: '85px' }} />
@@ -1776,6 +1777,192 @@ const Events = () => {
                                 )}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile Attendee Cards (Smartphones < 768px) */}
+                    <div className="d-block d-md-none">
+                        {filteredSubs.length === 0 ? (
+                            <div className="text-center py-5 text-muted small">
+                                {subscriptionsList.length === 0 ? "No workshop passes found. Click 'Add New' to start." : "No matching attendees found."}
+                            </div>
+                        ) : (
+                            filteredSubs.map((sub) => {
+                                const isInfoOpen = !!openInfoIds[sub.subId];
+                                const isActionOpen = openActionSubId === sub.subId;
+                                return (
+                                    <div key={sub.subId} className="sub-mobile-card">
+                                        {/* Top Row: Attendee Name + Pass ID + Amount */}
+                                        <div className="d-flex justify-content-between align-items-start mb-2 gap-2">
+                                            <div className="d-flex flex-column">
+                                                <span className="fw-bold text-main" style={{ fontSize: '0.96rem', lineHeight: 1.3 }}>
+                                                    {sub.name}
+                                                </span>
+                                                <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace mt-1 align-self-start" style={{ fontSize: '0.68rem' }}>
+                                                    {sub.subId}
+                                                </span>
+                                            </div>
+                                            <span className="badge bg-success text-white px-2.5 py-1 fw-bold shadow-sm flex-shrink-0" style={{ fontSize: '0.85rem' }}>
+                                                {sub.currency || '₹'}{String(sub.amount || 0).replace(/[^0-9.]/g, '')}
+                                            </span>
+                                        </div>
+
+                                        {/* Middle Row: Payment Badge, Tier & Actions */}
+                                        <div className="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-10 gap-2">
+                                            <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                                                <span className="badge px-2 py-0.5 fw-medium" style={getPaymentBadgeStyle(sub.paymentType)}>
+                                                    {getPaymentDisplayName(sub.paymentType)}
+                                                </span>
+                                                {sub.membershipType && (
+                                                    <span className="badge bg-primary bg-opacity-10 text-primary px-2 py-0.5" style={{ fontSize: '0.68rem' }}>
+                                                        {sub.membershipType}
+                                                    </span>
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setOpenInfoIds(prev => ({ ...prev, [sub.subId]: !prev[sub.subId] }))}
+                                                    className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center transition-all ${
+                                                        isInfoOpen ? 'bg-primary text-white shadow-sm' : 'bg-secondary bg-opacity-10 text-primary border-0'
+                                                    }`}
+                                                    style={{ width: '22px', height: '22px' }}
+                                                    title={isInfoOpen ? "Hide info" : "Show info"}
+                                                >
+                                                    <Info size={12} strokeWidth={2.5} />
+                                                </button>
+                                            </div>
+
+                                            {/* Action Dropdown on Mobile */}
+                                            <div className="position-relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setOpenActionSubId(isActionOpen ? null : sub.subId)}
+                                                    className={`btn btn-sm d-flex align-items-center gap-1 px-2.5 py-1 rounded-pill fw-bold shadow-sm ${
+                                                        isActionOpen ? 'btn-primary text-white' : 'btn-outline-secondary'
+                                                    }`}
+                                                    style={{ fontSize: '0.75rem', height: '28px' }}
+                                                >
+                                                    <span>Action</span>
+                                                    <ChevronDown size={12} style={{ transform: isActionOpen ? 'rotate(180deg)' : 'none' }} />
+                                                </button>
+
+                                                {isActionOpen && (
+                                                    <>
+                                                        <div
+                                                            className="position-fixed top-0 start-0 w-100 h-100"
+                                                            style={{ zIndex: 1040 }}
+                                                            onClick={() => setOpenActionSubId(null)}
+                                                        />
+                                                        <motion.div
+                                                            initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                            exit={{ opacity: 0, scale: 0.95 }}
+                                                            transition={{ duration: 0.15 }}
+                                                            className="position-absolute end-0 mt-1 py-1 bg-white rounded-3 shadow-lg border border-secondary border-opacity-15 d-flex flex-column data-dropdown-menu"
+                                                            style={{ minWidth: '150px', zIndex: 1050 }}
+                                                        >
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setOpenActionSubId(null);
+                                                                    const message = `Halo ${sub.name}, your subscription ID ${sub.subId} is confirmed.`;
+                                                                    window.open(`https://wa.me/${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+                                                                }}
+                                                                className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 data-dropdown-item"
+                                                                style={{ fontSize: '0.78rem' }}
+                                                            >
+                                                                <MessageCircle size={14} className="text-success" />
+                                                                <span className="fw-medium">WhatsApp</span>
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setOpenActionSubId(null);
+                                                                    downloadPDF(sub);
+                                                                }}
+                                                                className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 data-dropdown-item"
+                                                                style={{ fontSize: '0.78rem' }}
+                                                            >
+                                                                <FileDown size={14} className="text-info" />
+                                                                <span className="fw-medium">PDF Pass</span>
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setOpenActionSubId(null);
+                                                                    setSubFormData({
+                                                                        ...sub,
+                                                                        date: sub.date ? new Date(sub.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                                                                    });
+                                                                    setEditingSubId(sub.subId);
+                                                                    setIsSubAdding(true);
+                                                                }}
+                                                                className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 data-dropdown-item"
+                                                                style={{ fontSize: '0.78rem' }}
+                                                            >
+                                                                <Edit3 size={14} className="text-primary" />
+                                                                <span className="fw-medium">Edit</span>
+                                                            </button>
+                                                            <div className="dropdown-divider my-1 border-secondary border-opacity-10"></div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={async () => {
+                                                                    setOpenActionSubId(null);
+                                                                    if (window.confirm('Delete subscription?')) {
+                                                                        try {
+                                                                            await axios.delete(`/api/subscriptions/${sub.subId}`);
+                                                                            fetchSubscriptions();
+                                                                        } catch (err) {
+                                                                            alert('Error deleting');
+                                                                        }
+                                                                    }
+                                                                }}
+                                                                className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-danger border-0 rounded-0 hover-bg-danger hover-bg-opacity-10"
+                                                                style={{ fontSize: '0.78rem' }}
+                                                            >
+                                                                <Trash2 size={14} className="text-danger" />
+                                                                <span className="fw-medium">Delete</span>
+                                                            </button>
+                                                        </motion.div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Expandable Info Drawer on Mobile */}
+                                        {isInfoOpen && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                className="sub-mobile-info-drawer d-flex flex-column gap-1.5 text-muted"
+                                            >
+                                                <div className="d-flex align-items-center gap-1.5">
+                                                    <Calendar size={13} className="text-warning opacity-75" />
+                                                    <span><strong className="text-dark">Date:</strong> {sub.date ? new Date(sub.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</span>
+                                                </div>
+                                                <div className="d-flex align-items-center gap-1.5">
+                                                    <Phone size={13} className="text-info opacity-75" />
+                                                    <span><strong className="text-dark">Contact:</strong> {sub.countryCode || ''} {sub.contact || 'N/A'}</span>
+                                                </div>
+                                                {sub.address && (
+                                                    <div className="d-flex align-items-center gap-1.5">
+                                                        <MapPin size={13} className="text-danger opacity-75" />
+                                                        <span><strong className="text-dark">Address:</strong> {sub.address}</span>
+                                                    </div>
+                                                )}
+                                                {sub.membershipType && (
+                                                    <div className="d-flex align-items-center gap-1.5">
+                                                        <span className="fw-bold extra-tiny uppercase text-dark">Type:</span>
+                                                        <span style={getTierBadgeStyle(sub.membershipType)}>
+                                                            {getTierDisplayName(sub.membershipType)}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        )}
+                                    </div>
+                                );
+                            })
+                        )}
                     </div>
                 </div>
             )}
