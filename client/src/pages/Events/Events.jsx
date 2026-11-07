@@ -1802,7 +1802,7 @@ const Events = () => {
                                         </div>
 
                                         {/* Middle Row: Payment Badge, Tier & Actions */}
-                                        <div className="d-flex justify-content-between align-items-center pt-2.5 mt-0.5 border-top border-secondary border-opacity-10 gap-2">
+                                        <div className="d-flex justify-content-between align-items-center pt-1.5 gap-2">
                                             <div className="d-flex align-items-center gap-2 flex-wrap">
                                                 <span className="badge px-2.5 py-1 rounded-pill fw-semibold border" style={{ ...getPaymentBadgeStyle(sub.paymentType), fontSize: '0.72rem' }}>
                                                     {getPaymentDisplayName(sub.paymentType)}
