@@ -103,6 +103,14 @@ const ActivityLogsView = ({ sectionType = 'festival', festOrEventName = '', acti
         }
     };
 
+    const getSectionInfo = (log) => {
+        const rawType = log.sectionType || sectionType || 'festival';
+        const isEvent = String(rawType).toLowerCase() === 'event';
+        const typeLabel = isEvent ? 'Event' : 'Festival';
+        const name = log.festOrEventName || log.entityName || festOrEventName || activeTitle || 'General';
+        return { isEvent, typeLabel, name };
+    };
+
     const formatTimestamp = (dateStr) => {
         if (!dateStr) return 'N/A';
         const d = new Date(dateStr);
@@ -389,6 +397,20 @@ const ActivityLogsView = ({ sectionType = 'festival', festOrEventName = '', acti
                                                     ) : null}
                                                 </span>
                                             </button>
+
+                                            {/* Dedicated Section Indicator */}
+                                            {(() => {
+                                                const sectionInfo = getSectionInfo(log);
+                                                return (
+                                                    <span 
+                                                        className={`audit-section-badge ${sectionInfo.isEvent ? 'audit-badge-event' : 'audit-badge-fest'}`}
+                                                        title={`Section: ${sectionInfo.typeLabel} - ${sectionInfo.name}`}
+                                                    >
+                                                        <span className="audit-section-type">{sectionInfo.typeLabel}:</span>
+                                                        <span className="audit-section-name">{sectionInfo.name}</span>
+                                                    </span>
+                                                );
+                                            })()}
                                         </div>
 
                                         {/* Timestamp */}
@@ -400,41 +422,60 @@ const ActivityLogsView = ({ sectionType = 'festival', festOrEventName = '', acti
 
                                     {/* Action Description */}
                                     <div className="audit-log-body">
-                                        <div className="d-flex align-items-baseline gap-1.5 flex-wrap">
-                                            <span className="fw-bold text-main" style={{ fontSize: '0.88rem' }}>
-                                                {log.targetName}
-                                            </span>
-                                            {isCreate && (
-                                                <span className="text-muted small">
-                                                    was registered as attendee with <strong className="text-success">₹{log.amount || 0}</strong> ({log.paymentType || 'Cash & Paid'})
-                                                </span>
-                                            )}
-                                            {isDelete && (
-                                                <span className="text-danger small fw-medium">
-                                                    was deleted from attendee records
-                                                </span>
-                                            )}
-                                            {isUpdate && (
-                                                <span className="text-muted small">
-                                                    was modified by admin
-                                                </span>
-                                            )}
-                                        </div>
+                                        {(() => {
+                                            const sectionInfo = getSectionInfo(log);
+                                            // Filter out false-positive identical changes (e.g. 24 Oct 2025 -> 24 Oct 2025)
+                                            const meaningfulChanges = Array.isArray(log.changes) ? log.changes.filter(c => {
+                                                const fromStr = formatFieldValue(c.field, c.from);
+                                                const toStr = formatFieldValue(c.field, c.to);
+                                                return fromStr !== toStr;
+                                            }) : [];
 
-                                        {/* Detailed Changes Chips */}
-                                        {Array.isArray(log.changes) && log.changes.length > 0 && (
-                                            <div className="d-flex align-items-center gap-1.5 flex-wrap mt-2 pt-2 border-top border-secondary border-opacity-10">
-                                                <span className="extra-tiny text-muted uppercase fw-extrabold letter-spacing-1">Modified:</span>
-                                                {log.changes.map((change, cIdx) => (
-                                                    <span key={cIdx} className="audit-change-chip">
-                                                        <span className="audit-change-field">{formatFieldLabel(change.field)}:</span>
-                                                        <span className="audit-change-from">{formatFieldValue(change.field, change.from)}</span>
-                                                        <ArrowRight size={10} className="audit-change-arrow" />
-                                                        <span className="audit-change-to">{formatFieldValue(change.field, change.to)}</span>
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
+                                            return (
+                                                <>
+                                                    <div className="d-flex align-items-baseline gap-1.5 flex-wrap">
+                                                        <span className="fw-bold text-main" style={{ fontSize: '0.9rem' }}>
+                                                            {log.targetName}
+                                                        </span>
+                                                        {isCreate && (
+                                                            <span className="text-muted small">
+                                                                {' '}was registered as an attendee in the{' '}
+                                                                <strong className="text-primary">{sectionInfo.typeLabel} Section ({sectionInfo.name})</strong>
+                                                                {' '}with <strong className="text-success">₹{log.amount || 0}</strong> ({log.paymentType || 'Cash & Paid'}).
+                                                            </span>
+                                                        )}
+                                                        {isDelete && (
+                                                             <span className="text-danger small fw-medium">
+                                                                {' '}was deleted by admin from the{' '}
+                                                                <strong className="text-danger">{sectionInfo.typeLabel} Section ({sectionInfo.name})</strong>
+                                                                {' '}attendee records.
+                                                            </span>
+                                                        )}
+                                                        {isUpdate && (
+                                                            <span className="text-muted small">
+                                                                {' '}was updated by admin in the{' '}
+                                                                <strong className="text-primary">{sectionInfo.typeLabel} Section ({sectionInfo.name})</strong>.
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Detailed Changes Chips */}
+                                                    {meaningfulChanges.length > 0 && (
+                                                        <div className="d-flex align-items-center gap-1.5 flex-wrap mt-2 pt-2 border-top border-secondary border-opacity-10">
+                                                            <span className="extra-tiny text-muted uppercase fw-extrabold letter-spacing-1">Modified:</span>
+                                                            {meaningfulChanges.map((change, cIdx) => (
+                                                                <span key={cIdx} className="audit-change-chip">
+                                                                    <span className="audit-change-field">{formatFieldLabel(change.field)}:</span>
+                                                                    <span className="audit-change-from">{formatFieldValue(change.field, change.from)}</span>
+                                                                    <ArrowRight size={10} className="audit-change-arrow" />
+                                                                    <span className="audit-change-to">{formatFieldValue(change.field, change.to)}</span>
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 </motion.div>
                             );

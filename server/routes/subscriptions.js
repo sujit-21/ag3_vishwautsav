@@ -15,6 +15,8 @@ router.post('/', auth, async (req, res) => {
         await subscription.save();
 
         // Safe audit logging
+        const targetSection = subscription.type || 'festival';
+        const targetFestOrEvent = subscription.festOrEventName || 'General';
         logActivity({
             action: 'CREATE',
             targetType: 'attendee',
@@ -26,8 +28,8 @@ router.post('/', auth, async (req, res) => {
             adminRole: req.user.role || 'admin',
             entityName: req.user.entityName,
             festOrEventName: subscription.festOrEventName || '',
-            sectionType: subscription.type || 'festival',
-            details: `Created new attendee '${subscription.name}' (ID: ${subscription.subId}) with ${subscription.currency || '₹'}${subscription.amount} (${subscription.paymentType || 'Cash & Paid'}).`,
+            sectionType: targetSection,
+            details: `Created new attendee '${subscription.name}' (ID: ${subscription.subId}) in ${targetSection} '${targetFestOrEvent}' with ${subscription.currency || '₹'}${subscription.amount} (${subscription.paymentType || 'Cash & Paid'}).`,
             amount: subscription.amount,
             paymentType: subscription.paymentType
         });
@@ -169,6 +171,9 @@ router.put('/:id', auth, async (req, res) => {
             }).join(', ')
             : 'Updated attendee details';
 
+        const targetSection = subscription.type || existing.type || 'festival';
+        const targetFestOrEvent = subscription.festOrEventName || existing.festOrEventName || 'General';
+
         logActivity({
             action: 'UPDATE',
             targetType: 'attendee',
@@ -179,9 +184,9 @@ router.put('/:id', auth, async (req, res) => {
             adminEmail: req.user.email || '',
             adminRole: req.user.role || 'admin',
             entityName: req.user.entityName,
-            festOrEventName: subscription.festOrEventName || existing.festOrEventName || '',
-            sectionType: subscription.type || existing.type || 'festival',
-            details: `Updated attendee '${subscription.name}' (${subscription.subId}): ${changeDesc}`,
+            festOrEventName: targetFestOrEvent,
+            sectionType: targetSection,
+            details: `Updated attendee '${subscription.name}' (${subscription.subId}) in ${targetSection} '${targetFestOrEvent}': ${changeDesc}`,
             changes,
             amount: subscription.amount,
             paymentType: subscription.paymentType
@@ -202,6 +207,9 @@ router.delete('/:id', auth, async (req, res) => {
 
         await Subscription.findOneAndDelete(query);
 
+        const targetSection = existing.type || 'festival';
+        const targetFestOrEvent = existing.festOrEventName || 'General';
+
         // Safe audit logging
         logActivity({
             action: 'DELETE',
@@ -213,9 +221,9 @@ router.delete('/:id', auth, async (req, res) => {
             adminEmail: req.user.email || '',
             adminRole: req.user.role || 'admin',
             entityName: req.user.entityName,
-            festOrEventName: existing.festOrEventName || '',
-            sectionType: existing.type || 'festival',
-            details: `Deleted attendee '${existing.name}' (ID: ${existing.subId}, Amount: ${existing.currency || '₹'}${existing.amount}, Payment: ${existing.paymentType}).`,
+            festOrEventName: targetFestOrEvent,
+            sectionType: targetSection,
+            details: `Deleted attendee '${existing.name}' (ID: ${existing.subId}) from ${targetSection} '${targetFestOrEvent}' (Amount: ${existing.currency || '₹'}${existing.amount}, Payment: ${existing.paymentType}).`,
             amount: existing.amount,
             paymentType: existing.paymentType
         });

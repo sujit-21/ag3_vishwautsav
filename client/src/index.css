@@ -2799,6 +2799,56 @@ html, body, #root, .app-container {
     color: #34d399 !important;
 }
 
+.audit-section-badge {
+    padding: 3px 9px;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid var(--glass-border);
+}
+
+.audit-badge-fest {
+    background: rgba(99, 102, 241, 0.08);
+    color: #4f46e5;
+    border-color: rgba(99, 102, 241, 0.22);
+}
+
+.audit-badge-event {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    border-color: rgba(245, 158, 11, 0.28);
+}
+
+.audit-section-type {
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.63rem;
+    letter-spacing: 0.4px;
+    opacity: 0.85;
+}
+
+.audit-section-name {
+    font-weight: 700;
+}
+
+.dark-mode .audit-badge-fest,
+[data-theme='dark'] .audit-badge-fest {
+    background: rgba(99, 102, 241, 0.2) !important;
+    color: #a5b4fc !important;
+    border-color: rgba(99, 102, 241, 0.35) !important;
+}
+
+.dark-mode .audit-badge-event,
+[data-theme='dark'] .audit-badge-event {
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #fbbf24 !important;
+    border-color: rgba(245, 158, 11, 0.35) !important;
+}
+
+
 
 
 
