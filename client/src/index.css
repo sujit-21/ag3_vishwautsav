@@ -2131,27 +2131,102 @@ html, body, #root, .app-container {
     }
 }
 
-/* Mobile Attendee Card Layout */
+/* Mobile Attendee Card Layout with Attractive Hover Animations */
 .sub-mobile-card {
     background: var(--card-bg, #ffffff);
     border: 1px solid var(--glass-border);
+    border-left: 3.5px solid transparent !important;
     border-radius: 14px;
     padding: 0.95rem 1rem;
     margin-bottom: 0.75rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.22s ease,
+                border-left-color 0.22s ease;
     position: relative;
+    will-change: transform, box-shadow;
 }
 
 .sub-mobile-card:hover {
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+    border-color: rgba(99, 102, 241, 0.32) !important;
+    border-left-color: #6366f1 !important;
+    box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.09), 0 4px 8px -2px rgba(0, 0, 0, 0.03) !important;
+}
+
+.sub-mobile-card .sub-card-name {
+    transition: color 0.2s ease;
+}
+
+.sub-mobile-card:hover .sub-card-name {
+    color: #4f46e5 !important;
+}
+
+.sub-mobile-card .sub-card-amount {
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease !important;
+}
+
+.sub-mobile-card:hover .sub-card-amount {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
+}
+
+.sub-action-btn {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.sub-action-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12) !important;
+}
+
+.sub-info-btn {
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease !important;
+}
+
+.sub-info-btn:hover {
+    transform: scale(1.15) rotate(8deg);
+}
+
+.sub-table-row {
+    transition: background-color 0.18s ease;
+}
+
+.sub-table-row:hover {
+    background-color: rgba(99, 102, 241, 0.04) !important;
+}
+
+.dark-mode .sub-table-row:hover,
+[data-theme='dark'] .sub-table-row:hover {
+    background-color: rgba(255, 255, 255, 0.04) !important;
 }
 
 .dark-mode .sub-mobile-card,
 [data-theme='dark'] .sub-mobile-card {
     background: var(--card-bg-subtle, rgba(20, 48, 57, 0.75)) !important;
     border-color: var(--glass-border) !important;
+    border-left: 3.5px solid transparent !important;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25) !important;
+}
+
+.dark-mode .sub-mobile-card:hover,
+[data-theme='dark'] .sub-mobile-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(129, 140, 248, 0.45) !important;
+    border-left-color: #818cf8 !important;
+    box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.55), 0 0 14px rgba(99, 102, 241, 0.25) !important;
+}
+
+.dark-mode .sub-mobile-card:hover .sub-card-name,
+[data-theme='dark'] .sub-mobile-card:hover .sub-card-name {
+    color: #a5b4fc !important;
+}
+
+.dark-mode .sub-action-btn:hover,
+[data-theme='dark'] .sub-action-btn:hover {
+    border-color: #818cf8 !important;
+    color: #a5b4fc !important;
 }
 
 .sub-mobile-info-drawer {
@@ -2206,13 +2281,14 @@ html, body, #root, .app-container {
     align-items: center !important;
     gap: 8px !important;
     text-align: left !important;
-    transition: background-color 0.15s ease, color 0.15s ease !important;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
     cursor: pointer !important;
     text-decoration: none !important;
 }
 
 .sub-action-item:hover {
     background: rgba(0, 0, 0, 0.05) !important;
+    transform: translateX(4px) !important;
 }
 
 .dark-mode .sub-action-item,
@@ -2224,6 +2300,7 @@ html, body, #root, .app-container {
 [data-theme='dark'] .sub-action-item:hover {
     background: rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
+    transform: translateX(4px) !important;
 }
 
 .sub-action-item.delete-item {
@@ -2233,6 +2310,7 @@ html, body, #root, .app-container {
 .sub-action-item.delete-item:hover {
     background: rgba(239, 68, 68, 0.12) !important;
     color: #dc2626 !important;
+    transform: translateX(4px) !important;
 }
 
 .dark-mode .sub-action-item.delete-item {
@@ -2242,6 +2320,7 @@ html, body, #root, .app-container {
 .dark-mode .sub-action-item.delete-item:hover {
     background: rgba(248, 113, 113, 0.15) !important;
     color: #fca5a5 !important;
+    transform: translateX(4px) !important;
 }
 
 .sub-action-divider {

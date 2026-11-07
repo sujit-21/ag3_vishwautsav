@@ -1666,7 +1666,7 @@ const Festivals = () => {
                                                 : 'rgba(224, 122, 67, 0.07)';
                                         return (
                                             <Fragment key={sub.subId}>
-                                                <tr className="align-middle transition-all" style={{ backgroundColor: rowBg }}>
+                                                <tr className="align-middle transition-all sub-table-row" style={{ backgroundColor: rowBg }}>
                                                     <td className="border-0 py-2 ps-2 pe-1">
                                                         <span className="badge bg-secondary bg-opacity-10 text-dark font-monospace px-2 py-1">{sub.subId}</span>
                                                     </td>
@@ -1681,7 +1681,7 @@ const Festivals = () => {
                                                                     e.stopPropagation();
                                                                     setOpenInfoIds(prev => ({ ...prev, [sub.subId]: !prev[sub.subId] }));
                                                                 }}
-                                                                className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0 transition-all ${
+                                                                className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0 transition-all sub-info-btn ${
                                                                     isInfoOpen
                                                                         ? 'bg-primary text-white shadow-sm'
                                                                         : 'bg-secondary bg-opacity-10 text-primary border-0 hover-bg-primary hover-text-white'
@@ -1702,7 +1702,7 @@ const Festivals = () => {
                                                         </div>
                                                     </td>
                                                     <td className="border-0 py-2 px-1">
-                                                        <span className="badge bg-success text-white px-2 py-1 fw-bold shadow-sm" style={{ fontSize: '0.8rem' }}>
+                                                        <span className="badge bg-success text-white px-2 py-1 fw-bold shadow-sm sub-card-amount" style={{ fontSize: '0.8rem' }}>
                                                             {sub.currency || '₹'}{String(sub.amount || 0).replace(/[^0-9.]/g, '')}
                                                         </span>
                                                     </td>
@@ -1711,7 +1711,7 @@ const Festivals = () => {
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setOpenActionSubId(isActionOpen ? null : sub.subId)}
-                                                                className={`btn btn-sm d-flex align-items-center gap-1.5 px-2.5 rounded-pill fw-bold text-nowrap transition-all shadow-sm ${
+                                                                className={`btn btn-sm d-flex align-items-center gap-1.5 px-2.5 rounded-pill fw-bold text-nowrap transition-all shadow-sm sub-action-btn ${
                                                                     isActionOpen
                                                                         ? 'btn-primary text-white'
                                                                         : 'btn-outline-secondary'
@@ -1871,14 +1871,14 @@ const Festivals = () => {
                                         {/* Top Row: Attendee Name + Pass ID + Amount */}
                                         <div className="d-flex justify-content-between align-items-start mb-2 gap-2">
                                             <div className="d-flex flex-column">
-                                                <span className="fw-bold text-main" style={{ fontSize: '0.96rem', lineHeight: 1.3 }}>
+                                                <span className="fw-bold text-main sub-card-name" style={{ fontSize: '0.96rem', lineHeight: 1.3 }}>
                                                     {sub.name}
                                                 </span>
                                                 <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace mt-1 align-self-start" style={{ fontSize: '0.68rem' }}>
                                                     {sub.subId}
                                                 </span>
                                             </div>
-                                            <span className="badge bg-success text-white px-2.5 py-1 fw-bold shadow-sm flex-shrink-0" style={{ fontSize: '0.85rem' }}>
+                                            <span className="badge bg-success text-white px-2.5 py-1 fw-bold shadow-sm flex-shrink-0 sub-card-amount" style={{ fontSize: '0.85rem' }}>
                                                 {sub.currency || '₹'}{String(sub.amount || 0).replace(/[^0-9.]/g, '')}
                                             </span>
                                         </div>
@@ -1897,7 +1897,7 @@ const Festivals = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => setOpenInfoIds(prev => ({ ...prev, [sub.subId]: !prev[sub.subId] }))}
-                                                    className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center transition-all ${
+                                                    className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center transition-all sub-info-btn ${
                                                         isInfoOpen ? 'bg-primary text-white shadow-sm' : 'bg-secondary bg-opacity-10 text-primary border-0'
                                                     }`}
                                                     style={{ width: '22px', height: '22px' }}
@@ -1912,7 +1912,7 @@ const Festivals = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => setOpenActionSubId(isActionOpen ? null : sub.subId)}
-                                                    className={`btn btn-sm d-flex align-items-center gap-1 px-2.5 py-1 rounded-pill fw-bold shadow-sm ${
+                                                    className={`btn btn-sm d-flex align-items-center gap-1 px-2.5 py-1 rounded-pill fw-bold shadow-sm sub-action-btn ${
                                                         isActionOpen ? 'btn-primary text-white' : 'btn-outline-secondary'
                                                     }`}
                                                     style={{ fontSize: '0.75rem', height: '28px' }}
