@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Subscription = require('../models/Subscription');
 const auth = require('../middleware/auth');
+const { logActivity } = require('../services/activityLogger');
 
 // Create Subscription
 router.post('/', auth, async (req, res) => {
@@ -12,6 +13,25 @@ router.post('/', auth, async (req, res) => {
             entityName: req.user.entityName
         });
         await subscription.save();
+
+        // Safe audit logging
+        logActivity({
+            action: 'CREATE',
+            targetType: 'attendee',
+            targetId: subscription.subId,
+            targetName: subscription.name,
+            adminId: req.user.id || req.user.adminId,
+            adminName: req.user.name || 'Admin',
+            adminEmail: req.user.email || '',
+            adminRole: req.user.role || 'admin',
+            entityName: req.user.entityName,
+            festOrEventName: subscription.festOrEventName || '',
+            sectionType: subscription.type || 'festival',
+            details: `Created new attendee '${subscription.name}' (ID: ${subscription.subId}) with ${subscription.currency || '₹'}${subscription.amount} (${subscription.paymentType || 'Cash & Paid'}).`,
+            amount: subscription.amount,
+            paymentType: subscription.paymentType
+        });
+
         res.status(201).json(subscription);
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -109,8 +129,47 @@ router.get('/:type', auth, async (req, res) => {
 router.put('/:id', auth, async (req, res) => {
     try {
         const query = req.entityQuery({ subId: req.params.id });
+        const existing = await Subscription.findOne(query);
+        if (!existing) return res.status(404).json({ message: 'Subscription not found or unauthorized' });
+
+        // Calculate changes
+        const changes = [];
+        const trackFields = ['name', 'amount', 'paymentType', 'membershipType', 'contact', 'address', 'referenceName', 'date'];
+        trackFields.forEach(field => {
+            if (req.body[field] !== undefined && String(req.body[field]) !== String(existing[field])) {
+                changes.push({
+                    field,
+                    from: existing[field],
+                    to: req.body[field]
+                });
+            }
+        });
+
         const subscription = await Subscription.findOneAndUpdate(query, req.body, { new: true });
-        if (!subscription) return res.status(404).json({ message: 'Subscription not found or unauthorized' });
+
+        // Safe audit logging
+        const changeDesc = changes.length > 0 
+            ? changes.map(c => `${c.field}: '${c.from || 'none'}' → '${c.to}'`).join(', ')
+            : 'Updated attendee details';
+
+        logActivity({
+            action: 'UPDATE',
+            targetType: 'attendee',
+            targetId: subscription.subId,
+            targetName: subscription.name,
+            adminId: req.user.id || req.user.adminId,
+            adminName: req.user.name || 'Admin',
+            adminEmail: req.user.email || '',
+            adminRole: req.user.role || 'admin',
+            entityName: req.user.entityName,
+            festOrEventName: subscription.festOrEventName || existing.festOrEventName || '',
+            sectionType: subscription.type || existing.type || 'festival',
+            details: `Updated attendee '${subscription.name}' (${subscription.subId}): ${changeDesc}`,
+            changes,
+            amount: subscription.amount,
+            paymentType: subscription.paymentType
+        });
+
         res.json(subscription);
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -121,8 +180,29 @@ router.put('/:id', auth, async (req, res) => {
 router.delete('/:id', auth, async (req, res) => {
     try {
         const query = req.entityQuery({ subId: req.params.id });
-        const subscription = await Subscription.findOneAndDelete(query);
-        if (!subscription) return res.status(404).json({ message: 'Subscription not found or unauthorized' });
+        const existing = await Subscription.findOne(query);
+        if (!existing) return res.status(404).json({ message: 'Subscription not found or unauthorized' });
+
+        await Subscription.findOneAndDelete(query);
+
+        // Safe audit logging
+        logActivity({
+            action: 'DELETE',
+            targetType: 'attendee',
+            targetId: existing.subId,
+            targetName: existing.name,
+            adminId: req.user.id || req.user.adminId,
+            adminName: req.user.name || 'Admin',
+            adminEmail: req.user.email || '',
+            adminRole: req.user.role || 'admin',
+            entityName: req.user.entityName,
+            festOrEventName: existing.festOrEventName || '',
+            sectionType: existing.type || 'festival',
+            details: `Deleted attendee '${existing.name}' (ID: ${existing.subId}, Amount: ${existing.currency || '₹'}${existing.amount}, Payment: ${existing.paymentType}).`,
+            amount: existing.amount,
+            paymentType: existing.paymentType
+        });
+
         res.json({ message: 'Subscription deleted' });
     } catch (err) {
         res.status(500).json({ message: err.message });

@@ -7,7 +7,7 @@ import {
     Calendar, Ticket, DollarSign, CreditCard, FileSpreadsheet,
     Sparkles, Home as HomeIcon, MessageSquare, LayoutDashboard, Settings,
     Image as ImageIcon, Building2, ShieldCheck, UserCheck, RefreshCw, LogIn,
-    UserPlus, Download
+    UserPlus, Download, History
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
@@ -21,6 +21,7 @@ const festivalSubTabs = [
     { id: 'expenses', label: 'Expense Tracker', sub: 'Budget & vendor bills', icon: DollarSign, path: '/festivals?tab=expenses' },
     { id: 'card', label: 'VIP & ID Cards', sub: 'Print passes & badges', icon: CreditCard, path: '/festivals?tab=card' },
     { id: 'balanceSheet', label: 'Audit & Balance', sub: 'Ledger & financial sheet', icon: FileSpreadsheet, path: '/festivals?tab=balanceSheet' },
+    { id: 'activity_logs', label: 'Action History', sub: 'Admin attendee audit log', icon: History, path: '/festivals?tab=activity_logs' },
     { id: 'data', label: 'DATA Reports', sub: 'PDF exports & download', icon: Download, path: '/festivals?tab=data', isData: true },
 ]
 
@@ -31,6 +32,7 @@ const eventSubTabs = [
     { id: 'expenses', label: 'Expense Tracker', sub: 'Cost tracking & ledger', icon: DollarSign, path: '/events?tab=expenses' },
     { id: 'card', label: 'VIP & ID Cards', sub: 'Pass generation & badges', icon: CreditCard, path: '/events?tab=card' },
     { id: 'balanceSheet', label: 'Audit & Balance', sub: 'Event audit & sheet', icon: FileSpreadsheet, path: '/events?tab=balanceSheet' },
+    { id: 'activity_logs', label: 'Action History', sub: 'Admin attendee audit log', icon: History, path: '/events?tab=activity_logs' },
     { id: 'data', label: 'DATA Reports', sub: 'PDF exports & download', icon: Download, path: '/events?tab=data', isData: true },
 ]
 

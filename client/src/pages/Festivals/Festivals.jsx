@@ -11,6 +11,7 @@ import adminBg from '../../images/admin.jpg'
 import primeBg from '../../images/primemember.jpg'
 import regularBg from '../../images/regular.jpg'
 import vipBg from '../../images/vip elite.jpg'
+import ActivityLogsView from '../../components/ActivityLogsView'
 
 const countryCodes = [
     { code: '+91', country: 'IN' },
@@ -188,7 +189,7 @@ const Festivals = () => {
         description: ''
     })
     const [searchParams, setSearchParams] = useSearchParams()
-    const validTabs = ['festivals', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'data']
+    const validTabs = ['festivals', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'activity_logs', 'data']
     const urlTab = searchParams.get('tab')
     const [activeTab, setActiveTab] = useState(
         urlTab && validTabs.includes(urlTab)
@@ -1571,6 +1572,16 @@ const Festivals = () => {
                             <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.74rem' }}>
                                 <FileDown size={13} /> <span className="uppercase">Attendee PDF</span>
                             </button>
+
+                            {/* ACTION LOGS */}
+                            <button 
+                                onClick={() => handleTabChange('activity_logs')} 
+                                className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-sm" 
+                                style={{ height: '32px', fontSize: '0.74rem' }}
+                                title="View who created, updated, or deleted attendee records"
+                            >
+                                <History size={13} className="text-primary" /> <span className="uppercase">Action Log</span>
+                            </button>
                         </div>
 
                         {/* Row 2: Sort, Tier All, Pay All (Just below - clean horizontal swipe on mobile) */}
@@ -2680,6 +2691,14 @@ const Festivals = () => {
                     </div>
                 )
             })()}
+
+            {activeTab === 'activity_logs' && (
+                <ActivityLogsView
+                    sectionType="festival"
+                    festOrEventName={activeFestival?.title || ''}
+                    activeTitle={activeFestival?.title || ''}
+                />
+            )}
 
             <AnimatePresence>
                 {isModalOpen && (

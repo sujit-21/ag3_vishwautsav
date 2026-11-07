@@ -75,6 +75,9 @@ module.exports = async function (req, res, next) {
 
         req.user = {
             id: user._id,
+            name: user.name || 'Admin',
+            email: user.email || '',
+            phone: user.phone || '',
             role: user.role,           // Display role (can be switched)
             baseRole: effectiveBaseRole, // Permanent role (used for access control)
             adminId: contextAdminId,

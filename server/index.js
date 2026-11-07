@@ -25,6 +25,7 @@ app.use('/api/credentials', require('./routes/credentials'));
 app.use('/api/entity', require('./routes/entity'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/otp', require('./routes/otp'));
+app.use('/api/activity-logs', require('./routes/activityLogs'));
 // Basic Route
 app.get('/', (req, res) => {
   res.send('Festival & Event Management API is running...');
