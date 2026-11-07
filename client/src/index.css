@@ -2170,6 +2170,92 @@ html, body, #root, .app-container {
     color: var(--text-main) !important;
 }
 
+/* Dedicated Subscriptions Action Dropdown Menu (Desktop & Mobile) */
+.sub-action-menu {
+    position: absolute !important;
+    right: 0 !important;
+    top: calc(100% + 4px) !important;
+    min-width: 150px !important;
+    background-color: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+    padding: 6px 0 !important;
+    z-index: 1050 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+.dark-mode .sub-action-menu,
+[data-theme='dark'] .sub-action-menu {
+    background-color: #1e4755 !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5) !important;
+}
+
+.sub-action-item {
+    width: 100% !important;
+    padding: 8px 14px !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+    background: transparent !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-align: left !important;
+    transition: background-color 0.15s ease, color 0.15s ease !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+}
+
+.sub-action-item:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark-mode .sub-action-item,
+[data-theme='dark'] .sub-action-item {
+    color: #e2e8f0 !important;
+}
+
+.dark-mode .sub-action-item:hover,
+[data-theme='dark'] .sub-action-item:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+
+.sub-action-item.delete-item {
+    color: #ef4444 !important;
+}
+
+.sub-action-item.delete-item:hover {
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: #dc2626 !important;
+}
+
+.dark-mode .sub-action-item.delete-item {
+    color: #f87171 !important;
+}
+
+.dark-mode .sub-action-item.delete-item:hover {
+    background: rgba(248, 113, 113, 0.15) !important;
+    color: #fca5a5 !important;
+}
+
+.sub-action-divider {
+    height: 1px !important;
+    margin: 4px 0 !important;
+    background: rgba(0, 0, 0, 0.08) !important;
+}
+
+.dark-mode .sub-action-divider,
+[data-theme='dark'] .sub-action-divider {
+    background: rgba(255, 255, 255, 0.12) !important;
+}
+
+
 
 
 

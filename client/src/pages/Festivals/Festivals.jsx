@@ -1707,7 +1707,7 @@ const Festivals = () => {
                                                         </span>
                                                     </td>
                                                     <td className="border-0 py-2 ps-1 pe-2 position-relative">
-                                                        <div className="position-relative d-inline-block">
+                                                        <div className="position-relative d-inline-block" style={{ zIndex: isActionOpen ? 1045 : 'auto' }}>
                                                             <button
                                                                 type="button"
                                                                 onClick={() => setOpenActionSubId(isActionOpen ? null : sub.subId)}
@@ -1734,8 +1734,7 @@ const Festivals = () => {
                                                                         animate={{ opacity: 1, scale: 1, y: 0 }}
                                                                         exit={{ opacity: 0, scale: 0.95 }}
                                                                         transition={{ duration: 0.15 }}
-                                                                        className="position-absolute end-0 mt-1 py-1 bg-white rounded-3 shadow-lg border border-secondary border-opacity-15 d-flex flex-column data-dropdown-menu"
-                                                                        style={{ minWidth: '145px', zIndex: 1050 }}
+                                                                        className="sub-action-menu"
                                                                     >
                                                                         {/* WhatsApp */}
                                                                         <button
@@ -1745,11 +1744,10 @@ const Festivals = () => {
                                                                                 const message = `Halo ${sub.name}, your subscription ID ${sub.subId} is confirmed.`
                                                                                 window.open(`https://wa.me/${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
                                                                             }}
-                                                                            className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 hover-bg-light data-dropdown-item"
-                                                                            style={{ fontSize: '0.78rem' }}
+                                                                            className="sub-action-item"
                                                                         >
-                                                                            <MessageCircle size={14} className="text-success" />
-                                                                            <span className="fw-medium">WhatsApp</span>
+                                                                            <MessageCircle size={15} className="text-success" />
+                                                                            <span>WhatsApp</span>
                                                                         </button>
 
                                                                         {/* Download PDF */}
@@ -1759,11 +1757,10 @@ const Festivals = () => {
                                                                                 setOpenActionSubId(null)
                                                                                 downloadPDF(sub)
                                                                             }}
-                                                                            className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 hover-bg-light data-dropdown-item"
-                                                                            style={{ fontSize: '0.78rem' }}
+                                                                            className="sub-action-item"
                                                                         >
-                                                                            <FileDown size={14} className="text-info" />
-                                                                            <span className="fw-medium">PDF Pass</span>
+                                                                            <FileDown size={15} className="text-info" />
+                                                                            <span>PDF Pass</span>
                                                                         </button>
 
                                                                         {/* Edit */}
@@ -1778,14 +1775,13 @@ const Festivals = () => {
                                                                                 setEditingSubId(sub.subId)
                                                                                 setIsSubAdding(true)
                                                                             }}
-                                                                            className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 hover-bg-light data-dropdown-item"
-                                                                            style={{ fontSize: '0.78rem' }}
+                                                                            className="sub-action-item"
                                                                         >
-                                                                            <Edit3 size={14} className="text-primary" />
-                                                                            <span className="fw-medium">Edit</span>
+                                                                            <Edit3 size={15} className="text-primary" />
+                                                                            <span>Edit</span>
                                                                         </button>
 
-                                                                        <div className="dropdown-divider my-1 border-secondary border-opacity-10"></div>
+                                                                        <div className="sub-action-divider" />
 
                                                                         {/* Delete */}
                                                                         <button
@@ -1801,11 +1797,10 @@ const Festivals = () => {
                                                                                     }
                                                                                 }
                                                                             }}
-                                                                            className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-danger border-0 rounded-0 hover-bg-danger hover-bg-opacity-10"
-                                                                            style={{ fontSize: '0.78rem' }}
+                                                                            className="sub-action-item delete-item"
                                                                         >
-                                                                            <Trash2 size={14} className="text-danger" />
-                                                                            <span className="fw-medium">Delete</span>
+                                                                            <Trash2 size={15} />
+                                                                            <span>Delete</span>
                                                                         </button>
                                                                     </motion.div>
                                                                 </>
@@ -1872,7 +1867,7 @@ const Festivals = () => {
                                 const isInfoOpen = !!openInfoIds[sub.subId];
                                 const isActionOpen = openActionSubId === sub.subId;
                                 return (
-                                    <div key={sub.subId} className="sub-mobile-card">
+                                    <div key={sub.subId} className="sub-mobile-card" style={{ zIndex: isActionOpen ? 1045 : 1 }}>
                                         {/* Top Row: Attendee Name + Pass ID + Amount */}
                                         <div className="d-flex justify-content-between align-items-start mb-2 gap-2">
                                             <div className="d-flex flex-column">
@@ -1938,8 +1933,7 @@ const Festivals = () => {
                                                             animate={{ opacity: 1, scale: 1, y: 0 }}
                                                             exit={{ opacity: 0, scale: 0.95 }}
                                                             transition={{ duration: 0.15 }}
-                                                            className="position-absolute end-0 mt-1 py-1 bg-white rounded-3 shadow-lg border border-secondary border-opacity-15 d-flex flex-column data-dropdown-menu"
-                                                            style={{ minWidth: '150px', zIndex: 1050 }}
+                                                            className="sub-action-menu"
                                                         >
                                                             <button
                                                                 type="button"
@@ -1948,11 +1942,10 @@ const Festivals = () => {
                                                                     const message = `Halo ${sub.name}, your subscription ID ${sub.subId} is confirmed.`;
                                                                     window.open(`https://wa.me/${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
                                                                 }}
-                                                                className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 data-dropdown-item"
-                                                                style={{ fontSize: '0.78rem' }}
+                                                                className="sub-action-item"
                                                             >
-                                                                <MessageCircle size={14} className="text-success" />
-                                                                <span className="fw-medium">WhatsApp</span>
+                                                                <MessageCircle size={15} className="text-success" />
+                                                                <span>WhatsApp</span>
                                                             </button>
                                                             <button
                                                                 type="button"
@@ -1960,11 +1953,10 @@ const Festivals = () => {
                                                                     setOpenActionSubId(null);
                                                                     downloadPDF(sub);
                                                                 }}
-                                                                className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 data-dropdown-item"
-                                                                style={{ fontSize: '0.78rem' }}
+                                                                className="sub-action-item"
                                                             >
-                                                                <FileDown size={14} className="text-info" />
-                                                                <span className="fw-medium">PDF Pass</span>
+                                                                <FileDown size={15} className="text-info" />
+                                                                <span>PDF Pass</span>
                                                             </button>
                                                             <button
                                                                 type="button"
@@ -1977,13 +1969,12 @@ const Festivals = () => {
                                                                     setEditingSubId(sub.subId);
                                                                     setIsSubAdding(true);
                                                                 }}
-                                                                className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-dark border-0 rounded-0 data-dropdown-item"
-                                                                style={{ fontSize: '0.78rem' }}
+                                                                className="sub-action-item"
                                                             >
-                                                                <Edit3 size={14} className="text-primary" />
-                                                                <span className="fw-medium">Edit</span>
+                                                                <Edit3 size={15} className="text-primary" />
+                                                                <span>Edit</span>
                                                             </button>
-                                                            <div className="dropdown-divider my-1 border-secondary border-opacity-10"></div>
+                                                            <div className="sub-action-divider" />
                                                             <button
                                                                 type="button"
                                                                 onClick={async () => {
@@ -1997,11 +1988,10 @@ const Festivals = () => {
                                                                         }
                                                                     }
                                                                 }}
-                                                                className="btn btn-sm text-start px-3 py-1.5 d-flex align-items-center gap-2 text-danger border-0 rounded-0 hover-bg-danger hover-bg-opacity-10"
-                                                                style={{ fontSize: '0.78rem' }}
+                                                                className="sub-action-item delete-item"
                                                             >
-                                                                <Trash2 size={14} className="text-danger" />
-                                                                <span className="fw-medium">Delete</span>
+                                                                <Trash2 size={15} />
+                                                                <span>Delete</span>
                                                             </button>
                                                         </motion.div>
                                                     </>
