@@ -132,16 +132,30 @@ router.put('/:id', auth, async (req, res) => {
         const existing = await Subscription.findOne(query);
         if (!existing) return res.status(404).json({ message: 'Subscription not found or unauthorized' });
 
-        // Calculate changes
+        // Calculate changes cleanly
         const changes = [];
         const trackFields = ['name', 'amount', 'paymentType', 'membershipType', 'contact', 'address', 'referenceName', 'date'];
         trackFields.forEach(field => {
-            if (req.body[field] !== undefined && String(req.body[field]) !== String(existing[field])) {
-                changes.push({
-                    field,
-                    from: existing[field],
-                    to: req.body[field]
-                });
+            if (req.body[field] !== undefined) {
+                let fromVal = existing[field];
+                let toVal = req.body[field];
+
+                // Normalize date comparisons to YYYY-MM-DD
+                if (field === 'date') {
+                    const fD = fromVal ? new Date(fromVal).toISOString().split('T')[0] : '';
+                    const tD = toVal ? new Date(toVal).toISOString().split('T')[0] : '';
+                    if (fD === tD) return; // Same calendar day, no change
+                    fromVal = fD;
+                    toVal = tD;
+                }
+
+                if (String(toVal ?? '').trim() !== String(fromVal ?? '').trim()) {
+                    changes.push({
+                        field,
+                        from: fromVal,
+                        to: toVal
+                    });
+                }
             }
         });
 
@@ -149,7 +163,10 @@ router.put('/:id', auth, async (req, res) => {
 
         // Safe audit logging
         const changeDesc = changes.length > 0 
-            ? changes.map(c => `${c.field}: '${c.from || 'none'}' → '${c.to}'`).join(', ')
+            ? changes.map(c => {
+                const label = c.field === 'paymentType' ? 'Payment' : (c.field === 'membershipType' ? 'Tier' : c.field);
+                return `${label}: '${c.from || 'none'}' → '${c.to}'`;
+            }).join(', ')
             : 'Updated attendee details';
 
         logActivity({

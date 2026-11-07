@@ -50,3 +50,4 @@ const logActivity = async ({
 };
 
 module.exports = { logActivity };
+

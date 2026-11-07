@@ -73,3 +73,4 @@ const ActivityLogSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('ActivityLog', ActivityLogSchema);
+
