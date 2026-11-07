@@ -1734,34 +1734,34 @@ const Events = () => {
                                                                 animate={{ opacity: 1, height: 'auto' }}
                                                                 exit={{ opacity: 0, height: 0 }}
                                                                 transition={{ duration: 0.2 }}
-                                                                className="p-2 rounded-3 bg-white shadow-sm border border-secondary border-opacity-15 d-flex flex-wrap align-items-center gap-3 text-muted"
+                                                                className="p-2.5 rounded-3 shadow-sm sub-desktop-info-drawer d-flex flex-wrap align-items-center gap-3 text-muted"
                                                                 style={{ fontSize: '0.78rem' }}
                                                             >
                                                                 {/* Date */}
                                                                 <div className="d-flex align-items-center gap-1.5">
-                                                                    <Calendar size={13} className="text-warning opacity-75" />
-                                                                    <span><strong className="text-dark">Date:</strong> {sub.date ? new Date(sub.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</span>
+                                                                    <Calendar size={13} className="text-warning" />
+                                                                    <span><strong className="text-main">Date:</strong> {sub.date ? new Date(sub.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</span>
                                                                 </div>
 
                                                                 {/* Contact */}
                                                                 <div className="d-flex align-items-center gap-1.5">
-                                                                    <Phone size={13} className="text-info opacity-75" />
-                                                                    <span><strong className="text-dark">Contact:</strong> {sub.countryCode || ''} {sub.contact || 'N/A'}</span>
+                                                                    <Phone size={13} className="text-info" />
+                                                                    <span><strong className="text-main">Contact:</strong> {sub.countryCode || ''} {sub.contact || 'N/A'}</span>
                                                                 </div>
 
                                                                 {/* Address */}
                                                                 <div className="d-flex align-items-center gap-1.5">
-                                                                    <MapPin size={13} className="text-danger opacity-75" />
-                                                                    <span><strong className="text-dark">Address:</strong> {sub.address || 'N/A'}</span>
+                                                                    <MapPin size={13} className="text-danger" />
+                                                                    <span><strong className="text-main">Address:</strong> {sub.address || 'N/A'}</span>
                                                                 </div>
 
-                                                                {/* Type */}
-                                                                <div className="d-flex align-items-center gap-1.5">
-                                                                    <span className="fw-bold extra-tiny uppercase text-dark">Type:</span>
-                                                                    <span style={getTierBadgeStyle(sub.membershipType)}>
-                                                                        {getTierDisplayName(sub.membershipType)}
-                                                                    </span>
-                                                                </div>
+                                                                {/* Reference */}
+                                                                {sub.referenceName && (
+                                                                    <div className="d-flex align-items-center gap-1.5">
+                                                                        <Tag size={13} className="text-primary" />
+                                                                        <span><strong className="text-main">Ref:</strong> {sub.referenceName}</span>
+                                                                    </div>
+                                                                )}
                                                             </motion.div>
                                                         </td>
                                                     </tr>
@@ -1802,26 +1802,26 @@ const Events = () => {
                                         </div>
 
                                         {/* Middle Row: Payment Badge, Tier & Actions */}
-                                        <div className="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-10 gap-2">
-                                            <div className="d-flex align-items-center gap-1.5 flex-wrap">
-                                                <span className="badge px-2 py-0.5 fw-medium" style={getPaymentBadgeStyle(sub.paymentType)}>
+                                        <div className="d-flex justify-content-between align-items-center pt-2.5 mt-0.5 border-top border-secondary border-opacity-10 gap-2">
+                                            <div className="d-flex align-items-center gap-2 flex-wrap">
+                                                <span className="badge px-2.5 py-1 rounded-pill fw-semibold border" style={{ ...getPaymentBadgeStyle(sub.paymentType), fontSize: '0.72rem' }}>
                                                     {getPaymentDisplayName(sub.paymentType)}
                                                 </span>
                                                 {sub.membershipType && (
-                                                    <span className="badge bg-primary bg-opacity-10 text-primary px-2 py-0.5" style={{ fontSize: '0.68rem' }}>
-                                                        {sub.membershipType}
+                                                    <span className="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 px-2.5 py-1 rounded-pill fw-semibold" style={{ fontSize: '0.72rem' }}>
+                                                        {getTierDisplayName(sub.membershipType)}
                                                     </span>
                                                 )}
                                                 <button
                                                     type="button"
                                                     onClick={() => setOpenInfoIds(prev => ({ ...prev, [sub.subId]: !prev[sub.subId] }))}
-                                                    className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center transition-all sub-info-btn ${
+                                                    className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center transition-all sub-info-btn ms-1 ${
                                                         isInfoOpen ? 'bg-primary text-white shadow-sm' : 'bg-secondary bg-opacity-10 text-primary border-0'
                                                     }`}
-                                                    style={{ width: '22px', height: '22px' }}
+                                                    style={{ width: '24px', height: '24px', minWidth: '24px' }}
                                                     title={isInfoOpen ? "Hide info" : "Show info"}
                                                 >
-                                                    <Info size={12} strokeWidth={2.5} />
+                                                    <Info size={13} strokeWidth={2.4} />
                                                 </button>
                                             </div>
 
@@ -1917,36 +1917,74 @@ const Events = () => {
                                             </div>
                                         </div>
 
-                                        {/* Expandable Info Drawer on Mobile */}
+                                        {/* Expandable Modern Info Drawer on Mobile */}
                                         {isInfoOpen && (
                                             <motion.div
                                                 initial={{ opacity: 0, height: 0 }}
                                                 animate={{ opacity: 1, height: 'auto' }}
                                                 exit={{ opacity: 0, height: 0 }}
-                                                className="sub-mobile-info-drawer d-flex flex-column gap-1.5 text-muted"
+                                                transition={{ duration: 0.2, ease: "easeOut" }}
+                                                className="sub-mobile-info-drawer overflow-hidden"
                                             >
-                                                <div className="d-flex align-items-center gap-1.5">
-                                                    <Calendar size={13} className="text-warning opacity-75" />
-                                                    <span><strong className="text-dark">Date:</strong> {sub.date ? new Date(sub.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</span>
-                                                </div>
-                                                <div className="d-flex align-items-center gap-1.5">
-                                                    <Phone size={13} className="text-info opacity-75" />
-                                                    <span><strong className="text-dark">Contact:</strong> {sub.countryCode || ''} {sub.contact || 'N/A'}</span>
-                                                </div>
-                                                {sub.address && (
-                                                    <div className="d-flex align-items-center gap-1.5">
-                                                        <MapPin size={13} className="text-danger opacity-75" />
-                                                        <span><strong className="text-dark">Address:</strong> {sub.address}</span>
+                                                <div className="sub-info-grid">
+                                                    {/* Date */}
+                                                    <div className="sub-info-chip">
+                                                        <div className="sub-info-icon-box bg-warning bg-opacity-15 text-warning">
+                                                            <Calendar size={14} strokeWidth={2.4} />
+                                                        </div>
+                                                        <div className="d-flex flex-column min-w-0">
+                                                            <span className="sub-info-label">Date</span>
+                                                            <span className="sub-info-value text-truncate">
+                                                                {sub.date ? new Date(sub.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                )}
-                                                {sub.membershipType && (
-                                                    <div className="d-flex align-items-center gap-1.5">
-                                                        <span className="fw-bold extra-tiny uppercase text-dark">Type:</span>
-                                                        <span style={getTierBadgeStyle(sub.membershipType)}>
-                                                            {getTierDisplayName(sub.membershipType)}
-                                                        </span>
+
+                                                    {/* Contact */}
+                                                    <div className="sub-info-chip">
+                                                        <div className="sub-info-icon-box bg-info bg-opacity-15 text-info">
+                                                            <Phone size={14} strokeWidth={2.4} />
+                                                        </div>
+                                                        <div className="d-flex flex-column min-w-0">
+                                                            <span className="sub-info-label">Contact</span>
+                                                            {sub.contact ? (
+                                                                <a href={`tel:${sub.contact}`} className="sub-info-value text-truncate text-decoration-none" title={sub.contact}>
+                                                                    {sub.countryCode || ''} {sub.contact}
+                                                                </a>
+                                                            ) : (
+                                                                <span className="sub-info-value text-muted">N/A</span>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                )}
+
+                                                    {/* Address */}
+                                                    <div className={`sub-info-chip ${sub.referenceName ? '' : 'full-width'}`}>
+                                                        <div className="sub-info-icon-box bg-danger bg-opacity-15 text-danger">
+                                                            <MapPin size={14} strokeWidth={2.4} />
+                                                        </div>
+                                                        <div className="d-flex flex-column min-w-0">
+                                                            <span className="sub-info-label">Address</span>
+                                                            <span className="sub-info-value text-truncate" title={sub.address || 'Not provided'}>
+                                                                {sub.address || 'Not provided'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Reference (if available) */}
+                                                    {sub.referenceName ? (
+                                                        <div className="sub-info-chip">
+                                                            <div className="sub-info-icon-box bg-primary bg-opacity-15 text-primary">
+                                                                <Tag size={14} strokeWidth={2.4} />
+                                                            </div>
+                                                            <div className="d-flex flex-column min-w-0">
+                                                                <span className="sub-info-label">Reference</span>
+                                                                <span className="sub-info-value text-truncate" title={sub.referenceName}>
+                                                                    {sub.referenceName}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    ) : null}
+                                                </div>
                                             </motion.div>
                                         )}
                                     </div>
