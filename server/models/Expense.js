@@ -4,6 +4,8 @@ const ExpenseSchema = new mongoose.Schema({
     expenseId: { type: String, required: true, unique: true },
     date: { type: Date, required: true },
     particular: { type: String, required: true },
+    paidTo: { type: String, default: '' },
+    contact: { type: String, default: '' },
     expenseType: { type: String, required: true },
     amount: { type: Number, required: true },
     currency: { type: String, default: '₹' },

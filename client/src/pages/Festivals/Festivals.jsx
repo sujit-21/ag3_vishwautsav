@@ -307,6 +307,8 @@ const Festivals = () => {
         date: new Date().toISOString().split('T')[0],
         expenseId: generateSubID(),
         particular: '',
+        paidTo: '',
+        contact: '',
         expenseType: 'Decoration',
         amount: '',
         currency: '₹',
@@ -510,6 +512,8 @@ const Festivals = () => {
                     ['Entity', fest.entityName || '—'],
                     ['Expense Type', exp.expenseType],
                     ['Particulars', exp.particular],
+                    ['Paid To', exp.paidTo || '—'],
+                    ['Contact', exp.contact || '—'],
                     ['Amount', `Rs. ${String(exp.amount).replace(/[^0-9.]/g, '')}`],
                     ['Date', new Date(exp.date).toLocaleDateString()]
                 ],
@@ -737,9 +741,9 @@ const Festivals = () => {
 
             autoTable(doc, {
                 startY: 45,
-                head: [['Date', 'Voucher ID', 'Particulars', 'Type', 'Amount']],
+                head: [['Date', 'Voucher ID', 'Particulars', 'Paid To', 'Contact', 'Type', 'Amount']],
                 body: expensesList.map(e => [
-                    new Date(e.date).toLocaleDateString(), e.expenseId, e.particular, e.expenseType, `Rs. ${String(e.amount || 0).replace(/[^0-9.]/g, '')}`
+                    new Date(e.date).toLocaleDateString(), e.expenseId, e.particular, e.paidTo || '—', e.contact || '—', e.expenseType, `Rs. ${String(e.amount || 0).replace(/[^0-9.]/g, '')}`
                 ]),
                 theme: 'grid',
                 headStyles: { fillColor: [225, 29, 72] }
@@ -2153,6 +2157,8 @@ const Festivals = () => {
                                         date: new Date().toISOString().split('T')[0],
                                         expenseId: generateSubID(),
                                         particular: '',
+                                        paidTo: '',
+                                        contact: '',
                                         expenseType: 'Decoration',
                                         amount: '',
                                         currency: '₹',
@@ -2273,6 +2279,8 @@ const Festivals = () => {
                                         date: new Date().toISOString().split('T')[0],
                                         expenseId: generateSubID(),
                                         particular: '',
+                                        paidTo: '',
+                                        contact: '',
                                         expenseType: 'Decoration',
                                         amount: '',
                                         currency: '₹',
@@ -2300,6 +2308,30 @@ const Festivals = () => {
                                     <label className="figma-expense-label"><FileText size={11} /> Particulars</label>
                                     <div className="figma-input-wrapper">
                                         <input type="text" className="figma-input-field px-2.5" placeholder="e.g. Stage Decoration" value={expenseFormData.particular} onChange={e => setExpenseFormData({ ...expenseFormData, particular: e.target.value })} required />
+                                    </div>
+                                </div>
+                                <div className="col-12 col-md-6">
+                                    <label className="figma-expense-label"><User size={11} /> Paid To (Whom / Vendor Name)</label>
+                                    <div className="figma-input-wrapper">
+                                        <input
+                                            type="text"
+                                            className="figma-input-field px-2.5"
+                                            placeholder="e.g. Ramesh Kumar / Stage Decorators"
+                                            value={expenseFormData.paidTo || ''}
+                                            onChange={e => setExpenseFormData({ ...expenseFormData, paidTo: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="col-12 col-md-6">
+                                    <label className="figma-expense-label"><Phone size={11} /> Contact (Phone / Mobile)</label>
+                                    <div className="figma-input-wrapper">
+                                        <input
+                                            type="tel"
+                                            className="figma-input-field px-2.5"
+                                            placeholder="e.g. +91 9876543210"
+                                            value={expenseFormData.contact || ''}
+                                            onChange={e => setExpenseFormData({ ...expenseFormData, contact: e.target.value })}
+                                        />
                                     </div>
                                 </div>
                                 <div className="col-6 col-md-4">
@@ -2407,7 +2439,15 @@ const Festivals = () => {
                                                     </td>
                                                     <td className="border-0 py-2 px-1 pe-2">
                                                         <div className="d-flex align-items-center justify-content-between gap-1.5 w-100">
-                                                            <span className="fw-bold small" style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.25' }}>{exp.particular}</span>
+                                                            <div>
+                                                                <span className="fw-bold small" style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.25' }}>{exp.particular}</span>
+                                                                {exp.paidTo && (
+                                                                    <div className="extra-tiny text-muted d-flex align-items-center gap-1 mt-0.5" style={{ fontSize: '0.68rem' }}>
+                                                                        <span className="opacity-75">Paid To:</span> <strong className="text-main">{exp.paidTo}</strong>
+                                                                        {exp.contact && <span className="text-muted ms-1">({exp.contact})</span>}
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                             <button
                                                                 type="button"
                                                                 onClick={(e) => {
@@ -2442,7 +2482,12 @@ const Festivals = () => {
                                                         <div className="d-flex align-items-center gap-1">
                                                             <button onClick={() => downloadExpensePDF(exp)} className="btn btn-sm text-info p-0" title="Download PDF"><FileDown size={14} /></button>
                                                             <button onClick={() => {
-                                                                setExpenseFormData({ ...exp, date: exp.date ? new Date(exp.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0] })
+                                                                setExpenseFormData({
+                                                                    ...exp,
+                                                                    paidTo: exp.paidTo || '',
+                                                                    contact: exp.contact || '',
+                                                                    date: exp.date ? new Date(exp.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                                                                })
                                                                 setEditingExpId(exp.expenseId)
                                                                 setIsExpAdding(true)
                                                             }} className="btn btn-sm text-primary p-0" title="Edit"><Edit3 size={14} /></button>
@@ -2475,6 +2520,18 @@ const Festivals = () => {
                                                                     <Tag size={13} className="text-primary opacity-75" />
                                                                     <span><strong className="text-dark">Type:</strong> {exp.expenseType || 'N/A'}</span>
                                                                 </div>
+                                                                {exp.paidTo && (
+                                                                    <div className="d-flex align-items-center gap-1">
+                                                                        <User size={13} className="text-success opacity-75" />
+                                                                        <span><strong className="text-dark">Paid To:</strong> {exp.paidTo}</span>
+                                                                    </div>
+                                                                )}
+                                                                {exp.contact && (
+                                                                    <div className="d-flex align-items-center gap-1">
+                                                                        <Phone size={13} className="text-info opacity-75" />
+                                                                        <span><strong className="text-dark">Contact:</strong> {exp.contact}</span>
+                                                                    </div>
+                                                                )}
                                                                 {exp.onlineReference && (
                                                                     <div className="d-flex align-items-center gap-1">
                                                                         <CreditCard size={13} className="text-info opacity-75" />
