@@ -2849,7 +2849,7 @@ html, body, #root, .app-container {
 }
 
 /* ==========================================
-   LIVE CELEBRATIONS & EVENTS BROADCAST (HOME)
+   FIGMA LUXURY DESIGN: LIVE CELEBRATION SHOWCASE
    ========================================== */
 @keyframes livePulseRadar {
     0% {
@@ -2881,113 +2881,163 @@ html, body, #root, .app-container {
     animation: livePulseRadar 2s infinite;
 }
 
-.live-celebrations-wrapper {
-    margin-bottom: 24px;
+.figma-live-showcase {
+    position: relative;
+    border-radius: 20px;
+    padding: 22px 26px;
+    background: radial-gradient(120% 120% at 0% 0%, rgba(239, 68, 68, 0.09) 0%, rgba(249, 115, 22, 0.04) 40%, rgba(255, 255, 255, 0.85) 100%);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    box-shadow: 0 16px 40px -12px rgba(239, 68, 68, 0.14), 0 2px 10px rgba(0, 0, 0, 0.03);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.live-celebrations-header {
+.figma-live-showcase:hover {
+    transform: translateY(-2px);
+    border-color: rgba(239, 68, 68, 0.45);
+    box-shadow: 0 22px 50px -12px rgba(239, 68, 68, 0.22), 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.figma-live-ambient-glow {
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, rgba(249, 115, 22, 0) 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.figma-live-emblem {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ef4444, #f97316);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 22px rgba(239, 68, 68, 0.4);
+    flex-shrink: 0;
+}
+
+.figma-live-radar-badge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
+    gap: 7px;
+    padding: 5px 12px;
     border-radius: 9999px;
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.25);
-    color: #dc2626;
-    font-size: 0.76rem;
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.14), rgba(249, 115, 22, 0.14));
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    color: #ef4444;
+    font-size: 0.73rem;
     font-weight: 800;
     letter-spacing: 0.5px;
     text-transform: uppercase;
 }
 
-.live-celebration-card {
-    background: var(--card-bg, #ffffff);
-    border: 1px solid var(--glass-border);
-    border-left: 5px solid #ef4444 !important;
-    border-radius: 16px;
-    padding: 16px 20px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.live-celebration-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(239, 68, 68, 0.14), 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.live-entity-pill {
+.figma-live-entity-pill {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
+    gap: 6px;
+    padding: 5px 14px;
     border-radius: 9999px;
-    font-size: 0.74rem;
+    font-size: 0.76rem;
     font-weight: 700;
     background: rgba(99, 102, 241, 0.1);
     color: #4f46e5;
     border: 1px solid rgba(99, 102, 241, 0.25);
+    letter-spacing: 0.2px;
 }
 
-.live-dates-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    border-radius: 9999px;
-    font-size: 0.74rem;
-    font-weight: 600;
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-    border: 1px solid rgba(16, 185, 129, 0.25);
-}
-
-.live-location-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 4px 10px;
-    border-radius: 9999px;
-    font-size: 0.74rem;
+.figma-live-quote-box {
+    background: rgba(15, 23, 42, 0.03);
+    border-left: 3px solid #f97316;
+    border-radius: 0 10px 10px 0;
+    padding: 8px 14px;
+    margin-bottom: 16px;
+    font-size: 0.88rem;
+    color: var(--text-main);
     font-weight: 500;
-    background: rgba(100, 116, 139, 0.08);
-    color: var(--text-muted);
 }
 
-.dark-mode .live-celebrations-header,
-[data-theme='dark'] .live-celebrations-header {
-    background: rgba(239, 68, 68, 0.18) !important;
-    border-color: rgba(239, 68, 68, 0.35) !important;
-    color: #f87171 !important;
+.figma-live-meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 9999px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    background: var(--input-bg, #ffffff);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
 }
 
-.dark-mode .live-celebration-card,
-[data-theme='dark'] .live-celebration-card {
-    background: var(--card-bg-subtle, rgba(20, 48, 57, 0.85)) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-    border-left: 5px solid #ef4444 !important;
+.figma-live-cta-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #f97316 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 9px 22px !important;
+    border-radius: 9999px !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.35) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
 }
 
-.dark-mode .live-entity-pill,
-[data-theme='dark'] .live-entity-pill {
-    background: rgba(99, 102, 241, 0.2) !important;
-    color: #a5b4fc !important;
-    border-color: rgba(99, 102, 241, 0.35) !important;
+.figma-live-cta-btn:hover {
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 10px 28px rgba(239, 68, 68, 0.48) !important;
+    color: #ffffff !important;
 }
 
-.dark-mode .live-dates-pill,
-[data-theme='dark'] .live-dates-pill {
-    background: rgba(16, 185, 129, 0.2) !important;
-    color: #34d399 !important;
-    border-color: rgba(16, 185, 129, 0.35) !important;
+/* Dark mode Figma styles */
+.dark-mode .figma-live-showcase,
+[data-theme='dark'] .figma-live-showcase {
+    background: radial-gradient(120% 120% at 0% 0%, rgba(220, 38, 38, 0.18) 0%, rgba(99, 102, 241, 0.08) 50%, rgba(18, 43, 53, 0.95) 100%) !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+    box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(239, 68, 68, 0.3) !important;
 }
 
-.dark-mode .live-location-pill,
-[data-theme='dark'] .live-location-pill {
+.dark-mode .figma-live-radar-badge,
+[data-theme='dark'] .figma-live-radar-badge {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(249, 115, 22, 0.25)) !important;
+    border-color: rgba(239, 68, 68, 0.5) !important;
+    color: #fca5a5 !important;
+}
+
+.dark-mode .figma-live-entity-pill,
+[data-theme='dark'] .figma-live-entity-pill {
+    background: rgba(99, 102, 241, 0.22) !important;
+    color: #c7d2fe !important;
+    border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+.dark-mode .figma-live-quote-box,
+[data-theme='dark'] .figma-live-quote-box {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-left-color: #f97316 !important;
+    color: #f1f5f9 !important;
+}
+
+.dark-mode .figma-live-meta-pill,
+[data-theme='dark'] .figma-live-meta-pill {
     background: rgba(255, 255, 255, 0.06) !important;
-    color: #cbd5e1 !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #e2e8f0 !important;
 }
+
 
 
 

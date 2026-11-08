@@ -103,6 +103,7 @@ const Home = () => {
             </Helmet>
 
             <div className="container position-relative z-1 pt-2 pt-sm-3 px-3 px-sm-4">
+                {/* Hero Header */}
                 <div className="text-center mb-4 pb-1 pb-sm-2">
                     <motion.div
                         className="hero-badge-pill glass-card px-3 px-sm-4 py-2 d-inline-block shadow-sm mw-100"
@@ -161,107 +162,7 @@ const Home = () => {
                     </motion.div>
                 </div>
 
-                {/* ================= LIVE CELEBRATIONS BROADCAST SECTION ================= */}
-                {liveCelebrations.length > 0 && (
-                    <motion.div 
-                        className="live-celebrations-wrapper mb-4"
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6 }}
-                    >
-                        <div className="d-flex align-items-center justify-content-between mb-2.5 flex-wrap gap-2">
-                            <div className="live-celebrations-header">
-                                <span className="live-dot live-dot-active"></span>
-                                <span>Ongoing Live Celebrations</span>
-                            </div>
-                            <span className="extra-tiny text-muted fw-semibold">
-                                Broadcast live across all registered entities
-                            </span>
-                        </div>
-
-                        <div className="row g-3">
-                            {liveCelebrations.map((item, idx) => {
-                                const isFest = item.type === 'festival'
-                                const targetLink = isAuthenticated 
-                                    ? (isFest ? '/festivals?tab=subscriptions' : '/events?tab=subscriptions')
-                                    : '/gallery'
-
-                                return (
-                                    <div key={item._id || idx} className={liveCelebrations.length === 1 ? 'col-12' : 'col-12 col-md-6'}>
-                                        <div className="live-celebration-card h-100 d-flex flex-column justify-content-between">
-                                            <div>
-                                                {/* Top badges row */}
-                                                <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
-                                                    <div className="d-flex align-items-center gap-1.5 flex-wrap">
-                                                        <span className="badge bg-danger text-white rounded-pill extra-tiny px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1">
-                                                            <span className="live-dot live-dot-active" style={{ width: '6px', height: '6px' }}></span>
-                                                            LIVE NOW
-                                                        </span>
-                                                        <span className="badge bg-secondary bg-opacity-10 text-main rounded-pill extra-tiny px-2 py-1 fw-bold uppercase">
-                                                            {isFest ? 'Festival' : 'Event'}
-                                                        </span>
-                                                        {item.category && (
-                                                            <span className="badge bg-primary bg-opacity-10 text-primary rounded-pill extra-tiny px-2 py-1 fw-bold">
-                                                                {item.category}
-                                                            </span>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Entity Name Pill */}
-                                                    <span className="live-entity-pill" title={`Organized by ${item.entityName || 'Vishwa Utsav'}`}>
-                                                        <Building2 size={12} />
-                                                        <span>Under: {item.entityName || 'Vishwa Utsav'}</span>
-                                                    </span>
-                                                </div>
-
-                                                {/* Title */}
-                                                <h4 className="fw-extrabold text-main mb-2" style={{ letterSpacing: '-0.02em' }}>
-                                                    {item.title}
-                                                </h4>
-
-                                                {/* Meta pills: Dates & Location */}
-                                                <div className="d-flex align-items-center gap-2 flex-wrap mb-3">
-                                                    <span className="live-dates-pill">
-                                                        <Calendar size={13} />
-                                                        <span>{formatDateText(item)}</span>
-                                                    </span>
-                                                    {item.location && (
-                                                        <span className="live-location-pill">
-                                                            <MapPin size={13} />
-                                                            <span>{item.location}</span>
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                {item.description && (
-                                                    <p className="text-muted small mb-3 line-clamp-2" style={{ fontSize: '0.84rem' }}>
-                                                        {item.description}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            {/* Card Footer Action */}
-                                            <div className="pt-2 border-top border-secondary border-opacity-10 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                                                <span className="extra-tiny text-muted fw-semibold">
-                                                    Currently in progress • Public celebration
-                                                </span>
-                                                <Link 
-                                                    to={targetLink}
-                                                    className="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs hover-glow"
-                                                    style={{ fontSize: '0.76rem' }}
-                                                >
-                                                    <span>{isAuthenticated ? 'View Passes & Details' : 'Explore Celebration'}</span>
-                                                    <ArrowRight size={13} />
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )
-                            })}
-                        </div>
-                    </motion.div>
-                )}
-
+                {/* 4 Shortcut Cards */}
                 <div className="row g-3 g-sm-4 justify-content-center">
                     {shortcuts.map((item, idx) => (
                         <div key={idx} className="col-12 col-sm-6 col-lg-3">
@@ -327,6 +228,125 @@ const Home = () => {
                     ))}
                 </div>
 
+                {/* ================= FIGMA-GRADE LIVE CELEBRATIONS SHOWCASE (IN THE MIDDLE) ================= */}
+                {liveCelebrations.length > 0 && (
+                    <motion.div 
+                        className="my-4 py-1"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                    >
+                        <div className="d-flex align-items-center justify-content-between mb-3 px-1 flex-wrap gap-2">
+                            <div className="d-flex align-items-center gap-2">
+                                <span className="figma-live-radar-badge">
+                                    <span className="live-dot live-dot-active"></span>
+                                    <span>Broadcasting Live</span>
+                                </span>
+                                <span className="badge bg-secondary bg-opacity-10 text-muted rounded-pill px-2.5 py-1 extra-tiny fw-bold uppercase ls-1">
+                                    {liveCelebrations.length} Active {liveCelebrations.length === 1 ? 'Celebration' : 'Celebrations'}
+                                </span>
+                            </div>
+                            <span className="extra-tiny text-muted fw-semibold d-none d-sm-inline">
+                                Live updates directly from registered entities
+                            </span>
+                        </div>
+
+                        <div className="row g-3">
+                            {liveCelebrations.map((item, idx) => {
+                                const isFest = item.type === 'festival'
+                                const targetLink = isAuthenticated 
+                                    ? (isFest ? '/festivals?tab=subscriptions' : '/events?tab=subscriptions')
+                                    : '/gallery'
+
+                                return (
+                                    <div key={item._id || idx} className={liveCelebrations.length === 1 ? 'col-12' : 'col-12 col-lg-6'}>
+                                        <div className="figma-live-showcase h-100 d-flex flex-column justify-content-between">
+                                            {/* Decorative ambient flare */}
+                                            <div className="figma-live-ambient-glow" />
+
+                                            <div className="position-relative z-1">
+                                                {/* Top Header Bar */}
+                                                <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-3">
+                                                    <div className="d-flex align-items-center gap-2 flex-wrap">
+                                                        <span className="badge bg-danger text-white rounded-pill extra-tiny px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 shadow-xs">
+                                                            <span className="live-dot live-dot-active" style={{ width: '6px', height: '6px' }}></span>
+                                                            LIVE NOW
+                                                        </span>
+                                                        <span className="badge bg-secondary bg-opacity-15 text-main rounded-pill extra-tiny px-2 py-1 fw-bold uppercase">
+                                                            {isFest ? 'Festival' : 'Event'}
+                                                        </span>
+                                                        {item.category && (
+                                                            <span className="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 rounded-pill extra-tiny px-2.5 py-1 fw-bold">
+                                                                {item.category}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Entity Pill */}
+                                                    <div className="figma-live-entity-pill" title={`Organized by ${item.entityName || 'Vishwa Utsav'}`}>
+                                                        <Building2 size={13} className="text-primary" />
+                                                        <span>Under: <strong>{item.entityName || 'Vishwa Utsav'}</strong></span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Main Title & Emblem row */}
+                                                <div className="d-flex align-items-start gap-3 mb-3">
+                                                    <div className="figma-live-emblem">
+                                                        {isFest ? <Sparkles size={24} /> : <Ticket size={24} />}
+                                                    </div>
+                                                    <div className="flex-grow-1">
+                                                        <h3 className="fw-extrabold text-main mb-1" style={{ letterSpacing: '-0.025em', fontSize: '1.45rem', lineHeight: '1.25' }}>
+                                                            {item.title}
+                                                        </h3>
+                                                        {item.description && (
+                                                            <div className="figma-live-quote-box mt-2 mb-0">
+                                                                <span className="opacity-90">{item.description}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Meta Shelf (Dates & Location) */}
+                                                <div className="d-flex align-items-center gap-2 flex-wrap mb-3">
+                                                    <span className="figma-live-meta-pill text-success">
+                                                        <Calendar size={13} className="text-success" />
+                                                        <span>{formatDateText(item)}</span>
+                                                    </span>
+                                                    {item.location && (
+                                                        <span className="figma-live-meta-pill text-muted">
+                                                            <MapPin size={13} className="text-danger opacity-75" />
+                                                            <span>{item.location}</span>
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Card Bottom CTA */}
+                                            <div className="position-relative z-1 pt-3 border-top border-secondary border-opacity-10 d-flex align-items-center justify-content-between flex-wrap gap-2 mt-2">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <span className="live-dot live-dot-active"></span>
+                                                    <span className="extra-tiny text-muted fw-semibold">
+                                                        Public Access Open • Live Registrations & Passes Active
+                                                    </span>
+                                                </div>
+
+                                                <Link 
+                                                    to={targetLink}
+                                                    className="figma-live-cta-btn"
+                                                >
+                                                    <span>{isAuthenticated ? 'View Passes & Details' : 'Explore Celebration'}</span>
+                                                    <ArrowRight size={14} />
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Gallery & About Row */}
                 <div className="row mt-3 mt-sm-4 g-3 g-sm-4 align-items-stretch">
                     {/* Gallery Section */}
                     <div className="col-12 col-lg-6 d-flex">
