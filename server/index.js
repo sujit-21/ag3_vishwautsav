@@ -12,6 +12,38 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+// Live Terminal Request & Status Code Logger
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        const status = res.statusCode;
+        // ANSI Colors: Green for 2xx, Cyan for 3xx, Yellow for 4xx, Red for 5xx
+        let color = '\x1b[32m'; // green
+        if (status >= 500) color = '\x1b[31m'; // red
+        else if (status >= 400) color = '\x1b[33m'; // yellow
+        else if (status >= 300) color = '\x1b[36m'; // cyan
+        const reset = '\x1b[0m';
+
+        console.log(`[API STATUS] ${color}${status} ${req.method} ${req.originalUrl} (${duration}ms)${reset}`);
+    });
+    next();
+});
+
+// Dedicated Health & Status Endpoint
+app.get('/api/health', (req, res) => {
+    const dbState = mongoose.connection.readyState;
+    const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+    res.status(200).json({
+        status: 'UP',
+        code: 200,
+        service: 'Vishwa Utsav API',
+        database: states[dbState] || 'unknown',
+        uptimeSeconds: Math.floor(process.uptime()),
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/festivals', require('./routes/festivals'));
