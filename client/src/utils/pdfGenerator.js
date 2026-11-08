@@ -1,5 +1,56 @@
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import logoImage from '../images/logo-emblem.png'
+
+// Cached base64 logo data URL
+let cachedLogoDataUrl = null
+
+/**
+ * Helper to get the VU logo emblem as a Base64 data URL for jsPDF embedding
+ */
+const getLogoImage = () => {
+    if (cachedLogoDataUrl) return Promise.resolve(cachedLogoDataUrl)
+    if (typeof window === 'undefined') return Promise.resolve(null)
+
+    if (typeof logoImage === 'string' && logoImage.startsWith('data:image')) {
+        cachedLogoDataUrl = logoImage
+        return Promise.resolve(cachedLogoDataUrl)
+    }
+
+    return new Promise((resolve) => {
+        const img = new Image()
+        img.crossOrigin = 'Anonymous'
+        img.onload = () => {
+            try {
+                const canvas = document.createElement('canvas')
+                canvas.width = img.naturalWidth || img.width || 200
+                canvas.height = img.naturalHeight || img.height || 200
+                const ctx = canvas.getContext('2d')
+                ctx.drawImage(img, 0, 0)
+                cachedLogoDataUrl = canvas.toDataURL('image/png')
+                resolve(cachedLogoDataUrl)
+            } catch (err) {
+                resolve(img)
+            }
+        }
+        img.onerror = () => {
+            resolve(null)
+        }
+        img.src = logoImage
+    })
+}
+
+/**
+ * Website URL information for PDF Footers
+ */
+const getWebsiteInfo = () => {
+    if (typeof window !== 'undefined' && window.location) {
+        const origin = window.location.origin || 'https://vishwautsav.com'
+        const host = window.location.host || 'vishwautsav.com'
+        return { url: origin, display: host }
+    }
+    return { url: 'https://vishwautsav.com', display: 'vishwautsav.com' }
+}
 
 // Figma Luxury Design Palette (RGB arrays for jsPDF)
 export const FIGMA_COLORS = {
@@ -101,7 +152,7 @@ export const getAmountBadge = (val) => {
 }
 
 /**
- * Common Header Drawer for A4 PDF (Centered in Page, Clean ASCII, No right badge)
+ * Common Header Drawer for A4 PDF (Centered in Page, Clean Text, No right badge)
  */
 const drawHeader = (doc, { title, subtitle, accentColor = FIGMA_COLORS.saffron, isLandscape = false }) => {
     const pageW = isLandscape ? 297 : 210
@@ -115,42 +166,71 @@ const drawHeader = (doc, { title, subtitle, accentColor = FIGMA_COLORS.saffron, 
     doc.setFillColor(...accentColor)
     doc.rect(0, 26, pageW, 1.8, 'F')
 
-    // 3. Eyebrow Tag (Centered, clean ASCII without unrenderable Unicode glyphs)
+    // 3. Eyebrow Tag (Centered, clean text without unrenderable Unicode glyphs)
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(7.2)
+    doc.setFontSize(7.5)
     doc.setTextColor(...FIGMA_COLORS.amber)
-    doc.text('* VISHWA UTSAV MANAGEMENT SYSTEM  |  OFFICIAL AUDIT RECORD *', centerX, 7.8, { align: 'center' })
+    doc.text('Vishwa Utsav Portal', centerX, 7.8, { align: 'center' })
 
-    // 4. Main Document Title (Centered on the Page)
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(13.5)
-    doc.setTextColor(255, 255, 255)
-    doc.text(String(title || 'AUDIT REPORT').toUpperCase(), centerX, 15.2, { align: 'center' })
+    // 4. Main Document Title & Subtitle
+    const hasSubtitle = Boolean(subtitle && String(subtitle).trim())
+    if (hasSubtitle) {
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(13.5)
+        doc.setTextColor(255, 255, 255)
+        doc.text(String(title || 'AUDIT REPORT').toUpperCase(), centerX, 15.2, { align: 'center' })
 
-    // 5. Subtitle & Context (Centered on the Page)
-    doc.setFont('helvetica', 'normal')
-    doc.setFontSize(7.6)
-    doc.setTextColor(203, 213, 225)
-    doc.text(String(subtitle || ''), centerX, 21.2, { align: 'center' })
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(7.6)
+        doc.setTextColor(203, 213, 225)
+        doc.text(String(subtitle).trim(), centerX, 21.2, { align: 'center' })
+    } else {
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(14)
+        doc.setTextColor(255, 255, 255)
+        doc.text(String(title || 'AUDIT REPORT').toUpperCase(), centerX, 17.5, { align: 'center' })
+    }
 }
 
 /**
  * Common Running Footer Drawer for A4 PDF (anchored at bottom of each page)
+ * Includes active clickable website link centered between audit note and page numbers
  */
 const drawFooter = (doc, isLandscape = false) => {
     const totalPages = doc.internal.getNumberOfPages()
     const pageW = isLandscape ? 297 : 210
     const pageH = isLandscape ? 210 : 297
+    const { url: websiteUrl, display: websiteDisplay } = getWebsiteInfo()
+
     for (let i = 1; i <= totalPages; i++) {
         doc.setPage(i)
+        // Hairline divider
         doc.setDrawColor(...FIGMA_COLORS.border)
         doc.setLineWidth(0.3)
         doc.line(14, pageH - 11, pageW - 14, pageH - 11)
 
+        // Left text: Confidential Audit Document
         doc.setFont('helvetica', 'normal')
         doc.setFontSize(7)
         doc.setTextColor(...FIGMA_COLORS.muted)
-        doc.text('Certified Confidential Audit Document | Vishwa Utsav Event Management', 14, pageH - 6.5)
+        doc.text('Certified Confidential Audit Document | Vishwa Utsav', 14, pageH - 6.5)
+
+        // Center text: Website Link (Active Clickable Hyperlink)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(7.2)
+        doc.setTextColor(...FIGMA_COLORS.blue)
+        const linkText = `Website: ${websiteDisplay}`
+        const textW = doc.getTextWidth(linkText)
+        const linkX = (pageW - textW) / 2
+        doc.text(linkText, linkX, pageH - 6.5)
+        if (typeof doc.link === 'function') {
+            doc.link(linkX, pageH - 10, textW, 5, { url: websiteUrl })
+        }
+
+        // Right text: Page count
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(7)
+        doc.setTextColor(...FIGMA_COLORS.muted)
         doc.text(`Page ${i} of ${totalPages}`, pageW - 14, pageH - 6.5, { align: 'right' })
     }
 }
@@ -818,13 +898,14 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
 // ============================================================================
 // 5. INDIVIDUAL ATTENDEE OFFICIAL RECEIPT (A4 PORTRAIT: 210mm x 297mm)
 // ============================================================================
-export const exportSingleAttendeeReceiptPDF = ({ sub, festOrEvent = {}, entityName = '', getTierDisplayName, getPaymentDisplayName }) => {
+export const exportSingleAttendeeReceiptPDF = async ({ sub, festOrEvent = {}, entityName = '', getTierDisplayName, getPaymentDisplayName }) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const logoImg = await getLogoImage()
 
-    // Centered Header
+    // Centered Header (Official Subscription Receipt without subtitle)
     drawHeader(doc, {
-        title: 'Official Registration Receipt',
-        subtitle: `Vishwa Utsav Event Management  |  Pass ID: ${sub.subId || sub.cardId || '—'}  |  Certified Audit Copy`,
+        title: 'Official Subscription Receipt',
+        subtitle: '',
         accentColor: FIGMA_COLORS.saffron,
         isLandscape: false
     })
@@ -936,23 +1017,62 @@ export const exportSingleAttendeeReceiptPDF = ({ sub, festOrEvent = {}, entityNa
     // Verification & Signatures Block
     const signY = (doc.lastAutoTable?.finalY || 180) + 12
     if (signY < 240) {
-        // QR Verification Box
+        // VU Verification Box (Width 86mm, Height 24mm)
+        const boxW = 86
+        const boxH = 24
         doc.setFillColor(...FIGMA_COLORS.lightBg)
-        doc.roundedRect(14, signY, 50, 24, 2, 2, 'F')
+        doc.roundedRect(14, signY, boxW, boxH, 2.5, 2.5, 'F')
+        doc.setDrawColor(...FIGMA_COLORS.border)
+        doc.setLineWidth(0.35)
+        doc.roundedRect(14, signY, boxW, boxH, 2.5, 2.5, 'S')
+
+        // VU Logo Emblem inside box
+        if (logoImg) {
+            try {
+                doc.addImage(logoImg, 'PNG', 17, signY + 3.5, 17, 17)
+            } catch (err) {
+                doc.setFillColor(...FIGMA_COLORS.navyDark)
+                doc.roundedRect(17, signY + 3.5, 17, 17, 2, 2, 'F')
+                doc.setFont('helvetica', 'bold')
+                doc.setFontSize(8)
+                doc.setTextColor(...FIGMA_COLORS.amber)
+                doc.text('VU', 25.5, signY + 14, { align: 'center' })
+            }
+        } else {
+            doc.setFillColor(...FIGMA_COLORS.navyDark)
+            doc.roundedRect(17, signY + 3.5, 17, 17, 2, 2, 'F')
+            doc.setFont('helvetica', 'bold')
+            doc.setFontSize(8)
+            doc.setTextColor(...FIGMA_COLORS.amber)
+            doc.text('VU', 25.5, signY + 14, { align: 'center' })
+        }
+
+        // Vertical divider line between logo and text
         doc.setDrawColor(...FIGMA_COLORS.border)
         doc.setLineWidth(0.3)
-        doc.roundedRect(14, signY, 50, 24, 2, 2, 'S')
+        doc.line(37, signY + 3.5, 37, signY + 20.5)
+
+        // Verification Details
+        const textX = 40
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(6.8)
+        doc.setTextColor(...FIGMA_COLORS.emeraldDark)
+        doc.text('DIGITAL RECEIPT VERIFIED', textX, signY + 7.5)
 
         doc.setFont('helvetica', 'bold')
-        doc.setFontSize(6.5)
-        doc.setTextColor(...FIGMA_COLORS.emeraldDark)
-        doc.text('✓ DIGITAL RECEIPT VERIFIED', 17, signY + 7)
+        doc.setFontSize(6.2)
+        doc.setTextColor(...FIGMA_COLORS.slateNavy)
+        doc.text(`SecHash: ${String(sub.subId || sub.cardId || 'PASS').slice(0, 12)}`, textX, signY + 12.2)
 
         doc.setFont('helvetica', 'normal')
         doc.setFontSize(5.8)
         doc.setTextColor(...FIGMA_COLORS.muted)
-        doc.text(`SecHash: ${(sub.subId || 'PASS').slice(0, 10)}`, 17, signY + 13)
-        doc.text('Scannable for Venue Access', 17, signY + 19)
+        doc.text('Scannable for Venue Access', textX, signY + 16.5)
+
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(5.6)
+        doc.setTextColor(...FIGMA_COLORS.saffron)
+        doc.text('Official Certified Copy', textX, signY + 20.5)
 
         // Signature Line
         doc.setDrawColor(...FIGMA_COLORS.border)
@@ -960,9 +1080,14 @@ export const exportSingleAttendeeReceiptPDF = ({ sub, festOrEvent = {}, entityNa
         doc.line(140, signY + 16, 196, signY + 16)
 
         doc.setFont('helvetica', 'bold')
-        doc.setFontSize(7)
+        doc.setFontSize(7.2)
         doc.setTextColor(...FIGMA_COLORS.slateNavy)
-        doc.text('Authorized Signatory', 168, signY + 21, { align: 'center' })
+        doc.text('Authorized Signatory', 168, signY + 20.5, { align: 'center' })
+
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(5.8)
+        doc.setTextColor(...FIGMA_COLORS.muted)
+        doc.text(String(festOrEvent.entityName || entityName || 'Vishwa Utsav Entity'), 168, signY + 23.5, { align: 'center' })
     }
 
     drawFooter(doc, false)
@@ -972,7 +1097,7 @@ export const exportSingleAttendeeReceiptPDF = ({ sub, festOrEvent = {}, entityNa
 // ============================================================================
 // 6. INDIVIDUAL EXPENSE VOUCHER (A4 PORTRAIT: 210mm x 297mm)
 // ============================================================================
-export const exportSingleExpenseVoucherPDF = ({ exp, festOrEvent = {}, entityName = '' }) => {
+export const exportSingleExpenseVoucherPDF = async ({ exp, festOrEvent = {}, entityName = '' }) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
     // Centered Header

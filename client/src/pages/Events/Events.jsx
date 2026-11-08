@@ -368,7 +368,7 @@ const Events = () => {
     const downloadPDF = async (sub) => {
         try {
             const event = events.find(e => e.title === sub.festOrEventName) || activeEvent || {};
-            exportSingleAttendeeReceiptPDF({
+            await exportSingleAttendeeReceiptPDF({
                 sub,
                 festOrEvent: event,
                 entityName: event.entityName || activeEvent?.entityName,
@@ -384,7 +384,7 @@ const Events = () => {
     const downloadExpensePDF = async (exp) => {
         try {
             const event = events.find(e => e.title === exp.festOrEventName) || activeEvent || {};
-            exportSingleExpenseVoucherPDF({
+            await exportSingleExpenseVoucherPDF({
                 exp,
                 festOrEvent: event,
                 entityName: event.entityName || activeEvent?.entityName

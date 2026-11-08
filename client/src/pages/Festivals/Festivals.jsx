@@ -373,7 +373,7 @@ const Festivals = () => {
     const downloadPDF = async (sub) => {
         try {
             const fest = festivals.find(f => f.title === sub.festOrEventName) || activeFestival || {};
-            exportSingleAttendeeReceiptPDF({
+            await exportSingleAttendeeReceiptPDF({
                 sub,
                 festOrEvent: fest,
                 entityName: fest.entityName || activeFestival?.entityName,
@@ -389,7 +389,7 @@ const Festivals = () => {
     const downloadExpensePDF = async (exp) => {
         try {
             const fest = festivals.find(f => f.title === exp.festOrEventName) || activeFestival || {};
-            exportSingleExpenseVoucherPDF({
+            await exportSingleExpenseVoucherPDF({
                 exp,
                 festOrEvent: fest,
                 entityName: fest.entityName || activeFestival?.entityName
