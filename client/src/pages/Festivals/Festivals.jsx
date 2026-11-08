@@ -1287,21 +1287,21 @@ const Festivals = () => {
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header */}
-                        <div className="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom border-secondary border-opacity-15">
+                        <div className="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom border-secondary border-opacity-15 flex-wrap gap-2">
                             <div className="d-flex align-items-center gap-2.5">
-                                <div className="figma-report-icon" style={{ background: 'linear-gradient(135deg, #E07A43, #D95A22)', color: '#ffffff', width: '36px', height: '36px', borderRadius: '10px' }}>
-                                    <Download size={18} />
+                                <div className="figma-report-icon" style={{ background: 'linear-gradient(135deg, #E07A43, #D95A22)', color: '#ffffff', width: '38px', height: '38px', borderRadius: '12px' }}>
+                                    <Download size={19} />
                                 </div>
                                 <div>
-                                    <h6 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.02em', fontSize: '0.98rem' }}>Data Reports</h6>
+                                    <h6 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.02em', fontSize: '1rem' }}>Data Reports</h6>
                                     <p className="text-muted extra-tiny mb-0">Audit-grade export hub</p>
                                 </div>
                             </div>
-                            <div className="d-flex align-items-center gap-1.5">
+                            <div className="d-flex align-items-center gap-2 flex-grow-1 justify-content-end">
                                 {festivals && festivals.length > 0 ? (
                                     <select
-                                        className="form-select form-select-sm border border-secondary border-opacity-25 rounded-pill px-2.5 py-1 text-main fw-bold cursor-pointer"
-                                        style={{ fontSize: '0.74rem', background: 'var(--input-bg)', maxWidth: '160px' }}
+                                        className="form-select form-select-sm border border-secondary border-opacity-25 rounded-pill px-3 py-1.5 text-main fw-bold cursor-pointer"
+                                        style={{ fontSize: '0.78rem', background: 'var(--input-bg)', minWidth: '170px', maxWidth: '240px' }}
                                         value={activeFestival?._id || festivals[0]?._id}
                                         onChange={(e) => {
                                             const found = festivals.find(f => f._id === e.target.value)
@@ -1316,13 +1316,13 @@ const Festivals = () => {
                                         ))}
                                     </select>
                                 ) : activeFestival ? (
-                                    <span className="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 rounded-pill px-2.5 py-1 extra-tiny fw-bold text-truncate" style={{ maxWidth: "120px" }}>
+                                    <span className="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-1.5 extra-tiny fw-bold text-truncate" style={{ maxWidth: "200px" }}>
                                         {activeFestival.title}
                                     </span>
                                 ) : null}
                                 <button 
                                     type="button" 
-                                    className="btn btn-sm p-1 rounded-circle bg-secondary bg-opacity-10 text-muted hover-text-main border-0 ms-1 d-flex align-items-center justify-content-center" 
+                                    className="btn btn-sm p-1.5 rounded-circle bg-secondary bg-opacity-10 text-muted hover-text-main border-0 d-flex align-items-center justify-content-center" 
                                     onClick={closeDataModal}
                                     aria-label="Close"
                                 >
@@ -1339,20 +1339,21 @@ const Festivals = () => {
                                     onClick={() => { downloadAllAttendeesPDF(); closeDataModal(); }}
                                     title="Download Attendee PDF Roster"
                                 >
-                                    <div className="d-flex align-items-center gap-2.5">
+                                    <div className="d-flex align-items-center gap-3">
                                         <div className="figma-report-icon" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6' }}>
-                                            <FileText size={17} />
+                                            <FileText size={19} />
                                         </div>
                                         <div>
-                                            <div className="fw-extrabold text-main d-flex align-items-center gap-1.5" style={{ fontSize: '0.86rem' }}>
-                                                <span>Attendee PDF</span>
+                                            <div className="fw-extrabold text-main" style={{ fontSize: '0.9rem' }}>
+                                                Attendee PDF
                                             </div>
                                             <div className="text-muted extra-tiny">Complete guest &amp; volunteer roster</div>
                                         </div>
                                     </div>
-                                    <span className="badge bg-primary bg-opacity-15 text-primary border border-primary border-opacity-25 rounded-pill px-2.5 py-1 extra-tiny fw-bold d-flex align-items-center gap-1">
-                                        <Download size={12} /> Download PDF
-                                    </span>
+                                    <div className="figma-report-pill-btn figma-report-pill-blue">
+                                        <Download size={13} />
+                                        <span>Download PDF</span>
+                                    </div>
                                 </button>
 
                                 {/* All Expenses PDF Tile */}
@@ -1361,20 +1362,21 @@ const Festivals = () => {
                                     onClick={() => { downloadAllExpensesPDF(); closeDataModal(); }}
                                     title="Download All Expenses PDF Ledger"
                                 >
-                                    <div className="d-flex align-items-center gap-2.5">
+                                    <div className="d-flex align-items-center gap-3">
                                         <div className="figma-report-icon" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}>
-                                            <Receipt size={17} />
+                                            <Receipt size={19} />
                                         </div>
                                         <div>
-                                            <div className="fw-extrabold text-main d-flex align-items-center gap-1.5" style={{ fontSize: '0.86rem' }}>
-                                                <span>All Expenses PDF</span>
+                                            <div className="fw-extrabold text-main" style={{ fontSize: '0.9rem' }}>
+                                                All Expenses PDF
                                             </div>
                                             <div className="text-muted extra-tiny">Itemized receipts &amp; payments</div>
                                         </div>
                                     </div>
-                                    <span className="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-25 rounded-pill px-2.5 py-1 extra-tiny fw-bold d-flex align-items-center gap-1">
-                                        <Download size={12} /> Download PDF
-                                    </span>
+                                    <div className="figma-report-pill-btn figma-report-pill-red">
+                                        <Download size={13} />
+                                        <span>Download PDF</span>
+                                    </div>
                                 </button>
 
                                 {/* BalanceSheet PDF Tile */}
@@ -1383,25 +1385,26 @@ const Festivals = () => {
                                     onClick={() => { downloadBalanceSheetPDF(); closeDataModal(); }}
                                     title="Download BalanceSheet PDF Audit"
                                 >
-                                    <div className="d-flex align-items-center gap-2.5">
+                                    <div className="d-flex align-items-center gap-3">
                                         <div className="figma-report-icon" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#10b981' }}>
-                                            <Scale size={17} />
+                                            <Scale size={19} />
                                         </div>
                                         <div>
-                                            <div className="fw-extrabold text-main d-flex align-items-center gap-1.5" style={{ fontSize: '0.86rem' }}>
-                                                <span>BalanceSheet PDF</span>
+                                            <div className="fw-extrabold text-main" style={{ fontSize: '0.9rem' }}>
+                                                BalanceSheet PDF
                                             </div>
                                             <div className="text-muted extra-tiny">Consolidated financial overview</div>
                                         </div>
                                     </div>
-                                    <span className="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1 extra-tiny fw-bold d-flex align-items-center gap-1">
-                                        <Download size={12} /> Download PDF
-                                    </span>
+                                    <div className="figma-report-pill-btn figma-report-pill-green">
+                                        <Download size={13} />
+                                        <span>Download PDF</span>
+                                    </div>
                                 </button>
 
-                                <div className="d-flex align-items-center my-1.5">
+                                <div className="d-flex align-items-center my-2">
                                     <div className="border-top border-secondary border-opacity-15 flex-grow-1"></div>
-                                    <span className="extra-tiny text-muted px-2 fw-extrabold uppercase tracking-wider" style={{ fontSize: '0.62rem' }}>
+                                    <span className="extra-tiny text-muted px-2 fw-extrabold uppercase tracking-wider" style={{ fontSize: '0.64rem', letterSpacing: '0.08em' }}>
                                         ✦ Master Export Bundle
                                     </span>
                                     <div className="border-top border-secondary border-opacity-15 flex-grow-1"></div>
@@ -1413,13 +1416,14 @@ const Festivals = () => {
                                     onClick={() => { downloadMasterDataPDF(); closeDataModal(); }}
                                     title="Download Complete Master Data Package PDF"
                                 >
-                                    <span className="d-flex align-items-center gap-2">
-                                        <Sparkles size={16} className="text-warning" />
-                                        <span className="fw-black tracking-wide">MASTER DATA PDF</span>
+                                    <span className="d-flex align-items-center gap-2.5">
+                                        <Sparkles size={17} className="text-warning" />
+                                        <span className="fw-black tracking-wide" style={{ fontSize: '0.86rem' }}>MASTER DATA PDF</span>
                                     </span>
-                                    <span className="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-1 extra-tiny fw-bold d-flex align-items-center gap-1">
-                                        <Download size={13} /> Download All
-                                    </span>
+                                    <div className="figma-report-pill-btn figma-report-pill-white">
+                                        <Download size={13} />
+                                        <span>Download All</span>
+                                    </div>
                                 </button>
                             </div>
                         ) : (
