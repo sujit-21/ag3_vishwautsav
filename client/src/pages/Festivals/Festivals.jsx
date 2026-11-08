@@ -12,6 +12,14 @@ import primeBg from '../../images/primemember.jpg'
 import regularBg from '../../images/regular.jpg'
 import vipBg from '../../images/vip elite.jpg'
 import ActivityLogsView from '../../components/ActivityLogsView'
+import {
+    exportSingleAttendeeReceiptPDF,
+    exportSingleExpenseVoucherPDF,
+    exportAttendeeMasterPDF,
+    exportExpenseLedgerPDF,
+    exportBalanceSheetPDF,
+    exportMasterDataPackagePDF
+} from '../../utils/pdfGenerator'
 
 const countryCodes = [
     { code: '+91', country: 'IN' },
@@ -364,186 +372,31 @@ const Festivals = () => {
 
     const downloadPDF = async (sub) => {
         try {
-            const jspdfModule = await import('jspdf');
-            const autoTableModule = await import('jspdf-autotable');
-            const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
-            const autoTable = autoTableModule.default || autoTableModule;
-
-            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-            const fest = festivals.find(f => f.title === sub.festOrEventName) || {};
-
-            // === Branded Header Banner ===
-            doc.setFillColor(15, 23, 42); // Private Slate
-            doc.rect(0, 0, 210, 35, 'F');
-
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(22);
-            doc.setFont('helvetica', 'bold');
-            doc.text('SUBSCRIPTION RECEIPT', 105, 18, { align: 'center' });
-
-            doc.setFontSize(9);
-            doc.setFont('helvetica', 'normal');
-            doc.setTextColor(148, 163, 184); // Muted Slate
-            doc.text(`PASS ID: ${sub.subId}`.toUpperCase(), 105, 26, { align: 'center' });
-            doc.text(`ISSUED ON: ${sub.date ? new Date(sub.date).toLocaleDateString() : new Date().toLocaleDateString()}`, 105, 31, { align: 'center' });
-
-            // === Section: Festival Data ===
-            doc.setTextColor(30, 41, 59);
-            doc.setFontSize(12);
-            doc.setFont('helvetica', 'bold');
-            doc.text('Festival Information', 14, 50);
-
-            autoTable(doc, {
-                startY: 55,
-                body: [
-                    ['Festival Name', sub.festOrEventName || '—'],
-                    ['Location', fest.location || '—'],
-                    ['Date', fest.startDate ? `${new Date(fest.startDate).toLocaleDateString()} - ${new Date(fest.endDate).toLocaleDateString()}` : '—'],
-                    ['Entity', fest.entityName || '—'],
-                    ['Category', fest.category || '—']
-                ],
-                theme: 'striped',
-                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40 } },
-                styles: { fontSize: 9 }
+            const fest = festivals.find(f => f.title === sub.festOrEventName) || activeFestival || {};
+            exportSingleAttendeeReceiptPDF({
+                sub,
+                festOrEvent: fest,
+                entityName: fest.entityName || activeFestival?.entityName,
+                getTierDisplayName,
+                getPaymentDisplayName
             });
-
-            // === Section: Attendee Data ===
-            doc.setTextColor(15, 23, 42);
-            doc.setFontSize(11);
-            doc.setFont('helvetica', 'bold');
-            doc.text('ATTENDEE SUBSCRIPTION DETAILS', 14, (doc.lastAutoTable ? doc.lastAutoTable.finalY : 100) + 12);
-
-            const attendeeBody = [
-                ['Full Name', sub.name || '—'],
-                ['Contact', `${sub.countryCode || ''} ${sub.contact || '—'}`],
-                ['Address', sub.address || '—'],
-                ['Tier / Class', getTierDisplayName(sub.membershipType)],
-                ['Entity', sub.entityName || '—'],
-                ['Status', getPaymentDisplayName(sub.paymentType)],
-                ['Amount Net', `Rs. ${String(sub.amount || 0).replace(/[^0-9.]/g, '').trim()}`]
-            ];
-
-            if (sub.paymentType === 'Online') {
-                if (sub.onlineParticulars) attendeeBody.push(['Bank / Particulars', sub.onlineParticulars]);
-                if (sub.onlineReference) attendeeBody.push(['Reference No.', sub.onlineReference]);
-            }
-
-            autoTable(doc, {
-                startY: (doc.lastAutoTable ? doc.lastAutoTable.finalY : 100) + 16,
-                body: attendeeBody,
-                theme: 'grid',
-                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40, fillColor: [248, 250, 252] } },
-                styles: { fontSize: 9 },
-                didParseCell: function(data) {
-                    if (data.row.section === 'body' && data.column.index === 1) {
-                        const rowKey = data.row.cells[0]?.text[0];
-                        const cellVal = data.cell.text[0];
-                        if (rowKey === 'Tier / Class') {
-                            if (cellVal === 'Administrative') {
-                                data.cell.styles.fillColor = [220, 252, 231];
-                                data.cell.styles.textColor = [22, 101, 52];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else if (cellVal === 'VIP Access') {
-                                data.cell.styles.fillColor = [224, 242, 254];
-                                data.cell.styles.textColor = [3, 105, 161];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else if (cellVal === 'Prime Member') {
-                                data.cell.styles.fillColor = [254, 243, 199];
-                                data.cell.styles.textColor = [180, 83, 9];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else {
-                                data.cell.styles.fillColor = [241, 245, 249];
-                                data.cell.styles.textColor = [71, 85, 105];
-                            }
-                        }
-                        if (rowKey === 'Status') {
-                            if (cellVal.includes('Cash & Paid')) {
-                                data.cell.styles.fillColor = [220, 252, 231];
-                                data.cell.styles.textColor = [22, 101, 52];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else if (cellVal.includes('Due')) {
-                                data.cell.styles.fillColor = [254, 226, 226];
-                                data.cell.styles.textColor = [153, 27, 27];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else if (cellVal.includes('Online')) {
-                                data.cell.styles.fillColor = [224, 242, 254];
-                                data.cell.styles.textColor = [3, 105, 161];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else if (cellVal.includes('Coupon') || cellVal.includes('Token')) {
-                                data.cell.styles.fillColor = [254, 249, 195];
-                                data.cell.styles.textColor = [133, 77, 14];
-                                data.cell.styles.fontStyle = 'bold';
-                            }
-                        }
-                    }
-                }
-            });
-
-            // === Footer ===
-            doc.setFontSize(8);
-            doc.setTextColor(150, 150, 150);
-            const footerY = 285;
-            doc.text('Thank you for your registration with Vishwa Utsav.', 105, footerY, { align: 'center' });
-            doc.text('This is a computer-generated receipt.', 105, footerY + 5, { align: 'center' });
-
-            doc.save(`Receipt_${sub.subId}_${(sub.name || 'attendee').replace(/\s+/g, '_')}.pdf`);
         } catch (err) {
             console.error('PDF Error:', err);
-            alert('Error generating PDF report');
+            alert('Error generating PDF receipt');
         }
     }
 
     const downloadExpensePDF = async (exp) => {
         try {
-            const jspdfModule = await import('jspdf');
-            const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
-            const autoTableModule = await import('jspdf-autotable');
-            const autoTable = autoTableModule.default || autoTableModule;
-
-            const doc = new jsPDF()
-
-            // === Modern Header ===
-            doc.setFillColor(139, 92, 246) // Purple theme
-            doc.rect(0, 0, 210, 35, 'F')
-
-            doc.setFontSize(20)
-            doc.setTextColor(255, 255, 255)
-            doc.setFont('helvetica', 'bold')
-            doc.text('EXPENSE VOUCHER', 105, 18, { align: 'center' })
-
-            doc.setFontSize(9)
-            doc.setTextColor(233, 213, 255)
-            doc.text('Authorized Financial Record', 105, 25, { align: 'center' })
-
-            const fest = festivals.find(f => f.title === exp.festOrEventName) || {};
-
-            autoTable(doc, {
-                startY: 40,
-                head: [['DETAIL', 'DETAIL']],
-                body: [
-                    ['Voucher Ref', exp.expenseId],
-                    ['Source', 'Festival Management'],
-                    ['Festival Name', exp.festOrEventName || '—'],
-                    ['Location', fest.location || '—'],
-                    ['Entity', fest.entityName || '—'],
-                    ['Expense Type', exp.expenseType],
-                    ['Particulars', exp.particular],
-                    ['Paid To', exp.paidTo || '—'],
-                    ['Contact', exp.contact || '—'],
-                    ['Amount', `Rs. ${String(exp.amount).replace(/[^0-9.]/g, '')}`],
-                    ['Date', new Date(exp.date).toLocaleDateString()]
-                ],
-                theme: 'striped',
-                headStyles: { fillColor: [139, 92, 246], fontSize: 10, halign: 'center' },
-                bodyStyles: { fontSize: 9 },
-                alternateRowStyles: { fillColor: [245, 243, 255] }
-            })
-
-            doc.save(`Expense_${exp.expenseId}.pdf`)
+            const fest = festivals.find(f => f.title === exp.festOrEventName) || activeFestival || {};
+            exportSingleExpenseVoucherPDF({
+                exp,
+                festOrEvent: fest,
+                entityName: fest.entityName || activeFestival?.entityName
+            });
         } catch (err) {
-            console.error('PDF Error:', err)
-            alert('Could not generate PDF')
+            console.error('PDF Error:', err);
+            alert('Could not generate Expense PDF');
         }
     }
 
@@ -661,268 +514,61 @@ const Festivals = () => {
 
     const downloadAllAttendeesPDF = async () => {
         try {
-            const jspdfModule = await import('jspdf');
-            const autoTableModule = await import('jspdf-autotable');
-            const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
-            const autoTable = autoTableModule.default || autoTableModule;
-
-            const doc = new jsPDF({ orientation: 'landscape' });
-            doc.setFillColor(63, 81, 181); // Indigo
-            doc.rect(0, 0, 297, 40, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(22);
-            doc.text(`ATTENDEE MASTER LIST: ${activeFestival?.title?.toUpperCase()}`, 148, 20, { align: 'center' });
-            doc.setFontSize(10);
-            doc.text(`Generated on: ${new Date().toLocaleString()} | Entity: ${activeFestival?.entityName || 'Vishwa Utsav'}`, 148, 30, { align: 'center' });
-
-            autoTable(doc, {
-                startY: 45,
-                head: [['Pass ID', 'Date', 'Name', 'Contact', 'Address', 'Amount', 'Payment', 'Tier']],
-                body: subscriptionsList.map((s, i) => [
-                    s.subId || s.cardId,
-                    new Date(s.date).toLocaleDateString(),
-                    s.name,
-                    `${s.countryCode || ''} ${s.contact || ''}`,
-                    s.address || '—',
-                    `Rs. ${String(s.amount || 0).replace(/[^0-9.]/g, '')}`,
-                    s.paymentType === 'Online' && s.onlineParticulars ? `Digital (Online Bank) (${s.onlineParticulars})` : getPaymentDisplayName(s.paymentType),
-                    getTierDisplayName(s.membershipType)
-                ]),
-                theme: 'striped',
-                headStyles: { fillColor: [63, 81, 181] },
-                styles: { fontSize: 8 },
-                didParseCell: function(data) {
-                    if (data.row.section === 'body') {
-                        if (data.column.index === 6) {
-                            const val = data.cell.text[0];
-                            if (val.startsWith('Confirmed') || val.startsWith('Cash & Paid')) {
-                                data.cell.styles.fillColor = [220, 252, 231];
-                                data.cell.styles.textColor = [22, 101, 52];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else if (val.startsWith('Pending') || val.startsWith('Due')) {
-                                data.cell.styles.fillColor = [254, 226, 226];
-                                data.cell.styles.textColor = [153, 27, 27];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else if (val.startsWith('Digital') || val.startsWith('Online')) {
-                                data.cell.styles.fillColor = [224, 242, 254];
-                                data.cell.styles.textColor = [3, 105, 161];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else if (val.startsWith('Coupon') || val.startsWith('Token')) {
-                                data.cell.styles.fillColor = [254, 249, 195];
-                                data.cell.styles.textColor = [133, 77, 14];
-                                data.cell.styles.fontStyle = 'bold';
-                            }
-                        }
-                        if (data.column.index === 7) {
-                            const val = data.cell.text[0];
-                            if (val === 'Administrative') {
-                                data.cell.styles.fillColor = [220, 252, 231];
-                                data.cell.styles.textColor = [22, 101, 52];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else if (val === 'VIP Access') {
-                                data.cell.styles.fillColor = [224, 242, 254];
-                                data.cell.styles.textColor = [3, 105, 161];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else if (val === 'Prime Member') {
-                                data.cell.styles.fillColor = [254, 243, 199];
-                                data.cell.styles.textColor = [180, 83, 9];
-                                data.cell.styles.fontStyle = 'bold';
-                            } else {
-                                data.cell.styles.fillColor = [241, 245, 249];
-                                data.cell.styles.textColor = [71, 85, 105];
-                            }
-                        }
-                    }
-                }
+            exportAttendeeMasterPDF({
+                subscriptionsList,
+                activeTitle: activeFestival?.title,
+                entityName: activeFestival?.entityName,
+                getTierDisplayName,
+                getPaymentDisplayName
             });
-
-            doc.save(`Attendees_${activeFestival?.title?.replace(/\s+/g, '_')}.pdf`);
-        } catch (err) { console.error(err); alert('PDF Failed'); }
+        } catch (err) {
+            console.error('PDF Error:', err);
+            alert('PDF Generation Failed');
+        }
     }
 
     const downloadAllExpensesPDF = async () => {
         try {
-            const jspdfModule = await import('jspdf');
-            const autoTableModule = await import('jspdf-autotable');
-            const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
-            const autoTable = autoTableModule.default || autoTableModule;
-
-            const doc = new jsPDF();
-            doc.setFillColor(225, 29, 72); // Rose
-            doc.rect(0, 0, 210, 40, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(22);
-            doc.text(`EXPENSE LEDGER: ${activeFestival?.title?.toUpperCase()}`, 105, 20, { align: 'center' });
-            doc.setFontSize(10);
-            doc.text(`Generated on: ${new Date().toLocaleString()} | Audit Copy`, 105, 30, { align: 'center' });
-
-            autoTable(doc, {
-                startY: 45,
-                head: [['Date', 'Voucher ID', 'Particulars', 'Paid To', 'Contact', 'Type', 'Amount']],
-                body: expensesList.map(e => [
-                    new Date(e.date).toLocaleDateString(), e.expenseId, e.particular, e.paidTo || '—', e.contact || '—', e.expenseType, `Rs. ${String(e.amount || 0).replace(/[^0-9.]/g, '')}`
-                ]),
-                theme: 'grid',
-                headStyles: { fillColor: [225, 29, 72] }
+            exportExpenseLedgerPDF({
+                expensesList,
+                activeTitle: activeFestival?.title,
+                entityName: activeFestival?.entityName,
+                expenseTypes: festivalExpenseTypes
             });
-
-            doc.save(`Expenses_${activeFestival?.title?.replace(/\s+/g, '_')}.pdf`);
-        } catch (err) { console.error(err); alert('PDF Failed'); }
+        } catch (err) {
+            console.error('PDF Error:', err);
+            alert('PDF Generation Failed');
+        }
     }
 
     const downloadBalanceSheetPDF = async () => {
         try {
-            const jspdfModule = await import('jspdf');
-            const autoTableModule = await import('jspdf-autotable');
-            const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
-            const autoTable = autoTableModule.default || autoTableModule;
-
-            const doc = new jsPDF();
-            doc.setFillColor(16, 185, 129); // Emerald
-            doc.rect(0, 0, 210, 40, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(22);
-            doc.text(`BALANCE SHEET: ${activeFestival?.title?.toUpperCase()}`, 105, 20, { align: 'center' });
-
-            const totalCollection = subscriptionsList.reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
-            const totalExpenses = expensesList.reduce((acc, e) => acc + (Number(String(e.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
-            const netBalance = totalCollection - totalExpenses
-
-            autoTable(doc, {
-                startY: 45,
-                body: [
-                    ['Total Income (Subscriptions)', `Rs. ${totalCollection.toLocaleString()}`],
-                    ['Total Expenditure (Expenses)', `Rs. ${totalExpenses.toLocaleString()}`],
-                    ['Net Profit / Savings', `Rs. ${netBalance.toLocaleString()}`]
-                ],
-                theme: 'striped',
-                columnStyles: { 0: { fontStyle: 'bold', cellWidth: 100 }, 1: { halign: 'right' } }
+            exportBalanceSheetPDF({
+                subscriptionsList,
+                expensesList,
+                activeTitle: activeFestival?.title,
+                entityName: activeFestival?.entityName,
+                expenseTypes: festivalExpenseTypes
             });
-
-            doc.text('Detailed Financial Summary', 14, doc.lastAutoTable.finalY + 15);
-            autoTable(doc, {
-                startY: doc.lastAutoTable.finalY + 20,
-                head: [['Category', 'Amount']],
-                body: [
-                    ['Income: Cash & Paid', `Rs. ${subscriptionsList.filter(s => s.paymentType === 'Cash & Paid').reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0).toLocaleString()}`],
-                    ['Income: Online', `Rs. ${subscriptionsList.filter(s => s.paymentType === 'Online').reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0).toLocaleString()}`],
-                    ...festivalExpenseTypes.map(t => [
-                        `Expense: ${t}`, `Rs. ${expensesList.filter(e => e.expenseType === t).reduce((acc, e) => acc + (Number(String(e.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0).toLocaleString()}`
-                    ])
-                ],
-                theme: 'grid',
-                headStyles: { fillColor: [16, 185, 129] }
-            });
-
-            doc.save(`BalanceSheet_${activeFestival?.title?.replace(/\s+/g, '_')}.pdf`);
-        } catch (err) { console.error(err); alert('PDF Failed'); }
+        } catch (err) {
+            console.error('PDF Error:', err);
+            alert('PDF Generation Failed');
+        }
     }
 
     const downloadMasterDataPDF = async () => {
         try {
-            const jspdfModule = await import('jspdf');
-            const autoTableModule = await import('jspdf-autotable');
-            const jsPDF = jspdfModule.default || jspdfModule.jsPDF || jspdfModule;
-            const autoTable = autoTableModule.default || autoTableModule;
-
-            const doc = new jsPDF({ orientation: 'landscape' });
-
-            // Header Banner
-            doc.setFillColor(15, 23, 42); // Dark Navy
-            doc.rect(0, 0, 297, 35, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(18);
-            doc.setFont(undefined, 'bold');
-            const titleName = (activeFestival?.title || 'FESTIVAL REPORT').toUpperCase();
-            doc.text(`MASTER DATA REPORT: ${titleName}`, 148, 16, { align: 'center' });
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            doc.text(`Generated on: ${new Date().toLocaleString()} | Entity: ${activeFestival?.entityName || 'Vishwa Utsav'} | Complete Unified Master Records`, 148, 26, { align: 'center' });
-
-            // SECTION 1: ATTENDEES & SUBSCRIPTIONS
-            doc.setFontSize(12);
-            doc.setTextColor(30, 41, 59);
-            doc.setFont(undefined, 'bold');
-            doc.text("1. ATTENDEES & SUBSCRIPTIONS SUMMARY", 14, 45);
-
-            autoTable(doc, {
-                startY: 50,
-                head: [['Pass ID', 'Date', 'Name', 'Contact', 'Address', 'Amount', 'Payment Status', 'Tier']],
-                body: subscriptionsList.map(s => [
-                    s.subId || s.cardId,
-                    new Date(s.date).toLocaleDateString(),
-                    s.name,
-                    `${s.countryCode || ''} ${s.contact || ''}`,
-                    s.address || '—',
-                    `Rs. ${String(s.amount || 0).replace(/[^0-9.]/g, '')}`,
-                    s.paymentType === 'Online' && s.onlineParticulars ? `Digital (Online Bank) (${s.onlineParticulars})` : getPaymentDisplayName(s.paymentType),
-                    getTierDisplayName(s.membershipType)
-                ]),
-                theme: 'striped',
-                headStyles: { fillColor: [63, 81, 181] },
-                styles: { fontSize: 8 }
+            exportMasterDataPackagePDF({
+                subscriptionsList,
+                expensesList,
+                activeTitle: activeFestival?.title,
+                entityName: activeFestival?.entityName,
+                expenseTypes: festivalExpenseTypes,
+                getTierDisplayName,
+                getPaymentDisplayName
             });
-
-            let nextY = (doc.lastAutoTable?.finalY || 50) + 14;
-            if (nextY > 160) {
-                doc.addPage();
-                nextY = 20;
-            }
-
-            // SECTION 2: EXPENSES LOG
-            doc.setFontSize(12);
-            doc.setTextColor(30, 41, 59);
-            doc.setFont(undefined, 'bold');
-            doc.text("2. EXPENSES AUDIT LOG", 14, nextY);
-
-            autoTable(doc, {
-                startY: nextY + 5,
-                head: [['Date', 'Voucher ID', 'Particulars', 'Category', 'Amount']],
-                body: expensesList.map(e => [
-                    new Date(e.date).toLocaleDateString(),
-                    e.expenseId,
-                    e.particular,
-                    e.expenseType,
-                    `Rs. ${String(e.amount || 0).replace(/[^0-9.]/g, '')}`
-                ]),
-                theme: 'grid',
-                headStyles: { fillColor: [225, 29, 72] },
-                styles: { fontSize: 8 }
-            });
-
-            nextY = (doc.lastAutoTable?.finalY || nextY) + 14;
-            if (nextY > 140) {
-                doc.addPage();
-                nextY = 20;
-            }
-
-            // SECTION 3: BALANCE SHEET SUMMARY
-            doc.setFontSize(12);
-            doc.setTextColor(30, 41, 59);
-            doc.setFont(undefined, 'bold');
-            doc.text("3. BALANCE SHEET & AUDIT STATEMENT", 14, nextY);
-
-            const totalCollection = subscriptionsList.reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0);
-            const totalExpenses = expensesList.reduce((acc, e) => acc + (Number(String(e.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0);
-            const netBalance = totalCollection - totalExpenses;
-
-            autoTable(doc, {
-                startY: nextY + 5,
-                body: [
-                    ['Total Revenue Generated (Subscriptions)', `Rs. ${totalCollection.toLocaleString()}`],
-                    ['Total Expenses Incurred', `Rs. ${totalExpenses.toLocaleString()}`],
-                    ['Net Operating Profit / Balance', `Rs. ${netBalance.toLocaleString()}`]
-                ],
-                theme: 'striped',
-                headStyles: { fillColor: [16, 185, 129] },
-                styles: { fontSize: 9, fontStyle: 'bold' }
-            });
-
-            // Master Data filename pattern: MASTER DATA_FESTIVAL NAME
-            const festivalTitle = activeFestival?.title || 'FESTIVAL';
-            doc.save(`MASTER DATA_${festivalTitle}.pdf`);
         } catch (err) {
-            console.error(err);
+            console.error('PDF Error:', err);
             alert('Master Data PDF generation failed');
         }
     }
