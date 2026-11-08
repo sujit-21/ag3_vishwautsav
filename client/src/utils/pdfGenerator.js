@@ -3,11 +3,11 @@ import autoTable from 'jspdf-autotable'
 
 // Figma Luxury Design Palette (RGB arrays for jsPDF)
 export const FIGMA_COLORS = {
-    navyDark: [15, 23, 42],        // #0F172A
-    slateNavy: [30, 41, 59],       // #1E293B
-    saffron: [224, 122, 67],       // #E07A43 - Primary Brand
+    navyDark: [15, 23, 42],        // #0F172A - Header Slate
+    slateNavy: [30, 41, 59],       // #1E293B - Table Headers / Cards
+    saffron: [224, 122, 67],       // #E07A43 - Primary Brand Accent
     terracotta: [217, 90, 34],     // #D95A22
-    amber: [249, 179, 98],         // #F9B362
+    amber: [249, 179, 98],         // #F9B362 - Eyebrow Gold
     emerald: [16, 185, 129],       // #10B981 - Revenue / Positive
     emeraldDark: [6, 95, 70],      // #065F46
     emeraldBg: [236, 253, 245],    // #ECFDF5
@@ -17,7 +17,7 @@ export const FIGMA_COLORS = {
     blue: [37, 99, 235],           // #2563EB - Digital / Online
     blueDark: [29, 78, 216],       // #1D4ED8
     blueBg: [239, 246, 255],       // #EFF6FF
-    purple: [139, 92, 246],        // #8B5CF6 - VIP / Premium
+    purple: [139, 92, 246],        // #8B5CF6 - Master / High-Tier
     purpleDark: [109, 40, 217],    // #6D28D9
     purpleBg: [245, 243, 255],     // #F5F3FF
     lightBg: [248, 250, 252],      // #F8FAFC
@@ -27,52 +27,96 @@ export const FIGMA_COLORS = {
 }
 
 /**
- * Common Header Drawer for A4 PDF (26mm compact header + 2.5mm accent stripe)
+ * Format Currency String
  */
-const drawHeader = (doc, { title, subtitle, contextTag, accentColor = FIGMA_COLORS.saffron, isLandscape = false }) => {
+export const fmtCurrency = (val) => {
+    const num = Number(String(val || 0).replace(/[^0-9.]/g, '')) || 0
+    return `Rs. ${num.toLocaleString('en-IN')}`
+}
+
+/**
+ * Mint-Light Amount Badges based on specific user-requested tiers:
+ * - <= 101           : Soft Mint Slate / Cool Gray
+ * - Above 101 - 251  : Mint-Light Blue
+ * - Above 251 - 501  : Mint-Light Green
+ * - Above 501 - 1001 : Mint-Light Yellow / Amber
+ * - Above 1001 - 2001: Mint-Light Orange / Peach
+ * - Above 2001 (High): Mint-Light Purple / Royal Violet
+ */
+export const getAmountBadge = (val) => {
+    const num = Number(String(val || 0).replace(/[^0-9.]/g, '')) || 0
+    if (num <= 101) {
+        return {
+            fillColor: [241, 245, 249],  // #F1F5F9 Soft Slate
+            textColor: [71, 85, 105],    // #475569 Deep Slate
+            label: '<= 101'
+        }
+    } else if (num <= 251) {
+        return {
+            fillColor: [224, 242, 254],  // #E0F2FE Mint Blue
+            textColor: [3, 105, 161],    // #0369A1 Deep Sky Blue
+            label: '101 - 251'
+        }
+    } else if (num <= 501) {
+        return {
+            fillColor: [209, 250, 229],  // #D1FAE5 Mint Green
+            textColor: [4, 120, 87],     // #047857 Forest Emerald
+            label: '251 - 501'
+        }
+    } else if (num <= 1001) {
+        return {
+            fillColor: [254, 243, 199],  // #FEF3C7 Mint Yellow
+            textColor: [180, 83, 9],     // #B45309 Rich Amber
+            label: '501 - 1001'
+        }
+    } else if (num <= 2001) {
+        return {
+            fillColor: [255, 237, 213],  // #FFEDD5 Mint Orange
+            textColor: [194, 65, 12],    // #C2410C Vivid Terracotta
+            label: '1001 - 2001'
+        }
+    } else {
+        // Higher amounts > 2001
+        return {
+            fillColor: [243, 232, 255],  // #F3E8FF Mint Purple / Violet
+            textColor: [109, 40, 217],   // #6D28D9 Royal Purple
+            label: '> 2001'
+        }
+    }
+}
+
+/**
+ * Common Header Drawer for A4 PDF (Centered in Page, Clean ASCII, No right badge)
+ */
+const drawHeader = (doc, { title, subtitle, accentColor = FIGMA_COLORS.saffron, isLandscape = false }) => {
     const pageW = isLandscape ? 297 : 210
+    const centerX = pageW / 2
 
-    // 1. Dark Slate Banner
+    // 1. Dark Slate Banner (26mm height)
     doc.setFillColor(...FIGMA_COLORS.navyDark)
-    doc.rect(0, 0, pageW, 25, 'F')
+    doc.rect(0, 0, pageW, 26, 'F')
 
-    // 2. Accent Bottom Stripe (Simulates Figma Gradient Line)
+    // 2. Accent Bottom Stripe (1.8mm accent line)
     doc.setFillColor(...accentColor)
-    doc.rect(0, 25, pageW, 2.5, 'F')
+    doc.rect(0, 26, pageW, 1.8, 'F')
 
-    // 3. Eyebrow Tag
+    // 3. Eyebrow Tag (Centered, clean ASCII without unrenderable Unicode glyphs)
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(7)
+    doc.setFontSize(7.2)
     doc.setTextColor(...FIGMA_COLORS.amber)
-    doc.text('✦ VISHWA UTSAV PORTAL • AUDIT RECORD', 14, 8)
+    doc.text('* VISHWA UTSAV MANAGEMENT SYSTEM  |  OFFICIAL AUDIT RECORD *', centerX, 7.8, { align: 'center' })
 
-    // 4. Main Document Title
+    // 4. Main Document Title (Centered on the Page)
     doc.setFont('helvetica', 'bold')
     doc.setFontSize(13.5)
     doc.setTextColor(255, 255, 255)
-    doc.text(String(title || 'REPORT').toUpperCase(), 14, 15)
+    doc.text(String(title || 'AUDIT REPORT').toUpperCase(), centerX, 15.2, { align: 'center' })
 
-    // 5. Subtitle & Context
+    // 5. Subtitle & Context (Centered on the Page)
     doc.setFont('helvetica', 'normal')
-    doc.setFontSize(7.8)
+    doc.setFontSize(7.6)
     doc.setTextColor(203, 213, 225)
-    doc.text(String(subtitle || ''), 14, 20.5)
-
-    // 6. Right-Side Context Pill Badge
-    if (contextTag) {
-        doc.setFont('helvetica', 'bold')
-        doc.setFontSize(7.5)
-        const tagText = String(contextTag).toUpperCase()
-        const tagW = Math.min(doc.getTextWidth(tagText) + 10, 75)
-        const tagX = pageW - 14 - tagW
-        doc.setFillColor(...FIGMA_COLORS.slateNavy)
-        doc.roundedRect(tagX, 6.5, tagW, 11, 2.5, 2.5, 'F')
-        doc.setDrawColor(...accentColor)
-        doc.setLineWidth(0.35)
-        doc.roundedRect(tagX, 6.5, tagW, 11, 2.5, 2.5, 'S')
-        doc.setTextColor(255, 255, 255)
-        doc.text(tagText, tagX + 5, 14, { maxWidth: tagW - 10 })
-    }
+    doc.text(String(subtitle || ''), centerX, 21.2, { align: 'center' })
 }
 
 /**
@@ -91,26 +135,57 @@ const drawFooter = (doc, isLandscape = false) => {
         doc.setFont('helvetica', 'normal')
         doc.setFontSize(7)
         doc.setTextColor(...FIGMA_COLORS.muted)
-        doc.text('Certified Confidential Audit Document • Vishwa Utsav Management System', 14, pageH - 6.5)
+        doc.text('Certified Confidential Audit Document | Vishwa Utsav Event Management', 14, pageH - 6.5)
         doc.text(`Page ${i} of ${totalPages}`, pageW - 14, pageH - 6.5, { align: 'right' })
     }
 }
 
 /**
- * Format Currency String
+ * Compact Amount Tier Legend Strip
  */
-const fmtCurrency = (val) => {
-    const num = Number(String(val || 0).replace(/[^0-9.]/g, '')) || 0
-    return `Rs. ${num.toLocaleString('en-IN')}`
+const drawAmountLegend = (doc, { startX = 14, startY = 46.5, isLandscape = false }) => {
+    const legendItems = [
+        { label: '<= 101', bg: [241, 245, 249], text: [71, 85, 105] },
+        { label: '101 - 251 (Blue)', bg: [224, 242, 254], text: [3, 105, 161] },
+        { label: '251 - 501 (Green)', bg: [209, 250, 229], text: [4, 120, 87] },
+        { label: '501 - 1001 (Yellow)', bg: [254, 243, 199], text: [180, 83, 9] },
+        { label: '1001 - 2001 (Orange)', bg: [255, 237, 213], text: [194, 65, 12] },
+        { label: '> 2001 (Purple)', bg: [243, 232, 255], text: [109, 40, 217] }
+    ]
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(6.2)
+    doc.setTextColor(...FIGMA_COLORS.muted)
+    doc.text('AMOUNT TIERS:', startX, startY + 3.6)
+
+    let currentX = startX + 22
+    legendItems.forEach(item => {
+        const itemW = doc.getTextWidth(item.label) + 6
+        doc.setFillColor(...item.bg)
+        doc.roundedRect(currentX, startY, itemW, 5, 1.2, 1.2, 'F')
+        doc.setTextColor(...item.text)
+        doc.text(item.label, currentX + 3, startY + 3.6)
+        currentX += itemW + 2.5
+    })
 }
 
 /**
- * Parse cell styles to inject luxury badges for Status and Tier
+ * Parse cell styles to inject luxury badges for Amount, Status, and Tier
  */
-const applyBadgeStyles = (data, { paymentColIndex = -1, tierColIndex = -1 }) => {
+const applyBadgeStyles = (data, { paymentColIndex = -1, tierColIndex = -1, amountColIndex = -1 }) => {
     if (data.row.section !== 'body') return
     const cellText = String(data.cell.text?.[0] || '')
 
+    // 1. Dynamic Mint Amount Badge
+    if (data.column.index === amountColIndex && cellText && cellText !== '—') {
+        const badge = getAmountBadge(cellText)
+        data.cell.styles.fillColor = badge.fillColor
+        data.cell.styles.textColor = badge.textColor
+        data.cell.styles.fontStyle = 'bold'
+        data.cell.styles.halign = 'right'
+    }
+
+    // 2. Payment Status Badge
     if (data.column.index === paymentColIndex) {
         if (cellText.includes('Cash & Paid') || cellText.includes('Confirmed')) {
             data.cell.styles.fillColor = FIGMA_COLORS.emeraldBg
@@ -131,6 +206,7 @@ const applyBadgeStyles = (data, { paymentColIndex = -1, tierColIndex = -1 }) => 
         }
     }
 
+    // 3. Access Tier Badge
     if (data.column.index === tierColIndex) {
         if (cellText.includes('VIP') || cellText.includes('Elite')) {
             data.cell.styles.fillColor = [238, 242, 255]
@@ -164,11 +240,10 @@ export const exportAttendeeMasterPDF = ({ subscriptionsList, activeTitle, entity
     const onlineTotal = list.filter(s => s.paymentType === 'Online').reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const duesTotal = list.filter(s => s.paymentType === 'Due').reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
 
-    // Header
+    // Centered Header
     drawHeader(doc, {
-        title: `Attendee Master Directory • ${activeTitle || 'All Attendees'}`,
-        subtitle: `Entity: ${entityName || 'Vishwa Utsav'} | Total Registered: ${list.length} Attendees | Generated: ${new Date().toLocaleString()}`,
-        contextTag: activeTitle || 'Attendees',
+        title: `Attendee Master Directory: ${activeTitle || 'All Attendees'}`,
+        subtitle: `Entity: ${entityName || 'Vishwa Utsav'}  |  Total Registered: ${list.length} Attendees  |  Generated: ${new Date().toLocaleString()}`,
         accentColor: FIGMA_COLORS.saffron,
         isLandscape: true
     })
@@ -211,9 +286,12 @@ export const exportAttendeeMasterPDF = ({ subscriptionsList, activeTitle, entity
         doc.text(kpi.value, x + 3.5, cardY + 10)
     })
 
+    // Amount Tier Legend Strip
+    drawAmountLegend(doc, { startX: 14, startY: 46.5, isLandscape: true })
+
     // Table
     autoTable(doc, {
-        startY: 47,
+        startY: 53.5,
         margin: { left: 14, right: 14 },
         head: [['#', 'Pass ID', 'Date', 'Full Name', 'Contact Number', 'Address / City', 'Payment Mode', 'Access Tier', 'Amount']],
         body: list.map((s, idx) => [
@@ -255,9 +333,9 @@ export const exportAttendeeMasterPDF = ({ subscriptionsList, activeTitle, entity
             5: { cellWidth: 47 },
             6: { cellWidth: 36 },
             7: { cellWidth: 33 },
-            8: { cellWidth: 24, halign: 'right', fontStyle: 'bold', textColor: FIGMA_COLORS.emeraldDark }
+            8: { cellWidth: 24, halign: 'right', fontStyle: 'bold' }
         },
-        didParseCell: (data) => applyBadgeStyles(data, { paymentColIndex: 6, tierColIndex: 7 })
+        didParseCell: (data) => applyBadgeStyles(data, { paymentColIndex: 6, tierColIndex: 7, amountColIndex: 8 })
     })
 
     drawFooter(doc, true)
@@ -273,9 +351,8 @@ export const exportExpenseLedgerPDF = ({ expensesList, activeTitle, entityName, 
     const totalExpenses = list.reduce((acc, e) => acc + (Number(String(e.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
 
     drawHeader(doc, {
-        title: `Expenditure Ledger • ${activeTitle || 'All Expenses'}`,
-        subtitle: `Entity: ${entityName || 'Vishwa Utsav'} | Vouchers: ${list.length} | Generated: ${new Date().toLocaleString()}`,
-        contextTag: activeTitle || 'Expenses',
+        title: `Expenditure Ledger: ${activeTitle || 'All Expenses'}`,
+        subtitle: `Entity: ${entityName || 'Vishwa Utsav'}  |  Vouchers: ${list.length}  |  Generated: ${new Date().toLocaleString()}`,
         accentColor: FIGMA_COLORS.crimson,
         isLandscape: false
     })
@@ -313,9 +390,12 @@ export const exportExpenseLedgerPDF = ({ expensesList, activeTitle, entityName, 
         doc.text(kpi.value, x + 3.5, cardY + 10.2)
     })
 
+    // Amount Tier Legend Strip
+    drawAmountLegend(doc, { startX: 14, startY: 47, isLandscape: false })
+
     // Table
     autoTable(doc, {
-        startY: 47,
+        startY: 54,
         margin: { left: 14, right: 14 },
         head: [['Date', 'Voucher ID', 'Particulars / Item', 'Paid To / Vendor', 'Contact', 'Category', 'Amount']],
         body: list.map(e => [
@@ -353,8 +433,9 @@ export const exportExpenseLedgerPDF = ({ expensesList, activeTitle, entityName, 
             3: { cellWidth: 32 },
             4: { cellWidth: 22 },
             5: { cellWidth: 21 },
-            6: { cellWidth: 19, halign: 'right', fontStyle: 'bold', textColor: FIGMA_COLORS.crimson }
-        }
+            6: { cellWidth: 19, halign: 'right', fontStyle: 'bold' }
+        },
+        didParseCell: (data) => applyBadgeStyles(data, { amountColIndex: 6 })
     })
 
     drawFooter(doc, false)
@@ -373,9 +454,8 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
     const netBalance = totalCollection - totalExpenses
 
     drawHeader(doc, {
-        title: `Balance Sheet & Financial Audit • ${activeTitle || 'General'}`,
-        subtitle: `Entity: ${entityName || 'Vishwa Utsav'} | Consolidated Financial Ledger | Generated: ${new Date().toLocaleString()}`,
-        contextTag: 'Audit Ledger',
+        title: `Balance Sheet & Financial Audit: ${activeTitle || 'General'}`,
+        subtitle: `Entity: ${entityName || 'Vishwa Utsav'}  |  Consolidated Financial Ledger  |  Generated: ${new Date().toLocaleString()}`,
         accentColor: FIGMA_COLORS.emerald,
         isLandscape: false
     })
@@ -502,15 +582,32 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
         },
         columnStyles: {
             0: { cellWidth: 50 },
-            1: { cellWidth: 41, halign: 'right', fontStyle: 'bold', textColor: FIGMA_COLORS.emeraldDark },
+            1: { cellWidth: 41, halign: 'right', fontStyle: 'bold' },
             2: { cellWidth: 50 },
-            3: { cellWidth: 41, halign: 'right', fontStyle: 'bold', textColor: FIGMA_COLORS.crimson }
+            3: { cellWidth: 41, halign: 'right', fontStyle: 'bold' }
         },
         didParseCell: (data) => {
-            if (data.row.section === 'body' && data.row.index === table2Body.length - 1) {
-                data.cell.styles.fillColor = FIGMA_COLORS.slateNavy
-                data.cell.styles.textColor = [255, 255, 255]
-                data.cell.styles.fontStyle = 'bold'
+            if (data.row.section === 'body') {
+                if (data.row.index === table2Body.length - 1) {
+                    // Final Totals Row
+                    data.cell.styles.fillColor = FIGMA_COLORS.slateNavy
+                    data.cell.styles.textColor = [255, 255, 255]
+                    data.cell.styles.fontStyle = 'bold'
+                } else {
+                    // Dynamic Mint Amount Styling on Income and Expense columns
+                    if (data.column.index === 1 && data.cell.text?.[0] && data.cell.text?.[0] !== '—') {
+                        const badge = getAmountBadge(data.cell.text[0])
+                        data.cell.styles.fillColor = badge.fillColor
+                        data.cell.styles.textColor = badge.textColor
+                        data.cell.styles.fontStyle = 'bold'
+                    }
+                    if (data.column.index === 3 && data.cell.text?.[0] && data.cell.text?.[0] !== '—') {
+                        const badge = getAmountBadge(data.cell.text[0])
+                        data.cell.styles.fillColor = badge.fillColor
+                        data.cell.styles.textColor = badge.textColor
+                        data.cell.styles.fontStyle = 'bold'
+                    }
+                }
             }
         }
     })
@@ -555,9 +652,8 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
     const netBalance = totalCollection - totalExpenses
 
     drawHeader(doc, {
-        title: `Master Audit Package • ${activeTitle || 'Complete Data Bundle'}`,
-        subtitle: `Entity: ${entityName || 'Vishwa Utsav'} | Complete Unified Master Records | Generated: ${new Date().toLocaleString()}`,
-        contextTag: 'Master Package',
+        title: `Master Audit Package: ${activeTitle || 'Complete Data Bundle'}`,
+        subtitle: `Entity: ${entityName || 'Vishwa Utsav'}  |  Complete Unified Master Records  |  Generated: ${new Date().toLocaleString()}`,
         accentColor: FIGMA_COLORS.purple,
         isLandscape: true
     })
@@ -567,6 +663,9 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
     doc.setFontSize(9)
     doc.setTextColor(...FIGMA_COLORS.slateNavy)
     doc.text('1. ATTENDEES & PASSES REGISTER', 14, 33)
+
+    // Amount Tier Legend Strip
+    drawAmountLegend(doc, { startX: 100, startY: 29.5, isLandscape: true })
 
     autoTable(doc, {
         startY: 36,
@@ -597,7 +696,7 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
             7: { cellWidth: 33 },
             8: { cellWidth: 24, halign: 'right', fontStyle: 'bold' }
         },
-        didParseCell: (data) => applyBadgeStyles(data, { paymentColIndex: 6, tierColIndex: 7 })
+        didParseCell: (data) => applyBadgeStyles(data, { paymentColIndex: 6, tierColIndex: 7, amountColIndex: 8 })
     })
 
     // Section 2: Expenses
@@ -635,8 +734,9 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
             3: { cellWidth: 45 },
             4: { cellWidth: 35 },
             5: { cellWidth: 35 },
-            6: { cellWidth: 32, halign: 'right', fontStyle: 'bold', textColor: FIGMA_COLORS.crimson }
-        }
+            6: { cellWidth: 32, halign: 'right', fontStyle: 'bold' }
+        },
+        didParseCell: (data) => applyBadgeStyles(data, { amountColIndex: 6 })
     })
 
     // Section 3: Financial Summary
@@ -667,6 +767,14 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
             0: { cellWidth: 120 },
             1: { cellWidth: 60 },
             2: { cellWidth: 89, halign: 'right' }
+        },
+        didParseCell: (data) => {
+            if (data.row.section === 'body' && data.column.index === 2) {
+                const badge = getAmountBadge(data.cell.text?.[0])
+                data.cell.styles.fillColor = badge.fillColor
+                data.cell.styles.textColor = badge.textColor
+                data.cell.styles.fontStyle = 'bold'
+            }
         }
     })
 
@@ -680,10 +788,10 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
 export const exportSingleAttendeeReceiptPDF = ({ sub, festOrEvent = {}, entityName = '', getTierDisplayName, getPaymentDisplayName }) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
+    // Centered Header
     drawHeader(doc, {
         title: 'Official Registration Receipt',
-        subtitle: `Vishwa Utsav Event Management • Certified Audit Copy`,
-        contextTag: `Pass ID: ${sub.subId || sub.cardId || '—'}`,
+        subtitle: `Vishwa Utsav Event Management  |  Pass ID: ${sub.subId || sub.cardId || '—'}  |  Certified Audit Copy`,
         accentColor: FIGMA_COLORS.saffron,
         isLandscape: false
     })
@@ -705,22 +813,31 @@ export const exportSingleAttendeeReceiptPDF = ({ sub, festOrEvent = {}, entityNa
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(8)
     doc.setTextColor(...FIGMA_COLORS.muted)
-    doc.text(`Pass ID: ${sub.subId || sub.cardId || '—'} • Issued: ${sub.date ? new Date(sub.date).toLocaleDateString() : new Date().toLocaleDateString()}`, 18, boxY + 14)
+    doc.text(`Pass ID: ${sub.subId || sub.cardId || '—'}  |  Issued: ${sub.date ? new Date(sub.date).toLocaleDateString() : new Date().toLocaleDateString()}`, 18, boxY + 14)
 
-    // Right: Net Amount Paid
+    // Right: Net Amount Paid with Mint Tier Badge
+    const amtBadge = getAmountBadge(sub.amount)
+    const amtText = fmtCurrency(sub.amount)
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(14)
-    doc.setTextColor(...FIGMA_COLORS.emeraldDark)
-    doc.text(fmtCurrency(sub.amount), 190, boxY + 9, { align: 'right' })
+    doc.setFontSize(11)
+    const badgeW = doc.getTextWidth(amtText) + 8
+    const badgeH = 7.5
+    const badgeX = 192 - badgeW
+    const badgeY = boxY + 4.5
+
+    doc.setFillColor(...amtBadge.fillColor)
+    doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 1.8, 1.8, 'F')
+    doc.setTextColor(...amtBadge.textColor)
+    doc.text(amtText, badgeX + 4, badgeY + 5.2)
 
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(7.5)
-    doc.setTextColor(...FIGMA_COLORS.emerald)
-    doc.text(getPaymentDisplayName ? getPaymentDisplayName(sub.paymentType) : String(sub.paymentType || 'Paid'), 190, boxY + 15, { align: 'right' })
+    doc.setFontSize(7.2)
+    doc.setTextColor(...FIGMA_COLORS.muted)
+    doc.text(getPaymentDisplayName ? getPaymentDisplayName(sub.paymentType) : String(sub.paymentType || 'Paid'), 192, boxY + 16, { align: 'right' })
 
     // Table 1: Festival / Event Details
     autoTable(doc, {
-        startY: 56,
+        startY: 55,
         margin: { left: 14, right: 14 },
         head: [['EVENT / FESTIVAL CONTEXT', 'DETAILS']],
         body: [
@@ -768,8 +885,9 @@ export const exportSingleAttendeeReceiptPDF = ({ sub, festOrEvent = {}, entityNa
         },
         didParseCell: (data) => {
             if (data.row.section === 'body' && data.row.cells[0]?.text?.[0] === 'Total Net Amount') {
-                data.cell.styles.fillColor = FIGMA_COLORS.emeraldBg
-                data.cell.styles.textColor = FIGMA_COLORS.emeraldDark
+                const badge = getAmountBadge(sub.amount)
+                data.cell.styles.fillColor = badge.fillColor
+                data.cell.styles.textColor = badge.textColor
                 data.cell.styles.fontStyle = 'bold'
             }
         }
@@ -817,10 +935,10 @@ export const exportSingleAttendeeReceiptPDF = ({ sub, festOrEvent = {}, entityNa
 export const exportSingleExpenseVoucherPDF = ({ exp, festOrEvent = {}, entityName = '' }) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
+    // Centered Header
     drawHeader(doc, {
         title: 'Disbursement Expense Voucher',
-        subtitle: `Authorized Financial Record • Vishwa Utsav Treasury`,
-        contextTag: `Ref: ${exp.expenseId || 'VOUCHER'}`,
+        subtitle: `Authorized Financial Record  |  Ref: ${exp.expenseId || 'VOUCHER'}  |  Vishwa Utsav Treasury`,
         accentColor: FIGMA_COLORS.crimson,
         isLandscape: false
     })
@@ -841,16 +959,26 @@ export const exportSingleExpenseVoucherPDF = ({ exp, festOrEvent = {}, entityNam
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(8)
     doc.setTextColor(...FIGMA_COLORS.muted)
-    doc.text(`Ref: ${exp.expenseId || '—'} • Date: ${exp.date ? new Date(exp.date).toLocaleDateString() : new Date().toLocaleDateString()} • Type: ${exp.expenseType || 'General'}`, 18, boxY + 14)
+    doc.text(`Ref: ${exp.expenseId || '—'}  |  Date: ${exp.date ? new Date(exp.date).toLocaleDateString() : new Date().toLocaleDateString()}  |  Type: ${exp.expenseType || 'General'}`, 18, boxY + 14)
 
+    // Right: Net Amount Paid with Mint Tier Badge
+    const amtBadge = getAmountBadge(exp.amount)
+    const amtText = fmtCurrency(exp.amount)
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(14)
-    doc.setTextColor(...FIGMA_COLORS.crimson)
-    doc.text(fmtCurrency(exp.amount), 190, boxY + 10, { align: 'right' })
+    doc.setFontSize(11)
+    const badgeW = doc.getTextWidth(amtText) + 8
+    const badgeH = 7.5
+    const badgeX = 192 - badgeW
+    const badgeY = boxY + 6
+
+    doc.setFillColor(...amtBadge.fillColor)
+    doc.roundedRect(badgeX, badgeY, badgeW, badgeH, 1.8, 1.8, 'F')
+    doc.setTextColor(...amtBadge.textColor)
+    doc.text(amtText, badgeX + 4, badgeY + 5.2)
 
     // Table
     autoTable(doc, {
-        startY: 56,
+        startY: 55,
         margin: { left: 14, right: 14 },
         head: [['VOUCHER DETAIL ITEM', 'SPECIFICATION / RECORD']],
         body: [
@@ -874,8 +1002,9 @@ export const exportSingleExpenseVoucherPDF = ({ exp, festOrEvent = {}, entityNam
         },
         didParseCell: (data) => {
             if (data.row.section === 'body' && data.row.cells[0]?.text?.[0] === 'Disbursement Amount') {
-                data.cell.styles.fillColor = FIGMA_COLORS.crimsonBg
-                data.cell.styles.textColor = FIGMA_COLORS.crimsonDark
+                const badge = getAmountBadge(exp.amount)
+                data.cell.styles.fillColor = badge.fillColor
+                data.cell.styles.textColor = badge.textColor
                 data.cell.styles.fontStyle = 'bold'
             }
         }
