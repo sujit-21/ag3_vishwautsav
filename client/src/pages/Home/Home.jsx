@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import './Home.css'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
-import { Calendar, Music, Zap, Users, ChevronRight, LayoutDashboard, MessageSquare, LogOut, Sparkles, Ticket } from 'lucide-react'
+import { Calendar, Music, Zap, Users, ChevronRight, LayoutDashboard, MessageSquare, LogOut, Sparkles, Ticket, MapPin, Building2, ArrowRight } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import musicConcertImg from '../../homepage_images/Music Concert.jpg'
 import consertImg from '../../homepage_images/consert.jpg'
@@ -15,6 +16,8 @@ const Home = () => {
     const { isAuthenticated, logout } = useAuth()
     const navigate = useNavigate()
     const [currentBgIndex, setCurrentBgIndex] = useState(0)
+    const [liveCelebrations, setLiveCelebrations] = useState([])
+    const [loadingLive, setLoadingLive] = useState(true)
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -22,6 +25,36 @@ const Home = () => {
         }, 6000)
         return () => clearInterval(interval)
     }, [])
+
+    useEffect(() => {
+        const fetchLive = async () => {
+            try {
+                setLoadingLive(true)
+                const res = await axios.get('/api/public/live-celebrations')
+                setLiveCelebrations(Array.isArray(res.data) ? res.data : [])
+            } catch (err) {
+                console.error('Failed to fetch live celebrations:', err)
+            } finally {
+                setLoadingLive(false)
+            }
+        }
+        fetchLive()
+    }, [])
+
+    const formatDateText = (item) => {
+        if (item.type === 'festival') {
+            const s = item.startDate ? new Date(item.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
+            const e = item.endDate ? new Date(item.endDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
+            if (s && e) {
+                return s === e ? s : `From ${s} to ${e}`
+            }
+            return s || e || 'Ongoing celebration'
+        } else {
+            const d = item.date ? new Date(item.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''
+            const time = (item.startTime && item.endTime) ? ` • ${item.startTime} - ${item.endTime}` : ''
+            return `${d}${time}`
+        }
+    }
 
     const shortcuts = [
         {
@@ -127,6 +160,107 @@ const Home = () => {
                         </motion.p>
                     </motion.div>
                 </div>
+
+                {/* ================= LIVE CELEBRATIONS BROADCAST SECTION ================= */}
+                {liveCelebrations.length > 0 && (
+                    <motion.div 
+                        className="live-celebrations-wrapper mb-4"
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                    >
+                        <div className="d-flex align-items-center justify-content-between mb-2.5 flex-wrap gap-2">
+                            <div className="live-celebrations-header">
+                                <span className="live-dot live-dot-active"></span>
+                                <span>Ongoing Live Celebrations</span>
+                            </div>
+                            <span className="extra-tiny text-muted fw-semibold">
+                                Broadcast live across all registered entities
+                            </span>
+                        </div>
+
+                        <div className="row g-3">
+                            {liveCelebrations.map((item, idx) => {
+                                const isFest = item.type === 'festival'
+                                const targetLink = isAuthenticated 
+                                    ? (isFest ? '/festivals?tab=subscriptions' : '/events?tab=subscriptions')
+                                    : '/gallery'
+
+                                return (
+                                    <div key={item._id || idx} className={liveCelebrations.length === 1 ? 'col-12' : 'col-12 col-md-6'}>
+                                        <div className="live-celebration-card h-100 d-flex flex-column justify-content-between">
+                                            <div>
+                                                {/* Top badges row */}
+                                                <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
+                                                    <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                                                        <span className="badge bg-danger text-white rounded-pill extra-tiny px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1">
+                                                            <span className="live-dot live-dot-active" style={{ width: '6px', height: '6px' }}></span>
+                                                            LIVE NOW
+                                                        </span>
+                                                        <span className="badge bg-secondary bg-opacity-10 text-main rounded-pill extra-tiny px-2 py-1 fw-bold uppercase">
+                                                            {isFest ? 'Festival' : 'Event'}
+                                                        </span>
+                                                        {item.category && (
+                                                            <span className="badge bg-primary bg-opacity-10 text-primary rounded-pill extra-tiny px-2 py-1 fw-bold">
+                                                                {item.category}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Entity Name Pill */}
+                                                    <span className="live-entity-pill" title={`Organized by ${item.entityName || 'Vishwa Utsav'}`}>
+                                                        <Building2 size={12} />
+                                                        <span>Under: {item.entityName || 'Vishwa Utsav'}</span>
+                                                    </span>
+                                                </div>
+
+                                                {/* Title */}
+                                                <h4 className="fw-extrabold text-main mb-2" style={{ letterSpacing: '-0.02em' }}>
+                                                    {item.title}
+                                                </h4>
+
+                                                {/* Meta pills: Dates & Location */}
+                                                <div className="d-flex align-items-center gap-2 flex-wrap mb-3">
+                                                    <span className="live-dates-pill">
+                                                        <Calendar size={13} />
+                                                        <span>{formatDateText(item)}</span>
+                                                    </span>
+                                                    {item.location && (
+                                                        <span className="live-location-pill">
+                                                            <MapPin size={13} />
+                                                            <span>{item.location}</span>
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                {item.description && (
+                                                    <p className="text-muted small mb-3 line-clamp-2" style={{ fontSize: '0.84rem' }}>
+                                                        {item.description}
+                                                    </p>
+                                                )}
+                                            </div>
+
+                                            {/* Card Footer Action */}
+                                            <div className="pt-2 border-top border-secondary border-opacity-10 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                                <span className="extra-tiny text-muted fw-semibold">
+                                                    Currently in progress • Public celebration
+                                                </span>
+                                                <Link 
+                                                    to={targetLink}
+                                                    className="btn btn-sm btn-primary rounded-pill px-3 py-1 fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs hover-glow"
+                                                    style={{ fontSize: '0.76rem' }}
+                                                >
+                                                    <span>{isAuthenticated ? 'View Passes & Details' : 'Explore Celebration'}</span>
+                                                    <ArrowRight size={13} />
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </motion.div>
+                )}
 
                 <div className="row g-3 g-sm-4 justify-content-center">
                     {shortcuts.map((item, idx) => (
@@ -294,4 +428,3 @@ const Home = () => {
 }
 
 export default Home
-

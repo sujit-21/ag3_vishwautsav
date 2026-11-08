@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './Festivals.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe } from 'lucide-react'
+import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -1109,6 +1109,20 @@ const Festivals = () => {
         }
     }
 
+    const handleToggleLive = async (fest) => {
+        try {
+            const nextLive = !fest.isLive;
+            const res = await axios.patch(`/api/festivals/${fest._id}/toggle-live`, { isLive: nextLive });
+            setFestivals(prev => prev.map(f => f._id === fest._id ? { ...f, isLive: res.data.isLive } : f));
+            if (activeFestival?._id === fest._id) {
+                setActiveFestival(prev => ({ ...prev, isLive: res.data.isLive }));
+            }
+        } catch (err) {
+            console.error('Failed to toggle festival live state:', err);
+            alert(err.response?.data?.message || 'Failed to toggle live state');
+        }
+    };
+
     const openModal = (fest = null) => {
         if (fest) {
             setEditingFest(fest)
@@ -1120,7 +1134,8 @@ const Festivals = () => {
                 country: fest.country || 'India',
                 category: fest.category,
                 entityName: fest.entityName || '',
-                description: fest.description || ''
+                description: fest.description || '',
+                isLive: Boolean(fest.isLive)
             })
         } else {
             let activeEntityName = '';
@@ -1133,7 +1148,7 @@ const Festivals = () => {
 
             setEditingFest(null)
             setFormData({
-                title: '', location: '', startDate: '', endDate: '', country: 'India', category: 'Cultural', entityName: activeEntityName, description: ''
+                title: '', location: '', startDate: '', endDate: '', country: 'India', category: 'Cultural', entityName: activeEntityName, description: '', isLive: false
             })
         }
         setIsModalOpen(true)
@@ -1431,7 +1446,25 @@ const Festivals = () => {
                                             </div>
 
                                             {/* Right Side: Actions */}
-                                            <div className="d-flex align-items-center gap-2 ms-lg-auto border-top border-lg-0 pt-2 pt-lg-0 border-secondary border-opacity-10 mt-2 mt-lg-0">
+                                            <div className="d-flex align-items-center gap-2 ms-lg-auto border-top border-lg-0 pt-2 pt-lg-0 border-secondary border-opacity-10 mt-2 mt-lg-0 flex-wrap">
+                                                {/* Go Live Toggle Button */}
+                                                {user?.role === 'admin' && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => { e.stopPropagation(); handleToggleLive(fest); }}
+                                                        className={`btn btn-sm d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded-pill fw-bold transition-all shadow-xs ${
+                                                            fest.isLive 
+                                                                ? 'btn-danger text-white live-pulse-badge' 
+                                                                : 'btn-outline-secondary text-muted'
+                                                        }`}
+                                                        style={{ fontSize: '0.72rem' }}
+                                                        title={fest.isLive ? 'Broadcasting LIVE on Home Tab. Click to turn OFF.' : 'Click to broadcast LIVE on Home Tab.'}
+                                                    >
+                                                        <span className={`live-dot ${fest.isLive ? 'live-dot-active' : ''}`}></span>
+                                                        <span>{fest.isLive ? 'LIVE ON HOME' : 'Go Live'}</span>
+                                                    </button>
+                                                )}
+
                                                 {user?.role === 'admin' ? (
                                                     isActive ? (
                                                         <button onClick={() => setActiveFestival(null)} className="btn btn-success btn-sm d-flex align-items-center justify-content-center gap-1 px-3 py-1 shadow-sm rounded-pill fw-bold transition-all" style={{ fontSize: '0.75rem' }}>
@@ -2886,6 +2919,40 @@ const Festivals = () => {
                                                 className="luxury-input-field" 
                                                 required 
                                             />
+                                        </div>
+                                    </div>
+
+                                    {/* Go Live on Home Switch */}
+                                    <div className="col-12">
+                                        <div className="d-flex align-items-center justify-content-between p-3 rounded-3 border" style={{ background: formData.isLive ? 'rgba(239, 68, 68, 0.08)' : 'var(--input-bg)', borderColor: formData.isLive ? '#ef4444' : 'var(--glass-border)' }}>
+                                            <div className="d-flex align-items-center gap-2.5">
+                                                <div className={`p-2 rounded-circle ${formData.isLive ? 'bg-danger text-white' : 'bg-secondary bg-opacity-10 text-muted'}`}>
+                                                    <Radio size={16} />
+                                                </div>
+                                                <div>
+                                                    <div className="fw-bold text-main d-flex align-items-center gap-2" style={{ fontSize: '0.88rem' }}>
+                                                        <span>Broadcast LIVE to Home Tab</span>
+                                                        {formData.isLive && (
+                                                            <span className="badge bg-danger text-white rounded-pill extra-tiny px-2 py-0.5 fw-bold">
+                                                                🔴 LIVE NOW
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="text-muted extra-tiny">
+                                                        When active, all visitors on the Home page will see this festival as ongoing under "{formData.entityName || 'your entity'}" from {formData.startDate || 'start'} to {formData.endDate || 'end'}.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="form-check form-switch m-0 fs-5">
+                                                <input 
+                                                    className="form-check-input cursor-pointer" 
+                                                    type="checkbox" 
+                                                    role="switch"
+                                                    id="festIsLiveSwitch"
+                                                    checked={Boolean(formData.isLive)} 
+                                                    onChange={e => setFormData({ ...formData, isLive: e.target.checked })} 
+                                                />
+                                            </div>
                                         </div>
                                     </div>
 

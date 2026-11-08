@@ -10,6 +10,7 @@ const FestivalSchema = new mongoose.Schema({
     country: { type: String, default: 'India' },
     entityName: { type: String }, // e.g., Rotary Entity, Vishwa Utsav
     image: { type: String }, // URL to image
+    isLive: { type: Boolean, default: false }, // Broadcast live to Home Tab
     organizer: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now },

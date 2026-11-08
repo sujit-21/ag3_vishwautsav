@@ -3,6 +3,19 @@ const router = express.Router();
 const Event = require('../models/Event');
 const auth = require('../middleware/auth');
 
+// Public: Get All Live Events (Open to all visitors for Home Tab display)
+router.get('/public/live', async (req, res) => {
+    try {
+        const liveEvents = await Event.find({ isLive: true })
+            .select('title description date startTime endTime location price currency category country entityName image isLive createdAt')
+            .sort({ date: 1 })
+            .lean();
+        res.json(liveEvents);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // Create Event
 router.post('/', auth, async (req, res) => {
     try {
@@ -27,6 +40,21 @@ router.get('/', auth, async (req, res) => {
         res.json(events);
     } catch (err) {
         res.status(500).json({ message: err.message });
+    }
+});
+
+// Toggle Live Status (Admin only)
+router.patch('/:id/toggle-live', auth, async (req, res) => {
+    try {
+        const query = req.entityQuery({ _id: req.params.id });
+        const event = await Event.findOne(query);
+        if (!event) return res.status(404).json({ message: 'Event not found or unauthorized' });
+
+        event.isLive = req.body.isLive !== undefined ? Boolean(req.body.isLive) : !event.isLive;
+        await event.save();
+        res.json(event);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
 });
 

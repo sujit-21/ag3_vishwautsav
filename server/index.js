@@ -26,6 +26,44 @@ app.use('/api/entity', require('./routes/entity'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/otp', require('./routes/otp'));
 app.use('/api/activity-logs', require('./routes/activityLogs'));
+
+// Public endpoint for Home Tab: Combines all active live festivals & events across all entities
+app.get('/api/public/live-celebrations', async (req, res) => {
+    try {
+        const Festival = require('./models/Festival');
+        const Event = require('./models/Event');
+
+        const [festivals, events] = await Promise.all([
+            Festival.find({ isLive: true })
+                .select('title description location startDate endDate category country entityName image isLive createdAt')
+                .lean(),
+            Event.find({ isLive: true })
+                .select('title description date startTime endTime location price currency category country entityName image isLive createdAt')
+                .lean()
+        ]);
+
+        const formatted = [
+            ...festivals.map(f => ({
+                ...f,
+                type: 'festival',
+                dateStart: f.startDate,
+                dateEnd: f.endDate
+            })),
+            ...events.map(e => ({
+                ...e,
+                type: 'event',
+                dateStart: e.date,
+                dateEnd: e.date
+            }))
+        ].sort((a, b) => new Date(a.dateStart || 0) - new Date(b.dateStart || 0));
+
+        res.json(formatted);
+    } catch (err) {
+        console.error('Error fetching live celebrations:', err);
+        res.status(500).json({ message: 'Failed to fetch live celebrations' });
+    }
+});
+
 // Basic Route
 app.get('/', (req, res) => {
   res.send('Festival & Event Management API is running...');
@@ -39,8 +77,6 @@ mongoose.connect(MONGODB_URI)
     console.log('MongoDB connected successfully');
 
     // ── Auto-migrate: backfill baseRole for all existing users ──
-    // Users who registered before the baseRole field was added need to be updated.
-    // Safe to run every startup — only affects users where baseRole is not yet set.
     const User = require('./models/User');
     const usersWithoutBaseRole = await User.find({ baseRole: { $exists: false } });
     if (usersWithoutBaseRole.length > 0) {

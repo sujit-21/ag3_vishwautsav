@@ -3,6 +3,19 @@ const router = express.Router();
 const Festival = require('../models/Festival');
 const auth = require('../middleware/auth');
 
+// Public: Get All Live Festivals (Open to all visitors for Home Tab display)
+router.get('/public/live', async (req, res) => {
+    try {
+        const liveFestivals = await Festival.find({ isLive: true })
+            .select('title description location startDate endDate category country entityName image isLive createdAt')
+            .sort({ startDate: 1 })
+            .lean();
+        res.json(liveFestivals);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // Create Festival
 router.post('/', auth, async (req, res) => {
     try {
@@ -24,7 +37,6 @@ router.post('/', auth, async (req, res) => {
     }
 });
 
-
 // Get All Festivals (Shared by Entity — all admins in same entity see all data)
 router.get('/', auth, async (req, res) => {
     try {
@@ -33,6 +45,21 @@ router.get('/', auth, async (req, res) => {
         res.json(festivals);
     } catch (err) {
         res.status(500).json({ message: err.message });
+    }
+});
+
+// Toggle Live Status (Admin only)
+router.patch('/:id/toggle-live', auth, async (req, res) => {
+    try {
+        const query = req.entityQuery({ _id: req.params.id });
+        const festival = await Festival.findOne(query);
+        if (!festival) return res.status(404).json({ message: 'Festival not found or unauthorized' });
+
+        festival.isLive = req.body.isLive !== undefined ? Boolean(req.body.isLive) : !festival.isLive;
+        await festival.save();
+        res.json(festival);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
 });
 

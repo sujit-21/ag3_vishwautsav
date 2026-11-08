@@ -2848,6 +2848,148 @@ html, body, #root, .app-container {
     border-color: rgba(245, 158, 11, 0.35) !important;
 }
 
+/* ==========================================
+   LIVE CELEBRATIONS & EVENTS BROADCAST (HOME)
+   ========================================== */
+@keyframes livePulseRadar {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.65);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #94a3b8;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.live-dot.live-dot-active {
+    background-color: #ef4444;
+    animation: livePulseRadar 1.6s infinite;
+}
+
+.live-pulse-badge {
+    animation: livePulseRadar 2s infinite;
+}
+
+.live-celebrations-wrapper {
+    margin-bottom: 24px;
+}
+
+.live-celebrations-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #dc2626;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.live-celebration-card {
+    background: var(--card-bg, #ffffff);
+    border: 1px solid var(--glass-border);
+    border-left: 5px solid #ef4444 !important;
+    border-radius: 16px;
+    padding: 16px 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(239, 68, 68, 0.08), 0 2px 8px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.live-celebration-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(239, 68, 68, 0.14), 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.live-entity-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    background: rgba(99, 102, 241, 0.1);
+    color: #4f46e5;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+}
+
+.live-dates-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.live-location-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.74rem;
+    font-weight: 500;
+    background: rgba(100, 116, 139, 0.08);
+    color: var(--text-muted);
+}
+
+.dark-mode .live-celebrations-header,
+[data-theme='dark'] .live-celebrations-header {
+    background: rgba(239, 68, 68, 0.18) !important;
+    border-color: rgba(239, 68, 68, 0.35) !important;
+    color: #f87171 !important;
+}
+
+.dark-mode .live-celebration-card,
+[data-theme='dark'] .live-celebration-card {
+    background: var(--card-bg-subtle, rgba(20, 48, 57, 0.85)) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    border-left: 5px solid #ef4444 !important;
+}
+
+.dark-mode .live-entity-pill,
+[data-theme='dark'] .live-entity-pill {
+    background: rgba(99, 102, 241, 0.2) !important;
+    color: #a5b4fc !important;
+    border-color: rgba(99, 102, 241, 0.35) !important;
+}
+
+.dark-mode .live-dates-pill,
+[data-theme='dark'] .live-dates-pill {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #34d399 !important;
+    border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+.dark-mode .live-location-pill,
+[data-theme='dark'] .live-location-pill {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: #cbd5e1 !important;
+}
+
+
 
 
 

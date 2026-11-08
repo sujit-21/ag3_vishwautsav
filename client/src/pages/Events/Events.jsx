@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './Events.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, ShieldCheck, Lock, User, IndianRupee, Crown, CreditCard, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe } from 'lucide-react'
+import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, ShieldCheck, Lock, User, IndianRupee, Crown, CreditCard, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -1011,6 +1011,20 @@ const Events = () => {
         }
     }
 
+    const handleToggleLive = async (evt) => {
+        try {
+            const nextLive = !evt.isLive;
+            const res = await axios.patch(`/api/events/${evt._id}/toggle-live`, { isLive: nextLive });
+            setEvents(prev => prev.map(e => e._id === evt._id ? { ...e, isLive: res.data.isLive } : e));
+            if (activeEvent?._id === evt._id) {
+                setActiveEvent(prev => ({ ...prev, isLive: res.data.isLive }));
+            }
+        } catch (err) {
+            console.error('Failed to toggle event live state:', err);
+            alert(err.response?.data?.message || 'Failed to toggle live state');
+        }
+    };
+
     const openModal = (evt = null) => {
         let activeEntityName = '';
         try {
@@ -1034,11 +1048,12 @@ const Events = () => {
                 festival: evt.festival?._id || '',
                 country: evt.country || 'India',
                 entityName: evt.entityName || activeEntityName,
-                category: evt.category || 'Music'
+                category: evt.category || 'Music',
+                isLive: Boolean(evt.isLive)
             })
         } else {
             setEditingEvent(null)
-            setFormData({ title: '', description: '', date: '', startTime: '', endTime: '', location: '', price: 0, currency: '₹', festival: '', country: 'India', entityName: activeEntityName, category: 'Music' })
+            setFormData({ title: '', description: '', date: '', startTime: '', endTime: '', location: '', price: 0, currency: '₹', festival: '', country: 'India', entityName: activeEntityName, category: 'Music', isLive: false })
         }
         setIsModalOpen(true)
     }
@@ -1342,7 +1357,25 @@ const Events = () => {
                                             </div>
 
                                             {/* Right Side: Actions */}
-                                            <div className="d-flex align-items-center gap-2 ms-lg-auto border-top border-lg-0 pt-2 pt-lg-0 border-secondary border-opacity-10 mt-2 mt-lg-0">
+                                            <div className="d-flex align-items-center gap-2 ms-lg-auto border-top border-lg-0 pt-2 pt-lg-0 border-secondary border-opacity-10 mt-2 mt-lg-0 flex-wrap">
+                                                {/* Go Live Toggle Button */}
+                                                {user?.role === 'admin' && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => { e.stopPropagation(); handleToggleLive(evt); }}
+                                                        className={`btn btn-sm d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded-pill fw-bold transition-all shadow-xs ${
+                                                            evt.isLive 
+                                                                ? 'btn-danger text-white live-pulse-badge' 
+                                                                : 'btn-outline-secondary text-muted'
+                                                        }`}
+                                                        style={{ fontSize: '0.72rem' }}
+                                                        title={evt.isLive ? 'Broadcasting LIVE on Home Tab. Click to turn OFF.' : 'Click to broadcast LIVE on Home Tab.'}
+                                                    >
+                                                        <span className={`live-dot ${evt.isLive ? 'live-dot-active' : ''}`}></span>
+                                                        <span>{evt.isLive ? 'LIVE ON HOME' : 'Go Live'}</span>
+                                                    </button>
+                                                )}
+
                                                 <span className="fw-bold text-dark me-2" style={{ fontSize: '0.9rem' }}>{evt.currency || '₹'}{evt.price}</span>
                                                 {user?.role === 'admin' ? (
                                                     isActive ? (
@@ -2854,6 +2887,40 @@ const Events = () => {
                                                 className="luxury-input-field" 
                                                 required 
                                             />
+                                        </div>
+                                    </div>
+
+                                    {/* Go Live on Home Switch */}
+                                    <div className="col-12">
+                                        <div className="d-flex align-items-center justify-content-between p-3 rounded-3 border" style={{ background: formData.isLive ? 'rgba(239, 68, 68, 0.08)' : 'var(--input-bg)', borderColor: formData.isLive ? '#ef4444' : 'var(--glass-border)' }}>
+                                            <div className="d-flex align-items-center gap-2.5">
+                                                <div className={`p-2 rounded-circle ${formData.isLive ? 'bg-danger text-white' : 'bg-secondary bg-opacity-10 text-muted'}`}>
+                                                    <Radio size={16} />
+                                                </div>
+                                                <div>
+                                                    <div className="fw-bold text-main d-flex align-items-center gap-2" style={{ fontSize: '0.88rem' }}>
+                                                        <span>Broadcast LIVE to Home Tab</span>
+                                                        {formData.isLive && (
+                                                            <span className="badge bg-danger text-white rounded-pill extra-tiny px-2 py-0.5 fw-bold">
+                                                                🔴 LIVE NOW
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="text-muted extra-tiny">
+                                                        When active, all visitors on the Home page will see this event as ongoing under "{formData.entityName || 'your entity'}" on {formData.date || 'scheduled date'}.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="form-check form-switch m-0 fs-5">
+                                                <input 
+                                                    className="form-check-input cursor-pointer" 
+                                                    type="checkbox" 
+                                                    role="switch"
+                                                    id="evtIsLiveSwitch"
+                                                    checked={Boolean(formData.isLive)} 
+                                                    onChange={e => setFormData({ ...formData, isLive: e.target.checked })} 
+                                                />
+                                            </div>
                                         </div>
                                     </div>
 

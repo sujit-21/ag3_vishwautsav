@@ -16,6 +16,7 @@ const EventSchema = new mongoose.Schema({
     category: { type: String },
     image: { type: String },
     currency: { type: String, default: '₹' },
+    isLive: { type: Boolean, default: false }, // Broadcast live to Home Tab
     adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now },
 });
