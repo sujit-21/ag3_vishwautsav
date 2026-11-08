@@ -2209,23 +2209,23 @@ const Events = () => {
                                 } catch (err) {
                                     alert(err.response?.data?.message || 'Error saving expense')
                                 }
-                            }} className="row g-2.5">
-                                <div className="col-6 col-md-3">
+                            }} className="row g-2 g-md-3">
+                                <div className="col-12 col-sm-6 col-lg-3">
                                     <label className="figma-expense-label"><Calendar size={11} /> Date</label>
                                     <div className="figma-input-wrapper">
-                                        <input type="date" className="figma-input-field px-2.5" value={expenseFormData.date} onChange={e => setExpenseFormData({ ...expenseFormData, date: e.target.value })} required />
+                                        <input type="date" className="figma-input-field" value={expenseFormData.date} onChange={e => setExpenseFormData({ ...expenseFormData, date: e.target.value })} required />
                                     </div>
                                 </div>
-                                <div className="col-6 col-md-3">
+                                <div className="col-12 col-sm-6 col-lg-3">
                                     <label className="figma-expense-label"><Hash size={11} /> Voucher Ref#</label>
                                     <div className="figma-input-wrapper">
-                                        <input type="text" className="figma-input-field px-2.5 font-monospace fw-bold" value={expenseFormData.expenseId} readOnly />
+                                        <input type="text" className="figma-input-field font-monospace fw-bold" value={expenseFormData.expenseId} readOnly />
                                     </div>
                                 </div>
-                                <div className="col-12 col-md-6">
+                                <div className="col-12 col-lg-6">
                                     <label className="figma-expense-label"><FileText size={11} /> Particulars</label>
                                     <div className="figma-input-wrapper">
-                                        <input type="text" className="figma-input-field px-2.5" placeholder="e.g. Venue Booking" value={expenseFormData.particular} onChange={e => setExpenseFormData({ ...expenseFormData, particular: e.target.value })} required />
+                                        <input type="text" className="figma-input-field" placeholder="e.g. Venue Booking" value={expenseFormData.particular} onChange={e => setExpenseFormData({ ...expenseFormData, particular: e.target.value })} required />
                                     </div>
                                 </div>
                                 <div className="col-12 col-md-6">
@@ -2233,7 +2233,7 @@ const Events = () => {
                                     <div className="figma-input-wrapper">
                                         <input
                                             type="text"
-                                            className="figma-input-field px-2.5"
+                                            className="figma-input-field"
                                             placeholder="e.g. Ramesh Kumar / Venue Manager"
                                             value={expenseFormData.paidTo || ''}
                                             onChange={e => setExpenseFormData({ ...expenseFormData, paidTo: e.target.value })}
@@ -2245,22 +2245,22 @@ const Events = () => {
                                     <div className="figma-input-wrapper">
                                         <input
                                             type="tel"
-                                            className="figma-input-field px-2.5"
+                                            className="figma-input-field"
                                             placeholder="e.g. +91 9876543210"
                                             value={expenseFormData.contact || ''}
                                             onChange={e => setExpenseFormData({ ...expenseFormData, contact: e.target.value })}
                                         />
                                     </div>
                                 </div>
-                                <div className="col-6 col-md-4">
+                                <div className="col-12 col-sm-6 col-lg-4">
                                     <label className="figma-expense-label"><Layers size={11} /> Category Type</label>
                                     <div className="figma-input-wrapper">
-                                        <select className="figma-select-field px-2.5" value={expenseFormData.expenseType} onChange={e => setExpenseFormData({ ...expenseFormData, expenseType: e.target.value })}>
+                                        <select className="figma-select-field" value={expenseFormData.expenseType} onChange={e => setExpenseFormData({ ...expenseFormData, expenseType: e.target.value })}>
                                             {eventExpenseTypes.map(type => <option key={type} value={type}>{type}</option>)}
                                         </select>
                                     </div>
                                 </div>
-                                <div className="col-6 col-md-4">
+                                <div className="col-12 col-sm-6 col-lg-4">
                                     <label className="figma-expense-label">Amount</label>
                                     <div className="figma-amount-group">
                                         <select className="figma-currency-prefix" value={expenseFormData.currency} onChange={e => setExpenseFormData({ ...expenseFormData, currency: e.target.value })}>
@@ -2269,7 +2269,7 @@ const Events = () => {
                                         <input type="number" step="any" className="figma-amount-input" placeholder="0.00" value={expenseFormData.amount} onChange={e => setExpenseFormData({ ...expenseFormData, amount: e.target.value })} required />
                                     </div>
                                 </div>
-                                <div className="col-12 col-md-4">
+                                <div className="col-12 col-lg-4">
                                     <label className="figma-expense-label">Payment Mode</label>
                                     <div className="figma-segmented-mode">
                                         {['Cash & Paid', 'Due', 'Online'].map(mode => {
@@ -2294,22 +2294,22 @@ const Events = () => {
                                 {expenseFormData.paymentType === 'Online' && (
                                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="col-12 figma-online-drawer">
                                         <div className="row g-2">
-                                            <div className="col-md-6">
+                                            <div className="col-12 col-sm-6">
                                                 <label className="figma-expense-label text-info"><Smartphone size={11} /> Bank / Platform</label>
                                                 <div className="figma-input-wrapper">
-                                                    <input type="text" className="figma-input-field px-2.5" placeholder="e.g. GPay / HDFC / UPI" value={expenseFormData.onlineParticulars || ''} onChange={e => setExpenseFormData({ ...expenseFormData, onlineParticulars: e.target.value })} required />
+                                                    <input type="text" className="figma-input-field" placeholder="e.g. GPay / HDFC / UPI" value={expenseFormData.onlineParticulars || ''} onChange={e => setExpenseFormData({ ...expenseFormData, onlineParticulars: e.target.value })} required />
                                                 </div>
                                             </div>
-                                            <div className="col-md-6">
+                                            <div className="col-12 col-sm-6">
                                                 <label className="figma-expense-label text-info"><QrCode size={11} /> Transaction Ref ID</label>
                                                 <div className="figma-input-wrapper">
-                                                    <input type="text" className="figma-input-field px-2.5 font-monospace" placeholder="e.g. TXN123456 / UTR" value={expenseFormData.onlineReference || ''} onChange={e => setExpenseFormData({ ...expenseFormData, onlineReference: e.target.value })} required />
+                                                    <input type="text" className="figma-input-field font-monospace" placeholder="e.g. TXN123456 / UTR" value={expenseFormData.onlineReference || ''} onChange={e => setExpenseFormData({ ...expenseFormData, onlineReference: e.target.value })} required />
                                                 </div>
                                             </div>
                                         </div>
                                     </motion.div>
                                 )}
-                                <div className="col-12 mt-2 d-flex align-items-center gap-2">
+                                <div className="col-12 mt-2 d-flex flex-wrap align-items-center gap-2 figma-expense-actions-row">
                                     <button type="submit" className="figma-btn-submit">
                                         <Save size={13} /> {editingExpId ? 'Update Expense' : 'Post Expense'}
                                     </button>
@@ -2387,14 +2387,21 @@ const Events = () => {
                                                         </div>
                                                     </td>
                                                     <td className="border-0 py-2 px-1">
-                                                        <span className={`badge rounded-pill px-2.5 py-1 extra-tiny fw-bold ${
+                                                        <span className={`figma-payment-badge ${
                                                             exp.paymentType === 'Online'
-                                                                ? 'bg-info bg-opacity-15 text-info border border-info border-opacity-30'
+                                                                ? 'badge-online'
                                                                 : exp.paymentType === 'Due'
-                                                                ? 'bg-danger bg-opacity-15 text-danger border border-danger border-opacity-30'
-                                                                : 'bg-success bg-opacity-15 text-success border border-success border-opacity-30'
+                                                                ? 'badge-due'
+                                                                : 'badge-cash'
                                                         }`}>
-                                                            {exp.paymentType === 'Online' && exp.onlineParticulars ? `Online (${exp.onlineParticulars})` : exp.paymentType}
+                                                            {exp.paymentType === 'Online' ? (
+                                                                <CreditCard size={11} className="flex-shrink-0" />
+                                                            ) : exp.paymentType === 'Due' ? (
+                                                                <Clock size={11} className="flex-shrink-0" />
+                                                            ) : (
+                                                                <Banknote size={11} className="flex-shrink-0" />
+                                                            )}
+                                                            <span>{exp.paymentType === 'Online' && exp.onlineParticulars ? `Online (${exp.onlineParticulars})` : (exp.paymentType === 'Cash & Paid' ? 'Cash' : exp.paymentType)}</span>
                                                         </span>
                                                     </td>
                                                     <td className="border-0 py-2 px-1 fw-bold text-danger" style={{ fontSize: '0.82rem' }}>-{exp.currency}{(Number(exp.amount) || 0).toLocaleString()}</td>
@@ -2429,7 +2436,7 @@ const Events = () => {
                                                                 animate={{ opacity: 1, height: 'auto' }}
                                                                 exit={{ opacity: 0, height: 0 }}
                                                                 transition={{ duration: 0.18 }}
-                                                                className="p-2 rounded-3 bg-white shadow-sm border border-secondary border-opacity-15 d-flex flex-wrap align-items-center gap-3 text-muted"
+                                                                className="figma-exp-detail-card d-flex flex-wrap align-items-center gap-3 text-muted"
                                                                 style={{ fontSize: '0.78rem' }}
                                                             >
                                                                 <div className="d-flex align-items-center gap-1">

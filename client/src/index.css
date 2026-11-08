@@ -3276,12 +3276,17 @@ html, body, #root, .app-container {
     width: 100%;
     border: none;
     background: transparent;
-    padding: 8px 10px 8px 0;
+    padding: 8px 12px;
     font-size: 0.82rem;
     font-weight: 500;
     color: inherit;
     outline: none;
     min-height: 38px;
+    box-sizing: border-box;
+}
+
+.figma-input-icon + .figma-input-field {
+    padding-left: 2px;
 }
 
 .figma-input-field::placeholder {
@@ -3290,8 +3295,8 @@ html, body, #root, .app-container {
 }
 
 .figma-input-field:read-only {
-    opacity: 0.85;
-    cursor: not-allowed;
+    opacity: 0.9;
+    cursor: default;
     background: rgba(0, 0, 0, 0.02);
 }
 
@@ -3300,13 +3305,18 @@ html, body, #root, .app-container {
     width: 100%;
     border: none;
     background: transparent;
-    padding: 8px 10px 8px 0;
+    padding: 8px 12px;
     font-size: 0.82rem;
     font-weight: 500;
     color: inherit;
     outline: none;
     min-height: 38px;
     cursor: pointer;
+    box-sizing: border-box;
+}
+
+.figma-input-icon + .figma-select-field {
+    padding-left: 2px;
 }
 
 /* Currency and Amount integrated group */
@@ -3509,6 +3519,154 @@ html, body, #root, .app-container {
 [data-theme='dark'] .figma-btn-cancel:hover {
     background: rgba(255, 255, 255, 0.12);
     color: #f1f5f9;
+}
+
+/* ==========================================================================
+   FIGMA HIGH-CONTRAST PAYMENT BADGES (EXPENSES & SUBSCRIPTIONS)
+   Guarantees crystal-clear readable text across all browsers, themes & devices
+   ========================================================================== */
+.figma-payment-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Cash / Paid Mode: Crisp Emerald with AAA Contrast */
+.figma-payment-badge.badge-cash {
+    background-color: #ecfdf5 !important;
+    color: #065f46 !important;
+    border-color: #a7f3d0 !important;
+}
+
+.dark-mode .figma-payment-badge.badge-cash,
+[data-theme='dark'] .figma-payment-badge.badge-cash {
+    background-color: rgba(16, 185, 129, 0.18) !important;
+    color: #6ee7b7 !important;
+    border-color: rgba(110, 231, 183, 0.35) !important;
+}
+
+/* Online Mode: Crisp Royal Blue */
+.figma-payment-badge.badge-online {
+    background-color: #eff6ff !important;
+    color: #1d4ed8 !important;
+    border-color: #bfdbfe !important;
+}
+
+.dark-mode .figma-payment-badge.badge-online,
+[data-theme='dark'] .figma-payment-badge.badge-online {
+    background-color: rgba(59, 130, 246, 0.18) !important;
+    color: #93c5fd !important;
+    border-color: rgba(147, 197, 253, 0.35) !important;
+}
+
+/* Due Mode: Crisp Crimson */
+.figma-payment-badge.badge-due {
+    background-color: #fef2f2 !important;
+    color: #991b1b !important;
+    border-color: #fecaca !important;
+}
+
+.dark-mode .figma-payment-badge.badge-due,
+[data-theme='dark'] .figma-payment-badge.badge-due {
+    background-color: rgba(239, 68, 68, 0.18) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(252, 165, 165, 0.35) !important;
+}
+
+/* Expanded Detail Row Card */
+.figma-exp-detail-card {
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.dark-mode .figma-exp-detail-card,
+[data-theme='dark'] .figma-exp-detail-card {
+    background: #1e293b;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================================================
+   RESPONSIVE DEVICE ADJUSTMENTS (SMARTPHONES, TABLETS, LAPTOPS & DESKTOPS)
+   ========================================================================== */
+@media (max-width: 576px) {
+    .figma-expense-form-card {
+        padding: 14px 12px;
+        border-radius: 14px;
+        margin-bottom: 14px;
+    }
+
+    .figma-expense-form-header {
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+
+    .figma-expense-label {
+        font-size: 0.65rem;
+        margin-bottom: 4px;
+    }
+
+    .figma-input-field,
+    .figma-select-field,
+    .figma-amount-input {
+        font-size: 0.78rem;
+        min-height: 38px;
+    }
+
+    .figma-segmented-mode {
+        gap: 3px;
+        padding: 3px;
+        min-height: 36px;
+    }
+
+    .figma-mode-btn {
+        padding: 5px 6px;
+        font-size: 0.68rem;
+        gap: 4px;
+    }
+
+    .figma-mode-btn svg {
+        width: 11px;
+        height: 11px;
+    }
+
+    .figma-btn-submit,
+    .figma-btn-cancel {
+        padding: 8px 16px;
+        font-size: 0.74rem;
+        min-height: 38px;
+    }
+
+    .figma-currency-prefix {
+        font-size: 0.8rem;
+        padding: 6px 8px;
+    }
+}
+
+@media (max-width: 420px) {
+    .figma-expense-actions-row {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .figma-expense-actions-row .figma-btn-submit,
+    .figma-expense-actions-row .figma-btn-cancel {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 
