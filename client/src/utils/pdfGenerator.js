@@ -36,49 +36,49 @@ export const fmtCurrency = (val) => {
 
 /**
  * Mint-Light Amount Badges based on specific user-requested tiers:
- * - <= 101           : Soft Mint Slate / Cool Gray
- * - Above 101 - 251  : Mint-Light Blue
- * - Above 251 - 501  : Mint-Light Green
- * - Above 501 - 1001 : Mint-Light Yellow / Amber
- * - Above 1001 - 2001: Mint-Light Orange / Peach
- * - Above 2001 (High): Mint-Light Purple / Royal Violet
+ * - <= 101           : Soft Mint Slate / Cool Gray (#F1F5F9 / #475569)
+ * - Above 101 - 251  : Mint-Light Blue (#E0F2FE / #0369A1)
+ * - Above 251 - 501  : Mint-Light Green (#D1FAE5 / #047857)
+ * - Above 501 - 1001 : Mint-Light Yellow / Amber (#FEF3C7 / #B45309)
+ * - Above 1001 - 2001: Mint-Light Orange / Peach (#FFEDD5 / #C2410C)
+ * - Above 2001 (High): Mint-Light Purple / Royal Violet (#F3E8FF / #6D28D9)
  */
 export const getAmountBadge = (val) => {
     const num = Number(String(val || 0).replace(/[^0-9.]/g, '')) || 0
     if (num <= 101) {
         return {
-            fillColor: [241, 245, 249],  // #F1F5F9 Soft Slate
+            fillColor: [241, 245, 249],  // #F1F5F9 Soft Mint Slate
             textColor: [71, 85, 105],    // #475569 Deep Slate
             label: '<= 101'
         }
     } else if (num <= 251) {
         return {
-            fillColor: [224, 242, 254],  // #E0F2FE Mint Blue
+            fillColor: [224, 242, 254],  // #E0F2FE Mint-Light Blue
             textColor: [3, 105, 161],    // #0369A1 Deep Sky Blue
             label: '101 - 251'
         }
     } else if (num <= 501) {
         return {
-            fillColor: [209, 250, 229],  // #D1FAE5 Mint Green
+            fillColor: [209, 250, 229],  // #D1FAE5 Mint-Light Green
             textColor: [4, 120, 87],     // #047857 Forest Emerald
             label: '251 - 501'
         }
     } else if (num <= 1001) {
         return {
-            fillColor: [254, 243, 199],  // #FEF3C7 Mint Yellow
+            fillColor: [254, 243, 199],  // #FEF3C7 Mint-Light Yellow
             textColor: [180, 83, 9],     // #B45309 Rich Amber
             label: '501 - 1001'
         }
     } else if (num <= 2001) {
         return {
-            fillColor: [255, 237, 213],  // #FFEDD5 Mint Orange
+            fillColor: [255, 237, 213],  // #FFEDD5 Mint-Light Orange
             textColor: [194, 65, 12],    // #C2410C Vivid Terracotta
             label: '1001 - 2001'
         }
     } else {
         // Higher amounts > 2001
         return {
-            fillColor: [243, 232, 255],  // #F3E8FF Mint Purple / Violet
+            fillColor: [243, 232, 255],  // #F3E8FF Mint-Light Purple / Violet
             textColor: [109, 40, 217],   // #6D28D9 Royal Purple
             label: '> 2001'
         }
@@ -141,51 +141,35 @@ const drawFooter = (doc, isLandscape = false) => {
 }
 
 /**
- * Compact Amount Tier Legend Strip
- */
-const drawAmountLegend = (doc, { startX = 14, startY = 46.5, isLandscape = false }) => {
-    const legendItems = [
-        { label: '<= 101', bg: [241, 245, 249], text: [71, 85, 105] },
-        { label: '101 - 251 (Blue)', bg: [224, 242, 254], text: [3, 105, 161] },
-        { label: '251 - 501 (Green)', bg: [209, 250, 229], text: [4, 120, 87] },
-        { label: '501 - 1001 (Yellow)', bg: [254, 243, 199], text: [180, 83, 9] },
-        { label: '1001 - 2001 (Orange)', bg: [255, 237, 213], text: [194, 65, 12] },
-        { label: '> 2001 (Purple)', bg: [243, 232, 255], text: [109, 40, 217] }
-    ]
-
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(6.2)
-    doc.setTextColor(...FIGMA_COLORS.muted)
-    doc.text('AMOUNT TIERS:', startX, startY + 3.6)
-
-    let currentX = startX + 22
-    legendItems.forEach(item => {
-        const itemW = doc.getTextWidth(item.label) + 6
-        doc.setFillColor(...item.bg)
-        doc.roundedRect(currentX, startY, itemW, 5, 1.2, 1.2, 'F')
-        doc.setTextColor(...item.text)
-        doc.text(item.label, currentX + 3, startY + 3.6)
-        currentX += itemW + 2.5
-    })
-}
-
-/**
- * Parse cell styles to inject luxury badges for Amount, Status, and Tier
+ * Parse cell styles to inject luxury badges for Amount, Status, and Tier.
+ * Colors ENTIRE ROWS based on the row's amount tier!
  */
 const applyBadgeStyles = (data, { paymentColIndex = -1, tierColIndex = -1, amountColIndex = -1 }) => {
     if (data.row.section !== 'body') return
-    const cellText = String(data.cell.text?.[0] || '')
 
-    // 1. Dynamic Mint Amount Badge
-    if (data.column.index === amountColIndex && cellText && cellText !== '—') {
-        const badge = getAmountBadge(cellText)
+    // 1. Extract Row Amount & Apply Mint-Light Color to the ENTIRE ROW
+    let badge = null
+    if (amountColIndex >= 0) {
+        const rawAmount = Array.isArray(data.row.raw) 
+            ? data.row.raw[amountColIndex] 
+            : (data.row.cells?.[amountColIndex]?.text?.[0] || '')
+        badge = getAmountBadge(rawAmount)
+        // Tint the ENTIRE ROW background with the amount's mint-light color
         data.cell.styles.fillColor = badge.fillColor
-        data.cell.styles.textColor = badge.textColor
-        data.cell.styles.fontStyle = 'bold'
-        data.cell.styles.halign = 'right'
     }
 
-    // 2. Payment Status Badge
+    const cellText = String(data.cell.text?.[0] || '')
+
+    // 2. Amount Column: bold colored text matching the tier
+    if (data.column.index === amountColIndex && cellText && cellText !== '—') {
+        if (badge) {
+            data.cell.styles.textColor = badge.textColor
+            data.cell.styles.fontStyle = 'bold'
+            data.cell.styles.halign = 'right'
+        }
+    }
+
+    // 3. Payment Status Badge: enhance contrast
     if (data.column.index === paymentColIndex) {
         if (cellText.includes('Cash & Paid') || cellText.includes('Confirmed')) {
             data.cell.styles.fillColor = FIGMA_COLORS.emeraldBg
@@ -206,7 +190,7 @@ const applyBadgeStyles = (data, { paymentColIndex = -1, tierColIndex = -1, amoun
         }
     }
 
-    // 3. Access Tier Badge
+    // 4. Access Tier Badge: enhance contrast
     if (data.column.index === tierColIndex) {
         if (cellText.includes('VIP') || cellText.includes('Elite')) {
             data.cell.styles.fillColor = [238, 242, 255]
@@ -219,10 +203,6 @@ const applyBadgeStyles = (data, { paymentColIndex = -1, tierColIndex = -1, amoun
         } else if (cellText.includes('Admin')) {
             data.cell.styles.fillColor = FIGMA_COLORS.emeraldBg
             data.cell.styles.textColor = FIGMA_COLORS.emeraldDark
-            data.cell.styles.fontStyle = 'bold'
-        } else {
-            data.cell.styles.fillColor = [241, 245, 249]
-            data.cell.styles.textColor = [51, 65, 85]
             data.cell.styles.fontStyle = 'bold'
         }
     }
@@ -286,12 +266,9 @@ export const exportAttendeeMasterPDF = ({ subscriptionsList, activeTitle, entity
         doc.text(kpi.value, x + 3.5, cardY + 10)
     })
 
-    // Amount Tier Legend Strip
-    drawAmountLegend(doc, { startX: 14, startY: 46.5, isLandscape: true })
-
-    // Table
+    // Table starts directly below KPIs (zero wasted space)
     autoTable(doc, {
-        startY: 53.5,
+        startY: 47,
         margin: { left: 14, right: 14 },
         head: [['#', 'Pass ID', 'Date', 'Full Name', 'Contact Number', 'Address / City', 'Payment Mode', 'Access Tier', 'Amount']],
         body: list.map((s, idx) => [
@@ -320,9 +297,6 @@ export const exportAttendeeMasterPDF = ({ subscriptionsList, activeTitle, entity
             cellPadding: { top: 2.2, bottom: 2.2, left: 2.5, right: 2.5 },
             lineColor: FIGMA_COLORS.border,
             lineWidth: 0.15
-        },
-        alternateRowStyles: {
-            fillColor: FIGMA_COLORS.lightBg
         },
         columnStyles: {
             0: { cellWidth: 9, halign: 'center', fontStyle: 'bold' },
@@ -390,12 +364,9 @@ export const exportExpenseLedgerPDF = ({ expensesList, activeTitle, entityName, 
         doc.text(kpi.value, x + 3.5, cardY + 10.2)
     })
 
-    // Amount Tier Legend Strip
-    drawAmountLegend(doc, { startX: 14, startY: 47, isLandscape: false })
-
-    // Table
+    // Table starts directly below KPIs
     autoTable(doc, {
-        startY: 54,
+        startY: 47,
         margin: { left: 14, right: 14 },
         head: [['Date', 'Voucher ID', 'Particulars / Item', 'Paid To / Vendor', 'Contact', 'Category', 'Amount']],
         body: list.map(e => [
@@ -422,9 +393,6 @@ export const exportExpenseLedgerPDF = ({ expensesList, activeTitle, entityName, 
             cellPadding: { top: 2.2, bottom: 2.2, left: 2.5, right: 2.5 },
             lineColor: FIGMA_COLORS.border,
             lineWidth: 0.15
-        },
-        alternateRowStyles: {
-            fillColor: FIGMA_COLORS.lightBg
         },
         columnStyles: {
             0: { cellWidth: 20 },
@@ -594,18 +562,28 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
                     data.cell.styles.textColor = [255, 255, 255]
                     data.cell.styles.fontStyle = 'bold'
                 } else {
-                    // Dynamic Mint Amount Styling on Income and Expense columns
-                    if (data.column.index === 1 && data.cell.text?.[0] && data.cell.text?.[0] !== '—') {
-                        const badge = getAmountBadge(data.cell.text[0])
-                        data.cell.styles.fillColor = badge.fillColor
-                        data.cell.styles.textColor = badge.textColor
-                        data.cell.styles.fontStyle = 'bold'
+                    // Dynamic Mint Amount Styling on Income and Expense sides
+                    const incomeVal = data.row.raw?.[1] || data.row.cells?.[1]?.text?.[0]
+                    if (incomeVal && incomeVal !== '—') {
+                        const incBadge = getAmountBadge(incomeVal)
+                        if (data.column.index === 0 || data.column.index === 1) {
+                            data.cell.styles.fillColor = incBadge.fillColor
+                        }
+                        if (data.column.index === 1) {
+                            data.cell.styles.textColor = incBadge.textColor
+                            data.cell.styles.fontStyle = 'bold'
+                        }
                     }
-                    if (data.column.index === 3 && data.cell.text?.[0] && data.cell.text?.[0] !== '—') {
-                        const badge = getAmountBadge(data.cell.text[0])
-                        data.cell.styles.fillColor = badge.fillColor
-                        data.cell.styles.textColor = badge.textColor
-                        data.cell.styles.fontStyle = 'bold'
+                    const expVal = data.row.raw?.[3] || data.row.cells?.[3]?.text?.[0]
+                    if (expVal && expVal !== '—') {
+                        const expBadge = getAmountBadge(expVal)
+                        if (data.column.index === 2 || data.column.index === 3) {
+                            data.cell.styles.fillColor = expBadge.fillColor
+                        }
+                        if (data.column.index === 3) {
+                            data.cell.styles.textColor = expBadge.textColor
+                            data.cell.styles.fontStyle = 'bold'
+                        }
                     }
                 }
             }
@@ -663,9 +641,6 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
     doc.setFontSize(9)
     doc.setTextColor(...FIGMA_COLORS.slateNavy)
     doc.text('1. ATTENDEES & PASSES REGISTER', 14, 33)
-
-    // Amount Tier Legend Strip
-    drawAmountLegend(doc, { startX: 100, startY: 29.5, isLandscape: true })
 
     autoTable(doc, {
         startY: 36,
