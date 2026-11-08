@@ -221,15 +221,32 @@ const Festivals = () => {
         }
     }, [searchParams, activeFestival])
 
-    // If a subtab is accessed via URL but no festival is currently selected, auto-select first available
+    // Global event listener to reliably open Data Reports modal on demand from navbar
+    useEffect(() => {
+        const handleOpenData = () => {
+            setIsDataOpen(true)
+        }
+        window.addEventListener('open-data-reports', handleOpenData)
+        return () => window.removeEventListener('open-data-reports', handleOpenData)
+    }, [])
+
+    // Ensure activeFestival is populated whenever festivals load
     useEffect(() => {
         if (!activeFestival && festivals.length > 0) {
-            const tab = searchParams.get('tab')
-            if (tab && tab !== 'festivals' && validTabs.includes(tab)) {
-                setActiveFestival(festivals[0])
-            }
+            setActiveFestival(festivals[0])
         }
-    }, [festivals, activeFestival, searchParams])
+    }, [festivals, activeFestival])
+
+    const closeDataModal = () => {
+        setIsDataOpen(false)
+        setSearchParams(prev => {
+            const next = new URLSearchParams(prev)
+            if (next.get('tab') === 'data') {
+                next.delete('tab')
+            }
+            return next
+        }, { replace: true })
+    }
 
     const handleTabChange = (newTab) => {
         if (newTab === 'new_attendee') {
@@ -1263,7 +1280,7 @@ const Festivals = () => {
                 <div 
                     className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" 
                     style={{ zIndex: 100000, background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
-                    onClick={() => setIsDataOpen(false)}
+                    onClick={closeDataModal}
                 >
                     <div 
                         className="figma-reports-modal p-3 p-sm-4 shadow-2xl" 
@@ -1281,15 +1298,32 @@ const Festivals = () => {
                                 </div>
                             </div>
                             <div className="d-flex align-items-center gap-1.5">
-                                {activeFestival && (
+                                {festivals && festivals.length > 0 ? (
+                                    <select
+                                        className="form-select form-select-sm border border-secondary border-opacity-25 rounded-pill px-2.5 py-1 text-main fw-bold cursor-pointer"
+                                        style={{ fontSize: '0.74rem', background: 'var(--input-bg)', maxWidth: '160px' }}
+                                        value={activeFestival?._id || festivals[0]?._id}
+                                        onChange={(e) => {
+                                            const found = festivals.find(f => f._id === e.target.value)
+                                            if (found) setActiveFestival(found)
+                                        }}
+                                        title="Select Festival for Reports"
+                                    >
+                                        {festivals.map(f => (
+                                            <option key={f._id} value={f._id} style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>
+                                                {f.title}
+                                            </option>
+                                        ))}
+                                    </select>
+                                ) : activeFestival ? (
                                     <span className="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 rounded-pill px-2.5 py-1 extra-tiny fw-bold text-truncate" style={{ maxWidth: "120px" }}>
                                         {activeFestival.title}
                                     </span>
-                                )}
+                                ) : null}
                                 <button 
                                     type="button" 
                                     className="btn btn-sm p-1 rounded-circle bg-secondary bg-opacity-10 text-muted hover-text-main border-0 ms-1 d-flex align-items-center justify-content-center" 
-                                    onClick={() => setIsDataOpen(false)}
+                                    onClick={closeDataModal}
                                     aria-label="Close"
                                 >
                                     <X size={16} />
@@ -1297,12 +1331,12 @@ const Festivals = () => {
                             </div>
                         </div>
 
-                        {activeFestival ? (
+                        {(activeFestival || (festivals && festivals.length > 0)) ? (
                             <div className="d-flex flex-column gap-2.5">
                                 {/* Attendee PDF Tile */}
                                 <button
                                     className="figma-report-tile"
-                                    onClick={() => { downloadAllAttendeesPDF(); setIsDataOpen(false); }}
+                                    onClick={() => { downloadAllAttendeesPDF(); closeDataModal(); }}
                                 >
                                     <div className="d-flex align-items-center gap-2.5">
                                         <div className="figma-report-icon" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6' }}>
@@ -1319,7 +1353,7 @@ const Festivals = () => {
                                 {/* All Expenses PDF Tile */}
                                 <button
                                     className="figma-report-tile"
-                                    onClick={() => { downloadAllExpensesPDF(); setIsDataOpen(false); }}
+                                    onClick={() => { downloadAllExpensesPDF(); closeDataModal(); }}
                                 >
                                     <div className="d-flex align-items-center gap-2.5">
                                         <div className="figma-report-icon" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}>
@@ -1336,7 +1370,7 @@ const Festivals = () => {
                                 {/* BalanceSheet PDF Tile */}
                                 <button
                                     className="figma-report-tile"
-                                    onClick={() => { downloadBalanceSheetPDF(); setIsDataOpen(false); }}
+                                    onClick={() => { downloadBalanceSheetPDF(); closeDataModal(); }}
                                 >
                                     <div className="d-flex align-items-center gap-2.5">
                                         <div className="figma-report-icon" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#10b981' }}>
@@ -1361,7 +1395,7 @@ const Festivals = () => {
                                 {/* Master Data PDF CTA Button */}
                                 <button
                                     className="figma-btn-master-pdf"
-                                    onClick={() => { downloadMasterDataPDF(); setIsDataOpen(false); }}
+                                    onClick={() => { downloadMasterDataPDF(); closeDataModal(); }}
                                 >
                                     <span className="d-flex align-items-center gap-2">
                                         <Sparkles size={16} className="text-warning" />
@@ -1377,13 +1411,13 @@ const Festivals = () => {
                                 <div className="p-3 rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex mb-3">
                                     <Info size={24} />
                                 </div>
-                                <h6 className="fw-extrabold text-main mb-1" style={{ fontSize: '0.92rem' }}>No Active Selection</h6>
+                                <h6 className="fw-extrabold text-main mb-1" style={{ fontSize: '0.92rem' }}>No Festivals Available</h6>
                                 <p className="text-muted extra-tiny mb-3">
-                                    Select a festival from the directory to export certified audit reports.
+                                    Create or add a festival first to export audit reports.
                                 </p>
                                 <button
                                     className="btn btn-sm btn-outline-primary py-2 px-3 rounded-pill w-100 extra-tiny fw-bold"
-                                    onClick={() => { setActiveTab("festivals"); setIsDataOpen(false); }}
+                                    onClick={() => { setActiveTab("festivals"); closeDataModal(); }}
                                 >
                                     Open Directory
                                 </button>

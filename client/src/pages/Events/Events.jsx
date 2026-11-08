@@ -216,15 +216,32 @@ const Events = () => {
         }
     }, [searchParams, activeEvent])
 
-    // If a subtab is accessed via URL but no event is currently selected, auto-select first available
+    // Global event listener to reliably open Data Reports modal on demand from navbar
+    useEffect(() => {
+        const handleOpenData = () => {
+            setIsDataOpen(true)
+        }
+        window.addEventListener('open-data-reports', handleOpenData)
+        return () => window.removeEventListener('open-data-reports', handleOpenData)
+    }, [])
+
+    // Ensure activeEvent is populated whenever events load
     useEffect(() => {
         if (!activeEvent && events.length > 0) {
-            const tab = searchParams.get('tab')
-            if (tab && tab !== 'events' && validTabs.includes(tab)) {
-                setActiveEvent(events[0])
-            }
+            setActiveEvent(events[0])
         }
-    }, [events, activeEvent, searchParams])
+    }, [events, activeEvent])
+
+    const closeDataModal = () => {
+        setIsDataOpen(false)
+        setSearchParams(prev => {
+            const next = new URLSearchParams(prev)
+            if (next.get('tab') === 'data') {
+                next.delete('tab')
+            }
+            return next
+        }, { replace: true })
+    }
 
     const handleTabChange = (newTab) => {
         if (newTab === 'new_attendee') {
@@ -1169,7 +1186,7 @@ const Events = () => {
                 <div 
                     className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" 
                     style={{ zIndex: 100000, background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
-                    onClick={() => setIsDataOpen(false)}
+                    onClick={closeDataModal}
                 >
                     <div 
                         className="figma-reports-modal p-3 p-sm-4 shadow-2xl" 
@@ -1187,15 +1204,32 @@ const Events = () => {
                                 </div>
                             </div>
                             <div className="d-flex align-items-center gap-1.5">
-                                {activeEvent && (
+                                {events && events.length > 0 ? (
+                                    <select
+                                        className="form-select form-select-sm border border-secondary border-opacity-25 rounded-pill px-2.5 py-1 text-main fw-bold cursor-pointer"
+                                        style={{ fontSize: '0.74rem', background: 'var(--input-bg)', maxWidth: '160px' }}
+                                        value={activeEvent?._id || events[0]?._id}
+                                        onChange={(e) => {
+                                            const found = events.find(ev => ev._id === e.target.value)
+                                            if (found) setActiveEvent(found)
+                                        }}
+                                        title="Select Event for Reports"
+                                    >
+                                        {events.map(ev => (
+                                            <option key={ev._id} value={ev._id} style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>
+                                                {ev.title}
+                                            </option>
+                                        ))}
+                                    </select>
+                                ) : activeEvent ? (
                                     <span className="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 rounded-pill px-2.5 py-1 extra-tiny fw-bold text-truncate" style={{ maxWidth: "120px" }}>
                                         {activeEvent.title}
                                     </span>
-                                )}
+                                ) : null}
                                 <button 
                                     type="button" 
                                     className="btn btn-sm p-1 rounded-circle bg-secondary bg-opacity-10 text-muted hover-text-main border-0 ms-1 d-flex align-items-center justify-content-center" 
-                                    onClick={() => setIsDataOpen(false)}
+                                    onClick={closeDataModal}
                                     aria-label="Close"
                                 >
                                     <X size={16} />
@@ -1203,12 +1237,12 @@ const Events = () => {
                             </div>
                         </div>
 
-                        {activeEvent ? (
+                        {(activeEvent || (events && events.length > 0)) ? (
                             <div className="d-flex flex-column gap-2.5">
                                 {/* Attendee PDF Tile */}
                                 <button
                                     className="figma-report-tile"
-                                    onClick={() => { downloadAllAttendeesPDF(); setIsDataOpen(false); }}
+                                    onClick={() => { downloadAllAttendeesPDF(); closeDataModal(); }}
                                 >
                                     <div className="d-flex align-items-center gap-2.5">
                                         <div className="figma-report-icon" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6' }}>
@@ -1225,7 +1259,7 @@ const Events = () => {
                                 {/* All Expenses PDF Tile */}
                                 <button
                                     className="figma-report-tile"
-                                    onClick={() => { downloadAllExpensesPDF(); setIsDataOpen(false); }}
+                                    onClick={() => { downloadAllExpensesPDF(); closeDataModal(); }}
                                 >
                                     <div className="d-flex align-items-center gap-2.5">
                                         <div className="figma-report-icon" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}>
@@ -1242,7 +1276,7 @@ const Events = () => {
                                 {/* BalanceSheet PDF Tile */}
                                 <button
                                     className="figma-report-tile"
-                                    onClick={() => { downloadBalanceSheetPDF(); setIsDataOpen(false); }}
+                                    onClick={() => { downloadBalanceSheetPDF(); closeDataModal(); }}
                                 >
                                     <div className="d-flex align-items-center gap-2.5">
                                         <div className="figma-report-icon" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#10b981' }}>
@@ -1267,7 +1301,7 @@ const Events = () => {
                                 {/* Master Data PDF CTA Button */}
                                 <button
                                     className="figma-btn-master-pdf"
-                                    onClick={() => { downloadMasterDataPDF(); setIsDataOpen(false); }}
+                                    onClick={() => { downloadMasterDataPDF(); closeDataModal(); }}
                                 >
                                     <span className="d-flex align-items-center gap-2">
                                         <Sparkles size={16} className="text-warning" />
@@ -1283,13 +1317,13 @@ const Events = () => {
                                 <div className="p-3 rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex mb-3">
                                     <Info size={24} />
                                 </div>
-                                <h6 className="fw-extrabold text-main mb-1" style={{ fontSize: '0.92rem' }}>No Active Selection</h6>
+                                <h6 className="fw-extrabold text-main mb-1" style={{ fontSize: '0.92rem' }}>No Events Available</h6>
                                 <p className="text-muted extra-tiny mb-3">
-                                    Select an event from the directory to export certified audit reports.
+                                    Create or add an event first to export audit reports.
                                 </p>
                                 <button
                                     className="btn btn-sm btn-outline-primary py-2 px-3 rounded-pill w-100 extra-tiny fw-bold"
-                                    onClick={() => { setActiveTab("events"); setIsDataOpen(false); }}
+                                    onClick={() => { setActiveTab("events"); closeDataModal(); }}
                                 >
                                     Open Directory
                                 </button>

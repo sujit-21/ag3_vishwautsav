@@ -318,7 +318,12 @@ const Navbar = () => {
                                                 key={item.id}
                                                 to={item.path}
                                                 className={`nav__desktop-dropdown-item ${item.isAction ? 'is-action-item' : ''} ${item.isData ? 'is-data-item' : ''} ${location.pathname.startsWith('/festivals') && (location.search.includes(`tab=${item.id}`) || (item.id === 'festivals' && !location.search.includes('tab='))) ? 'active-item' : ''}`}
-                                                onClick={() => setFestivalsOpen(false)}
+                                                onClick={() => {
+                                                    setFestivalsOpen(false);
+                                                    if (item.isData) {
+                                                        window.dispatchEvent(new CustomEvent('open-data-reports', { detail: { target: 'festival' } }));
+                                                    }
+                                                }}
                                             >
                                                 <div className={`nav__item-icon-wrap ${item.isAction ? 'action-icon-wrap' : ''} ${item.isData ? 'data-icon-wrap' : ''}`}>
                                                     <item.icon size={15} />
@@ -358,7 +363,12 @@ const Navbar = () => {
                                                 key={item.id}
                                                 to={item.path}
                                                 className={`nav__desktop-dropdown-item ${item.isAction ? 'is-action-item' : ''} ${item.isData ? 'is-data-item' : ''} ${location.pathname.startsWith('/events') && (location.search.includes(`tab=${item.id}`) || (item.id === 'events' && !location.search.includes('tab='))) ? 'active-item' : ''}`}
-                                                onClick={() => setEventsOpen(false)}
+                                                onClick={() => {
+                                                    setEventsOpen(false);
+                                                    if (item.isData) {
+                                                        window.dispatchEvent(new CustomEvent('open-data-reports', { detail: { target: 'event' } }));
+                                                    }
+                                                }}
                                             >
                                                 <div className={`nav__item-icon-wrap ${item.isAction ? 'action-icon-wrap' : ''} ${item.isData ? 'data-icon-wrap' : ''}`}>
                                                     <item.icon size={15} />
@@ -691,7 +701,12 @@ const Navbar = () => {
                                                                     key={tab.id}
                                                                     to={tab.path}
                                                                     className={`nav__sidebar-sublink ${tab.isAction ? 'is-action-sublink' : ''} ${tab.isData ? 'is-data-sublink' : ''} ${isSubActive ? 'is-active' : ''}`}
-                                                                    onClick={closeMobile}
+                                                                    onClick={() => {
+                                                                        closeMobile();
+                                                                        if (tab.isData) {
+                                                                            window.dispatchEvent(new CustomEvent('open-data-reports', { detail: { target: 'festival' } }));
+                                                                        }
+                                                                    }}
                                                                 >
                                                                     <tab.icon size={15} className={`flex-shrink-0 ${tab.isAction ? 'text-warning' : tab.isData ? 'text-info' : 'opacity-75'}`} />
                                                                     <span>{tab.label}</span>
@@ -737,7 +752,12 @@ const Navbar = () => {
                                                                     key={tab.id}
                                                                     to={tab.path}
                                                                     className={`nav__sidebar-sublink ${tab.isAction ? 'is-action-sublink' : ''} ${tab.isData ? 'is-data-sublink' : ''} ${isSubActive ? 'is-active' : ''}`}
-                                                                    onClick={closeMobile}
+                                                                    onClick={() => {
+                                                                        closeMobile();
+                                                                        if (tab.isData) {
+                                                                            window.dispatchEvent(new CustomEvent('open-data-reports', { detail: { target: 'festival' } }));
+                                                                        }
+                                                                    }}
                                                                 >
                                                                     <tab.icon size={15} className={`flex-shrink-0 ${tab.isAction ? 'text-warning' : tab.isData ? 'text-info' : 'opacity-75'}`} />
                                                                     <span>{tab.label}</span>
