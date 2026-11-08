@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './Home.css'
 import { Helmet } from 'react-helmet-async'
 import { motion } from 'framer-motion'
-import { Calendar, Music, Zap, Users, ChevronRight, LayoutDashboard, MessageSquare, LogOut, Sparkles, Ticket, MapPin, Building2, ArrowRight } from 'lucide-react'
+import { Calendar, Music, Zap, Users, ChevronRight, LayoutDashboard, MessageSquare, LogOut, Sparkles, Ticket, MapPin, Building2, ArrowRight, Tag } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
@@ -276,8 +276,9 @@ const Home = () => {
                                                             {isFest ? 'Festival' : 'Event'}
                                                         </span>
                                                         {item.category && (
-                                                            <span className="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 rounded-pill extra-tiny px-2.5 py-1 fw-bold">
-                                                                {item.category}
+                                                            <span className="figma-category-chip">
+                                                                <Tag size={10} />
+                                                                <span>{item.category}</span>
                                                             </span>
                                                         )}
                                                     </div>
