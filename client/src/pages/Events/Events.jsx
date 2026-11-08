@@ -2483,8 +2483,8 @@ const Events = () => {
                 <div className="figma-pass-preview-card">
                     {/* Pass Preview Title, Subtitle, and Badge */}
                     <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                        <div className="d-flex align-items-center gap-2.5">
-                            <div className="figma-pass-emblem">
+                        <div className="d-flex align-items-center gap-3">
+                            <div className="figma-pass-emblem me-1">
                                 <CreditCard size={22} />
                             </div>
                             <div>
@@ -3408,11 +3408,11 @@ const Events = () => {
             <AnimatePresence>
                 {isCardAdding && (
                     <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center py-3 px-2 px-sm-3" style={{ background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)', zIndex: 99999 }}>
-                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="figma-pass-modal-card w-100 mx-auto p-3 p-sm-4 my-auto" style={{ maxWidth: '640px', maxHeight: '92vh', overflowY: 'auto' }}>
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="figma-pass-modal-card w-100 mx-auto p-3 p-sm-4 my-auto">
                             {/* Header */}
                             <div className="d-flex justify-content-between align-items-center mb-3">
-                                <div className="d-flex align-items-center gap-2.5">
-                                    <div className="figma-pass-emblem" style={{ width: '38px', height: '38px', borderRadius: '10px' }}>
+                                <div className="d-flex align-items-center gap-3">
+                                    <div className="figma-pass-emblem me-1" style={{ width: '40px', height: '40px', minWidth: '40px', minHeight: '40px', borderRadius: '10px' }}>
                                         <Sparkles size={18} />
                                     </div>
                                     <div>
@@ -3427,25 +3427,7 @@ const Events = () => {
                                 </button>
                             </div>
 
-                            {/* Live Pass Preview Stage */}
-                            <div className="figma-pass-stage mb-3">
-                                <span className="figma-pass-stage-tag shadow-xs">
-                                    <Sparkles size={10} /> LIVE PASS IDENTITY PREVIEW
-                                </span>
-                                <VIPCard
-                                    compact={true}
-                                    eventName={cardFormData.festOrEventName || "PREVIEW MODE"}
-                                    entityName={cardFormData.entityName || "ENTITY BRANDING"}
-                                    address={cardFormData.address || "LOCATION DETAILS"}
-                                    accessLevel={cardFormData.membershipType === 'Admin' ? 'ALL ACCESS' : 'VIP ACCESS ONLY'}
-                                    userName={cardFormData.name || "MEMBER NAME"}
-                                    uid={cardFormData.cardId || "DESIGN-ID"}
-                                    validDate={(cardFormData.fromDate && cardFormData.toDate) ? `${new Date(cardFormData.fromDate).toLocaleDateString()} - ${new Date(cardFormData.toDate).toLocaleDateString()}` : "VALIDITY PERIOD"}
-                                    tier={cardFormData.membershipType || "Executive"}
-                                    familyMembers={cardFormData.familyMembers}
-                                />
-                            </div>
-
+                            {/* Responsive 2-Column Body on Laptop/Desktop (No Scroll), Single-Column on Mobile */}
                             <form onSubmit={async (e) => {
                                 e.preventDefault()
                                 try {
@@ -3463,133 +3445,168 @@ const Events = () => {
                                     const errMsg = err.response?.data?.message || err.message || 'Unknown error';
                                     alert('Error saving card: ' + errMsg)
                                 }
-                            }} className="row g-2.5">
-                                {/* Smart Fetch Strategy */}
-                                <div className="col-12 col-sm-6">
-                                    <label className="figma-pass-label"><Search size={11} /> Smart Fetch Strategy</label>
-                                    <div className="figma-pass-input-box">
-                                        <input
-                                            type="text"
-                                            placeholder="Scan / Enter Pass ID..."
-                                            onKeyDown={async (e) => {
-                                                if (e.key === 'Enter') {
-                                                    e.preventDefault()
-                                                    try {
-                                                        const res = await axios.get(`/api/subscriptions/search/${e.target.value}`)
-                                                        if (res.data) {
-                                                            setCardFormData({
-                                                                ...cardFormData,
-                                                                cardId: res.data.subId || cardFormData.cardId,
-                                                                name: res.data.name,
-                                                                address: res.data.address || '',
-                                                                entityName: res.data.entityName || '',
-                                                                festOrEventName: res.data.festOrEventName || ''
-                                                            })
+                            }}>
+                                <div className="row g-3 g-lg-4 align-items-center">
+                                    {/* Left Column: Live Pass Preview Pedestal */}
+                                    <div className="col-12 col-lg-5">
+                                        <div className="figma-pass-stage h-100 p-3 mb-2 mb-lg-0">
+                                            <span className="figma-pass-stage-tag shadow-xs mb-2">
+                                                <Sparkles size={10} /> LIVE PASS IDENTITY PREVIEW
+                                            </span>
+                                            <div className="w-100 d-flex justify-content-center py-1">
+                                                <VIPCard
+                                                    compact={true}
+                                                    eventName={cardFormData.festOrEventName || "PREVIEW MODE"}
+                                                    entityName={cardFormData.entityName || "ENTITY BRANDING"}
+                                                    address={cardFormData.address || "LOCATION DETAILS"}
+                                                    accessLevel={cardFormData.membershipType === 'Admin' ? 'ALL ACCESS' : 'VIP ACCESS ONLY'}
+                                                    userName={cardFormData.name || "MEMBER NAME"}
+                                                    uid={cardFormData.cardId || "DESIGN-ID"}
+                                                    validDate={(cardFormData.fromDate && cardFormData.toDate) ? `${new Date(cardFormData.fromDate).toLocaleDateString()} - ${new Date(cardFormData.toDate).toLocaleDateString()}` : "VALIDITY PERIOD"}
+                                                    tier={cardFormData.membershipType || "Executive"}
+                                                    familyMembers={cardFormData.familyMembers}
+                                                />
+                                            </div>
+                                            <div className="text-center mt-2 px-2">
+                                                <span className="extra-tiny text-white-50" style={{ fontSize: '0.67rem', letterSpacing: '0.2px' }}>
+                                                    ✦ Synchronized canvas renders credentials in real-time
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Right Column: Form Inputs & Action Buttons */}
+                                    <div className="col-12 col-lg-7">
+                                        <div className="row g-2">
+                                            {/* Smart Fetch Strategy */}
+                                            <div className="col-12 col-sm-6">
+                                                <label className="figma-pass-label"><Search size={11} /> Smart Fetch Strategy</label>
+                                                <div className="figma-pass-input-box">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Scan / Enter Pass ID..."
+                                                        onKeyDown={async (e) => {
+                                                            if (e.key === 'Enter') {
+                                                                e.preventDefault()
+                                                                try {
+                                                                    const res = await axios.get(`/api/subscriptions/search/${e.target.value}`)
+                                                                    if (res.data) {
+                                                                        setCardFormData({
+                                                                            ...cardFormData,
+                                                                            cardId: res.data.subId || cardFormData.cardId,
+                                                                            name: res.data.name,
+                                                                            address: res.data.address || '',
+                                                                            entityName: res.data.entityName || '',
+                                                                            festOrEventName: res.data.festOrEventName || ''
+                                                                        })
+                                                                    }
+                                                                } catch (err) {
+                                                                    alert(err.response?.data?.message || 'Subscription ID not recognized')
+                                                                }
+                                                            }
+                                                        }}
+                                                    />
+                                                    <button type="button" className="figma-btn-sync" onClick={async (e) => {
+                                                        const subId = e.target.parentElement.querySelector('input').value
+                                                        try {
+                                                            const res = await axios.get(`/api/subscriptions/search/${subId}`)
+                                                            if (res.data) {
+                                                                setCardFormData({
+                                                                    ...cardFormData,
+                                                                    cardId: res.data.subId || cardFormData.cardId,
+                                                                    name: res.data.name,
+                                                                    address: res.data.address || '',
+                                                                    entityName: res.data.entityName || '',
+                                                                    festOrEventName: res.data.festOrEventName || ''
+                                                                })
+                                                            }
+                                                        } catch (err) {
+                                                            alert('Record not found')
                                                         }
-                                                    } catch (err) {
-                                                        alert(err.response?.data?.message || 'Subscription ID not recognized')
-                                                    }
-                                                }
-                                            }}
-                                        />
-                                        <button type="button" className="figma-btn-sync" onClick={async (e) => {
-                                            const subId = e.target.parentElement.querySelector('input').value
-                                            try {
-                                                const res = await axios.get(`/api/subscriptions/search/${subId}`)
-                                                if (res.data) {
-                                                    setCardFormData({
-                                                        ...cardFormData,
-                                                        cardId: res.data.subId || cardFormData.cardId,
-                                                        name: res.data.name,
-                                                        address: res.data.address || '',
-                                                        entityName: res.data.entityName || '',
-                                                        festOrEventName: res.data.festOrEventName || ''
-                                                    })
-                                                }
-                                            } catch (err) {
-                                                alert('Record not found')
-                                            }
-                                        }}>Sync</button>
-                                    </div>
-                                </div>
+                                                    }}>Sync</button>
+                                                </div>
+                                            </div>
 
-                                {/* Physical Address / Location */}
-                                <div className="col-12 col-sm-6">
-                                    <label className="figma-pass-label"><MapPin size={11} /> Physical Address / Location</label>
-                                    <div className="figma-pass-input-box">
-                                        <input type="text" placeholder="Complete address detail" value={cardFormData.address} onChange={e => setCardFormData({ ...cardFormData, address: e.target.value })} />
-                                    </div>
-                                </div>
+                                            {/* Physical Address / Location */}
+                                            <div className="col-12 col-sm-6">
+                                                <label className="figma-pass-label"><MapPin size={11} /> Physical Address / Location</label>
+                                                <div className="figma-pass-input-box">
+                                                    <input type="text" placeholder="Complete address detail" value={cardFormData.address} onChange={e => setCardFormData({ ...cardFormData, address: e.target.value })} />
+                                                </div>
+                                            </div>
 
-                                {/* Member Identity */}
-                                <div className="col-12 col-sm-6">
-                                    <label className="figma-pass-label"><User size={11} /> Member Identity</label>
-                                    <div className="figma-pass-input-box">
-                                        <input type="text" placeholder="Display name on card" value={cardFormData.name} onChange={e => setCardFormData({ ...cardFormData, name: e.target.value })} required />
-                                    </div>
-                                </div>
+                                            {/* Member Identity */}
+                                            <div className="col-12 col-sm-6">
+                                                <label className="figma-pass-label"><User size={11} /> Member Identity</label>
+                                                <div className="figma-pass-input-box">
+                                                    <input type="text" placeholder="Display name on card" value={cardFormData.name} onChange={e => setCardFormData({ ...cardFormData, name: e.target.value })} required />
+                                                </div>
+                                            </div>
 
-                                {/* Event Context */}
-                                <div className="col-12 col-sm-6">
-                                    <label className="figma-pass-label"><Sparkles size={11} /> Event Context</label>
-                                    <div className="figma-pass-input-box">
-                                        <input type="text" placeholder="Primary event title" value={cardFormData.festOrEventName} onChange={e => setCardFormData({ ...cardFormData, festOrEventName: e.target.value })} />
-                                    </div>
-                                </div>
+                                            {/* Event Context */}
+                                            <div className="col-12 col-sm-6">
+                                                <label className="figma-pass-label"><Sparkles size={11} /> Event Context</label>
+                                                <div className="figma-pass-input-box">
+                                                    <input type="text" placeholder="Primary event title" value={cardFormData.festOrEventName} onChange={e => setCardFormData({ ...cardFormData, festOrEventName: e.target.value })} />
+                                                </div>
+                                            </div>
 
-                                {/* Entity Branding */}
-                                <div className="col-12 col-sm-6">
-                                    <label className="figma-pass-label"><Building2 size={11} /> Entity Branding</label>
-                                    <div className="figma-pass-input-box">
-                                        <input type="text" placeholder="e.g. Blue Lagoon Entity" value={cardFormData.entityName} onChange={e => setCardFormData({ ...cardFormData, entityName: e.target.value })} />
-                                    </div>
-                                </div>
+                                            {/* Entity Branding */}
+                                            <div className="col-12 col-sm-6">
+                                                <label className="figma-pass-label"><Building2 size={11} /> Entity Branding</label>
+                                                <div className="figma-pass-input-box">
+                                                    <input type="text" placeholder="e.g. Blue Lagoon Entity" value={cardFormData.entityName} onChange={e => setCardFormData({ ...cardFormData, entityName: e.target.value })} />
+                                                </div>
+                                            </div>
 
-                                {/* Access Level */}
-                                <div className="col-12 col-sm-6">
-                                    <label className="figma-pass-label"><Crown size={11} /> Access Level</label>
-                                    <div className="figma-pass-input-box">
-                                        <select value={cardFormData.membershipType} onChange={e => setCardFormData({ ...cardFormData, membershipType: e.target.value })}>
-                                            <option value="Regular" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Volunteers</option>
-                                            <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime Member</option>
-                                            <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP Elite</option>
-                                            <option value="Admin" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrator</option>
-                                        </select>
-                                    </div>
-                                </div>
+                                            {/* Access Level */}
+                                            <div className="col-12 col-sm-6">
+                                                <label className="figma-pass-label"><Crown size={11} /> Access Level</label>
+                                                <div className="figma-pass-input-box">
+                                                    <select value={cardFormData.membershipType} onChange={e => setCardFormData({ ...cardFormData, membershipType: e.target.value })}>
+                                                        <option value="Regular" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Volunteers</option>
+                                                        <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime Member</option>
+                                                        <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP Elite</option>
+                                                        <option value="Admin" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrator</option>
+                                                    </select>
+                                                </div>
+                                            </div>
 
-                                {/* Group Size */}
-                                <div className="col-12 col-sm-4">
-                                    <label className="figma-pass-label"><Layers size={11} /> Group Size</label>
-                                    <div className="figma-pass-input-box">
-                                        <input type="number" min="0" value={cardFormData.familyMembers} onChange={e => setCardFormData({ ...cardFormData, familyMembers: e.target.value })} />
-                                    </div>
-                                </div>
+                                            {/* Group Size */}
+                                            <div className="col-12 col-sm-4">
+                                                <label className="figma-pass-label"><Layers size={11} /> Group Size</label>
+                                                <div className="figma-pass-input-box">
+                                                    <input type="number" min="0" value={cardFormData.familyMembers} onChange={e => setCardFormData({ ...cardFormData, familyMembers: e.target.value })} />
+                                                </div>
+                                            </div>
 
-                                {/* Effective From */}
-                                <div className="col-6 col-sm-4">
-                                    <label className="figma-pass-label"><Calendar size={11} /> Effective From</label>
-                                    <div className="figma-pass-input-box">
-                                        <input type="date" value={cardFormData.fromDate} onChange={e => setCardFormData({ ...cardFormData, fromDate: e.target.value })} />
-                                    </div>
-                                </div>
+                                            {/* Effective From */}
+                                            <div className="col-6 col-sm-4">
+                                                <label className="figma-pass-label"><Calendar size={11} /> Effective From</label>
+                                                <div className="figma-pass-input-box">
+                                                    <input type="date" value={cardFormData.fromDate} onChange={e => setCardFormData({ ...cardFormData, fromDate: e.target.value })} />
+                                                </div>
+                                            </div>
 
-                                {/* Expiry Date */}
-                                <div className="col-6 col-sm-4">
-                                    <label className="figma-pass-label"><Calendar size={11} /> Expiry Date</label>
-                                    <div className="figma-pass-input-box">
-                                        <input type="date" value={cardFormData.toDate} onChange={e => setCardFormData({ ...cardFormData, toDate: e.target.value })} />
-                                    </div>
-                                </div>
+                                            {/* Expiry Date */}
+                                            <div className="col-6 col-sm-4">
+                                                <label className="figma-pass-label"><Calendar size={11} /> Expiry Date</label>
+                                                <div className="figma-pass-input-box">
+                                                    <input type="date" value={cardFormData.toDate} onChange={e => setCardFormData({ ...cardFormData, toDate: e.target.value })} />
+                                                </div>
+                                            </div>
 
-                                {/* Buttons */}
-                                <div className="col-12 mt-3 pt-2 border-top border-secondary border-opacity-15 d-flex gap-2">
-                                    <button type="submit" className="figma-btn-generate-pass">
-                                        <Zap size={14} /> {editingCardId ? 'Authorize Card Updates' : 'Generate Digital Pass Identity'}
-                                    </button>
-                                    <button type="button" onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="figma-btn-abort-pass">
-                                        Cancel
-                                    </button>
+                                            {/* Submit & Cancel Buttons */}
+                                            <div className="col-12 mt-2 pt-2 border-top border-secondary border-opacity-15 d-flex gap-2">
+                                                <button type="submit" className="figma-btn-generate-pass">
+                                                    <Zap size={14} /> {editingCardId ? 'Authorize Card Updates' : 'Generate Digital Pass Identity'}
+                                                </button>
+                                                <button type="button" onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="figma-btn-abort-pass">
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </form>
                         </motion.div>
