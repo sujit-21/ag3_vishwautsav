@@ -28,24 +28,38 @@ export const FIGMA_COLORS = {
 }
 
 /**
+ * Robust Amount Parser that strips currency symbols ('Rs.', 'Rs', 'INR', '₹') safely
+ * without turning leading 'Rs.' into a decimal point (.1000)
+ */
+export const parseAmount = (val) => {
+    if (typeof val === 'number') return val
+    const clean = String(val || 0)
+        .replace(/Rs\.?/gi, '')
+        .replace(/INR/gi, '')
+        .replace(/[₹$,]/g, '')
+        .trim()
+    return parseFloat(clean) || 0
+}
+
+/**
  * Format Currency String
  */
 export const fmtCurrency = (val) => {
-    const num = Number(String(val || 0).replace(/[^0-9.]/g, '')) || 0
+    const num = parseAmount(val)
     return `Rs. ${num.toLocaleString('en-IN')}`
 }
 
 /**
  * Mint-Light Amount Badges based on specific user-requested tiers:
  * - <= 101           : Soft Mint Slate (#F1F5F9) / Deep Slate (#475569)
- * - Above 101 - 251  : Mint-Light Blue (#E0F2FE) / Deep Sky Blue (#0369A1)
+ * - Above 101 - 251  : Mint-Light Blue (#DBEAFE) / Deep Sky Blue (#1D4ED8)
  * - Above 251 - 501  : Mint-Light Green (#D1FAE5) / Forest Emerald (#047857)
- * - Above 501 - 1001 : Mint-Light Yellow (#FEF3C7) / Rich Amber (#B45309)
+ * - Above 501 - 1001 : Mint-Light Yellow (#FEF08A) / Rich Amber (#A16207)
  * - Above 1001 - 2001: Mint-Light Orange (#FFEDD5) / Vivid Terracotta (#C2410C)
  * - Above 2001 (High): Mint-Light Purple (#F3E8FF) / Royal Purple (#6D28D9)
  */
 export const getAmountBadge = (val) => {
-    const num = Number(String(val || 0).replace(/[^0-9.]/g, '')) || 0
+    const num = parseAmount(val)
     if (num <= 101) {
         return {
             fillColor: [241, 245, 249],  // #F1F5F9 Soft Mint Slate
@@ -54,8 +68,8 @@ export const getAmountBadge = (val) => {
         }
     } else if (num <= 251) {
         return {
-            fillColor: [224, 242, 254],  // #E0F2FE Mint-Light Blue
-            textColor: [3, 105, 161],    // #0369A1 Deep Sky Blue
+            fillColor: [219, 234, 254],  // #DBEAFE Mint-Light Blue
+            textColor: [29, 78, 216],    // #1D4ED8 Deep Sky Blue
             label: '101 - 251'
         }
     } else if (num <= 501) {
@@ -66,8 +80,8 @@ export const getAmountBadge = (val) => {
         }
     } else if (num <= 1001) {
         return {
-            fillColor: [254, 243, 199],  // #FEF3C7 Mint-Light Yellow
-            textColor: [180, 83, 9],     // #B45309 Rich Amber
+            fillColor: [254, 240, 138],  // #FEF08A Mint-Light Yellow
+            textColor: [161, 98, 7],     // #A16207 Rich Amber
             label: '501 - 1001'
         }
     } else if (num <= 2001) {
@@ -179,9 +193,10 @@ const applyBadgeStyles = (data, { nameColIndices = [], paymentColIndex = -1, tie
     }
 
     // 4. Amount Column: Styled with Mint-Light background & matching text color as per Amount!
-    if (data.column.index === amountColIndex && cellText && cellText !== '—' && badge) {
-        data.cell.styles.fillColor = badge.fillColor
-        data.cell.styles.textColor = badge.textColor
+    if (data.column.index === amountColIndex && cellText && cellText !== '—') {
+        const amtBadge = badge || getAmountBadge(cellText)
+        data.cell.styles.fillColor = amtBadge.fillColor
+        data.cell.styles.textColor = amtBadge.textColor
         data.cell.styles.fontStyle = 'bold'
         data.cell.styles.halign = 'right'
     }
