@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './Festivals.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Receipt, Banknote, Clock, Hash, FileText, Layers, Smartphone, QrCode } from 'lucide-react'
+import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Clock, Hash, FileText, Layers, Smartphone, QrCode } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -2128,7 +2128,7 @@ const Festivals = () => {
                     <div className="figma-expense-header">
                         <div className="d-flex align-items-center gap-2.5">
                             <div className="figma-expense-icon-badge shadow-sm">
-                                <Receipt size={20} />
+                                <span style={{ fontSize: '1.35rem', lineHeight: 1, userSelect: 'none' }} role="img" aria-label="Receipt">🧾</span>
                             </div>
                             <div>
                                 <div className="d-flex align-items-center gap-2">
@@ -2244,7 +2244,7 @@ const Festivals = () => {
                             <div className="figma-expense-form-header">
                                 <div className="d-flex align-items-center gap-2">
                                     <div className="figma-expense-icon-badge" style={{ width: '32px', height: '32px', borderRadius: '10px' }}>
-                                        {editingExpId ? <Edit3 size={15} /> : <Receipt size={15} />}
+                                        {editingExpId ? <Edit3 size={15} /> : <span style={{ fontSize: '1.05rem', lineHeight: 1, userSelect: 'none' }} role="img" aria-label="Receipt">🧾</span>}
                                     </div>
                                     <div>
                                         <h6 className="fw-bold mb-0 text-main" style={{ fontSize: '0.92rem' }}>
