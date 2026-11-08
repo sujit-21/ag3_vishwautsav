@@ -238,10 +238,22 @@ const Home = () => {
                     >
                         <div className="d-flex align-items-center justify-content-between mb-3 px-1 flex-wrap gap-2">
                             <div className="d-flex align-items-center gap-2">
-                                <span className="figma-live-radar-badge">
-                                    <span className="live-dot live-dot-active"></span>
-                                    <span>Broadcasting Live</span>
-                                </span>
+                                {liveCelebrations.every(c => c.type === 'festival') ? (
+                                    <span className="figma-fest-spotlight-badge">
+                                        <Sparkles size={13} />
+                                        <span>Grand Celebrations</span>
+                                    </span>
+                                ) : liveCelebrations.every(c => c.type === 'event') ? (
+                                    <span className="figma-live-radar-badge">
+                                        <span className="live-dot live-dot-active"></span>
+                                        <span>Broadcasting Live</span>
+                                    </span>
+                                ) : (
+                                    <span className="figma-live-radar-badge">
+                                        <span className="live-dot live-dot-active"></span>
+                                        <span>Live Events &amp; Celebrations</span>
+                                    </span>
+                                )}
                                 <span className="badge bg-secondary bg-opacity-10 text-muted rounded-pill px-2.5 py-1 extra-tiny fw-bold uppercase ls-1">
                                     {liveCelebrations.length} Active {liveCelebrations.length === 1 ? 'Celebration' : 'Celebrations'}
                                 </span>
@@ -264,14 +276,21 @@ const Home = () => {
                                             {/* Decorative ambient flare */}
                                             <div className="figma-live-ambient-glow" />
 
-                                            <div className="position-relative z-1">
+                                             <div className="position-relative z-1">
                                                 {/* Top Header Bar */}
                                                 <div className="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-3">
                                                     <div className="d-flex align-items-center gap-2 flex-wrap">
-                                                        <span className="badge bg-danger text-white rounded-pill extra-tiny px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 shadow-xs">
-                                                            <span className="live-dot live-dot-active" style={{ width: '6px', height: '6px' }}></span>
-                                                            LIVE NOW
-                                                        </span>
+                                                        {isFest ? (
+                                                            <span className="badge rounded-pill extra-tiny px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 shadow-xs" style={{ background: 'linear-gradient(135deg, #f59e0b, #ea580c)', color: '#ffffff' }}>
+                                                                <Sparkles size={10} />
+                                                                CELEBRATING NOW
+                                                            </span>
+                                                        ) : (
+                                                            <span className="badge bg-danger text-white rounded-pill extra-tiny px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 shadow-xs">
+                                                                <span className="live-dot live-dot-active" style={{ width: '6px', height: '6px' }}></span>
+                                                                BROADCASTING LIVE
+                                                            </span>
+                                                        )}
                                                         <span className="badge bg-secondary bg-opacity-15 text-main rounded-pill extra-tiny px-2 py-1 fw-bold uppercase">
                                                             {isFest ? 'Festival' : 'Event'}
                                                         </span>
@@ -325,10 +344,21 @@ const Home = () => {
                                             {/* Card Bottom CTA */}
                                             <div className="position-relative z-1 pt-3 border-top border-secondary border-opacity-10 d-flex align-items-center justify-content-between flex-wrap gap-2 mt-2">
                                                 <div className="d-flex align-items-center gap-2">
-                                                    <span className="live-dot live-dot-active"></span>
-                                                    <span className="extra-tiny text-muted fw-semibold">
-                                                        Public Access Open • Live Registrations & Passes Active
-                                                    </span>
+                                                    {isFest ? (
+                                                        <>
+                                                            <Sparkles size={13} className="text-warning flex-shrink-0" />
+                                                            <span className="extra-tiny text-muted fw-semibold">
+                                                                Grand Gathering • Subscriptions &amp; Festive Passes Active
+                                                            </span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <span className="live-dot live-dot-active"></span>
+                                                            <span className="extra-tiny text-muted fw-semibold">
+                                                                Public Access Open • Live Registrations &amp; Passes Active
+                                                            </span>
+                                                        </>
+                                                    )}
                                                 </div>
 
                                                 <Link 

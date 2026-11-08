@@ -1451,21 +1451,21 @@ const Festivals = () => {
 
                                             {/* Right Side: Actions */}
                                             <div className="d-flex align-items-center gap-2 ms-lg-auto border-top border-lg-0 pt-2 pt-lg-0 border-secondary border-opacity-10 mt-2 mt-lg-0 flex-wrap">
-                                                {/* Go Live Toggle Button */}
+                                                {/* Spotlight Festival Button */}
                                                 {user?.role === 'admin' && (
                                                     <button
                                                         type="button"
                                                         onClick={(e) => { e.stopPropagation(); handleToggleLive(fest); }}
                                                         className={`btn btn-sm d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded-pill fw-bold transition-all shadow-xs ${
                                                             fest.isLive 
-                                                                ? 'btn-danger text-white live-pulse-badge' 
+                                                                ? 'btn-warning text-dark border-warning' 
                                                                 : 'btn-outline-secondary text-muted'
                                                         }`}
                                                         style={{ fontSize: '0.72rem' }}
-                                                        title={fest.isLive ? 'Broadcasting LIVE on Home Tab. Click to turn OFF.' : 'Click to broadcast LIVE on Home Tab.'}
+                                                        title={fest.isLive ? 'Spotlighted in Grand Celebrations on Home Tab. Click to remove.' : 'Click to feature this festival in Grand Celebrations on Home Tab.'}
                                                     >
-                                                        <span className={`live-dot ${fest.isLive ? 'live-dot-active' : ''}`}></span>
-                                                        <span>{fest.isLive ? 'LIVE ON HOME' : 'Go Live'}</span>
+                                                        <Sparkles size={11} className={fest.isLive ? 'text-dark' : 'text-warning'} />
+                                                        <span>{fest.isLive ? 'FEATURED UTSAV' : 'Spotlight on Home'}</span>
                                                     </button>
                                                 )}
 
@@ -3053,24 +3053,24 @@ const Festivals = () => {
                                         </div>
                                     </div>
 
-                                    {/* Go Live on Home Switch */}
+                                    {/* Spotlight on Home Switch */}
                                     <div className="col-12">
-                                        <div className="d-flex align-items-center justify-content-between p-3 rounded-3 border" style={{ background: formData.isLive ? 'rgba(239, 68, 68, 0.08)' : 'var(--input-bg)', borderColor: formData.isLive ? '#ef4444' : 'var(--glass-border)' }}>
+                                        <div className="d-flex align-items-center justify-content-between p-3 rounded-3 border" style={{ background: formData.isLive ? 'rgba(245, 158, 11, 0.08)' : 'var(--input-bg)', borderColor: formData.isLive ? '#f59e0b' : 'var(--glass-border)' }}>
                                             <div className="d-flex align-items-center gap-2.5">
-                                                <div className={`p-2 rounded-circle ${formData.isLive ? 'bg-danger text-white' : 'bg-secondary bg-opacity-10 text-muted'}`}>
-                                                    <Radio size={16} />
+                                                <div className={`p-2 rounded-circle ${formData.isLive ? 'bg-warning text-dark shadow-sm' : 'bg-secondary bg-opacity-10 text-muted'}`}>
+                                                    <Sparkles size={16} />
                                                 </div>
                                                 <div>
                                                     <div className="fw-bold text-main d-flex align-items-center gap-2" style={{ fontSize: '0.88rem' }}>
-                                                        <span>Broadcast LIVE to Home Tab</span>
+                                                        <span>Spotlight Celebration on Home Tab</span>
                                                         {formData.isLive && (
-                                                            <span className="badge bg-danger text-white rounded-pill extra-tiny px-2 py-0.5 fw-bold">
-                                                                🔴 LIVE NOW
+                                                            <span className="badge bg-warning text-dark rounded-pill extra-tiny px-2 py-0.5 fw-bold">
+                                                                ✨ CELEBRATING NOW
                                                             </span>
                                                         )}
                                                     </div>
                                                     <div className="text-muted extra-tiny">
-                                                        When active, all visitors on the Home page will see this festival as ongoing under "{formData.entityName || 'your entity'}" from {formData.startDate || 'start'} to {formData.endDate || 'end'}.
+                                                        When active, visitors on the Home page will see this grand festival highlighted under "{formData.entityName || 'your entity'}" from {formData.startDate || 'start'} to {formData.endDate || 'end'}.
                                                     </div>
                                                 </div>
                                             </div>

@@ -2940,6 +2940,28 @@ html, body, #root, .app-container {
     text-transform: uppercase;
 }
 
+.figma-fest-spotlight-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(234, 88, 12, 0.14));
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    color: #d97706;
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.dark-mode .figma-fest-spotlight-badge,
+[data-theme='dark'] .figma-fest-spotlight-badge {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(234, 88, 12, 0.25)) !important;
+    border-color: rgba(245, 158, 11, 0.55) !important;
+    color: #fde047 !important;
+}
+
 .figma-live-entity-pill {
     display: inline-flex;
     align-items: center;
