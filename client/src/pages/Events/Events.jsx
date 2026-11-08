@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './Events.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, ShieldCheck, Lock, User, IndianRupee, Crown, CreditCard, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Hash, FileText, Layers, Smartphone, QrCode, Building2 } from 'lucide-react'
+import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, ShieldCheck, Lock, User, IndianRupee, Crown, CreditCard, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Hash, FileText, Layers, Smartphone, QrCode, Building2, Wallet, TrendingUp, Receipt, ArrowDownRight, ArrowUpRight, Scale, ChevronRight } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -1168,77 +1168,130 @@ const Events = () => {
             {isDataOpen && (
                 <div 
                     className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" 
-                    style={{ zIndex: 100000, background: 'rgba(0, 0, 0, 0.65)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+                    style={{ zIndex: 100000, background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }}
                     onClick={() => setIsDataOpen(false)}
                 >
                     <div 
-                        className="glass-card shadow-2xl p-3 p-sm-4 rounded-4 border data-dropdown-menu" 
-                        style={{ width: "340px", maxWidth: "92vw", background: 'var(--secondary-bg)', borderColor: 'var(--glass-border)' }}
+                        className="figma-reports-modal p-3 p-sm-4 shadow-2xl" 
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="d-flex justify-content-between align-items-center pb-2.5 mb-3 border-bottom border-secondary border-opacity-25">
-                            <div className="d-flex align-items-center gap-2">
-                                <Download size={17} className="text-warning" />
-                                <span className="fw-bold small text-main text-uppercase ls-1">Data Reports</span>
+                        {/* Header */}
+                        <div className="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom border-secondary border-opacity-15">
+                            <div className="d-flex align-items-center gap-2.5">
+                                <div className="figma-report-icon" style={{ background: 'linear-gradient(135deg, #E07A43, #D95A22)', color: '#ffffff', width: '36px', height: '36px', borderRadius: '10px' }}>
+                                    <Download size={18} />
+                                </div>
+                                <div>
+                                    <h6 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.02em', fontSize: '0.98rem' }}>Data Reports</h6>
+                                    <p className="text-muted extra-tiny mb-0">Audit-grade export hub</p>
+                                </div>
                             </div>
                             <div className="d-flex align-items-center gap-1.5">
                                 {activeEvent && (
-                                    <span className="badge bg-primary bg-opacity-25 text-primary text-truncate" style={{ maxWidth: "120px" }}>
+                                    <span className="badge bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 rounded-pill px-2.5 py-1 extra-tiny fw-bold text-truncate" style={{ maxWidth: "120px" }}>
                                         {activeEvent.title}
                                     </span>
                                 )}
                                 <button 
                                     type="button" 
-                                    className="btn btn-sm btn-link p-0 text-muted ms-1 text-decoration-none d-flex align-items-center" 
+                                    className="btn btn-sm p-1 rounded-circle bg-secondary bg-opacity-10 text-muted hover-text-main border-0 ms-1 d-flex align-items-center justify-content-center" 
                                     onClick={() => setIsDataOpen(false)}
                                     aria-label="Close"
                                 >
-                                    <X size={18} />
+                                    <X size={16} />
                                 </button>
                             </div>
                         </div>
+
                         {activeEvent ? (
-                            <div className="d-flex flex-column gap-2">
+                            <div className="d-flex flex-column gap-2.5">
+                                {/* Attendee PDF Tile */}
                                 <button
-                                    className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item"
+                                    className="figma-report-tile"
                                     onClick={() => { downloadAllAttendeesPDF(); setIsDataOpen(false); }}
-                                    style={{ fontSize: "0.82rem" }}
                                 >
-                                    <span className="d-flex align-items-center gap-2"><FileDown size={15} className="text-primary" /> Attendee PDF</span>
+                                    <div className="d-flex align-items-center gap-2.5">
+                                        <div className="figma-report-icon" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6' }}>
+                                            <Users size={16} />
+                                        </div>
+                                        <div>
+                                            <div className="fw-extrabold text-main" style={{ fontSize: '0.82rem' }}>Attendee Directory</div>
+                                            <div className="text-muted extra-tiny">Complete guest &amp; volunteer roster</div>
+                                        </div>
+                                    </div>
+                                    <FileDown size={16} className="text-primary flex-shrink-0" />
                                 </button>
+
+                                {/* All Expenses PDF Tile */}
                                 <button
-                                    className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item"
+                                    className="figma-report-tile"
                                     onClick={() => { downloadAllExpensesPDF(); setIsDataOpen(false); }}
-                                    style={{ fontSize: "0.82rem" }}
                                 >
-                                    <span className="d-flex align-items-center gap-2"><FileDown size={15} className="text-danger" /> All Expenses PDF</span>
+                                    <div className="d-flex align-items-center gap-2.5">
+                                        <div className="figma-report-icon" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}>
+                                            <Receipt size={16} />
+                                        </div>
+                                        <div>
+                                            <div className="fw-extrabold text-main" style={{ fontSize: '0.82rem' }}>All Expenses Ledger</div>
+                                            <div className="text-muted extra-tiny">Itemized receipts &amp; payments</div>
+                                        </div>
+                                    </div>
+                                    <FileDown size={16} className="text-danger flex-shrink-0" />
                                 </button>
+
+                                {/* BalanceSheet PDF Tile */}
                                 <button
-                                    className="btn btn-sm w-100 text-start py-2 px-2.5 rounded-2 fw-semibold d-flex align-items-center justify-content-between data-dropdown-item"
+                                    className="figma-report-tile"
                                     onClick={() => { downloadBalanceSheetPDF(); setIsDataOpen(false); }}
-                                    style={{ fontSize: "0.82rem" }}
                                 >
-                                    <span className="d-flex align-items-center gap-2"><FileDown size={15} className="text-success" /> BalanceSheet PDF</span>
+                                    <div className="d-flex align-items-center gap-2.5">
+                                        <div className="figma-report-icon" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#10b981' }}>
+                                            <Scale size={16} />
+                                        </div>
+                                        <div>
+                                            <div className="fw-extrabold text-main" style={{ fontSize: '0.82rem' }}>BalanceSheet Audit</div>
+                                            <div className="text-muted extra-tiny">Consolidated financial overview</div>
+                                        </div>
+                                    </div>
+                                    <FileDown size={16} className="text-success flex-shrink-0" />
                                 </button>
-                                <div className="dropdown-divider my-1 border-secondary border-opacity-25"></div>
+
+                                <div className="d-flex align-items-center my-1.5">
+                                    <div className="border-top border-secondary border-opacity-15 flex-grow-1"></div>
+                                    <span className="extra-tiny text-muted px-2 fw-extrabold uppercase tracking-wider" style={{ fontSize: '0.62rem' }}>
+                                        ✦ Master Export Bundle
+                                    </span>
+                                    <div className="border-top border-secondary border-opacity-15 flex-grow-1"></div>
+                                </div>
+
+                                {/* Master Data PDF CTA Button */}
                                 <button
-                                    className="btn btn-sm w-100 text-start text-white py-2.5 px-3 rounded-2 fw-bold d-flex align-items-center justify-content-between shadow-sm"
+                                    className="figma-btn-master-pdf"
                                     onClick={() => { downloadMasterDataPDF(); setIsDataOpen(false); }}
-                                    style={{ fontSize: "0.82rem", background: "linear-gradient(135deg, #4f46e5, #9333ea)" }}
                                 >
-                                    <span className="d-flex align-items-center gap-2"><Sparkles size={15} className="text-warning" /> MASTER DATA PDF</span>
+                                    <span className="d-flex align-items-center gap-2">
+                                        <Sparkles size={16} className="text-warning" />
+                                        <span>MASTER DATA PDF</span>
+                                    </span>
+                                    <span className="badge bg-white bg-opacity-20 text-white rounded-pill px-2 py-0.5 extra-tiny fw-bold">
+                                        Complete Roster
+                                    </span>
                                 </button>
                             </div>
                         ) : (
-                            <div className="py-3 px-1 text-center">
-                                <small className="text-muted d-block mb-3" style={{ fontSize: "0.82rem" }}>
-                                    Select an event from the directory to export data reports.
-                                </small>
+                            <div className="py-4 px-2 text-center">
+                                <div className="p-3 rounded-circle bg-warning bg-opacity-10 text-warning d-inline-flex mb-3">
+                                    <Info size={24} />
+                                </div>
+                                <h6 className="fw-extrabold text-main mb-1" style={{ fontSize: '0.92rem' }}>No Active Selection</h6>
+                                <p className="text-muted extra-tiny mb-3">
+                                    Select an event from the directory to export certified audit reports.
+                                </p>
                                 <button
-                                    className="btn btn-sm btn-outline-primary py-1.5 px-3 rounded-pill w-100 small fw-bold"
+                                    className="btn btn-sm btn-outline-primary py-2 px-3 rounded-pill w-100 extra-tiny fw-bold"
                                     onClick={() => { setActiveTab("events"); setIsDataOpen(false); }}
                                 >
-                                    View Events Directory
+                                    Open Directory
                                 </button>
                             </div>
                         )}
@@ -2734,93 +2787,202 @@ const Events = () => {
                     .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0)
 
                 const netBalance = totalCollection - totalExpenses
+                const cashPaidAmt = (subscriptionsList || []).filter(s => s.paymentType === 'Cash & Paid').reduce((a, b) => a + (Number(b.amount) || 0), 0)
+                const onlineAmt = (subscriptionsList || []).filter(s => s.paymentType === 'Online').reduce((a, b) => a + (Number(b.amount) || 0), 0)
+                const couponAmt = (subscriptionsList || []).filter(s => s.paymentType === 'Coupon or Token').reduce((a, b) => a + (Number(b.amount) || 0), 0)
 
                 return (
                     <div className="py-2 animate-in">
-                        <div className="mb-4">
-                            <h3 className="fw-bold mb-1">Financial Overview</h3>
-                            <p className="text-muted small">Summary of collections, dues, and expenses for <span className="text-primary fw-bold">{activeEvent?.title}</span>.</p>
-                        </div>
-
-                        <div className="row g-4">
-                            <div className="col-md-3">
-                                <div className="glass-card p-4 border-top border-success border-4 shadow-premium h-100">
-                                    <h6 className="text-muted small text-uppercase mb-2 fw-extrabold">Total Collection</h6>
-                                    <h2 className="fw-extrabold text-success mb-0">₹{totalCollection.toLocaleString()}</h2>
-                                    <small className="text-muted fw-bold">Verified Revenue</small>
+                        {/* Figma Modern Financial Header */}
+                        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                            <div className="d-flex align-items-center gap-3">
+                                <div className="figma-finance-header-emblem">
+                                    <TrendingUp size={22} />
+                                </div>
+                                <div>
+                                    <h4 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.02em' }}>Financial Overview</h4>
+                                    <p className="text-muted extra-tiny mb-0">
+                                        Comprehensive audit ledger for <span className="text-primary fw-bold">{activeEvent?.title}</span>
+                                    </p>
                                 </div>
                             </div>
-                            <div className="col-md-3">
-                                <div className="glass-card p-4 border-top border-warning border-4 shadow-premium h-100">
-                                    <h6 className="text-muted small text-uppercase mb-2 fw-extrabold">Total Dues</h6>
-                                    <h2 className="fw-extrabold text-warning mb-0">₹{totalDues.toLocaleString()}</h2>
-                                    <small className="text-muted fw-bold">Pending Clearance</small>
-                                </div>
-                            </div>
-                            <div className="col-md-3">
-                                <div className="glass-card p-4 border-top border-danger border-4 shadow-premium h-100">
-                                    <h6 className="text-muted small text-uppercase mb-2 fw-extrabold">Total Expenses</h6>
-                                    <h2 className="fw-extrabold text-danger mb-0">₹{totalExpenses.toLocaleString()}</h2>
-                                    <small className="text-muted fw-bold">Resource Spending</small>
-                                </div>
-                            </div>
-                            <div className="col-md-3">
-                                <div className="glass-card p-4 border-top border-primary border-4 shadow-premium h-100">
-                                    <h6 className="text-muted small text-uppercase mb-2 fw-extrabold">Net Balance</h6>
-                                    <h2 className={`fw-extrabold mb-0 ${netBalance >= 0 ? 'text-primary' : 'text-danger'}`}>
-                                        ₹{netBalance.toLocaleString()}
-                                    </h2>
-                                    <small className="text-muted fw-bold">Profit/Loss Margin</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="glass-card p-4 mt-5">
-                            <div className="d-flex justify-content-between align-items-center mb-4">
-                                <h5 className="fw-bold mb-0">Detailed Financial Breakdown</h5>
-                                <button onClick={downloadBalanceSheetPDF} className="btn btn-outline-success d-flex align-items-center gap-2">
-                                    <FileDown size={18} /> BalanceSheet Pdf Download
+                            <div className="d-flex align-items-center gap-2">
+                                <span className="figma-pass-count-pill shadow-xs">
+                                    <Sparkles size={11} /> Real-Time Ledger
+                                </span>
+                                <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet">
+                                    <FileDown size={15} /> BalanceSheet PDF
                                 </button>
                             </div>
-                            <div className="row">
-                                <div className="col-md-6 border-end border-secondary border-opacity-10">
-                                    <h6 className="text-muted mb-3 small fw-bold">SUBSCRIPTION INCOME</h6>
-                                    <div className="d-flex justify-content-between mb-2">
-                                        <span>Cash &amp; Paid:</span>
-                                        <span className="fw-bold text-success">₹{(subscriptionsList || []).filter(s => s.paymentType === 'Cash & Paid').reduce((a, b) => a + (Number(b.amount) || 0), 0).toLocaleString()}</span>
-                                    </div>
-                                    <div className="d-flex justify-content-between mb-2">
-                                        <span>Online Payments:</span>
-                                        <span className="fw-bold text-info">₹{(subscriptionsList || []).filter(s => s.paymentType === 'Online').reduce((a, b) => a + (Number(b.amount) || 0), 0).toLocaleString()}</span>
-                                    </div>
-                                    <div className="d-flex justify-content-between mb-2">
-                                        <span>Coupon/Token:</span>
-                                        <span className="fw-bold text-muted">₹{(subscriptionsList || []).filter(s => s.paymentType === 'Coupon or Token').reduce((a, b) => a + (Number(b.amount) || 0), 0).toLocaleString()}</span>
-                                    </div>
-                                    <div className="border-top border-secondary border-opacity-10 mt-3 pt-2 font-monospace">
-                                        <div className="d-flex justify-content-between">
-                                            <span>TOTAL INCOME:</span>
-                                            <span className="fw-bold">₹{totalCollection.toLocaleString()}</span>
+                        </div>
+
+                        {/* 4 Bento KPI Metric Cards */}
+                        <div className="row g-3 g-xl-4">
+                            {/* Card 1: Total Collection */}
+                            <div className="col-12 col-sm-6 col-xl-3">
+                                <div className="figma-finance-card card-collection">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <span className="figma-pass-label mb-0">Total Collection</span>
+                                        <div className="figma-finance-icon-box icon-collection">
+                                            <Wallet size={18} />
                                         </div>
                                     </div>
+                                    <div className="figma-finance-value text-success">
+                                        ₹{totalCollection.toLocaleString()}
+                                    </div>
+                                    <div className="d-flex align-items-center justify-content-between mt-auto pt-2 border-top border-secondary border-opacity-10">
+                                        <span className="extra-tiny text-muted fw-bold">Verified Revenue</span>
+                                        <span className="figma-finance-tag" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#10b981' }}>
+                                            <CheckCircle size={10} /> Inflow
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="col-md-6 ps-md-4">
-                                    <h6 className="text-muted mb-3 small fw-bold">EXPENSE CATEGORIES</h6>
+                            </div>
+
+                            {/* Card 2: Total Dues */}
+                            <div className="col-12 col-sm-6 col-xl-3">
+                                <div className="figma-finance-card card-dues">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <span className="figma-pass-label mb-0">Total Dues</span>
+                                        <div className="figma-finance-icon-box icon-dues">
+                                            <Clock size={18} />
+                                        </div>
+                                    </div>
+                                    <div className="figma-finance-value text-warning">
+                                        ₹{totalDues.toLocaleString()}
+                                    </div>
+                                    <div className="d-flex align-items-center justify-content-between mt-auto pt-2 border-top border-secondary border-opacity-10">
+                                        <span className="extra-tiny text-muted fw-bold">Pending Clearance</span>
+                                        <span className="figma-finance-tag" style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#d97706' }}>
+                                            Pending
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Card 3: Total Expenses */}
+                            <div className="col-12 col-sm-6 col-xl-3">
+                                <div className="figma-finance-card card-expenses">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <span className="figma-pass-label mb-0">Total Expenses</span>
+                                        <div className="figma-finance-icon-box icon-expenses">
+                                            <Receipt size={18} />
+                                        </div>
+                                    </div>
+                                    <div className="figma-finance-value text-danger">
+                                        ₹{totalExpenses.toLocaleString()}
+                                    </div>
+                                    <div className="d-flex align-items-center justify-content-between mt-auto pt-2 border-top border-secondary border-opacity-10">
+                                        <span className="extra-tiny text-muted fw-bold">Resource Spending</span>
+                                        <span className="figma-finance-tag" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}>
+                                            <ArrowUpRight size={10} /> Outflow
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Card 4: Net Balance */}
+                            <div className="col-12 col-sm-6 col-xl-3">
+                                <div className="figma-finance-card card-balance">
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <span className="figma-pass-label mb-0">Net Balance</span>
+                                        <div className="figma-finance-icon-box icon-balance">
+                                            <Scale size={18} />
+                                        </div>
+                                    </div>
+                                    <div className={`figma-finance-value ${netBalance >= 0 ? 'text-primary' : 'text-danger'}`}>
+                                        ₹{netBalance.toLocaleString()}
+                                    </div>
+                                    <div className="d-flex align-items-center justify-content-between mt-auto pt-2 border-top border-secondary border-opacity-10">
+                                        <span className="extra-tiny text-muted fw-bold">Profit/Loss Margin</span>
+                                        <span className="figma-finance-tag" style={{ background: netBalance >= 0 ? 'rgba(59, 130, 246, 0.12)' : 'rgba(239, 68, 68, 0.12)', color: netBalance >= 0 ? '#3b82f6' : '#ef4444' }}>
+                                            {netBalance >= 0 ? 'Surplus' : 'Deficit'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Figma Detailed Breakdown Canvas */}
+                        <div className="figma-breakdown-card">
+                            <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                                <div>
+                                    <h5 className="fw-extrabold mb-1 text-main" style={{ letterSpacing: '-0.02em' }}>Detailed Financial Breakdown</h5>
+                                    <p className="text-muted extra-tiny mb-0">Itemized comparative audit between inflow sources and expense allocations.</p>
+                                </div>
+                                <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet">
+                                    <FileDown size={14} /> Download Ledger
+                                </button>
+                            </div>
+                            <div className="row g-4">
+                                {/* Left Column: Subscription Income */}
+                                <div className="col-12 col-lg-6">
+                                    <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-secondary border-opacity-15">
+                                        <span className="figma-pass-label mb-0 text-success">
+                                            <ArrowDownRight size={13} className="text-success" /> SUBSCRIPTION INCOME
+                                        </span>
+                                        <span className="extra-tiny text-muted fw-bold">3 Inflow Channels</span>
+                                    </div>
+                                    <div className="figma-ledger-row">
+                                        <span className="d-flex align-items-center gap-2 extra-tiny fw-bold">
+                                            <Banknote size={14} className="text-success" /> Cash &amp; Paid:
+                                        </span>
+                                        <span className="fw-extrabold text-success font-monospace" style={{ fontSize: '0.86rem' }}>
+                                            ₹{cashPaidAmt.toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="figma-ledger-row">
+                                        <span className="d-flex align-items-center gap-2 extra-tiny fw-bold">
+                                            <CreditCard size={14} className="text-info" /> Online Payments:
+                                        </span>
+                                        <span className="fw-extrabold text-info font-monospace" style={{ fontSize: '0.86rem' }}>
+                                            ₹{onlineAmt.toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="figma-ledger-row">
+                                        <span className="d-flex align-items-center gap-2 extra-tiny fw-bold">
+                                            <Tag size={14} className="text-warning" /> Coupon / Token:
+                                        </span>
+                                        <span className="fw-extrabold text-muted font-monospace" style={{ fontSize: '0.86rem' }}>
+                                            ₹{couponAmt.toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="figma-ledger-total-box mt-3">
+                                        <span className="fw-extrabold text-main extra-tiny uppercase tracking-wider">TOTAL INCOME</span>
+                                        <span className="fw-extrabold text-success font-monospace" style={{ fontSize: '1.05rem' }}>
+                                            ₹{totalCollection.toLocaleString()}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Right Column: Expense Categories */}
+                                <div className="col-12 col-lg-6">
+                                    <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-secondary border-opacity-15">
+                                        <span className="figma-pass-label mb-0 text-danger">
+                                            <Receipt size={13} className="text-danger" /> EXPENSE CATEGORIES
+                                        </span>
+                                        <span className="extra-tiny text-muted fw-bold">Categorized Outflows</span>
+                                    </div>
                                     {eventExpenseTypes.map(type => {
                                         const amt = (expensesList || []).filter(e => e.expenseType === type).reduce((a, b) => a + (Number(b.amount) || 0), 0)
                                         if (amt === 0) return null
                                         return (
-                                            <div key={type} className="d-flex justify-content-between mb-2 text-capitalize">
-                                                <span>{type}:</span>
-                                                <span className="text-danger">₹{amt.toLocaleString()}</span>
+                                            <div key={type} className="figma-ledger-row">
+                                                <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-capitalize">
+                                                    <span className="p-1 rounded-circle bg-danger bg-opacity-10 d-inline-block" style={{ width: '6px', height: '6px' }}></span>
+                                                    {type}:
+                                                </span>
+                                                <span className="fw-extrabold text-danger font-monospace" style={{ fontSize: '0.86rem' }}>
+                                                    ₹{amt.toLocaleString()}
+                                                </span>
                                             </div>
                                         )
                                     })}
-                                    <div className="border-top border-secondary border-opacity-10 mt-3 pt-2 font-monospace">
-                                        <div className="d-flex justify-content-between">
-                                            <span>TOTAL EXPENSE:</span>
-                                            <span className="fw-bold">₹{totalExpenses.toLocaleString()}</span>
-                                        </div>
+                                    <div className="figma-ledger-total-box mt-3">
+                                        <span className="fw-extrabold text-main extra-tiny uppercase tracking-wider">TOTAL EXPENSE</span>
+                                        <span className="fw-extrabold text-danger font-monospace" style={{ fontSize: '1.05rem' }}>
+                                            ₹{totalExpenses.toLocaleString()}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
