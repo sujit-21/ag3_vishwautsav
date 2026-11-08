@@ -4,7 +4,7 @@ import './Navbar.css'
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom'
 import {
     User, Menu, X, LogOut, ChevronRight, Sun, Moon, ChevronDown,
-    Calendar, Ticket, DollarSign, CreditCard, FileSpreadsheet,
+    Calendar, Ticket, Receipt, CreditCard, FileSpreadsheet,
     Sparkles, Home as HomeIcon, MessageSquare, LayoutDashboard, Settings,
     Image as ImageIcon, Building2, ShieldCheck, UserCheck, RefreshCw, LogIn,
     UserPlus, Download, History
@@ -18,7 +18,7 @@ const festivalSubTabs = [
     { id: 'festivals', label: 'All Festivals', sub: 'Directory & management', icon: Calendar, path: '/festivals?tab=festivals' },
     { id: 'new_attendee', label: '+ New Attendee', sub: 'Quick register attendee', icon: UserPlus, path: '/festivals?tab=new_attendee', isAction: true },
     { id: 'subscriptions', label: 'Attendees & Passes', sub: 'Registration roster', icon: Ticket, path: '/festivals?tab=subscriptions' },
-    { id: 'expenses', label: 'Expense Tracker', sub: 'Budget & vendor bills', icon: DollarSign, path: '/festivals?tab=expenses' },
+    { id: 'expenses', label: 'Expense Tracker', sub: 'Budget & vendor bills', icon: Receipt, path: '/festivals?tab=expenses' },
     { id: 'card', label: 'VIP & ID Cards', sub: 'Print passes & badges', icon: CreditCard, path: '/festivals?tab=card' },
     { id: 'balanceSheet', label: 'Audit & Balance', sub: 'Ledger & financial sheet', icon: FileSpreadsheet, path: '/festivals?tab=balanceSheet' },
     { id: 'activity_logs', label: 'Action History', sub: 'Admin attendee audit log', icon: History, path: '/festivals?tab=activity_logs' },
@@ -29,7 +29,7 @@ const eventSubTabs = [
     { id: 'events', label: 'All Events', sub: 'Shows & workshops list', icon: Sparkles, path: '/events?tab=events' },
     { id: 'new_attendee', label: '+ New Attendee', sub: 'Quick register attendee', icon: UserPlus, path: '/events?tab=new_attendee', isAction: true },
     { id: 'subscriptions', label: 'Attendees & Passes', sub: 'Attendee booking list', icon: Ticket, path: '/events?tab=subscriptions' },
-    { id: 'expenses', label: 'Expense Tracker', sub: 'Cost tracking & ledger', icon: DollarSign, path: '/events?tab=expenses' },
+    { id: 'expenses', label: 'Expense Tracker', sub: 'Cost tracking & ledger', icon: Receipt, path: '/events?tab=expenses' },
     { id: 'card', label: 'VIP & ID Cards', sub: 'Pass generation & badges', icon: CreditCard, path: '/events?tab=card' },
     { id: 'balanceSheet', label: 'Audit & Balance', sub: 'Event audit & sheet', icon: FileSpreadsheet, path: '/events?tab=balanceSheet' },
     { id: 'activity_logs', label: 'Action History', sub: 'Admin attendee audit log', icon: History, path: '/events?tab=activity_logs' },
