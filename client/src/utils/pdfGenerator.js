@@ -20,7 +20,8 @@ export const FIGMA_COLORS = {
     purple: [139, 92, 246],        // #8B5CF6 - Master / High-Tier
     purpleDark: [109, 40, 217],    // #6D28D9
     purpleBg: [245, 243, 255],     // #F5F3FF
-    lightBg: [248, 250, 252],      // #F8FAFC
+    lightBg: [248, 250, 252],      // #F8FAFC - Soft Neutral Slate for 2-color alternate rows
+    white: [255, 255, 255],        // #FFFFFF - Pure White for 2-color alternate rows
     border: [226, 232, 240],       // #E2E8F0
     muted: [148, 163, 184],        // #94A3B8
     textDark: [15, 23, 42]
@@ -36,12 +37,12 @@ export const fmtCurrency = (val) => {
 
 /**
  * Mint-Light Amount Badges based on specific user-requested tiers:
- * - <= 101           : Soft Mint Slate / Cool Gray (#F1F5F9 / #475569)
- * - Above 101 - 251  : Mint-Light Blue (#E0F2FE / #0369A1)
- * - Above 251 - 501  : Mint-Light Green (#D1FAE5 / #047857)
- * - Above 501 - 1001 : Mint-Light Yellow / Amber (#FEF3C7 / #B45309)
- * - Above 1001 - 2001: Mint-Light Orange / Peach (#FFEDD5 / #C2410C)
- * - Above 2001 (High): Mint-Light Purple / Royal Violet (#F3E8FF / #6D28D9)
+ * - <= 101           : Soft Mint Slate (#F1F5F9) / Deep Slate (#475569)
+ * - Above 101 - 251  : Mint-Light Blue (#E0F2FE) / Deep Sky Blue (#0369A1)
+ * - Above 251 - 501  : Mint-Light Green (#D1FAE5) / Forest Emerald (#047857)
+ * - Above 501 - 1001 : Mint-Light Yellow (#FEF3C7) / Rich Amber (#B45309)
+ * - Above 1001 - 2001: Mint-Light Orange (#FFEDD5) / Vivid Terracotta (#C2410C)
+ * - Above 2001 (High): Mint-Light Purple (#F3E8FF) / Royal Purple (#6D28D9)
  */
 export const getAmountBadge = (val) => {
     const num = Number(String(val || 0).replace(/[^0-9.]/g, '')) || 0
@@ -141,35 +142,51 @@ const drawFooter = (doc, isLandscape = false) => {
 }
 
 /**
- * Parse cell styles to inject luxury badges for Amount, Status, and Tier.
- * Colors ENTIRE ROWS based on the row's amount tier!
+ * Parse cell styles to inject luxury badges for Amount, Name, Status, and Tier:
+ * 1. Rows alternate between 2 clean colors: Pure White (#FFFFFF) and Soft Neutral Slate (#F8FAFC)
+ * 2. Mint-Light Tier colors (background and text) are applied specifically to:
+ *    - The Amount Column
+ *    - The Name Column (Full Name in attendees, Particulars / Vendor in expenses)
  */
-const applyBadgeStyles = (data, { paymentColIndex = -1, tierColIndex = -1, amountColIndex = -1 }) => {
+const applyBadgeStyles = (data, { nameColIndices = [], paymentColIndex = -1, tierColIndex = -1, amountColIndex = -1 }) => {
     if (data.row.section !== 'body') return
 
-    // 1. Extract Row Amount & Apply Mint-Light Color to the ENTIRE ROW
+    // 1. Two-color alternating row background (White / Soft Neutral Slate)
+    const isEvenRow = data.row.index % 2 === 0
+    data.cell.styles.fillColor = isEvenRow ? FIGMA_COLORS.white : FIGMA_COLORS.lightBg
+    data.cell.styles.textColor = FIGMA_COLORS.textDark
+
+    // 2. Extract Row Amount & Get Mint Tier Badge
     let badge = null
     if (amountColIndex >= 0) {
         const rawAmount = Array.isArray(data.row.raw) 
             ? data.row.raw[amountColIndex] 
             : (data.row.cells?.[amountColIndex]?.text?.[0] || '')
         badge = getAmountBadge(rawAmount)
-        // Tint the ENTIRE ROW background with the amount's mint-light color
-        data.cell.styles.fillColor = badge.fillColor
     }
 
     const cellText = String(data.cell.text?.[0] || '')
 
-    // 2. Amount Column: bold colored text matching the tier
-    if (data.column.index === amountColIndex && cellText && cellText !== '—') {
-        if (badge) {
-            data.cell.styles.textColor = badge.textColor
-            data.cell.styles.fontStyle = 'bold'
-            data.cell.styles.halign = 'right'
-        }
+    // 3. Name Column(s): Styled with Mint-Light background & matching text color as per Amount!
+    const isNameCol = Array.isArray(nameColIndices) 
+        ? nameColIndices.includes(data.column.index) 
+        : (data.column.index === nameColIndices)
+
+    if (isNameCol && cellText && cellText !== '—' && badge) {
+        data.cell.styles.fillColor = badge.fillColor
+        data.cell.styles.textColor = badge.textColor
+        data.cell.styles.fontStyle = 'bold'
     }
 
-    // 3. Payment Status Badge: enhance contrast
+    // 4. Amount Column: Styled with Mint-Light background & matching text color as per Amount!
+    if (data.column.index === amountColIndex && cellText && cellText !== '—' && badge) {
+        data.cell.styles.fillColor = badge.fillColor
+        data.cell.styles.textColor = badge.textColor
+        data.cell.styles.fontStyle = 'bold'
+        data.cell.styles.halign = 'right'
+    }
+
+    // 5. Payment Status Badge
     if (data.column.index === paymentColIndex) {
         if (cellText.includes('Cash & Paid') || cellText.includes('Confirmed')) {
             data.cell.styles.fillColor = FIGMA_COLORS.emeraldBg
@@ -190,7 +207,7 @@ const applyBadgeStyles = (data, { paymentColIndex = -1, tierColIndex = -1, amoun
         }
     }
 
-    // 4. Access Tier Badge: enhance contrast
+    // 6. Access Tier Badge
     if (data.column.index === tierColIndex) {
         if (cellText.includes('VIP') || cellText.includes('Elite')) {
             data.cell.styles.fillColor = [238, 242, 255]
@@ -266,7 +283,7 @@ export const exportAttendeeMasterPDF = ({ subscriptionsList, activeTitle, entity
         doc.text(kpi.value, x + 3.5, cardY + 10)
     })
 
-    // Table starts directly below KPIs (zero wasted space)
+    // Table starts directly below KPIs with zero wasted whitespace
     autoTable(doc, {
         startY: 47,
         margin: { left: 14, right: 14 },
@@ -302,14 +319,19 @@ export const exportAttendeeMasterPDF = ({ subscriptionsList, activeTitle, entity
             0: { cellWidth: 9, halign: 'center', fontStyle: 'bold' },
             1: { cellWidth: 26, fontStyle: 'bold', textColor: FIGMA_COLORS.slateNavy },
             2: { cellWidth: 20 },
-            3: { cellWidth: 46, fontStyle: 'bold' },
+            3: { cellWidth: 46, fontStyle: 'bold' }, // Full Name (styled with Mint Tier as per Amount)
             4: { cellWidth: 28 },
             5: { cellWidth: 47 },
             6: { cellWidth: 36 },
             7: { cellWidth: 33 },
-            8: { cellWidth: 24, halign: 'right', fontStyle: 'bold' }
+            8: { cellWidth: 24, halign: 'right', fontStyle: 'bold' } // Amount (styled with Mint Tier as per Amount)
         },
-        didParseCell: (data) => applyBadgeStyles(data, { paymentColIndex: 6, tierColIndex: 7, amountColIndex: 8 })
+        didParseCell: (data) => applyBadgeStyles(data, { 
+            nameColIndices: [3], 
+            paymentColIndex: 6, 
+            tierColIndex: 7, 
+            amountColIndex: 8 
+        })
     })
 
     drawFooter(doc, true)
@@ -397,13 +419,16 @@ export const exportExpenseLedgerPDF = ({ expensesList, activeTitle, entityName, 
         columnStyles: {
             0: { cellWidth: 20 },
             1: { cellWidth: 25, fontStyle: 'bold', textColor: FIGMA_COLORS.slateNavy },
-            2: { cellWidth: 43, fontStyle: 'bold' },
-            3: { cellWidth: 32 },
+            2: { cellWidth: 43, fontStyle: 'bold' }, // Particulars / Item Name
+            3: { cellWidth: 32, fontStyle: 'bold' }, // Paid To / Vendor Name
             4: { cellWidth: 22 },
             5: { cellWidth: 21 },
-            6: { cellWidth: 19, halign: 'right', fontStyle: 'bold' }
+            6: { cellWidth: 19, halign: 'right', fontStyle: 'bold' } // Amount
         },
-        didParseCell: (data) => applyBadgeStyles(data, { amountColIndex: 6 })
+        didParseCell: (data) => applyBadgeStyles(data, { 
+            nameColIndices: [2, 3], 
+            amountColIndex: 6 
+        })
     })
 
     drawFooter(doc, false)
@@ -496,6 +521,9 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
         },
         didParseCell: (data) => {
             if (data.row.section === 'body') {
+                const isEvenRow = data.row.index % 2 === 0
+                data.cell.styles.fillColor = isEvenRow ? FIGMA_COLORS.white : FIGMA_COLORS.lightBg
+
                 if (data.row.index === 3) {
                     data.cell.styles.fillColor = netBalance >= 0 ? FIGMA_COLORS.emeraldBg : FIGMA_COLORS.crimsonBg
                     data.cell.styles.textColor = netBalance >= 0 ? FIGMA_COLORS.emeraldDark : FIGMA_COLORS.crimsonDark
@@ -549,9 +577,9 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
             cellPadding: { top: 2.2, bottom: 2.2, left: 2.5, right: 2.5 }
         },
         columnStyles: {
-            0: { cellWidth: 50 },
+            0: { cellWidth: 50, fontStyle: 'bold' },
             1: { cellWidth: 41, halign: 'right', fontStyle: 'bold' },
-            2: { cellWidth: 50 },
+            2: { cellWidth: 50, fontStyle: 'bold' },
             3: { cellWidth: 41, halign: 'right', fontStyle: 'bold' }
         },
         didParseCell: (data) => {
@@ -562,25 +590,27 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
                     data.cell.styles.textColor = [255, 255, 255]
                     data.cell.styles.fontStyle = 'bold'
                 } else {
-                    // Dynamic Mint Amount Styling on Income and Expense sides
+                    // 2-color alternate row background by default
+                    const isEvenRow = data.row.index % 2 === 0
+                    data.cell.styles.fillColor = isEvenRow ? FIGMA_COLORS.white : FIGMA_COLORS.lightBg
+
+                    // Dynamic Mint Tier Styling on Name (Col 0) & Amount (Col 1)
                     const incomeVal = data.row.raw?.[1] || data.row.cells?.[1]?.text?.[0]
                     if (incomeVal && incomeVal !== '—') {
                         const incBadge = getAmountBadge(incomeVal)
                         if (data.column.index === 0 || data.column.index === 1) {
                             data.cell.styles.fillColor = incBadge.fillColor
-                        }
-                        if (data.column.index === 1) {
                             data.cell.styles.textColor = incBadge.textColor
                             data.cell.styles.fontStyle = 'bold'
                         }
                     }
+
+                    // Dynamic Mint Tier Styling on Name (Col 2) & Amount (Col 3)
                     const expVal = data.row.raw?.[3] || data.row.cells?.[3]?.text?.[0]
                     if (expVal && expVal !== '—') {
                         const expBadge = getAmountBadge(expVal)
                         if (data.column.index === 2 || data.column.index === 3) {
                             data.cell.styles.fillColor = expBadge.fillColor
-                        }
-                        if (data.column.index === 3) {
                             data.cell.styles.textColor = expBadge.textColor
                             data.cell.styles.fontStyle = 'bold'
                         }
@@ -664,14 +694,19 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
             0: { cellWidth: 9, halign: 'center' },
             1: { cellWidth: 26, fontStyle: 'bold' },
             2: { cellWidth: 20 },
-            3: { cellWidth: 46, fontStyle: 'bold' },
+            3: { cellWidth: 46, fontStyle: 'bold' }, // Name
             4: { cellWidth: 28 },
             5: { cellWidth: 47 },
             6: { cellWidth: 36 },
             7: { cellWidth: 33 },
-            8: { cellWidth: 24, halign: 'right', fontStyle: 'bold' }
+            8: { cellWidth: 24, halign: 'right', fontStyle: 'bold' } // Amount
         },
-        didParseCell: (data) => applyBadgeStyles(data, { paymentColIndex: 6, tierColIndex: 7, amountColIndex: 8 })
+        didParseCell: (data) => applyBadgeStyles(data, { 
+            nameColIndices: [3], 
+            paymentColIndex: 6, 
+            tierColIndex: 7, 
+            amountColIndex: 8 
+        })
     })
 
     // Section 2: Expenses
@@ -705,13 +740,16 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
         columnStyles: {
             0: { cellWidth: 25 },
             1: { cellWidth: 32, fontStyle: 'bold' },
-            2: { cellWidth: 65, fontStyle: 'bold' },
-            3: { cellWidth: 45 },
+            2: { cellWidth: 65, fontStyle: 'bold' }, // Particulars / Item Name
+            3: { cellWidth: 45, fontStyle: 'bold' }, // Paid To / Vendor Name
             4: { cellWidth: 35 },
             5: { cellWidth: 35 },
-            6: { cellWidth: 32, halign: 'right', fontStyle: 'bold' }
+            6: { cellWidth: 32, halign: 'right', fontStyle: 'bold' } // Amount
         },
-        didParseCell: (data) => applyBadgeStyles(data, { amountColIndex: 6 })
+        didParseCell: (data) => applyBadgeStyles(data, { 
+            nameColIndices: [2, 3], 
+            amountColIndex: 6 
+        })
     })
 
     // Section 3: Financial Summary
@@ -744,11 +782,16 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
             2: { cellWidth: 89, halign: 'right' }
         },
         didParseCell: (data) => {
-            if (data.row.section === 'body' && data.column.index === 2) {
-                const badge = getAmountBadge(data.cell.text?.[0])
-                data.cell.styles.fillColor = badge.fillColor
-                data.cell.styles.textColor = badge.textColor
-                data.cell.styles.fontStyle = 'bold'
+            if (data.row.section === 'body') {
+                const isEvenRow = data.row.index % 2 === 0
+                data.cell.styles.fillColor = isEvenRow ? FIGMA_COLORS.white : FIGMA_COLORS.lightBg
+
+                if (data.column.index === 0 || data.column.index === 2) {
+                    const badge = getAmountBadge(data.cell.text?.[0])
+                    data.cell.styles.fillColor = badge.fillColor
+                    data.cell.styles.textColor = badge.textColor
+                    data.cell.styles.fontStyle = 'bold'
+                }
             }
         }
     })
@@ -859,11 +902,18 @@ export const exportSingleAttendeeReceiptPDF = ({ sub, festOrEvent = {}, entityNa
             1: { cellWidth: 132 }
         },
         didParseCell: (data) => {
-            if (data.row.section === 'body' && data.row.cells[0]?.text?.[0] === 'Total Net Amount') {
-                const badge = getAmountBadge(sub.amount)
-                data.cell.styles.fillColor = badge.fillColor
-                data.cell.styles.textColor = badge.textColor
-                data.cell.styles.fontStyle = 'bold'
+            if (data.row.section === 'body') {
+                const isEvenRow = data.row.index % 2 === 0
+                data.cell.styles.fillColor = isEvenRow ? FIGMA_COLORS.white : FIGMA_COLORS.lightBg
+
+                // Name Row and Amount Row matching Mint Tier
+                const rowTitle = data.row.cells[0]?.text?.[0]
+                if (rowTitle === 'Full Name' || rowTitle === 'Total Net Amount') {
+                    const badge = getAmountBadge(sub.amount)
+                    data.cell.styles.fillColor = badge.fillColor
+                    data.cell.styles.textColor = badge.textColor
+                    data.cell.styles.fontStyle = 'bold'
+                }
             }
         }
     })
@@ -976,11 +1026,17 @@ export const exportSingleExpenseVoucherPDF = ({ exp, festOrEvent = {}, entityNam
             1: { cellWidth: 132 }
         },
         didParseCell: (data) => {
-            if (data.row.section === 'body' && data.row.cells[0]?.text?.[0] === 'Disbursement Amount') {
-                const badge = getAmountBadge(exp.amount)
-                data.cell.styles.fillColor = badge.fillColor
-                data.cell.styles.textColor = badge.textColor
-                data.cell.styles.fontStyle = 'bold'
+            if (data.row.section === 'body') {
+                const isEvenRow = data.row.index % 2 === 0
+                data.cell.styles.fillColor = isEvenRow ? FIGMA_COLORS.white : FIGMA_COLORS.lightBg
+
+                const rowTitle = data.row.cells[0]?.text?.[0]
+                if (rowTitle === 'Particulars / Purpose' || rowTitle === 'Paid To / Vendor Name' || rowTitle === 'Disbursement Amount') {
+                    const badge = getAmountBadge(exp.amount)
+                    data.cell.styles.fillColor = badge.fillColor
+                    data.cell.styles.textColor = badge.textColor
+                    data.cell.styles.fontStyle = 'bold'
+                }
             }
         }
     })
