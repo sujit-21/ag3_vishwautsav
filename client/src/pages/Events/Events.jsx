@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './Events.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, ShieldCheck, Lock, User, IndianRupee, Crown, CreditCard, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Hash, FileText, Layers, Smartphone, QrCode, Building2, Wallet, TrendingUp, Receipt, ArrowDownRight, ArrowUpRight, Scale, ChevronRight } from 'lucide-react'
+import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, ShieldCheck, Lock, User, IndianRupee, Crown, CreditCard, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Hash, FileText, Layers, Smartphone, QrCode, Building2, Wallet, TrendingUp, Receipt, ArrowDownRight, ArrowUpRight, Scale, ChevronRight, Users, Ticket } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -160,7 +160,6 @@ const Events = () => {
     // Sort and Filter States for Cards
     const [cardSort, setCardSort] = useState('name-asc')
     const [cardMembershipFilter, setCardMembershipFilter] = useState('all')
-    const [isDataOpen, setIsDataOpen] = useState(false)
 
     const [events, setEvents] = useState([])
     const [openInfoIds, setOpenInfoIds] = useState({})
@@ -186,6 +185,7 @@ const Events = () => {
     const [searchParams, setSearchParams] = useSearchParams()
     const validTabs = ['events', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'activity_logs', 'data']
     const urlTab = searchParams.get('tab')
+    const [isDataOpen, setIsDataOpen] = useState(urlTab === 'data')
     const [activeTab, setActiveTab] = useState(
         urlTab && validTabs.includes(urlTab)
             ? (urlTab === 'new_attendee' || urlTab === 'data' ? (activeEvent ? 'subscriptions' : 'events') : urlTab)
@@ -1243,51 +1243,66 @@ const Events = () => {
                                 <button
                                     className="figma-report-tile"
                                     onClick={() => { downloadAllAttendeesPDF(); closeDataModal(); }}
+                                    title="Download Attendee PDF Roster"
                                 >
                                     <div className="d-flex align-items-center gap-2.5">
                                         <div className="figma-report-icon" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6' }}>
-                                            <Users size={16} />
+                                            <FileText size={17} />
                                         </div>
                                         <div>
-                                            <div className="fw-extrabold text-main" style={{ fontSize: '0.82rem' }}>Attendee Directory</div>
+                                            <div className="fw-extrabold text-main d-flex align-items-center gap-1.5" style={{ fontSize: '0.86rem' }}>
+                                                <span>Attendee PDF</span>
+                                            </div>
                                             <div className="text-muted extra-tiny">Complete guest &amp; volunteer roster</div>
                                         </div>
                                     </div>
-                                    <FileDown size={16} className="text-primary flex-shrink-0" />
+                                    <span className="badge bg-primary bg-opacity-15 text-primary border border-primary border-opacity-25 rounded-pill px-2.5 py-1 extra-tiny fw-bold d-flex align-items-center gap-1">
+                                        <Download size={12} /> Download PDF
+                                    </span>
                                 </button>
 
                                 {/* All Expenses PDF Tile */}
                                 <button
                                     className="figma-report-tile"
                                     onClick={() => { downloadAllExpensesPDF(); closeDataModal(); }}
+                                    title="Download All Expenses PDF Ledger"
                                 >
                                     <div className="d-flex align-items-center gap-2.5">
                                         <div className="figma-report-icon" style={{ background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444' }}>
-                                            <Receipt size={16} />
+                                            <Receipt size={17} />
                                         </div>
                                         <div>
-                                            <div className="fw-extrabold text-main" style={{ fontSize: '0.82rem' }}>All Expenses Ledger</div>
+                                            <div className="fw-extrabold text-main d-flex align-items-center gap-1.5" style={{ fontSize: '0.86rem' }}>
+                                                <span>All Expenses PDF</span>
+                                            </div>
                                             <div className="text-muted extra-tiny">Itemized receipts &amp; payments</div>
                                         </div>
                                     </div>
-                                    <FileDown size={16} className="text-danger flex-shrink-0" />
+                                    <span className="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-25 rounded-pill px-2.5 py-1 extra-tiny fw-bold d-flex align-items-center gap-1">
+                                        <Download size={12} /> Download PDF
+                                    </span>
                                 </button>
 
                                 {/* BalanceSheet PDF Tile */}
                                 <button
                                     className="figma-report-tile"
                                     onClick={() => { downloadBalanceSheetPDF(); closeDataModal(); }}
+                                    title="Download BalanceSheet PDF Audit"
                                 >
                                     <div className="d-flex align-items-center gap-2.5">
                                         <div className="figma-report-icon" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#10b981' }}>
-                                            <Scale size={16} />
+                                            <Scale size={17} />
                                         </div>
                                         <div>
-                                            <div className="fw-extrabold text-main" style={{ fontSize: '0.82rem' }}>BalanceSheet Audit</div>
+                                            <div className="fw-extrabold text-main d-flex align-items-center gap-1.5" style={{ fontSize: '0.86rem' }}>
+                                                <span>BalanceSheet PDF</span>
+                                            </div>
                                             <div className="text-muted extra-tiny">Consolidated financial overview</div>
                                         </div>
                                     </div>
-                                    <FileDown size={16} className="text-success flex-shrink-0" />
+                                    <span className="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 rounded-pill px-2.5 py-1 extra-tiny fw-bold d-flex align-items-center gap-1">
+                                        <Download size={12} /> Download PDF
+                                    </span>
                                 </button>
 
                                 <div className="d-flex align-items-center my-1.5">
@@ -1302,13 +1317,14 @@ const Events = () => {
                                 <button
                                     className="figma-btn-master-pdf"
                                     onClick={() => { downloadMasterDataPDF(); closeDataModal(); }}
+                                    title="Download Complete Master Data Package PDF"
                                 >
                                     <span className="d-flex align-items-center gap-2">
                                         <Sparkles size={16} className="text-warning" />
-                                        <span>MASTER DATA PDF</span>
+                                        <span className="fw-black tracking-wide">MASTER DATA PDF</span>
                                     </span>
-                                    <span className="badge bg-white bg-opacity-20 text-white rounded-pill px-2 py-0.5 extra-tiny fw-bold">
-                                        Complete Roster
+                                    <span className="badge bg-white bg-opacity-20 text-white rounded-pill px-2.5 py-1 extra-tiny fw-bold d-flex align-items-center gap-1">
+                                        <Download size={13} /> Download All
                                     </span>
                                 </button>
                             </div>
@@ -1397,6 +1413,11 @@ const Events = () => {
                                     style={{ fontSize: '0.67rem' }}
                                 />
                             </div>
+
+                            {/* DATA REPORTS */}
+                            <button onClick={() => setIsDataOpen(true)} className="btn btn-outline-warning d-flex align-items-center justify-content-center px-2.5 rounded-pill fw-bold shadow-sm transition-all text-nowrap ms-1" style={{ fontSize: '0.66rem', height: '26px' }} title="Open DATA Reports Hub">
+                                <Download size={11} className="me-1" /> REPORTS
+                            </button>
 
                             {/* CREATE */}
                             {user?.role === 'admin' && (
@@ -1613,6 +1634,16 @@ const Events = () => {
                             {/* ATTENDEE PDF */}
                             <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.74rem' }}>
                                 <FileDown size={13} /> <span className="uppercase">Attendee PDF</span>
+                            </button>
+
+                            {/* DATA REPORTS */}
+                            <button 
+                                onClick={() => setIsDataOpen(true)} 
+                                className="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-sm" 
+                                style={{ height: '32px', fontSize: '0.74rem' }}
+                                title="Open DATA Reports Hub"
+                            >
+                                <Download size={13} /> <span className="uppercase">DATA Reports</span>
                             </button>
 
                             {/* ACTION LOGS */}
@@ -2191,6 +2222,9 @@ const Events = () => {
                             <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '30px', fontSize: '0.72rem' }}>
                                 <FileDown size={13} /> <span className="uppercase">All Expenses PDF</span>
                             </button>
+                            <button onClick={() => setIsDataOpen(true)} className="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-sm" style={{ height: '30px', fontSize: '0.72rem' }} title="Open DATA Reports Hub">
+                                <Download size={13} /> <span className="uppercase">DATA Reports</span>
+                            </button>
                         </div>
 
                         {/* Row 2: Sort, Category Filter, Pay Filter */}
@@ -2609,6 +2643,10 @@ const Events = () => {
                                 <Plus size={14} /> <span>Create Pass</span>
                             </button>
 
+                            <button onClick={() => setIsDataOpen(true)} className="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-sm" style={{ height: '36px', fontSize: '0.74rem' }} title="Open DATA Reports Hub">
+                                <Download size={13} /> <span className="uppercase">DATA Reports</span>
+                            </button>
+
                             {/* SEARCH */}
                             <div className="figma-pass-control-pill flex-grow-1 px-2.5 shadow-sm">
                                 <Search size={13} className="text-muted me-1.5 flex-shrink-0" />
@@ -2840,12 +2878,15 @@ const Events = () => {
                                     </p>
                                 </div>
                             </div>
-                            <div className="d-flex align-items-center gap-2">
+                            <div className="d-flex align-items-center gap-2 flex-wrap">
                                 <span className="figma-pass-count-pill shadow-xs">
                                     <Sparkles size={11} /> Real-Time Ledger
                                 </span>
-                                <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet">
-                                    <FileDown size={15} /> BalanceSheet PDF
+                                <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet" title="Download BalanceSheet PDF">
+                                    <FileDown size={15} /> BalanceSheet Pdf Download
+                                </button>
+                                <button onClick={() => setIsDataOpen(true)} className="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold shadow-sm" style={{ height: '38px', fontSize: '0.74rem' }} title="Open DATA Reports Hub">
+                                    <Download size={14} /> DATA Reports
                                 </button>
                             </div>
                         </div>
@@ -2944,8 +2985,8 @@ const Events = () => {
                                     <h5 className="fw-extrabold mb-1 text-main" style={{ letterSpacing: '-0.02em' }}>Detailed Financial Breakdown</h5>
                                     <p className="text-muted extra-tiny mb-0">Itemized comparative audit between inflow sources and expense allocations.</p>
                                 </div>
-                                <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet">
-                                    <FileDown size={14} /> Download Ledger
+                                <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet" title="Download BalanceSheet PDF">
+                                    <FileDown size={14} /> BalanceSheet Pdf Download
                                 </button>
                             </div>
                             <div className="row g-4">

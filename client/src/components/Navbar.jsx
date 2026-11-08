@@ -755,7 +755,7 @@ const Navbar = () => {
                                                                     onClick={() => {
                                                                         closeMobile();
                                                                         if (tab.isData) {
-                                                                            window.dispatchEvent(new CustomEvent('open-data-reports', { detail: { target: 'festival' } }));
+                                                                            window.dispatchEvent(new CustomEvent('open-data-reports', { detail: { target: 'event' } }));
                                                                         }
                                                                     }}
                                                                 >
