@@ -2126,13 +2126,13 @@ const Festivals = () => {
                 <div className="figma-expense-section py-3 px-3 px-sm-4 shadow-sm mx-auto w-100" style={{ maxWidth: '760px' }}>
                     {/* Expenses Header */}
                     <div className="figma-expense-header">
-                        <div className="d-flex align-items-center gap-2.5">
+                        <div className="figma-expense-title-group">
                             <div className="figma-expense-icon-badge shadow-sm">
-                                <span style={{ fontSize: '1.35rem', lineHeight: 1, userSelect: 'none' }} role="img" aria-label="Receipt">🧾</span>
+                                <span className="figma-expense-emoji" role="img" aria-label="Receipt">🧾</span>
                             </div>
                             <div>
                                 <div className="d-flex align-items-center gap-2">
-                                    <h4 className="mb-0 fw-bold text-main" style={{ fontSize: '1.15rem', letterSpacing: '-0.3px' }}>Expenses & Outgoings</h4>
+                                    <h4 className="mb-0 fw-bold text-main" style={{ fontSize: '1.18rem', letterSpacing: '-0.3px' }}>Expenses</h4>
                                     <span className="badge rounded-pill px-2 py-0.5 extra-tiny fw-bold" style={{ background: 'rgba(234, 88, 12, 0.12)', color: '#ea580c', border: '1px solid rgba(234, 88, 12, 0.25)' }}>
                                         {filteredExpenses.length} Records
                                     </span>
@@ -2242,9 +2242,9 @@ const Festivals = () => {
                     {isExpAdding && (
                         <motion.div initial={{ opacity: 0, y: -8, scale: 0.99 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8 }} className="figma-expense-form-card">
                             <div className="figma-expense-form-header">
-                                <div className="d-flex align-items-center gap-2">
-                                    <div className="figma-expense-icon-badge" style={{ width: '32px', height: '32px', borderRadius: '10px' }}>
-                                        {editingExpId ? <Edit3 size={15} /> : <span style={{ fontSize: '1.05rem', lineHeight: 1, userSelect: 'none' }} role="img" aria-label="Receipt">🧾</span>}
+                                <div className="d-flex align-items-center" style={{ gap: '12px' }}>
+                                    <div className="figma-expense-icon-badge" style={{ width: '34px', height: '34px', minWidth: '34px', borderRadius: '10px' }}>
+                                        {editingExpId ? <Edit3 size={15} /> : <span style={{ fontSize: '1.15rem', lineHeight: 1, userSelect: 'none' }} role="img" aria-label="Receipt">🧾</span>}
                                     </div>
                                     <div>
                                         <h6 className="fw-bold mb-0 text-main" style={{ fontSize: '0.92rem' }}>
