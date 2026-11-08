@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './Festivals.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio } from 'lucide-react'
+import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Receipt, Banknote, Clock, Hash, FileText, Layers, Smartphone, QrCode } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -2123,47 +2123,73 @@ const Festivals = () => {
 
 
             {activeTab === 'expenses' && (
-                <div className="glass-card py-3 px-3 px-sm-4 shadow-sm mx-auto w-100" style={{ maxWidth: '720px' }}>
-                    {/* Expenses Title and Subtitle */}
-                    <div className="mb-1">
-                        <h4 className="mb-0 fw-normal">Expenses</h4>
-                        <p className="text-muted tiny mb-0">Track and manage all festival-related spending.</p>
+                <div className="figma-expense-section py-3 px-3 px-sm-4 shadow-sm mx-auto w-100" style={{ maxWidth: '760px' }}>
+                    {/* Expenses Header */}
+                    <div className="figma-expense-header">
+                        <div className="d-flex align-items-center gap-2.5">
+                            <div className="figma-expense-icon-badge shadow-sm">
+                                <Receipt size={20} />
+                            </div>
+                            <div>
+                                <div className="d-flex align-items-center gap-2">
+                                    <h4 className="mb-0 fw-bold text-main" style={{ fontSize: '1.15rem', letterSpacing: '-0.3px' }}>Expenses & Outgoings</h4>
+                                    <span className="badge rounded-pill px-2 py-0.5 extra-tiny fw-bold" style={{ background: 'rgba(234, 88, 12, 0.12)', color: '#ea580c', border: '1px solid rgba(234, 88, 12, 0.25)' }}>
+                                        {filteredExpenses.length} Records
+                                    </span>
+                                </div>
+                                <p className="text-muted tiny mb-0">Track and manage financial disbursements, invoices and audit trails.</p>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Toolbar below Title inside the Card */}
-                    <div className="d-flex flex-column gap-2 mb-2.5">
+                    <div className="d-flex flex-column gap-2 mb-3">
                         {/* Row 1: New Expense, Search, All Expenses PDF */}
                         <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
                             {!isExpAdding && (
-                                <button onClick={() => setIsExpAdding(true)} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
-                                    <Plus size={11} /> <span className="uppercase">New Expense</span>
+                                <button onClick={() => {
+                                    setEditingExpId(null);
+                                    setExpenseFormData({
+                                        date: new Date().toISOString().split('T')[0],
+                                        expenseId: generateSubID(),
+                                        particular: '',
+                                        expenseType: 'Decoration',
+                                        amount: '',
+                                        currency: '₹',
+                                        paymentType: 'Cash & Paid',
+                                        onlineParticulars: '',
+                                        onlineReference: ''
+                                    });
+                                    setIsExpAdding(true);
+                                }} className="figma-btn-submit py-1 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-sm" style={{ height: '30px', fontSize: '0.72rem' }}>
+                                    <Plus size={13} /> <span>New Expense</span>
                                 </button>
                             )}
                             {/* Search Expenses */}
-                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '26px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
+                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '30px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={12} /></span>
                                 <input
                                     type="text"
                                     className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100"
-                                    placeholder="Search expenses..."
+                                    placeholder="Search expenses by particular, ref..."
                                     value={expSearch}
                                     onChange={(e) => setExpSearch(e.target.value)}
-                                    style={{ fontSize: '0.67rem' }}
+                                    style={{ fontSize: '0.75rem' }}
                                 />
                             </div>
-                            <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
-                                <FileDown size={11} /> <span className="uppercase">All Expenses PDF</span>
+                            <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '30px', fontSize: '0.72rem' }}>
+                                <FileDown size={13} /> <span className="uppercase">All Expenses PDF</span>
                             </button>
                         </div>
 
                         {/* Row 2: Sort, Category Filter, Pay Filter */}
                         <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
                             {/* SORT */}
-                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '28px' }}>
                                 <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
                                 <select
                                     className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.67rem' }}
+                                    style={{ fontSize: '0.68rem' }}
                                     value={expSort}
                                     onChange={(e) => setExpSort(e.target.value)}
                                     title="Sort Expenses"
@@ -2177,11 +2203,11 @@ const Festivals = () => {
                             </div>
 
                             {/* FILTER */}
-                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
+                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '28px' }}>
                                 <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
                                 <select
                                     className="form-select select-cat bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold"
-                                    style={{ fontSize: '0.67rem' }}
+                                    style={{ fontSize: '0.68rem' }}
                                     value={expTypeFilter}
                                     onChange={(e) => setExpTypeFilter(e.target.value)}
                                     title="Filter Category"
@@ -2197,7 +2223,7 @@ const Festivals = () => {
                                 </select>
                                 <select
                                     className="form-select select-pay bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold border-start border-secondary border-opacity-25"
-                                    style={{ fontSize: '0.67rem' }}
+                                    style={{ fontSize: '0.68rem' }}
                                     value={expPaymentFilter}
                                     onChange={(e) => setExpPaymentFilter(e.target.value)}
                                     title="Filter Payment Mode"
@@ -2214,13 +2240,22 @@ const Festivals = () => {
                     </div>
 
                     {isExpAdding && (
-                        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="glass-card-premium festival-theme p-2 px-3 mb-3 border border-white border-opacity-10" style={{ maxWidth: '720px' }}>
-                            <div className="d-flex justify-content-between align-items-center mb-2">
-                                <div>
-                                    <h6 className="fw-extrabold mb-0 gradient-text" style={{ fontSize: '0.9rem' }}>Add Expense Detail</h6>
-                                    <p className="extra-tiny text-muted mb-0">Log financial outgoings for audit and tracking.</p>
+                        <motion.div initial={{ opacity: 0, y: -8, scale: 0.99 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8 }} className="figma-expense-form-card">
+                            <div className="figma-expense-form-header">
+                                <div className="d-flex align-items-center gap-2">
+                                    <div className="figma-expense-icon-badge" style={{ width: '32px', height: '32px', borderRadius: '10px' }}>
+                                        {editingExpId ? <Edit3 size={15} /> : <Receipt size={15} />}
+                                    </div>
+                                    <div>
+                                        <h6 className="fw-bold mb-0 text-main" style={{ fontSize: '0.92rem' }}>
+                                            {editingExpId ? 'Update Expense Detail' : 'Add Expense Detail'}
+                                        </h6>
+                                        <p className="extra-tiny text-muted mb-0">Log financial outgoings for audit and tracking.</p>
+                                    </div>
                                 </div>
-                                <button onClick={() => setIsExpAdding(false)} className="btn btn-link text-white text-opacity-40 p-0 hover-rotate"><X size={16} /></button>
+                                <button type="button" onClick={() => { setIsExpAdding(false); setEditingExpId(null); }} className="figma-expense-close-btn" title="Close">
+                                    <X size={15} />
+                                </button>
                             </div>
                             <form onSubmit={async (e) => {
                                 e.preventDefault()
@@ -2248,63 +2283,89 @@ const Festivals = () => {
                                 } catch (err) {
                                     alert('Error saving expense')
                                 }
-                            }} className="row g-2">
+                            }} className="row g-2.5">
                                 <div className="col-6 col-md-3">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">Date</label>
-                                    <input type="date" className="form-input py-1" style={{ fontSize: '0.78rem', minHeight: '36px' }} value={expenseFormData.date} onChange={e => setExpenseFormData({ ...expenseFormData, date: e.target.value })} required />
+                                    <label className="figma-expense-label"><Calendar size={11} /> Date</label>
+                                    <div className="figma-input-wrapper">
+                                        <input type="date" className="figma-input-field px-2.5" value={expenseFormData.date} onChange={e => setExpenseFormData({ ...expenseFormData, date: e.target.value })} required />
+                                    </div>
                                 </div>
                                 <div className="col-6 col-md-3">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">Voucher Ref#</label>
-                                    <input type="text" className="form-input py-1 cursor-not-allowed opacity-75" style={{ fontSize: '0.78rem', minHeight: '36px' }} value={expenseFormData.expenseId} readOnly />
+                                    <label className="figma-expense-label"><Hash size={11} /> Voucher Ref#</label>
+                                    <div className="figma-input-wrapper">
+                                        <input type="text" className="figma-input-field px-2.5 font-monospace fw-bold" value={expenseFormData.expenseId} readOnly />
+                                    </div>
                                 </div>
                                 <div className="col-12 col-md-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">Particulars</label>
-                                    <input type="text" className="form-input py-1" style={{ fontSize: '0.78rem', minHeight: '36px' }} placeholder="e.g. Stage Decoration" value={expenseFormData.particular} onChange={e => setExpenseFormData({ ...expenseFormData, particular: e.target.value })} required />
+                                    <label className="figma-expense-label"><FileText size={11} /> Particulars</label>
+                                    <div className="figma-input-wrapper">
+                                        <input type="text" className="figma-input-field px-2.5" placeholder="e.g. Stage Decoration" value={expenseFormData.particular} onChange={e => setExpenseFormData({ ...expenseFormData, particular: e.target.value })} required />
+                                    </div>
                                 </div>
                                 <div className="col-6 col-md-4">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">Category Type</label>
-                                    <select className="form-input py-1" style={{ fontSize: '0.78rem', minHeight: '36px' }} value={expenseFormData.expenseType} onChange={e => setExpenseFormData({ ...expenseFormData, expenseType: e.target.value })}>
-                                        {festivalExpenseTypes.map(type => <option key={type} value={type}>{type}</option>)}
-                                    </select>
+                                    <label className="figma-expense-label"><Layers size={11} /> Category Type</label>
+                                    <div className="figma-input-wrapper">
+                                        <select className="figma-select-field px-2.5" value={expenseFormData.expenseType} onChange={e => setExpenseFormData({ ...expenseFormData, expenseType: e.target.value })}>
+                                            {festivalExpenseTypes.map(type => <option key={type} value={type}>{type}</option>)}
+                                        </select>
+                                    </div>
                                 </div>
                                 <div className="col-6 col-md-4">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">Amount</label>
-                                    <div className="input-group-premium">
-                                        <select className="form-select-prefix" style={{ fontSize: '0.78rem', minHeight: '36px', padding: '4px 6px' }} value={expenseFormData.currency} onChange={e => setExpenseFormData({ ...expenseFormData, currency: e.target.value })}>
+                                    <label className="figma-expense-label">Amount</label>
+                                    <div className="figma-amount-group">
+                                        <select className="figma-currency-prefix" value={expenseFormData.currency} onChange={e => setExpenseFormData({ ...expenseFormData, currency: e.target.value })}>
                                             {currencies.map(c => <option key={c.code} value={c.symbol}>{c.symbol}</option>)}
                                         </select>
-                                        <input type="number" className="form-control-custom" style={{ fontSize: '0.78rem', minHeight: '36px' }} placeholder="0.00" value={expenseFormData.amount} onChange={e => setExpenseFormData({ ...expenseFormData, amount: e.target.value })} required />
+                                        <input type="number" step="any" className="figma-amount-input" placeholder="0.00" value={expenseFormData.amount} onChange={e => setExpenseFormData({ ...expenseFormData, amount: e.target.value })} required />
                                     </div>
                                 </div>
                                 <div className="col-12 col-md-4">
-                                    <label className="extra-tiny fw-bold text-muted mb-1">Payment Mode</label>
-                                    <div className="d-flex gap-1 p-1 bg-white bg-opacity-5 rounded-3 border border-white border-opacity-10" style={{ minHeight: '36px' }}>
-                                        {['Cash & Paid', 'Due', 'Online'].map(mode => (
-                                            <button key={mode} type="button" onClick={() => setExpenseFormData({ ...expenseFormData, paymentType: mode })}
-                                                className={`flex-grow-1 rounded-2 extra-tiny fw-bold transition-all border-0 ${expenseFormData.paymentType === mode ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-muted'}`}
-                                            >{mode === 'Cash & Paid' ? 'Cash' : mode}</button>
-                                        ))}
+                                    <label className="figma-expense-label">Payment Mode</label>
+                                    <div className="figma-segmented-mode">
+                                        {['Cash & Paid', 'Due', 'Online'].map(mode => {
+                                            const isSelected = expenseFormData.paymentType === mode;
+                                            const activeClass = mode === 'Cash & Paid' ? 'active-cash' : mode === 'Due' ? 'active-due' : 'active-online';
+                                            return (
+                                                <button
+                                                    key={mode}
+                                                    type="button"
+                                                    onClick={() => setExpenseFormData({ ...expenseFormData, paymentType: mode })}
+                                                    className={`figma-mode-btn ${isSelected ? activeClass : ''}`}
+                                                >
+                                                    {mode === 'Cash & Paid' && <Banknote size={12} />}
+                                                    {mode === 'Due' && <Clock size={12} />}
+                                                    {mode === 'Online' && <CreditCard size={12} />}
+                                                    <span>{mode === 'Cash & Paid' ? 'Cash' : mode}</span>
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                                 {expenseFormData.paymentType === 'Online' && (
-                                    <div className="col-12 p-2 rounded-3 border border-info border-opacity-25 bg-info bg-opacity-5">
+                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="col-12 figma-online-drawer">
                                         <div className="row g-2">
                                             <div className="col-md-6">
-                                                <label className="extra-tiny text-info uppercase ls-1 mb-1 fw-bold">Bank / Platform</label>
-                                                <input type="text" className="form-input py-1" style={{ fontSize: '0.78rem', minHeight: '34px' }} placeholder="e.g. GPay / HDFC" value={expenseFormData.onlineParticulars || ''} onChange={e => setExpenseFormData({ ...expenseFormData, onlineParticulars: e.target.value })} required />
+                                                <label className="figma-expense-label text-info"><Smartphone size={11} /> Bank / Platform</label>
+                                                <div className="figma-input-wrapper">
+                                                    <input type="text" className="figma-input-field px-2.5" placeholder="e.g. GPay / HDFC / UPI" value={expenseFormData.onlineParticulars || ''} onChange={e => setExpenseFormData({ ...expenseFormData, onlineParticulars: e.target.value })} required />
+                                                </div>
                                             </div>
                                             <div className="col-md-6">
-                                                <label className="extra-tiny text-info uppercase ls-1 mb-1 fw-bold">Transaction Ref ID</label>
-                                                <input type="text" className="form-input py-1 font-monospace" style={{ fontSize: '0.78rem', minHeight: '34px' }} placeholder="e.g. TXN123456" value={expenseFormData.onlineReference || ''} onChange={e => setExpenseFormData({ ...expenseFormData, onlineReference: e.target.value })} required />
+                                                <label className="figma-expense-label text-info"><QrCode size={11} /> Transaction Ref ID</label>
+                                                <div className="figma-input-wrapper">
+                                                    <input type="text" className="figma-input-field px-2.5 font-monospace" placeholder="e.g. TXN123456 / UTR" value={expenseFormData.onlineReference || ''} onChange={e => setExpenseFormData({ ...expenseFormData, onlineReference: e.target.value })} required />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 )}
-                                <div className="col-12 mt-1 d-flex gap-2">
-                                    <button type="submit" className="btn btn-premium px-4 py-1.5 shadow-sm" style={{ fontSize: '0.78rem' }}>
-                                        <Save size={13} className="me-1" /> {editingExpId ? 'Update' : 'Post Expense'}
+                                <div className="col-12 mt-2 d-flex align-items-center gap-2">
+                                    <button type="submit" className="figma-btn-submit">
+                                        <Save size={13} /> {editingExpId ? 'Update Expense' : 'Post Expense'}
                                     </button>
-                                    <button onClick={() => setIsExpAdding(false)} type="button" className="btn btn-cancel px-3" style={{ fontSize: '0.78rem' }}>Cancel</button>
+                                    <button onClick={() => { setIsExpAdding(false); setEditingExpId(null); }} type="button" className="figma-btn-cancel">
+                                        <X size={13} /> Cancel
+                                    </button>
                                 </div>
                             </form>
                         </motion.div>
@@ -2366,7 +2427,13 @@ const Festivals = () => {
                                                         </div>
                                                     </td>
                                                     <td className="border-0 py-2 px-1">
-                                                        <span className={`badge rounded-pill px-2 py-1 extra-tiny ${exp.paymentType === 'Online' ? 'bg-info bg-opacity-10 text-info' : exp.paymentType === 'Due' ? 'bg-danger bg-opacity-10 text-danger' : 'bg-success bg-opacity-10 text-success'}`}>
+                                                        <span className={`badge rounded-pill px-2.5 py-1 extra-tiny fw-bold ${
+                                                            exp.paymentType === 'Online'
+                                                                ? 'bg-info bg-opacity-15 text-info border border-info border-opacity-30'
+                                                                : exp.paymentType === 'Due'
+                                                                ? 'bg-danger bg-opacity-15 text-danger border border-danger border-opacity-30'
+                                                                : 'bg-success bg-opacity-15 text-success border border-success border-opacity-30'
+                                                        }`}>
                                                             {exp.paymentType === 'Online' && exp.onlineParticulars ? `Online (${exp.onlineParticulars})` : exp.paymentType}
                                                         </span>
                                                     </td>
