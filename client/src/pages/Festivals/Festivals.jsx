@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './Festivals.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Clock, Hash, FileText, Layers, Smartphone, QrCode } from 'lucide-react'
+import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Clock, Hash, FileText, Layers, Smartphone, QrCode, Building2 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -2560,20 +2560,26 @@ const Festivals = () => {
             )}
 
             {activeTab === 'card' && (
-                <div className="glass-card py-3 px-3 px-sm-4 shadow-sm mx-auto w-100" style={{ maxWidth: '720px' }}>
+                <div className="figma-pass-preview-card">
                     {/* Pass Preview Title, Subtitle, and Badge */}
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                        <div>
-                            <h5 className="fw-extrabold mb-0 text-main">Pass Preview</h5>
-                            <p className="text-muted tiny mb-0">Visual representation of active member passes.</p>
+                    <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <div className="d-flex align-items-center gap-2.5">
+                            <div className="figma-pass-emblem">
+                                <CreditCard size={22} />
+                            </div>
+                            <div>
+                                <h5 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.02em' }}>Pass Preview</h5>
+                                <p className="text-muted extra-tiny mb-0">Visual identity and access privileges for active passes.</p>
+                            </div>
                         </div>
-                        <span className="badge bg-primary bg-opacity-10 text-primary fw-bold px-2.5 py-1 rounded-pill" style={{ fontSize: '0.72rem' }}>
-                            {filteredCards?.length || 0} Issued
+                        <span className="figma-pass-count-pill shadow-xs">
+                            <Sparkles size={12} />
+                            {filteredCards?.length || 0} Passes Issued
                         </span>
                     </div>
 
                     {/* Toolbar below Title inside the Card */}
-                    <div className="d-flex flex-column gap-2 mb-2.5">
+                    <div className="d-flex flex-column gap-2 mb-3">
                         {/* Row 1: Create Pass, Search */}
                         <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
                             <button onClick={() => {
@@ -2592,32 +2598,37 @@ const Festivals = () => {
                                 })
                                 setEditingCardId(null)
                                 setIsCardAdding(true)
-                            }} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.66rem' }}>
-                                <Plus size={11} /> <span className="uppercase">Create Pass</span>
+                            }} className="figma-btn-create-pass">
+                                <Plus size={14} /> <span>Create Pass</span>
                             </button>
 
                             {/* SEARCH */}
-                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '26px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
+                            <div className="figma-pass-control-pill flex-grow-1 px-2.5 shadow-sm">
+                                <Search size={13} className="text-muted me-1.5 flex-shrink-0" />
                                 <input
                                     type="text"
-                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100"
-                                    placeholder="Search passes..."
+                                    className="bg-transparent border-0 text-main shadow-none w-100 p-0"
+                                    placeholder="Search passes by name, ID or tier..."
                                     value={cardSearch}
                                     onChange={(e) => setCardSearch(e.target.value)}
-                                    style={{ fontSize: '0.67rem' }}
+                                    style={{ fontSize: '0.74rem', outline: 'none' }}
                                 />
+                                {cardSearch && (
+                                    <button type="button" onClick={() => setCardSearch('')} className="btn btn-sm p-0 border-0 bg-transparent text-muted hover-text-main">
+                                        <X size={12} />
+                                    </button>
+                                )}
                             </div>
                         </div>
 
                         {/* Row 2: Sort, Tier Filter */}
-                        <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
                             {/* SORT */}
-                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
+                            <div className="figma-pass-control-pill px-2.5 shadow-sm" style={{ minWidth: '150px' }}>
+                                <ArrowUpDown size={12} className="text-primary me-1.5 flex-shrink-0" />
                                 <select
-                                    className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.67rem' }}
+                                    className="bg-transparent border-0 text-main shadow-none w-100 p-0 fw-bold cursor-pointer"
+                                    style={{ fontSize: '0.72rem', outline: 'none' }}
                                     value={cardSort}
                                     onChange={(e) => setCardSort(e.target.value)}
                                     title="Sort Cards"
@@ -2629,19 +2640,19 @@ const Festivals = () => {
                             </div>
 
                             {/* FILTER */}
-                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${cardMembershipFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={cardMembershipFilter !== 'all' ? 'text-primary' : ''} /></span>
+                            <div className={`figma-pass-control-pill px-2.5 shadow-sm ${cardMembershipFilter !== 'all' ? 'border-primary' : ''}`} style={{ minWidth: '140px' }}>
+                                <Filter size={12} className={`me-1.5 flex-shrink-0 ${cardMembershipFilter !== 'all' ? 'text-primary' : 'text-muted'}`} />
                                 <select
-                                    className="form-select select-tier bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.67rem' }}
+                                    className="bg-transparent border-0 text-main shadow-none w-100 p-0 fw-bold cursor-pointer"
+                                    style={{ fontSize: '0.72rem', outline: 'none' }}
                                     value={cardMembershipFilter}
                                     onChange={(e) => setCardMembershipFilter(e.target.value)}
                                     title="Filter by Tier"
                                 >
-                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Tier: All</option>
-                                    <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP</option>
-                                    <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime</option>
-                                    <option value="Non-Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Non-Prime</option>
+                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Tier: All Tiers</option>
+                                    <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP Elite</option>
+                                    <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime Member</option>
+                                    <option value="Regular" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Volunteers</option>
                                     <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
                                 </select>
                             </div>
@@ -2671,11 +2682,53 @@ const Festivals = () => {
                                 </thead>
                                 <tbody className="text-main">
                                     {!Array.isArray(filteredCards) || filteredCards.length === 0 ? (
-                                        <tr><td colSpan="6" className="text-center py-5 text-muted">{cardsList.length === 0 ? "No cards issued yet. Click 'Create Pass' to begin." : "No matching cards found."}</td></tr>
+                                        <tr>
+                                            <td colSpan="6" className="border-0 p-0">
+                                                <div className="figma-pass-empty-state">
+                                                    <div className="figma-pass-empty-icon">
+                                                        <CreditCard size={28} />
+                                                    </div>
+                                                    <h6 className="fw-extrabold text-main mb-1" style={{ fontSize: '0.95rem' }}>No Member Passes Issued Yet</h6>
+                                                    <p className="text-muted extra-tiny mb-3" style={{ maxWidth: '340px' }}>
+                                                        Design personalized VIP, Prime, or Volunteer passes with high-security visual authentication.
+                                                    </p>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setCardFormData({
+                                                                ...cardFormData,
+                                                                name: '',
+                                                                address: '',
+                                                                membershipType: 'Regular',
+                                                                cardColor: '#1e293b',
+                                                                backgroundImage: 'none',
+                                                                familyMembers: 0,
+                                                                fromDate: activeFestival?.startDate ? new Date(activeFestival.startDate).toISOString().split('T')[0] : '',
+                                                                toDate: activeFestival?.endDate ? new Date(activeFestival.endDate).toISOString().split('T')[0] : '',
+                                                                festOrEventName: activeFestival?.title || '',
+                                                                entityName: activeFestival?.entityName || ''
+                                                            })
+                                                            setEditingCardId(null)
+                                                            setIsCardAdding(true)
+                                                        }}
+                                                        className="figma-btn-create-pass"
+                                                    >
+                                                        <Plus size={14} /> Create First Pass
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     ) : (
                                         filteredCards.map((sub, index) => {
                                             const isEven = index % 2 === 0;
                                             const rowBg = isEven ? 'rgba(67,130,149,0.07)' : 'rgba(224,122,67,0.07)';
+                                            const tierClass = sub.membershipType === 'Admin' || sub.membershipType === 'Administrative'
+                                                ? 'tier-admin'
+                                                : sub.membershipType === 'VIP'
+                                                ? 'tier-vip'
+                                                : sub.membershipType === 'Prime'
+                                                ? 'tier-prime'
+                                                : 'tier-volunteers';
                                             return (
                                                 <tr key={sub.cardId} className="align-middle transition-all" style={{ backgroundColor: rowBg }}>
                                                     <td className="border-0 py-2 ps-2 pe-1">
@@ -2685,7 +2738,7 @@ const Festivals = () => {
                                                         {sub.name}
                                                     </td>
                                                     <td className="border-0 py-2 px-1">
-                                                        <span className={`badge rounded-pill px-2 py-1 extra-tiny ${sub.membershipType === 'Admin' || sub.membershipType === 'Administrative' ? 'bg-danger bg-opacity-15 text-danger' : sub.membershipType === 'VIP' ? 'bg-warning bg-opacity-20 text-dark fw-bold' : 'bg-success bg-opacity-15 text-success'}`}>
+                                                        <span className={`figma-tier-badge ${tierClass}`}>
                                                             {sub.membershipType === 'Regular' ? 'Volunteers' : sub.membershipType}
                                                         </span>
                                                     </td>
@@ -3386,19 +3439,31 @@ const Festivals = () => {
 
             <AnimatePresence>
                 {isCardAdding && (
-                    <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center py-3 px-2 px-sm-3" style={{ background: 'rgba(15, 23, 42, 0.92)', backdropFilter: 'blur(16px)', zIndex: 99999 }}>
-                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="modal-content-premium modal-festival w-100 mx-auto shadow-2xl p-2.5 px-sm-3 py-sm-3 my-auto" style={{ maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto' }}>
-                            <div className="d-flex justify-content-between align-items-center mb-1.5">
-                                <div>
-                                    <h6 className="fw-extrabold mb-0 gradient-text">
-                                        {editingCardId ? 'Configure' : 'Design'} Member Pass
-                                    </h6>
-                                    <p className="extra-tiny text-muted mb-0 italic">Customize visual identity and access validity for elite members.</p>
+                    <div className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center py-3 px-2 px-sm-3" style={{ background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)', zIndex: 99999 }}>
+                        <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="figma-pass-modal-card w-100 mx-auto p-3 p-sm-4 my-auto" style={{ maxWidth: '640px', maxHeight: '92vh', overflowY: 'auto' }}>
+                            {/* Header */}
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                <div className="d-flex align-items-center gap-2.5">
+                                    <div className="figma-pass-emblem" style={{ width: '38px', height: '38px', borderRadius: '10px' }}>
+                                        <Sparkles size={18} />
+                                    </div>
+                                    <div>
+                                        <h5 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.02em', fontSize: '1.15rem' }}>
+                                            {editingCardId ? 'Configure' : 'Design'} Member Pass
+                                        </h5>
+                                        <p className="extra-tiny text-muted mb-0">Customize visual identity, tier permissions, and validity.</p>
+                                    </div>
                                 </div>
-                                <div onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-link text-white text-opacity-40 p-0 hover-rotate cursor-pointer"><X size={18} /></div>
+                                <button type="button" onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-sm p-1.5 rounded-circle bg-secondary bg-opacity-10 text-muted hover-text-main border-0">
+                                    <X size={18} />
+                                </button>
                             </div>
 
-                            <div className="mb-2 d-flex justify-content-center bg-dark bg-opacity-30 p-1.5 rounded-3 border border-white border-opacity-5">
+                            {/* Live Pass Preview Stage */}
+                            <div className="figma-pass-stage mb-3">
+                                <span className="figma-pass-stage-tag shadow-xs">
+                                    <Sparkles size={10} /> LIVE PASS IDENTITY PREVIEW
+                                </span>
                                 <VIPCard
                                     compact={true}
                                     eventName={cardFormData.festOrEventName || "PREVIEW MODE"}
@@ -3430,15 +3495,14 @@ const Festivals = () => {
                                     const errMsg = err.response?.data?.message || err.message || 'Unknown error';
                                     alert('Error saving card: ' + errMsg)
                                 }
-                            }} className="row g-1.5">
-                                <div className="col-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>SMART FETCH STRATEGY</label>
-                                    <div className="input-group-premium" style={{ height: '28px' }}>
+                            }} className="row g-2.5">
+                                {/* Smart Fetch Strategy */}
+                                <div className="col-12 col-sm-6">
+                                    <label className="figma-pass-label"><Search size={11} /> Smart Fetch Strategy</label>
+                                    <div className="figma-pass-input-box">
                                         <input
                                             type="text"
-                                            className="form-control-custom tiny py-0 px-2 h-100"
                                             placeholder="Scan / Enter Pass ID..."
-                                            style={{ fontSize: '0.72rem' }}
                                             onKeyDown={async (e) => {
                                                 if (e.key === 'Enter') {
                                                     e.preventDefault()
@@ -3461,7 +3525,7 @@ const Festivals = () => {
                                                 }
                                             }}
                                         />
-                                        <button type="button" className="btn btn-premium btn-sm rounded-0 px-2 extra-tiny fw-bold uppercase border-0 h-100" style={{ fontSize: '0.65rem' }} onClick={async (e) => {
+                                        <button type="button" className="figma-btn-sync" onClick={async (e) => {
                                             const subId = e.target.parentElement.querySelector('input').value
                                             try {
                                                 const res = await axios.get(`/api/subscriptions/search/${subId}`)
@@ -3483,58 +3547,83 @@ const Festivals = () => {
                                     </div>
                                 </div>
 
-                                <div className="col-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>PHYSICAL ADDRESS / LOCATION</label>
-                                    <input type="text" className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} placeholder="Complete address detail" value={cardFormData.address} onChange={e => setCardFormData({ ...cardFormData, address: e.target.value })} />
-                                </div>
-
-                                <div className="col-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>MEMBER IDENTITY</label>
-                                    <input type="text" className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} placeholder="Display name on card" value={cardFormData.name} onChange={e => setCardFormData({ ...cardFormData, name: e.target.value })} required />
-                                </div>
-
-                                <div className="col-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>FESTIVAL CONTEXT</label>
-                                    <input type="text" className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} placeholder="Primary event title" value={cardFormData.festOrEventName} onChange={e => setCardFormData({ ...cardFormData, festOrEventName: e.target.value })} />
-                                </div>
-
-                                <div className="col-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>ENTITY BRANDING</label>
-                                    <input type="text" className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} placeholder="e.g. Blue Lagoon Entity" value={cardFormData.entityName} onChange={e => setCardFormData({ ...cardFormData, entityName: e.target.value })} />
-                                </div>
-
-                                <div className="col-6">
-                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>ACCESS LEVEL</label>
-                                    <select className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} value={cardFormData.membershipType} onChange={e => setCardFormData({ ...cardFormData, membershipType: e.target.value })}>
-                                        <option value="Regular">Volunteers</option>
-                                        <option value="Prime">Prime Member</option>
-                                        <option value="VIP">VIP Elite</option>
-                                        <option value="Admin">Administrator</option>
-                                    </select>
-                                </div>
-
-                                <div className="col-4">
-                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>GROUP SIZE</label>
-                                    <input type="number" className="form-input tiny py-0 px-2 w-100" style={{ height: '28px', fontSize: '0.72rem' }} value={cardFormData.familyMembers} onChange={e => setCardFormData({ ...cardFormData, familyMembers: e.target.value })} />
-                                </div>
-
-                                <div className="col-4">
-                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>EFFECTIVE FROM</label>
-                                    <input type="date" className="form-input tiny py-0 px-1 w-100" style={{ height: '28px', fontSize: '0.72rem' }} value={cardFormData.fromDate} onChange={e => setCardFormData({ ...cardFormData, fromDate: e.target.value })} />
-                                </div>
-
-                                <div className="col-4">
-                                    <label className="extra-tiny fw-bold text-muted mb-0" style={{ fontSize: '0.62rem' }}>EXPIRY DATE</label>
-                                    <input type="date" className="form-input tiny py-0 px-1 w-100" style={{ height: '28px', fontSize: '0.72rem' }} value={cardFormData.toDate} onChange={e => setCardFormData({ ...cardFormData, toDate: e.target.value })} />
-                                </div>
-
-                                <div className="col-12 mt-2 pt-1.5 border-top border-white border-opacity-10">
-                                    <div className="d-flex gap-2">
-                                        <button type="submit" className="btn btn-premium flex-grow-1 py-1 px-3 shadow-lg fw-bold text-uppercase d-flex align-items-center justify-content-center gap-1" style={{ height: '30px', fontSize: '0.74rem' }}>
-                                            <Zap size={13} /> {editingCardId ? 'Authorize Card Updates' : 'Generate Digital Pass Identity'}
-                                        </button>
-                                        <button type="button" onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="btn btn-cancel py-1 px-3 fw-bold text-uppercase" style={{ height: '30px', fontSize: '0.74rem' }}>Abort</button>
+                                {/* Physical Address / Location */}
+                                <div className="col-12 col-sm-6">
+                                    <label className="figma-pass-label"><MapPin size={11} /> Physical Address / Location</label>
+                                    <div className="figma-pass-input-box">
+                                        <input type="text" placeholder="Complete address detail" value={cardFormData.address} onChange={e => setCardFormData({ ...cardFormData, address: e.target.value })} />
                                     </div>
+                                </div>
+
+                                {/* Member Identity */}
+                                <div className="col-12 col-sm-6">
+                                    <label className="figma-pass-label"><User size={11} /> Member Identity</label>
+                                    <div className="figma-pass-input-box">
+                                        <input type="text" placeholder="Display name on card" value={cardFormData.name} onChange={e => setCardFormData({ ...cardFormData, name: e.target.value })} required />
+                                    </div>
+                                </div>
+
+                                {/* Festival Context */}
+                                <div className="col-12 col-sm-6">
+                                    <label className="figma-pass-label"><Sparkles size={11} /> Festival Context</label>
+                                    <div className="figma-pass-input-box">
+                                        <input type="text" placeholder="Primary festival title" value={cardFormData.festOrEventName} onChange={e => setCardFormData({ ...cardFormData, festOrEventName: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                {/* Entity Branding */}
+                                <div className="col-12 col-sm-6">
+                                    <label className="figma-pass-label"><Building2 size={11} /> Entity Branding</label>
+                                    <div className="figma-pass-input-box">
+                                        <input type="text" placeholder="e.g. Blue Lagoon Entity" value={cardFormData.entityName} onChange={e => setCardFormData({ ...cardFormData, entityName: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                {/* Access Level */}
+                                <div className="col-12 col-sm-6">
+                                    <label className="figma-pass-label"><Crown size={11} /> Access Level</label>
+                                    <div className="figma-pass-input-box">
+                                        <select value={cardFormData.membershipType} onChange={e => setCardFormData({ ...cardFormData, membershipType: e.target.value })}>
+                                            <option value="Regular" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Volunteers</option>
+                                            <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime Member</option>
+                                            <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP Elite</option>
+                                            <option value="Admin" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrator</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Group Size */}
+                                <div className="col-12 col-sm-4">
+                                    <label className="figma-pass-label"><Layers size={11} /> Group Size</label>
+                                    <div className="figma-pass-input-box">
+                                        <input type="number" min="0" value={cardFormData.familyMembers} onChange={e => setCardFormData({ ...cardFormData, familyMembers: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                {/* Effective From */}
+                                <div className="col-6 col-sm-4">
+                                    <label className="figma-pass-label"><Calendar size={11} /> Effective From</label>
+                                    <div className="figma-pass-input-box">
+                                        <input type="date" value={cardFormData.fromDate} onChange={e => setCardFormData({ ...cardFormData, fromDate: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                {/* Expiry Date */}
+                                <div className="col-6 col-sm-4">
+                                    <label className="figma-pass-label"><Calendar size={11} /> Expiry Date</label>
+                                    <div className="figma-pass-input-box">
+                                        <input type="date" value={cardFormData.toDate} onChange={e => setCardFormData({ ...cardFormData, toDate: e.target.value })} />
+                                    </div>
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="col-12 mt-3 pt-2 border-top border-secondary border-opacity-15 d-flex gap-2">
+                                    <button type="submit" className="figma-btn-generate-pass">
+                                        <Zap size={14} /> {editingCardId ? 'Authorize Card Updates' : 'Generate Digital Pass Identity'}
+                                    </button>
+                                    <button type="button" onClick={() => { setIsCardAdding(false); setEditingCardId(null); }} className="figma-btn-abort-pass">
+                                        Cancel
+                                    </button>
                                 </div>
                             </form>
                         </motion.div>
