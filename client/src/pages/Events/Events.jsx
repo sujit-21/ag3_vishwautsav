@@ -1117,7 +1117,7 @@ const Events = () => {
                                             </div>
 
                                             {/* Right Side: Actions */}
-                                            <div className="d-flex align-items-center gap-2 ms-lg-auto border-top border-lg-0 pt-2 pt-lg-0 border-secondary border-opacity-10 mt-2 mt-lg-0 flex-wrap">
+                                            <div className="d-flex align-items-center gap-2 ms-lg-auto mt-2 mt-lg-0 flex-wrap">
                                                 {/* Go Live Toggle Button */}
                                                 {user?.role === 'admin' && (
                                                     <button
