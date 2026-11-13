@@ -1273,12 +1273,12 @@ export const exportMembersDirectoryPDF = ({
 
     // Table starts directly below KPIs
     // Total printable width = 194mm (210mm A4 - 16mm margins: left 8mm, right 8mm)
-    // Column widths: 6.5 + 42 + 60 + 25 + 22 + 27 + 11.5 = 194.0mm
-    // Widened Full Name (42mm) and Role (60mm) to guarantee single-line fit without wrapping
+    // Column widths: 6 + 38 + 54 + 24 + 26 + 31 + 15 = 194.0mm
+    // Font sizes and paddings tightened to eliminate unnecessary line breaks and vertical spaces
     autoTable(doc, {
         startY: 47,
         margin: { left: 8, right: 8 },
-        head: [['#', 'Full Name', 'Role / Designation', 'Wing / Department', 'Contact', 'Email Address', 'Status']],
+        head: [['#', 'Full Name', 'Role / Designation', 'Department', 'Contact', 'Email Address', 'Status']],
         body: list.map((m, idx) => [
             String(idx + 1),
             String(m.name || '—'),
@@ -1292,26 +1292,26 @@ export const exportMembersDirectoryPDF = ({
         headStyles: {
             fillColor: FIGMA_COLORS.navyDark,
             textColor: [255, 255, 255],
-            fontSize: 7.8,
+            fontSize: 7.0,
             fontStyle: 'bold',
             halign: 'left',
-            cellPadding: { top: 2.8, bottom: 2.8, left: 2, right: 2 }
+            cellPadding: { top: 2.2, bottom: 2.2, left: 1.5, right: 1.5 }
         },
         bodyStyles: {
-            fontSize: 7.2,
+            fontSize: 6.8,
             textColor: FIGMA_COLORS.textDark,
-            cellPadding: list.length <= 12 ? { top: 3.4, bottom: 3.4, left: 2, right: 2 } : { top: 2.4, bottom: 2.4, left: 1.8, right: 1.8 },
+            cellPadding: { top: 2.0, bottom: 2.0, left: 1.5, right: 1.5 },
             lineColor: FIGMA_COLORS.border,
             lineWidth: 0.15
         },
         columnStyles: {
-            0: { cellWidth: 6.5, halign: 'center' },
-            1: { cellWidth: 42, fontStyle: 'bold' },
-            2: { cellWidth: 60, fontStyle: 'bold' },
-            3: { cellWidth: 25 },
-            4: { cellWidth: 22 },
-            5: { cellWidth: 27 },
-            6: { cellWidth: 11.5, halign: 'center', fontStyle: 'bold' }
+            0: { cellWidth: 6, halign: 'center' },
+            1: { cellWidth: 38, fontStyle: 'bold' },
+            2: { cellWidth: 54, fontStyle: 'bold' },
+            3: { cellWidth: 24 },
+            4: { cellWidth: 26 }, // 26mm guarantees phone numbers like +91 9875557320 fit on 1 line
+            5: { cellWidth: 31 },
+            6: { cellWidth: 15, halign: 'center', fontStyle: 'bold' } // 15mm guarantees "Status" fits on 1 line without wrapping
         },
         didParseCell: (data) => {
             if (data.row.section === 'body') {
@@ -1330,12 +1330,12 @@ export const exportMembersDirectoryPDF = ({
                 // Auto-scale Full Name so it NEVER wraps
                 if (data.column.index === 1) {
                     const text = String(data.cell.raw || data.cell.text?.[0] || '')
-                    const usableW = 38
-                    let fs = 7.4
+                    const usableW = 35
+                    let fs = 7.0
                     doc.setFont('helvetica', 'bold')
                     doc.setFontSize(fs)
-                    while (doc.getTextWidth(text) > usableW && fs > 5.8) {
-                        fs -= 0.3
+                    while (doc.getTextWidth(text) > usableW && fs > 5.5) {
+                        fs -= 0.2
                         doc.setFontSize(fs)
                     }
                     data.cell.styles.fontSize = fs
@@ -1344,26 +1344,31 @@ export const exportMembersDirectoryPDF = ({
                 // Auto-scale Role / Designation so it NEVER wraps
                 if (data.column.index === 2) {
                     const text = String(data.cell.raw || data.cell.text?.[0] || '')
-                    const usableW = 56
-                    let fs = 7.0
+                    const usableW = 51
+                    let fs = 6.8
                     doc.setFont('helvetica', 'bold')
                     doc.setFontSize(fs)
-                    while (doc.getTextWidth(text) > usableW && fs > 5.5) {
-                        fs -= 0.3
+                    while (doc.getTextWidth(text) > usableW && fs > 5.2) {
+                        fs -= 0.2
                         doc.setFontSize(fs)
                     }
                     data.cell.styles.fontSize = fs
                 }
 
+                // Ensure single line Contact
+                if (data.column.index === 4) {
+                    data.cell.styles.fontSize = 6.8
+                }
+
                 // Auto-scale Email Address so it NEVER wraps
                 if (data.column.index === 5) {
                     const text = String(data.cell.raw || data.cell.text?.[0] || '')
-                    const usableW = 23
-                    let fs = 6.8
+                    const usableW = 28
+                    let fs = 6.5
                     doc.setFont('helvetica', 'normal')
                     doc.setFontSize(fs)
-                    while (doc.getTextWidth(text) > usableW && fs > 5.2) {
-                        fs -= 0.3
+                    while (doc.getTextWidth(text) > usableW && fs > 5.0) {
+                        fs -= 0.2
                         doc.setFontSize(fs)
                     }
                     data.cell.styles.fontSize = fs
@@ -1371,6 +1376,7 @@ export const exportMembersDirectoryPDF = ({
 
                 // Highlight Status
                 if (data.column.index === 6) {
+                    data.cell.styles.fontSize = 6.8
                     const statusVal = data.cell.text?.[0]
                     if (statusVal === 'Active') {
                         data.cell.styles.textColor = [4, 120, 87] // Green
@@ -1389,66 +1395,66 @@ export const exportMembersDirectoryPDF = ({
     const pageH = 297
     const footerTop = pageH - 14
 
-    if (finalTableY + 45 < footerTop) {
-        const boxY = finalTableY + 6
-        const boxH = Math.min(38, footerTop - boxY - 4)
+    if (finalTableY + 40 < footerTop) {
+        const boxY = finalTableY + 5
+        const boxH = Math.min(32, footerTop - boxY - 4)
 
         // Attestation Container Box across full 194mm width
         doc.setFillColor(...FIGMA_COLORS.lightBg)
-        doc.roundedRect(8, boxY, 194, boxH, 2.5, 2.5, 'F')
+        doc.roundedRect(8, boxY, 194, boxH, 2, 2, 'F')
         doc.setDrawColor(...FIGMA_COLORS.border)
         doc.setLineWidth(0.3)
-        doc.roundedRect(8, boxY, 194, boxH, 2.5, 2.5, 'S')
+        doc.roundedRect(8, boxY, 194, boxH, 2, 2, 'S')
 
         // Top Accent Strip
         doc.setFillColor(...FIGMA_COLORS.saffron)
-        doc.rect(10, boxY, 190, 1.2, 'F')
+        doc.rect(10, boxY, 190, 1.0, 'F')
 
         // Left Section: Certification Statement
         doc.setFont('helvetica', 'bold')
-        doc.setFontSize(7.2)
+        doc.setFontSize(6.8)
         doc.setTextColor(...FIGMA_COLORS.slateNavy)
-        doc.text('OFFICIAL ROSTER CERTIFICATION & GOVERNANCE ATTESTATION', 12, boxY + 6.2)
+        doc.text('OFFICIAL ROSTER CERTIFICATION & GOVERNANCE ATTESTATION', 12, boxY + 5.5)
 
         doc.setFont('helvetica', 'normal')
-        doc.setFontSize(6.4)
+        doc.setFontSize(6.2)
         doc.setTextColor(...FIGMA_COLORS.textDark)
         const certDesc = `This official document certifies the active executive council, departmental coordinators, and volunteer members appointed for ${resolvedFestivalName || portalType} under the administrative governance of ${entityName || 'Vishwa Utsav'}. All designated members are verified for committee operations and representation.`
         const wrappedDesc = doc.splitTextToSize(certDesc, 115)
-        doc.text(wrappedDesc, 12, boxY + 11.5)
+        doc.text(wrappedDesc, 12, boxY + 10.2)
 
         // Metadata Pills
         doc.setFont('helvetica', 'bold')
-        doc.setFontSize(6.0)
+        doc.setFontSize(5.8)
         doc.setTextColor(...FIGMA_COLORS.emeraldDark)
-        doc.text(`[VERIFIED STRENGTH: ${list.length} MEMBERS]    [STATUS: ACTIVE ROSTER]    [SECURITY: ENTITY AUDITED]`, 12, boxY + boxH - 4.5)
+        doc.text(`[VERIFIED STRENGTH: ${list.length} MEMBERS]    [STATUS: ACTIVE ROSTER]    [SECURITY: ENTITY AUDITED]`, 12, boxY + boxH - 3.8)
 
         // Right Section: Dual Authorized Signatures
-        const sigLineY = boxY + boxH - 9
+        const sigLineY = boxY + boxH - 8
 
         // 1. President / Convener Signature
         doc.setDrawColor(...FIGMA_COLORS.muted)
         doc.setLineWidth(0.3)
         doc.line(134, sigLineY, 160, sigLineY)
         doc.setFont('helvetica', 'bold')
-        doc.setFontSize(6.2)
+        doc.setFontSize(6.0)
         doc.setTextColor(...FIGMA_COLORS.slateNavy)
-        doc.text('President / Convener', 134, sigLineY + 3.5)
+        doc.text('President / Convener', 134, sigLineY + 3.2)
         doc.setFont('helvetica', 'normal')
-        doc.setFontSize(5.5)
+        doc.setFontSize(5.2)
         doc.setTextColor(...FIGMA_COLORS.muted)
-        doc.text('Executive Authority', 134, sigLineY + 6.5)
+        doc.text('Executive Authority', 134, sigLineY + 5.8)
 
         // 2. General Secretary / Treasurer Signature
         doc.line(166, sigLineY, 196, sigLineY)
         doc.setFont('helvetica', 'bold')
-        doc.setFontSize(6.2)
+        doc.setFontSize(6.0)
         doc.setTextColor(...FIGMA_COLORS.slateNavy)
-        doc.text('General Secretary / Cashier', 166, sigLineY + 3.5)
+        doc.text('General Secretary / Cashier', 166, sigLineY + 3.2)
         doc.setFont('helvetica', 'normal')
-        doc.setFontSize(5.5)
+        doc.setFontSize(5.2)
         doc.setTextColor(...FIGMA_COLORS.muted)
-        doc.text('Official Entity Stamp & Seal', 166, sigLineY + 6.5)
+        doc.text('Official Entity Stamp & Seal', 166, sigLineY + 5.8)
     }
 
     drawFooter(doc, false)
