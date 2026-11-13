@@ -13,7 +13,7 @@ const SubscriptionSchema = new mongoose.Schema({
     referenceName: { type: String },
     onlineParticulars: { type: String },
     onlineReference: { type: String },
-    membershipType: { type: String, enum: ['Prime', 'Non-Prime', 'VIP', 'Admin'], default: 'Non-Prime' },
+    membershipType: { type: String, enum: ['Prime', 'Non-Prime', 'None', 'VIP', 'Regular', 'Admin'], default: 'None' },
     entityName: { type: String },
     festOrEventName: { type: String },
     type: { type: String, enum: ['festival', 'event'], required: true },

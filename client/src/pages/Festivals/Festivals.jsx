@@ -305,7 +305,7 @@ const Festivals = () => {
         currency: '₹',
         paymentType: 'Cash & Paid',
         referenceName: '',
-        membershipType: 'Non-Prime',
+        membershipType: 'None',
         cardColor: '#1e293b',
         entityName: '',
         festOrEventName: '',
@@ -861,6 +861,7 @@ const Festivals = () => {
             )
             const matchesMembership = subMembershipFilter === 'all' || 
                 sub.membershipType === subMembershipFilter || 
+                ((subMembershipFilter === 'None' || subMembershipFilter === 'Non-Prime') && (sub.membershipType === 'None' || sub.membershipType === 'Non-Prime' || !sub.membershipType)) ||
                 (subMembershipFilter === 'Administrative' && (sub.membershipType === 'Administrative' || sub.membershipType === 'Admin'))
             const matchesPayment = subPaymentFilter === 'all' || sub.paymentType === subPaymentFilter
             return matchesSearch && matchesMembership && matchesPayment
@@ -1432,7 +1433,7 @@ const Festivals = () => {
                                     <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Tier: All</option>
                                     <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP</option>
                                     <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime</option>
-                                    <option value="Non-Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Non-Prime</option>
+                                    <option value="None" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>None</option>
                                     <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
                                 </select>
                             </div>
@@ -3120,7 +3121,7 @@ const Festivals = () => {
                                         date: new Date().toISOString().split('T')[0],
                                         subId: generateSubID(),
                                         name: '', address: '', contact: '', countryCode: '+91', amount: '', currency: '₹',
-                                        paymentType: 'Cash & Paid', referenceName: '', membershipType: 'Non-Prime', cardColor: '#1e293b', clubOrOrg: '', festOrEventName: '', onlineParticulars: '', onlineReference: ''
+                                        paymentType: 'Cash & Paid', referenceName: '', membershipType: 'None', cardColor: '#1e293b', clubOrOrg: '', festOrEventName: '', onlineParticulars: '', onlineReference: ''
                                     })
                                 } catch (err) {
                                     toast.error(err.response?.data?.message || 'Error saving subscription')
@@ -3223,9 +3224,14 @@ const Festivals = () => {
                                             }}>
                                                 <Crown size={16} />
                                             </div>
-                                            <select className="luxury-input-field fw-semibold" style={{ cursor: 'pointer' }} value={subFormData.membershipType} onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}>
-                                                <option value="Prime">Prime Member</option>
+                                            <select 
+                                                className="luxury-input-field fw-semibold" 
+                                                style={{ cursor: 'pointer' }} 
+                                                value={subFormData.membershipType === 'Non-Prime' ? 'None' : (subFormData.membershipType || 'None')} 
+                                                onChange={e => setSubFormData({ ...subFormData, membershipType: e.target.value })}
+                                            >
                                                 <option value="None">None</option>
+                                                <option value="Prime">Prime Member</option>
                                                 <option value="VIP">VIP Access</option>
                                                 <option value="Admin">Administrative</option>
                                             </select>
