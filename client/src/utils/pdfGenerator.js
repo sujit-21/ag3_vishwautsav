@@ -1238,10 +1238,10 @@ export const exportMembersDirectoryPDF = ({
         isLandscape: false
     })
 
-    // 3 Bento KPI Mini-Cards across 182mm (Y = 31mm, height = 13mm)
+    // 3 Bento KPI Mini-Cards across full 194mm width (margins: left 8mm, right 8mm)
     const cardY = 31
     const cardH = 13
-    const cardW = 58
+    const cardW = 62
     const gap = 4
     const kpis = [
         { label: 'TOTAL COMMITTEE MEMBERS', value: `${list.length} Members`, color: FIGMA_COLORS.slateNavy },
@@ -1250,7 +1250,7 @@ export const exportMembersDirectoryPDF = ({
     ]
 
     kpis.forEach((kpi, idx) => {
-        const x = 14 + idx * (cardW + gap)
+        const x = 8 + idx * (cardW + gap)
         doc.setFillColor(...FIGMA_COLORS.lightBg)
         doc.roundedRect(x, cardY, cardW, cardH, 2, 2, 'F')
         doc.setDrawColor(...FIGMA_COLORS.border)
@@ -1272,12 +1272,12 @@ export const exportMembersDirectoryPDF = ({
     })
 
     // Table starts directly below KPIs
-    // Total printable width = 182mm (210mm A4 - 28mm margins)
-    // Column widths: 8 + 34 + 32 + 25 + 24 + 45 + 14 = 182mm
-    // 45mm for Email guarantees single-line rendering without splitting/wrapping
+    // Total printable width = 194mm (210mm A4 - 16mm margins: left 8mm, right 8mm)
+    // Column widths: 6.5 + 42 + 60 + 25 + 22 + 27 + 11.5 = 194.0mm
+    // Widened Full Name (42mm) and Role (60mm) to guarantee single-line fit without wrapping
     autoTable(doc, {
         startY: 47,
-        margin: { left: 14, right: 14 },
+        margin: { left: 8, right: 8 },
         head: [['#', 'Full Name', 'Role / Designation', 'Wing / Department', 'Contact', 'Email Address', 'Status']],
         body: list.map((m, idx) => [
             String(idx + 1),
@@ -1295,23 +1295,23 @@ export const exportMembersDirectoryPDF = ({
             fontSize: 7.8,
             fontStyle: 'bold',
             halign: 'left',
-            cellPadding: { top: 2.5, bottom: 2.5, left: 2.5, right: 2.5 }
+            cellPadding: { top: 2.8, bottom: 2.8, left: 2, right: 2 }
         },
         bodyStyles: {
             fontSize: 7.2,
             textColor: FIGMA_COLORS.textDark,
-            cellPadding: { top: 2.2, bottom: 2.2, left: 2.5, right: 2.5 },
+            cellPadding: list.length <= 12 ? { top: 3.4, bottom: 3.4, left: 2, right: 2 } : { top: 2.4, bottom: 2.4, left: 1.8, right: 1.8 },
             lineColor: FIGMA_COLORS.border,
             lineWidth: 0.15
         },
         columnStyles: {
-            0: { cellWidth: 8, halign: 'center' },
-            1: { cellWidth: 34, fontStyle: 'bold' },
-            2: { cellWidth: 32, fontStyle: 'bold' },
+            0: { cellWidth: 6.5, halign: 'center' },
+            1: { cellWidth: 42, fontStyle: 'bold' },
+            2: { cellWidth: 60, fontStyle: 'bold' },
             3: { cellWidth: 25 },
-            4: { cellWidth: 24 },
-            5: { cellWidth: 45, fontSize: 6.8 }, // Wide 45mm column ensures full single-line email display
-            6: { cellWidth: 14, halign: 'center', fontStyle: 'bold' }
+            4: { cellWidth: 22 },
+            5: { cellWidth: 27 },
+            6: { cellWidth: 11.5, halign: 'center', fontStyle: 'bold' }
         },
         didParseCell: (data) => {
             if (data.row.section === 'body') {
@@ -1327,9 +1327,46 @@ export const exportMembersDirectoryPDF = ({
                     }
                 }
 
-                // Ensure single line font size for Email Address column
+                // Auto-scale Full Name so it NEVER wraps
+                if (data.column.index === 1) {
+                    const text = String(data.cell.raw || data.cell.text?.[0] || '')
+                    const usableW = 38
+                    let fs = 7.4
+                    doc.setFont('helvetica', 'bold')
+                    doc.setFontSize(fs)
+                    while (doc.getTextWidth(text) > usableW && fs > 5.8) {
+                        fs -= 0.3
+                        doc.setFontSize(fs)
+                    }
+                    data.cell.styles.fontSize = fs
+                }
+
+                // Auto-scale Role / Designation so it NEVER wraps
+                if (data.column.index === 2) {
+                    const text = String(data.cell.raw || data.cell.text?.[0] || '')
+                    const usableW = 56
+                    let fs = 7.0
+                    doc.setFont('helvetica', 'bold')
+                    doc.setFontSize(fs)
+                    while (doc.getTextWidth(text) > usableW && fs > 5.5) {
+                        fs -= 0.3
+                        doc.setFontSize(fs)
+                    }
+                    data.cell.styles.fontSize = fs
+                }
+
+                // Auto-scale Email Address so it NEVER wraps
                 if (data.column.index === 5) {
-                    data.cell.styles.fontSize = 6.8
+                    const text = String(data.cell.raw || data.cell.text?.[0] || '')
+                    const usableW = 23
+                    let fs = 6.8
+                    doc.setFont('helvetica', 'normal')
+                    doc.setFontSize(fs)
+                    while (doc.getTextWidth(text) > usableW && fs > 5.2) {
+                        fs -= 0.3
+                        doc.setFontSize(fs)
+                    }
+                    data.cell.styles.fontSize = fs
                 }
 
                 // Highlight Status
@@ -1346,6 +1383,73 @@ export const exportMembersDirectoryPDF = ({
             }
         }
     })
+
+    // Utilize the remaining space of the page with Official Endorsement & Verification Box
+    const finalTableY = doc.lastAutoTable?.finalY || 160
+    const pageH = 297
+    const footerTop = pageH - 14
+
+    if (finalTableY + 45 < footerTop) {
+        const boxY = finalTableY + 6
+        const boxH = Math.min(38, footerTop - boxY - 4)
+
+        // Attestation Container Box across full 194mm width
+        doc.setFillColor(...FIGMA_COLORS.lightBg)
+        doc.roundedRect(8, boxY, 194, boxH, 2.5, 2.5, 'F')
+        doc.setDrawColor(...FIGMA_COLORS.border)
+        doc.setLineWidth(0.3)
+        doc.roundedRect(8, boxY, 194, boxH, 2.5, 2.5, 'S')
+
+        // Top Accent Strip
+        doc.setFillColor(...FIGMA_COLORS.saffron)
+        doc.rect(10, boxY, 190, 1.2, 'F')
+
+        // Left Section: Certification Statement
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(7.2)
+        doc.setTextColor(...FIGMA_COLORS.slateNavy)
+        doc.text('OFFICIAL ROSTER CERTIFICATION & GOVERNANCE ATTESTATION', 12, boxY + 6.2)
+
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(6.4)
+        doc.setTextColor(...FIGMA_COLORS.textDark)
+        const certDesc = `This official document certifies the active executive council, departmental coordinators, and volunteer members appointed for ${resolvedFestivalName || portalType} under the administrative governance of ${entityName || 'Vishwa Utsav'}. All designated members are verified for committee operations and representation.`
+        const wrappedDesc = doc.splitTextToSize(certDesc, 115)
+        doc.text(wrappedDesc, 12, boxY + 11.5)
+
+        // Metadata Pills
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(6.0)
+        doc.setTextColor(...FIGMA_COLORS.emeraldDark)
+        doc.text(`[VERIFIED STRENGTH: ${list.length} MEMBERS]    [STATUS: ACTIVE ROSTER]    [SECURITY: ENTITY AUDITED]`, 12, boxY + boxH - 4.5)
+
+        // Right Section: Dual Authorized Signatures
+        const sigLineY = boxY + boxH - 9
+
+        // 1. President / Convener Signature
+        doc.setDrawColor(...FIGMA_COLORS.muted)
+        doc.setLineWidth(0.3)
+        doc.line(134, sigLineY, 160, sigLineY)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(6.2)
+        doc.setTextColor(...FIGMA_COLORS.slateNavy)
+        doc.text('President / Convener', 134, sigLineY + 3.5)
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(5.5)
+        doc.setTextColor(...FIGMA_COLORS.muted)
+        doc.text('Executive Authority', 134, sigLineY + 6.5)
+
+        // 2. General Secretary / Treasurer Signature
+        doc.line(166, sigLineY, 196, sigLineY)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(6.2)
+        doc.setTextColor(...FIGMA_COLORS.slateNavy)
+        doc.text('General Secretary / Cashier', 166, sigLineY + 3.5)
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(5.5)
+        doc.setTextColor(...FIGMA_COLORS.muted)
+        doc.text('Official Entity Stamp & Seal', 166, sigLineY + 6.5)
+    }
 
     drawFooter(doc, false)
     const filePrefix = resolvedFestivalName ? resolvedFestivalName.replace(/[^a-zA-Z0-9_-]/g, '_') : portalType
