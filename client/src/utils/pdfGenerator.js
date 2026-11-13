@@ -1201,3 +1201,126 @@ export const exportSingleExpenseVoucherPDF = async ({ exp, festOrEvent = {}, ent
     drawFooter(doc, false)
     doc.save(`Expense_${exp.expenseId || 'Voucher'}.pdf`)
 }
+
+// ============================================================================
+// 7. COMMITTEE & MEMBERS DIRECTORY (A4 PORTRAIT: 210mm x 297mm)
+// ============================================================================
+export const exportMembersDirectoryPDF = ({ membersList = [], entityName = '', portalType = 'Festival' }) => {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const list = membersList || []
+
+    const execCount = list.filter(m => /president|secretary|treasurer|lead|head|director/i.test(m.role || '')).length
+    const activeCount = list.filter(m => m.status === 'Active').length
+
+    // Centered Header
+    drawHeader(doc, {
+        title: `${portalType} Committee & Members Directory`,
+        subtitle: `Entity: ${entityName || 'Vishwa Utsav'}  |  Roster: ${list.length} Members  |  Generated: ${new Date().toLocaleString()}`,
+        accentColor: FIGMA_COLORS.saffron,
+        isLandscape: false
+    })
+
+    // 3 Bento KPI Mini-Cards across 182mm (Y = 31mm, height = 13mm)
+    const cardY = 31
+    const cardH = 13
+    const cardW = 58
+    const gap = 4
+    const kpis = [
+        { label: 'TOTAL COMMITTEE MEMBERS', value: `${list.length} Members`, color: FIGMA_COLORS.slateNavy },
+        { label: 'EXECUTIVE LEADERSHIP', value: `${execCount} Leaders`, color: FIGMA_COLORS.saffron },
+        { label: 'ACTIVE ON ROSTER', value: `${activeCount} Active`, color: FIGMA_COLORS.emerald }
+    ]
+
+    kpis.forEach((kpi, idx) => {
+        const x = 14 + idx * (cardW + gap)
+        doc.setFillColor(...FIGMA_COLORS.lightBg)
+        doc.roundedRect(x, cardY, cardW, cardH, 2, 2, 'F')
+        doc.setDrawColor(...FIGMA_COLORS.border)
+        doc.setLineWidth(0.3)
+        doc.roundedRect(x, cardY, cardW, cardH, 2, 2, 'S')
+
+        doc.setFillColor(...kpi.color)
+        doc.rect(x + 2, cardY, cardW - 4, 1.2, 'F')
+
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(6.2)
+        doc.setTextColor(...FIGMA_COLORS.muted)
+        doc.text(kpi.label, x + 3.5, cardY + 5.2)
+
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(9.5)
+        doc.setTextColor(...kpi.color)
+        doc.text(kpi.value, x + 3.5, cardY + 10.2)
+    })
+
+    // Table starts directly below KPIs
+    autoTable(doc, {
+        startY: 47,
+        margin: { left: 14, right: 14 },
+        head: [['#', 'Full Name', 'Role / Designation', 'Wing / Department', 'Contact', 'Email / Notes', 'Status']],
+        body: list.map((m, idx) => [
+            String(idx + 1),
+            String(m.name || '—'),
+            String(m.role || 'Member'),
+            String(m.department || 'General Committee'),
+            m.contact ? `${m.countryCode || '+91'} ${m.contact}` : '—',
+            String(m.email || m.notes || '—'),
+            String(m.status || 'Active')
+        ]),
+        theme: 'grid',
+        headStyles: {
+            fillColor: FIGMA_COLORS.navyDark,
+            textColor: [255, 255, 255],
+            fontSize: 7.8,
+            fontStyle: 'bold',
+            halign: 'left',
+            cellPadding: { top: 2.5, bottom: 2.5, left: 2.5, right: 2.5 }
+        },
+        bodyStyles: {
+            fontSize: 7.2,
+            textColor: FIGMA_COLORS.textDark,
+            cellPadding: { top: 2.2, bottom: 2.2, left: 2.5, right: 2.5 },
+            lineColor: FIGMA_COLORS.border,
+            lineWidth: 0.15
+        },
+        columnStyles: {
+            0: { cellWidth: 9, halign: 'center' },
+            1: { cellWidth: 38, fontStyle: 'bold' },
+            2: { cellWidth: 36, fontStyle: 'bold' },
+            3: { cellWidth: 32 },
+            4: { cellWidth: 26 },
+            5: { cellWidth: 26 },
+            6: { cellWidth: 15, halign: 'center', fontStyle: 'bold' }
+        },
+        didParseCell: (data) => {
+            if (data.row.section === 'body') {
+                const isEvenRow = data.row.index % 2 === 0
+                data.cell.styles.fillColor = isEvenRow ? FIGMA_COLORS.white : FIGMA_COLORS.lightBg
+
+                // Highlight Executives
+                const roleText = String(data.row.cells?.[2]?.text?.[0] || '')
+                if (/president|secretary|treasurer/i.test(roleText)) {
+                    if (data.column.index === 1 || data.column.index === 2) {
+                        data.cell.styles.fillColor = [254, 243, 199] // Soft gold
+                        data.cell.styles.textColor = [180, 83, 9]     // Amber
+                    }
+                }
+
+                // Highlight Status
+                if (data.column.index === 6) {
+                    const statusVal = data.cell.text?.[0]
+                    if (statusVal === 'Active') {
+                        data.cell.styles.textColor = [4, 120, 87] // Green
+                    } else if (statusVal === 'Honorary') {
+                        data.cell.styles.textColor = [30, 64, 175] // Blue
+                    } else {
+                        data.cell.styles.textColor = [156, 163, 175] // Gray
+                    }
+                }
+            }
+        }
+    })
+
+    drawFooter(doc, false)
+    doc.save(`Members_${String(entityName || 'Directory').replace(/\s+/g, '_')}.pdf`)
+}

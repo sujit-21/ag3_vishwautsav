@@ -20,6 +20,7 @@ import {
     exportBalanceSheetPDF,
     exportMasterDataPackagePDF
 } from '../../utils/pdfGenerator'
+import MembersSection from '../../components/MembersSection'
 
 const countryCodes = [
     { code: '+91', country: 'IN' },
@@ -191,7 +192,7 @@ const Events = () => {
         currency: '₹'
     })
     const [searchParams, setSearchParams] = useSearchParams()
-    const validTabs = ['events', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'activity_logs', 'data']
+    const validTabs = ['members', 'events', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'activity_logs', 'data']
     const urlTab = searchParams.get('tab')
     const [isDataOpen, setIsDataOpen] = useState(urlTab === 'data')
     const [activeTab, setActiveTab] = useState(
@@ -1000,6 +1001,13 @@ const Events = () => {
             <AnimatePresence>
                 {/* Subscriptions Modal moved to end */}
             </AnimatePresence>
+
+            {activeTab === 'members' && (
+                <MembersSection 
+                    type="event" 
+                    activeEntity={activeEvent?.entityName || user?.entityName} 
+                />
+            )}
 
             {activeTab === 'events' && (
                 <>
