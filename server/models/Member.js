@@ -18,3 +18,4 @@ const MemberSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model('Member', MemberSchema);
+

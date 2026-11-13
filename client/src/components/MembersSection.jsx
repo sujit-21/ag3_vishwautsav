@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { 
     Users, Plus, Search, FileDown, Edit3, Trash2, Phone, Mail, 
     ShieldCheck, CheckCircle2, Sparkles, Filter, X, Save, 
-    MessageCircle, Award, UserCheck, ChevronDown
+    MessageCircle, Award, UserCheck, ChevronDown, MapPin, Tag, Crown,
+    BadgeCheck, ExternalLink
 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
@@ -36,18 +37,42 @@ const ROLE_PRESETS = [
     'Other / Custom'
 ]
 
-const getRoleBadgeStyle = (role = '') => {
+const getRoleStyle = (role = '') => {
     const r = role.toLowerCase()
     if (r.includes('president') || r.includes('secretary')) {
-        return { bg: 'rgba(245, 158, 11, 0.15)', text: '#d97706', border: 'rgba(245, 158, 11, 0.3)' } // Amber Gold
+        return { 
+            bg: 'rgba(245, 158, 11, 0.12)', 
+            text: '#b45309', 
+            border: 'rgba(245, 158, 11, 0.35)',
+            accent: '#f59e0b',
+            icon: Crown
+        }
     }
     if (r.includes('treasurer') || r.includes('account')) {
-        return { bg: 'rgba(16, 185, 129, 0.15)', text: '#059669', border: 'rgba(16, 185, 129, 0.3)' } // Emerald
+        return { 
+            bg: 'rgba(16, 185, 129, 0.12)', 
+            text: '#047857', 
+            border: 'rgba(16, 185, 129, 0.35)',
+            accent: '#10b981',
+            icon: ShieldCheck
+        }
     }
     if (r.includes('cultural') || r.includes('lead') || r.includes('head')) {
-        return { bg: 'rgba(139, 92, 246, 0.15)', text: '#7c3aed', border: 'rgba(139, 92, 246, 0.3)' } // Purple
+        return { 
+            bg: 'rgba(139, 92, 246, 0.12)', 
+            text: '#6d28d9', 
+            border: 'rgba(139, 92, 246, 0.35)',
+            accent: '#8b5cf6',
+            icon: Sparkles
+        }
     }
-    return { bg: 'rgba(37, 99, 235, 0.12)', text: '#2563eb', border: 'rgba(37, 99, 235, 0.25)' }     // Blue
+    return { 
+        bg: 'rgba(37, 99, 235, 0.1)', 
+        text: '#1d4ed8', 
+        border: 'rgba(37, 99, 235, 0.3)',
+        accent: '#3b82f6',
+        icon: Users
+    }
 }
 
 export default function MembersSection({ type = 'festival', activeEntity = '' }) {
@@ -101,7 +126,8 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                 m.name?.toLowerCase().includes(search.toLowerCase()) ||
                 m.role?.toLowerCase().includes(search.toLowerCase()) ||
                 m.contact?.includes(search) ||
-                m.email?.toLowerCase().includes(search.toLowerCase())
+                m.email?.toLowerCase().includes(search.toLowerCase()) ||
+                m.address?.toLowerCase().includes(search.toLowerCase())
 
             const matchesDept = selectedDept === 'All' || m.department === selectedDept
             const matchesStatus = selectedStatus === 'All' || m.status === selectedStatus
@@ -212,40 +238,40 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
     }
 
     return (
-        <div className="members-section-wrapper mb-4">
+        <div className="figma-members-container mx-auto w-100 mb-4 animate-in">
             {/* Top Bar Header */}
-            <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
-                <div>
-                    <div className="d-flex align-items-center gap-2">
-                        <div className="p-1.5 rounded-2 d-inline-flex" style={{ background: 'rgba(224, 122, 67, 0.15)', color: 'var(--palette-terracotta)' }}>
-                            <Users size={18} />
-                        </div>
-                        <h5 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.3px' }}>
-                            {type === 'festival' ? 'Festival' : 'Event'} Committee &amp; Members
-                        </h5>
+            <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+                <div className="d-flex align-items-center gap-3">
+                    <div className="figma-members-header-emblem shadow-sm">
+                        <Users size={22} />
                     </div>
-                    <p className="text-muted extra-tiny mb-0 mt-1">
-                        Official executive council, department heads, and festival volunteers for {activeEntity || 'your entity'}.
-                    </p>
+                    <div>
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                            <h4 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.02em', fontSize: '1.25rem' }}>
+                                {type === 'festival' ? 'Festival' : 'Event'} Committee &amp; Members
+                            </h4>
+                            <span className="figma-pass-count-pill shadow-xs">
+                                <Sparkles size={11} /> {metrics.total} Registered
+                            </span>
+                        </div>
+                        <p className="text-muted extra-tiny mb-0 mt-0.5">
+                            Official executive council, department coordinators, and volunteers for <span className="text-primary fw-bold">{activeEntity || 'your entity'}</span>.
+                        </p>
+                    </div>
                 </div>
 
                 {/* Right Top Actions: Download PDF & Add Member */}
-                <div className="d-flex align-items-center gap-2 flex-wrap">
+                <div className="d-flex align-items-center gap-2.5 flex-wrap">
                     <button
                         onClick={handleDownloadPDF}
                         disabled={filteredMembers.length === 0}
-                        title="Export Official Committee Members Directory as A4 PDF"
-                        className="btn btn-sm d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-bold shadow-sm transition-all"
-                        style={{
-                            background: 'var(--input-bg)',
-                            border: '1px solid var(--glass-border)',
-                            color: 'var(--text-main)',
-                            fontSize: '0.78rem'
-                        }}
+                        title="Download Official Committee Members Directory as A4 PDF"
+                        className="figma-btn-download-sheet shadow-sm"
+                        style={{ height: '38px' }}
                     >
-                        <FileDown size={14} className="text-primary" />
+                        <FileDown size={15} />
                         <span>Download PDF</span>
-                        <span className="badge bg-secondary bg-opacity-25 text-main rounded-pill ms-1" style={{ fontSize: '0.65rem' }}>
+                        <span className="badge bg-white bg-opacity-25 rounded-pill ms-1 text-white" style={{ fontSize: '0.68rem', padding: '2px 7px' }}>
                             {filteredMembers.length}
                         </span>
                     </button>
@@ -253,84 +279,115 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                     {isAdmin && (
                         <button
                             onClick={() => handleOpenModal(null)}
-                            className="btn btn-sm btn-primary d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill fw-bold shadow-sm transition-all hover-glow"
-                            style={{ fontSize: '0.78rem' }}
+                            className="btn btn-premium d-inline-flex align-items-center gap-1.5 px-3.5 py-1.5 rounded-pill fw-bold shadow-sm transition-all hover-glow"
+                            style={{ height: '38px', fontSize: '0.78rem' }}
                         >
-                            <Plus size={14} />
+                            <Plus size={15} />
                             <span>Add Member</span>
                         </button>
                     )}
                 </div>
             </div>
 
-            {/* KPI Metric Cards */}
-            <div className="row g-2 mb-3">
-                <div className="col-12 col-sm-4">
-                    <div className="p-2.5 rounded-3 border d-flex align-items-center justify-content-between shadow-xs" style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}>
-                        <div>
-                            <div className="extra-tiny text-muted fw-bold uppercase">Total Members</div>
-                            <div className="fw-extrabold fs-6 text-main mt-0.5">{metrics.total}</div>
+            {/* 3 Bento KPI Metric Cards (Responsive Grid) */}
+            <div className="row g-3 mb-4">
+                {/* Card 1: Total Members */}
+                <div className="col-12 col-md-4">
+                    <div className="figma-member-bento-card bento-total">
+                        <div className="d-flex justify-content-between align-items-center">
+                            <span className="extra-tiny text-muted fw-bold uppercase tracking-wider">Total Committee</span>
+                            <div className="figma-finance-icon-box" style={{ background: 'rgba(59, 130, 246, 0.12)', color: '#3b82f6' }}>
+                                <Users size={17} />
+                            </div>
                         </div>
-                        <div className="p-2 rounded-circle" style={{ background: 'rgba(30, 41, 59, 0.08)', color: 'var(--text-main)' }}>
-                            <Users size={16} />
+                        <div className="figma-finance-value text-main my-2">
+                            {metrics.total}
                         </div>
-                    </div>
-                </div>
-
-                <div className="col-12 col-sm-4">
-                    <div className="p-2.5 rounded-3 border d-flex align-items-center justify-content-between shadow-xs" style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}>
-                        <div>
-                            <div className="extra-tiny text-muted fw-bold uppercase">Executive Leaders</div>
-                            <div className="fw-extrabold fs-6 mt-0.5" style={{ color: '#d97706' }}>{metrics.execs}</div>
-                        </div>
-                        <div className="p-2 rounded-circle" style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#d97706' }}>
-                            <Award size={16} />
+                        <div className="d-flex align-items-center justify-content-between extra-tiny text-muted">
+                            <span className="badge rounded-pill px-2 py-0.5 fw-bold" style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#2563eb' }}>
+                                Full Roster
+                            </span>
+                            <span>All Wings</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="col-12 col-sm-4">
-                    <div className="p-2.5 rounded-3 border d-flex align-items-center justify-content-between shadow-xs" style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}>
-                        <div>
-                            <div className="extra-tiny text-muted fw-bold uppercase">Active on Roster</div>
-                            <div className="fw-extrabold fs-6 text-success mt-0.5">{metrics.active}</div>
+                {/* Card 2: Executive Leaders */}
+                <div className="col-12 col-md-4">
+                    <div className="figma-member-bento-card bento-execs">
+                        <div className="d-flex justify-content-between align-items-center">
+                            <span className="extra-tiny text-muted fw-bold uppercase tracking-wider">Executive Leaders</span>
+                            <div className="figma-finance-icon-box" style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#f59e0b' }}>
+                                <Award size={17} />
+                            </div>
                         </div>
-                        <div className="p-2 rounded-circle" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#059669' }}>
-                            <UserCheck size={16} />
+                        <div className="figma-finance-value my-2" style={{ color: '#d97706' }}>
+                            {metrics.execs}
+                        </div>
+                        <div className="d-flex align-items-center justify-content-between extra-tiny text-muted">
+                            <span className="badge rounded-pill px-2 py-0.5 fw-bold" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#b45309' }}>
+                                Board &amp; Leads
+                            </span>
+                            <span>Core Authority</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Card 3: Active Volunteers */}
+                <div className="col-12 col-md-4">
+                    <div className="figma-member-bento-card bento-active">
+                        <div className="d-flex justify-content-between align-items-center">
+                            <span className="extra-tiny text-muted fw-bold uppercase tracking-wider">Active on Roster</span>
+                            <div className="figma-finance-icon-box" style={{ background: 'rgba(16, 185, 129, 0.12)', color: '#10b981' }}>
+                                <UserCheck size={17} />
+                            </div>
+                        </div>
+                        <div className="figma-finance-value my-2" style={{ color: '#059669' }}>
+                            {metrics.active}
+                        </div>
+                        <div className="d-flex align-items-center justify-content-between extra-tiny text-muted">
+                            <span className="badge rounded-pill px-2 py-0.5 fw-bold" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#047857' }}>
+                                Active Duty
+                            </span>
+                            <span>Ground Coordinators</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Search & Department Filters Bar */}
-            <div className="p-2.5 rounded-3 border mb-3 d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center shadow-xs" style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}>
-                {/* Search */}
-                <div className="input-group input-group-sm flex-grow-1" style={{ maxWidth: '320px' }}>
-                    <span className="input-group-text bg-transparent border-0 text-muted ps-2"><Search size={13} /></span>
+            {/* Search & Department Filters Toolbar */}
+            <div className="figma-members-toolbar d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4 shadow-xs">
+                {/* Search Bar */}
+                <div className="input-group action-item-pill search-pill-container px-3 flex-nowrap shadow-xs flex-grow-1" style={{ height: '36px', maxWidth: '400px' }}>
+                    <span className="input-group-text bg-transparent border-0 text-muted ps-1 pe-2 d-flex align-items-center">
+                        <Search size={14} />
+                    </span>
                     <input
                         type="text"
-                        placeholder="Search by name, role, phone..."
+                        placeholder="Search by name, role, phone, locality..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
-                        className="form-control bg-transparent border-0 text-main extra-tiny outline-none shadow-none"
+                        className="form-control bg-transparent border-0 text-main extra-tiny p-0 shadow-none fw-semibold"
+                        style={{ fontSize: '0.78rem' }}
                     />
                     {search && (
-                        <button onClick={() => setSearch('')} className="btn btn-sm btn-link text-muted p-0 pe-2">
+                        <button onClick={() => setSearch('')} className="btn btn-sm btn-link text-muted p-0 pe-1">
                             <X size={13} />
                         </button>
                     )}
                 </div>
 
-                {/* Filter Pills */}
-                <div className="d-flex align-items-center gap-1.5 overflow-x-auto pb-1 pb-md-0" style={{ scrollbarWidth: 'none' }}>
-                    <span className="extra-tiny text-muted me-1 d-none d-lg-inline"><Filter size={11} /> Dept:</span>
+                {/* Department Horizontal Scroll Pills */}
+                <div className="d-flex align-items-center gap-1.5 overflow-x-auto pb-1 pb-lg-0" style={{ scrollbarWidth: 'none' }}>
+                    <span className="extra-tiny text-muted me-1 fw-bold d-none d-xl-inline">
+                        <Filter size={11} className="me-1" />Wing:
+                    </span>
                     {DEPARTMENTS.slice(0, 5).map(dept => (
                         <button
                             key={dept}
                             type="button"
                             onClick={() => setSelectedDept(dept)}
-                            className={`btn btn-sm py-0.5 px-2.5 rounded-pill transition-all ${selectedDept === dept ? 'btn-primary shadow-xs' : 'btn-outline-secondary text-muted'}`}
-                            style={{ fontSize: '0.7rem', whiteSpace: 'nowrap' }}
+                            className={`figma-dept-pill ${selectedDept === dept ? 'active' : ''}`}
                         >
                             {dept}
                         </button>
@@ -339,10 +396,17 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                         <select
                             value={DEPARTMENTS.slice(5).includes(selectedDept) ? selectedDept : ''}
                             onChange={e => e.target.value && setSelectedDept(e.target.value)}
-                            className="btn btn-sm py-0.5 px-2 rounded-pill btn-outline-secondary text-muted extra-tiny border"
-                            style={{ fontSize: '0.7rem', cursor: 'pointer' }}
+                            className="form-select form-select-sm rounded-pill extra-tiny text-main fw-bold border"
+                            style={{ 
+                                width: 'auto', 
+                                height: '30px', 
+                                background: 'var(--input-bg)', 
+                                borderColor: 'var(--glass-border)',
+                                fontSize: '0.72rem',
+                                cursor: 'pointer'
+                            }}
                         >
-                            <option value="">More...</option>
+                            <option value="">More Wings...</option>
                             {DEPARTMENTS.slice(5).map(dept => (
                                 <option key={dept} value={dept}>{dept}</option>
                             ))}
@@ -351,79 +415,74 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                 </div>
             </div>
 
-            {/* Members Directory Grid */}
+            {/* Members Directory Content */}
             {loading ? (
                 <div className="text-center py-5 text-muted extra-tiny">
                     <div className="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
-                    <div>Loading committee roster...</div>
+                    <div>Loading verified committee roster...</div>
                 </div>
             ) : filteredMembers.length === 0 ? (
-                <div className="text-center py-5 p-4 rounded-3 border" style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}>
-                    <div className="p-3 rounded-circle d-inline-flex mb-2" style={{ background: 'rgba(224, 122, 67, 0.1)', color: 'var(--palette-terracotta)' }}>
-                        <Users size={24} />
+                <div className="figma-member-empty-hero my-3 shadow-xs">
+                    <div className="figma-members-header-emblem mx-auto mb-3" style={{ width: '56px', height: '56px', borderRadius: '18px' }}>
+                        <Users size={28} />
                     </div>
-                    <h6 className="fw-extrabold text-main mb-1" style={{ fontSize: '0.92rem' }}>No Members Found</h6>
-                    <p className="text-muted extra-tiny mb-3" style={{ maxWidth: '340px', margin: '0 auto' }}>
+                    <h5 className="fw-extrabold text-main mb-1" style={{ fontSize: '1.05rem', letterSpacing: '-0.02em' }}>
+                        {search || selectedDept !== 'All' ? 'No Matching Members Found' : 'Assemble Your Committee Roster'}
+                    </h5>
+                    <p className="text-muted extra-tiny mb-4" style={{ maxWidth: '420px', margin: '0 auto', lineHeight: '1.5' }}>
                         {search || selectedDept !== 'All' 
-                            ? 'No committee member matches your search or department filter.' 
-                            : 'No committee or volunteer records added yet. Add your leadership team and volunteers below.'}
+                            ? 'No committee records matched your search query or department filter. Try clearing filters.'
+                            : `Add your festival executive committee, department leads, and ground volunteers for ${activeEntity || 'your entity'}.`}
                     </p>
                     {isAdmin && (
                         <button
                             onClick={() => handleOpenModal(null)}
-                            className="btn btn-sm btn-primary rounded-pill px-3 py-1.5 extra-tiny fw-bold"
+                            className="btn btn-premium px-4 py-2 rounded-pill fw-bold extra-tiny shadow-sm hover-glow"
                         >
-                            <Plus size={13} className="me-1" /> Add First Member
+                            <Plus size={14} className="me-1.5" />
+                            <span>Add First Committee Member</span>
                         </button>
                     )}
                 </div>
             ) : (
-                <div className="row g-2.5">
+                <div className="row g-3 g-xl-4">
                     {filteredMembers.map((member) => {
-                        const badgeStyle = getRoleBadgeStyle(member.role)
+                        const style = getRoleStyle(member.role)
+                        const RoleIcon = style.icon
+
                         return (
                             <div key={member._id} className="col-12 col-md-6 col-xl-4">
-                                <div 
-                                    className="p-3 rounded-3 border h-100 d-flex flex-column justify-content-between transition-all shadow-xs hover-glow"
-                                    style={{
-                                        background: 'var(--input-bg)',
-                                        borderColor: 'var(--glass-border)',
-                                        cursor: 'default'
-                                    }}
-                                >
+                                <div className="figma-luxury-member-card">
                                     <div>
-                                        {/* Card Top: Initials/Avatar + Name + Role Badge */}
-                                        <div className="d-flex align-items-start justify-content-between gap-2 mb-2">
-                                            <div className="d-flex align-items-center gap-2">
-                                                {/* Avatar */}
+                                        {/* Card Top: Avatar, Name, Status */}
+                                        <div className="d-flex align-items-start justify-content-between gap-2.5 mb-3">
+                                            <div className="d-flex align-items-center gap-2.5">
+                                                {/* Luxury Avatar Box */}
                                                 <div 
-                                                    className="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-xs"
+                                                    className="figma-member-avatar-ring"
                                                     style={{
-                                                        width: '36px',
-                                                        height: '36px',
-                                                        minWidth: '36px',
-                                                        background: badgeStyle.bg,
-                                                        color: badgeStyle.text,
-                                                        border: `1.5px solid ${badgeStyle.border}`,
-                                                        fontSize: '0.85rem'
+                                                        background: style.bg,
+                                                        color: style.text,
+                                                        border: `1.5px solid ${style.border}`
                                                     }}
                                                 >
                                                     {member.name ? member.name.charAt(0).toUpperCase() : 'M'}
                                                 </div>
 
                                                 <div>
-                                                    <div className="fw-extrabold text-main mb-0" style={{ fontSize: '0.9rem', lineHeight: '1.2' }}>
+                                                    <h6 className="fw-extrabold text-main mb-0" style={{ fontSize: '0.94rem', lineHeight: '1.2' }}>
                                                         {member.name}
-                                                    </div>
-                                                    <div className="extra-tiny text-muted">
-                                                        {member.department || 'Core Committee'}
+                                                    </h6>
+                                                    <div className="extra-tiny text-muted d-flex align-items-center gap-1 mt-0.5">
+                                                        <Tag size={10} className="text-primary" />
+                                                        <span>{member.department || 'Core Committee'}</span>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Status Dot */}
+                                            {/* Status Badge */}
                                             <span 
-                                                className={`badge rounded-pill px-2 py-0.5 fw-bold ${
+                                                className={`badge rounded-pill px-2.5 py-1 fw-bold ${
                                                     member.status === 'Active' 
                                                         ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' 
                                                         : member.status === 'Honorary'
@@ -432,48 +491,54 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                                                 }`}
                                                 style={{ fontSize: '0.62rem' }}
                                             >
+                                                {member.status === 'Active' && '● '}
                                                 {member.status || 'Active'}
                                             </span>
                                         </div>
 
-                                        {/* Designation Pill */}
-                                        <div className="mb-2">
+                                        {/* Role / Designation Pill */}
+                                        <div className="mb-3">
                                             <span 
-                                                className="badge rounded-pill px-2.5 py-1 fw-bold"
+                                                className="badge rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs"
                                                 style={{
-                                                    background: badgeStyle.bg,
-                                                    color: badgeStyle.text,
-                                                    border: `1px solid ${badgeStyle.border}`,
-                                                    fontSize: '0.72rem'
+                                                    background: style.bg,
+                                                    color: style.text,
+                                                    border: `1px solid ${style.border}`,
+                                                    fontSize: '0.74rem'
                                                 }}
                                             >
-                                                ★ {member.role}
+                                                <RoleIcon size={12} />
+                                                <span>{member.role}</span>
                                             </span>
                                         </div>
 
-                                        {/* Contact Details */}
-                                        <div className="extra-tiny text-muted d-flex flex-column gap-1 mb-2">
-                                            {member.contact && (
-                                                <div className="d-flex align-items-center gap-1.5">
-                                                    <Phone size={11} className="text-muted" />
-                                                    <a href={`tel:${member.contact}`} className="text-decoration-none text-main fw-semibold">
-                                                        {member.countryCode || '+91'} {member.contact}
-                                                    </a>
+                                        {/* Contact & Locality Details */}
+                                        <div className="extra-tiny text-muted d-flex flex-column gap-1.5 mb-2">
+                                            {member.contact ? (
+                                                <div className="d-flex align-items-center justify-content-between p-1.5 px-2 rounded-2" style={{ background: 'rgba(0, 0, 0, 0.02)', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
+                                                    <div className="d-flex align-items-center gap-1.5">
+                                                        <Phone size={12} className="text-muted" />
+                                                        <a href={`tel:${member.contact}`} className="text-decoration-none text-main fw-bold">
+                                                            {member.countryCode || '+91'} {member.contact}
+                                                        </a>
+                                                    </div>
                                                     <a 
                                                         href={`https://wa.me/${(member.countryCode || '+91').replace(/[^0-9]/g, '')}${member.contact.replace(/[^0-9]/g, '')}`}
                                                         target="_blank" 
                                                         rel="noreferrer"
                                                         title="Message on WhatsApp"
-                                                        className="text-success ms-1 hover-scale"
+                                                        className="text-success hover-scale p-1 rounded d-inline-flex"
                                                     >
-                                                        <MessageCircle size={12} />
+                                                        <MessageCircle size={14} />
                                                     </a>
                                                 </div>
+                                            ) : (
+                                                <div className="text-muted extra-tiny fst-italic">No direct phone added</div>
                                             )}
 
                                             {member.email && (
-                                                <div className="d-flex align-items-center gap-1.5 text-truncate">
-                                                    <Mail size={11} className="text-muted" />
+                                                <div className="d-flex align-items-center gap-1.5 text-truncate px-1">
+                                                    <Mail size={12} className="text-muted flex-shrink-0" />
                                                     <a href={`mailto:${member.email}`} className="text-decoration-none text-muted text-truncate">
                                                         {member.email}
                                                     </a>
@@ -481,32 +546,39 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                                             )}
 
                                             {member.address && (
-                                                <div className="extra-tiny text-muted text-truncate opacity-75">
-                                                    📍 {member.address}
+                                                <div className="d-flex align-items-center gap-1.5 extra-tiny text-muted text-truncate px-1 opacity-80">
+                                                    <MapPin size={12} className="text-muted flex-shrink-0" />
+                                                    <span className="text-truncate">{member.address}</span>
                                                 </div>
                                             )}
                                         </div>
                                     </div>
 
-                                    {/* Card Bottom: Admin Actions */}
+                                    {/* Card Bottom: Admin Controls */}
                                     {isAdmin && (
-                                        <div className="d-flex align-items-center justify-content-end gap-1.5 pt-2 border-top border-secondary border-opacity-10 mt-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => handleOpenModal(member)}
-                                                className="btn btn-sm btn-light p-1 px-2 rounded extra-tiny text-secondary hover-bg-secondary hover-text-white transition-all"
-                                                title="Edit Member"
-                                            >
-                                                <Edit3 size={12} className="me-1" /> Edit
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => handleDelete(member._id, member.name)}
-                                                className="btn btn-sm btn-light p-1 px-2 rounded extra-tiny text-danger hover-bg-danger hover-text-white transition-all"
-                                                title="Delete Member"
-                                            >
-                                                <Trash2 size={12} className="me-1" /> Delete
-                                            </button>
+                                        <div className="d-flex align-items-center justify-content-between pt-2.5 border-top border-secondary border-opacity-10 mt-3">
+                                            <span className="extra-tiny text-muted font-monospace opacity-75">
+                                                ID: {member._id ? member._id.slice(-6).toUpperCase() : 'MEM'}
+                                            </span>
+
+                                            <div className="d-flex align-items-center gap-1.5">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleOpenModal(member)}
+                                                    className="btn btn-sm btn-light p-1 px-2.5 rounded-pill extra-tiny text-secondary hover-bg-secondary hover-text-white transition-all fw-semibold"
+                                                    title="Edit Member Details"
+                                                >
+                                                    <Edit3 size={12} className="me-1" /> Edit
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDelete(member._id, member.name)}
+                                                    className="btn btn-sm btn-light p-1 px-2.5 rounded-pill extra-tiny text-danger hover-bg-danger hover-text-white transition-all fw-semibold"
+                                                    title="Remove Member"
+                                                >
+                                                    <Trash2 size={12} className="me-1" /> Delete
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -516,16 +588,16 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                 </div>
             )}
 
-            {/* Modal for Add / Edit Member */}
+            {/* Modal Dialog for Add / Edit Member */}
             {isModalOpen && (
                 <div 
                     className="modal fade show d-block" 
                     tabIndex="-1" 
-                    style={{ backgroundColor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(8px)', zIndex: 1060 }}
+                    style={{ backgroundColor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(10px)', zIndex: 1060 }}
                 >
-                    <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '520px' }}>
+                    <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '560px' }}>
                         <div 
-                            className="modal-content rounded-4 border shadow-lg overflow-hidden"
+                            className="modal-content rounded-4 border shadow-2xl overflow-hidden"
                             style={{
                                 background: 'var(--card-bg, #ffffff)',
                                 borderColor: 'var(--glass-border)',
@@ -534,12 +606,12 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                         >
                             {/* Modal Header */}
                             <div className="modal-header border-bottom px-4 py-3" style={{ borderColor: 'var(--glass-border)' }}>
-                                <div className="d-flex align-items-center gap-2">
-                                    <div className="p-1.5 rounded-2" style={{ background: 'rgba(224, 122, 67, 0.15)', color: 'var(--palette-terracotta)' }}>
+                                <div className="d-flex align-items-center gap-2.5">
+                                    <div className="figma-members-header-emblem" style={{ width: '38px', height: '38px', borderRadius: '12px' }}>
                                         <Users size={18} />
                                     </div>
                                     <div>
-                                        <h6 className="modal-title fw-extrabold mb-0 text-main" style={{ fontSize: '0.96rem' }}>
+                                        <h6 className="modal-title fw-extrabold mb-0 text-main" style={{ fontSize: '1rem', letterSpacing: '-0.01em' }}>
                                             {editingMember ? 'Edit Committee Member' : 'Add Committee Member'}
                                         </h6>
                                         <p className="extra-tiny text-muted mb-0">Record executive details for {activeEntity || 'your entity'}</p>
@@ -562,12 +634,12 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                                             placeholder="e.g. Rajesh Kumar Sharma"
                                             value={formData.name}
                                             onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                            className="form-control form-control-sm rounded-3 text-main"
+                                            className="form-control form-control-sm rounded-3 text-main fw-semibold"
                                             style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}
                                         />
                                     </div>
 
-                                    {/* Designation Preset */}
+                                    {/* Role / Designation */}
                                     <div className="col-12 col-sm-6">
                                         <label className="form-label extra-tiny fw-bold text-muted mb-1">
                                             Role / Designation <span className="text-danger">*</span>
@@ -575,8 +647,8 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                                         <select
                                             value={formData.role}
                                             onChange={e => setFormData({ ...formData, role: e.target.value })}
-                                            className="form-select form-select-sm rounded-3 text-main"
-                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}
+                                            className="form-select form-select-sm rounded-3 text-main fw-semibold"
+                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)', cursor: 'pointer' }}
                                         >
                                             {ROLE_PRESETS.map(r => (
                                                 <option key={r} value={r}>{r}</option>
@@ -592,8 +664,8 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                                         <select
                                             value={formData.department}
                                             onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                            className="form-select form-select-sm rounded-3 text-main"
-                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}
+                                            className="form-select form-select-sm rounded-3 text-main fw-semibold"
+                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)', cursor: 'pointer' }}
                                         >
                                             {DEPARTMENTS.filter(d => d !== 'All').map(d => (
                                                 <option key={d} value={d}>{d}</option>
@@ -613,7 +685,7 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                                                 placeholder="e.g. Chief Patron, Head of Media, Stage Manager"
                                                 value={formData.customRole}
                                                 onChange={e => setFormData({ ...formData, customRole: e.target.value })}
-                                                className="form-control form-control-sm rounded-3 text-main"
+                                                className="form-control form-control-sm rounded-3 text-main fw-semibold"
                                                 style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}
                                             />
                                         </div>
@@ -625,7 +697,7 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                                             Contact Phone Number
                                         </label>
                                         <div className="input-group input-group-sm">
-                                            <span className="input-group-text extra-tiny" style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-muted)' }}>
+                                            <span className="input-group-text extra-tiny fw-bold" style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-muted)' }}>
                                                 +91
                                             </span>
                                             <input
@@ -633,7 +705,7 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                                                 placeholder="Mobile / WhatsApp number"
                                                 value={formData.contact}
                                                 onChange={e => setFormData({ ...formData, contact: e.target.value })}
-                                                className="form-control form-control-sm text-main"
+                                                className="form-control form-control-sm text-main fw-semibold"
                                                 style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}
                                             />
                                         </div>
@@ -647,8 +719,8 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                                         <select
                                             value={formData.status}
                                             onChange={e => setFormData({ ...formData, status: e.target.value })}
-                                            className="form-select form-select-sm rounded-3 text-main"
-                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}
+                                            className="form-select form-select-sm rounded-3 text-main fw-semibold"
+                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)', cursor: 'pointer' }}
                                         >
                                             <option value="Active">Active</option>
                                             <option value="Honorary">Honorary</option>
@@ -692,14 +764,14 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                                     <button
                                         type="button"
                                         onClick={() => setIsModalOpen(false)}
-                                        className="btn btn-sm btn-light px-3 py-1.5 rounded-pill extra-tiny fw-semibold"
+                                        className="btn btn-sm btn-light px-3.5 py-1.5 rounded-pill extra-tiny fw-bold"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={submitting}
-                                        className="btn btn-sm btn-primary px-4 py-1.5 rounded-pill extra-tiny fw-bold d-inline-flex align-items-center gap-1.5 shadow-sm"
+                                        className="btn btn-sm btn-premium px-4 py-1.5 rounded-pill extra-tiny fw-bold d-inline-flex align-items-center gap-1.5 shadow-sm hover-glow"
                                     >
                                         <Save size={13} />
                                         <span>{submitting ? 'Saving...' : editingMember ? 'Update Member' : 'Save Member'}</span>
