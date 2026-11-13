@@ -20,10 +20,12 @@ module.exports = async function (req, res, next) {
 
         // ── MIGRATION: Backfill baseRole for existing users who were created before this field existed ──
         // baseRole is the permanent role, role is the current display role (can be switched).
-        // If baseRole is missing or still 'user' but user has no createdBy (meaning they registered themselves),
-        // treat their original signup role as their baseRole.
-        const effectiveBaseRole = user.baseRole || (user.createdBy ? 'user' : user.role);
-        if (!user.baseRole) {
+        // If baseRole is missing or still 'user' but user has no createdBy and role is admin,
+        // treat their admin role as their baseRole.
+        const effectiveBaseRole = (user.baseRole && user.baseRole !== 'user') 
+            ? user.baseRole 
+            : (['admin', 'superadmin'].includes(user.role) ? user.role : (user.createdBy ? 'user' : (user.baseRole || user.role || 'user')));
+        if (!user.baseRole || (user.baseRole === 'user' && ['admin', 'superadmin'].includes(user.role) && !user.createdBy)) {
             // Async backfill — doesn't block the request
             User.findByIdAndUpdate(user._id, { baseRole: effectiveBaseRole }).catch(() => {});
         }

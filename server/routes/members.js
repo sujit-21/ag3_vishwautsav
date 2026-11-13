@@ -3,6 +3,16 @@ const router = express.Router();
 const Member = require('../models/Member');
 const auth = require('../middleware/auth');
 
+// Helper: check if user is an authorized admin
+const isAuthorizedAdmin = (user) => {
+    return Boolean(
+        user && (
+            ['admin', 'superadmin'].includes(user.role) ||
+            ['admin', 'superadmin'].includes(user.baseRole)
+        )
+    );
+};
+
 // 1. GET ALL MEMBERS (Entity-isolated query)
 router.get('/', auth, async (req, res) => {
     try {
@@ -25,7 +35,7 @@ router.get('/', auth, async (req, res) => {
 // 2. CREATE A NEW MEMBER (Admin only)
 router.post('/', auth, async (req, res) => {
     try {
-        if (!['admin', 'superadmin'].includes(req.user.baseRole)) {
+        if (!isAuthorizedAdmin(req.user)) {
             return res.status(403).json({ message: 'Access denied. Only administrators can add committee members.' });
         }
 
@@ -70,7 +80,7 @@ router.post('/', auth, async (req, res) => {
 // 3. UPDATE A MEMBER (Admin only)
 router.put('/:id', auth, async (req, res) => {
     try {
-        if (!['admin', 'superadmin'].includes(req.user.baseRole)) {
+        if (!isAuthorizedAdmin(req.user)) {
             return res.status(403).json({ message: 'Access denied. Only administrators can edit committee members.' });
         }
 
@@ -99,7 +109,7 @@ router.put('/:id', auth, async (req, res) => {
 // 4. DELETE A MEMBER (Admin only)
 router.delete('/:id', auth, async (req, res) => {
     try {
-        if (!['admin', 'superadmin'].includes(req.user.baseRole)) {
+        if (!isAuthorizedAdmin(req.user)) {
             return res.status(403).json({ message: 'Access denied. Only administrators can remove committee members.' });
         }
 
