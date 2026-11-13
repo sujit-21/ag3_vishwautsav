@@ -1205,17 +1205,35 @@ export const exportSingleExpenseVoucherPDF = async ({ exp, festOrEvent = {}, ent
 // ============================================================================
 // 7. COMMITTEE & MEMBERS DIRECTORY (A4 PORTRAIT: 210mm x 297mm)
 // ============================================================================
-export const exportMembersDirectoryPDF = ({ membersList = [], entityName = '', portalType = 'Festival' }) => {
+export const exportMembersDirectoryPDF = ({ 
+    membersList = [], 
+    entityName = '', 
+    portalType = 'Festival',
+    festivalName = '',
+    eventName = ''
+}) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
     const list = membersList || []
+    const resolvedFestivalName = String(festivalName || eventName || '').trim()
 
     const execCount = list.filter(m => /president|secretary|treasurer|lead|head|director/i.test(m.role || '')).length
     const activeCount = list.filter(m => m.status === 'Active').length
 
-    // Centered Header
+    // Centered Header with Festival Name prominence
+    const headerTitle = resolvedFestivalName 
+        ? `${resolvedFestivalName.toUpperCase()} — ${portalType.toUpperCase()} COMMITTEE`
+        : `${portalType.toUpperCase()} COMMITTEE & MEMBERS DIRECTORY`
+
+    const headerSubtitle = [
+        resolvedFestivalName ? `${portalType}: ${resolvedFestivalName}` : null,
+        `Entity: ${entityName || 'Vishwa Utsav'}`,
+        `Roster: ${list.length} Members`,
+        `Generated: ${new Date().toLocaleString('en-IN')}`
+    ].filter(Boolean).join('  |  ')
+
     drawHeader(doc, {
-        title: `${portalType} Committee & Members Directory`,
-        subtitle: `Entity: ${entityName || 'Vishwa Utsav'}  |  Roster: ${list.length} Members  |  Generated: ${new Date().toLocaleString()}`,
+        title: headerTitle,
+        subtitle: headerSubtitle,
         accentColor: FIGMA_COLORS.saffron,
         isLandscape: false
     })
@@ -1254,17 +1272,20 @@ export const exportMembersDirectoryPDF = ({ membersList = [], entityName = '', p
     })
 
     // Table starts directly below KPIs
+    // Total printable width = 182mm (210mm A4 - 28mm margins)
+    // Column widths: 8 + 34 + 32 + 25 + 24 + 45 + 14 = 182mm
+    // 45mm for Email guarantees single-line rendering without splitting/wrapping
     autoTable(doc, {
         startY: 47,
         margin: { left: 14, right: 14 },
-        head: [['#', 'Full Name', 'Role / Designation', 'Wing / Department', 'Contact', 'Email / Notes', 'Status']],
+        head: [['#', 'Full Name', 'Role / Designation', 'Wing / Department', 'Contact', 'Email Address', 'Status']],
         body: list.map((m, idx) => [
             String(idx + 1),
             String(m.name || '—'),
             String(m.role || 'Member'),
             String(m.department || 'General Committee'),
             m.contact ? `${m.countryCode || '+91'} ${m.contact}` : '—',
-            String(m.email || m.notes || '—'),
+            String(m.email || '—'),
             String(m.status || 'Active')
         ]),
         theme: 'grid',
@@ -1284,13 +1305,13 @@ export const exportMembersDirectoryPDF = ({ membersList = [], entityName = '', p
             lineWidth: 0.15
         },
         columnStyles: {
-            0: { cellWidth: 9, halign: 'center' },
-            1: { cellWidth: 38, fontStyle: 'bold' },
-            2: { cellWidth: 36, fontStyle: 'bold' },
-            3: { cellWidth: 32 },
-            4: { cellWidth: 26 },
-            5: { cellWidth: 26 },
-            6: { cellWidth: 15, halign: 'center', fontStyle: 'bold' }
+            0: { cellWidth: 8, halign: 'center' },
+            1: { cellWidth: 34, fontStyle: 'bold' },
+            2: { cellWidth: 32, fontStyle: 'bold' },
+            3: { cellWidth: 25 },
+            4: { cellWidth: 24 },
+            5: { cellWidth: 45, fontSize: 6.8 }, // Wide 45mm column ensures full single-line email display
+            6: { cellWidth: 14, halign: 'center', fontStyle: 'bold' }
         },
         didParseCell: (data) => {
             if (data.row.section === 'body') {
@@ -1304,6 +1325,11 @@ export const exportMembersDirectoryPDF = ({ membersList = [], entityName = '', p
                         data.cell.styles.fillColor = [254, 243, 199] // Soft gold
                         data.cell.styles.textColor = [180, 83, 9]     // Amber
                     }
+                }
+
+                // Ensure single line font size for Email Address column
+                if (data.column.index === 5) {
+                    data.cell.styles.fontSize = 6.8
                 }
 
                 // Highlight Status
@@ -1322,5 +1348,6 @@ export const exportMembersDirectoryPDF = ({ membersList = [], entityName = '', p
     })
 
     drawFooter(doc, false)
-    doc.save(`Members_${String(entityName || 'Directory').replace(/\s+/g, '_')}.pdf`)
+    const filePrefix = resolvedFestivalName ? resolvedFestivalName.replace(/[^a-zA-Z0-9_-]/g, '_') : portalType
+    doc.save(`${filePrefix}_Members_${String(entityName || 'Directory').replace(/\s+/g, '_')}.pdf`)
 }

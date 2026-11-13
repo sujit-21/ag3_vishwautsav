@@ -75,15 +75,22 @@ const getRoleStyle = (role = '') => {
     }
 }
 
-export default function MembersSection({ type = 'festival', activeEntity = '' }) {
+export default function MembersSection({ 
+    type = 'festival', 
+    activeEntity = '', 
+    festivalName = '', 
+    eventName = '' 
+}) {
     const { user } = useAuth()
     const isAdmin = ['admin', 'superadmin'].includes(user?.role) || ['admin', 'superadmin'].includes(user?.baseRole)
+    const activePortalName = String(festivalName || eventName || '').trim()
 
     const [members, setMembers] = useState([])
     const [loading, setLoading] = useState(false)
     const [search, setSearch] = useState('')
     const [selectedDept, setSelectedDept] = useState('All')
     const [selectedStatus, setSelectedStatus] = useState('All')
+    const [sortBy, setSortBy] = useState('entry_asc') // Default: First Entered First
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingMember, setEditingMember] = useState(null)
     const [submitting, setSubmitting] = useState(false)
@@ -135,6 +142,33 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
             return matchesSearch && matchesDept && matchesStatus
         })
     }, [members, search, selectedDept, selectedStatus])
+
+    // Sorted Members (Default: Entry order — whichever name is entered first is #1)
+    const sortedMembers = useMemo(() => {
+        let list = [...filteredMembers]
+        if (sortBy === 'entry_asc') {
+            list.sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0))
+        } else if (sortBy === 'entry_desc') {
+            list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+        } else if (sortBy === 'name_asc') {
+            list.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+        } else if (sortBy === 'hierarchy') {
+            const getRank = (role = '') => {
+                const r = (role || '').toLowerCase()
+                if (r.includes('president') && !r.includes('vice')) return 1
+                if (r.includes('vice-president') || r.includes('vice president')) return 2
+                if (r.includes('secretary') && !r.includes('joint') && !r.includes('assistant')) return 3
+                if (r.includes('joint secretary') || r.includes('assistant secretary')) return 4
+                if (r.includes('treasurer') && !r.includes('assistant')) return 5
+                if (r.includes('assistant treasurer') || r.includes('cashier')) return 6
+                if (r.includes('head') || r.includes('lead') || r.includes('incharge')) return 7
+                if (r.includes('advisory')) return 8
+                return 9
+            }
+            list.sort((a, b) => getRank(a.role) - getRank(b.role))
+        }
+        return list
+    }, [filteredMembers, sortBy])
 
     // KPI Metrics
     const metrics = useMemo(() => {
@@ -205,7 +239,7 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                 setMembers(prev => prev.map(m => m._id === editingMember._id ? res.data : m))
             } else {
                 const res = await axios.post('/api/members', payload)
-                setMembers(prev => [res.data, ...prev])
+                setMembers(prev => [...prev, res.data])
             }
             setIsModalOpen(false)
         } catch (err) {
@@ -231,9 +265,10 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
     // Download PDF
     const handleDownloadPDF = () => {
         exportMembersDirectoryPDF({
-            membersList: filteredMembers,
+            membersList: sortedMembers,
             entityName: activeEntity || user?.entityName || 'Vishwa Utsav',
-            portalType: type === 'festival' ? 'Festival' : 'Event'
+            portalType: type === 'festival' ? 'Festival' : 'Event',
+            festivalName: activePortalName
         })
     }
 
@@ -248,14 +283,16 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                     <div>
                         <div className="d-flex align-items-center gap-2 flex-wrap">
                             <h4 className="fw-extrabold mb-0 text-main" style={{ letterSpacing: '-0.02em', fontSize: '1.25rem' }}>
-                                {type === 'festival' ? 'Festival' : 'Event'} Committee &amp; Members
+                                {activePortalName ? `${activePortalName} — ` : ''}{type === 'festival' ? 'Festival' : 'Event'} Committee &amp; Members
                             </h4>
                             <span className="figma-pass-count-pill shadow-xs">
                                 <Sparkles size={11} /> {metrics.total} Registered
                             </span>
                         </div>
                         <p className="text-muted extra-tiny mb-0 mt-0.5">
-                            Official executive council, department coordinators, and volunteers for <span className="text-primary fw-bold">{activeEntity || 'your entity'}</span>.
+                            Official executive council, department coordinators, and volunteers for{' '}
+                            <span className="text-primary fw-bold">{activePortalName || activeEntity || 'your entity'}</span>
+                            {activePortalName && activeEntity ? <span className="text-muted"> ({activeEntity})</span> : null}.
                         </p>
                     </div>
                 </div>
@@ -264,7 +301,7 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                 <div className="d-flex align-items-center gap-2.5 flex-wrap">
                     <button
                         onClick={handleDownloadPDF}
-                        disabled={filteredMembers.length === 0}
+                        disabled={sortedMembers.length === 0}
                         title="Download Official Committee Members Directory as A4 PDF"
                         className="figma-btn-download-sheet shadow-sm"
                         style={{ height: '38px' }}
@@ -272,7 +309,7 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                         <FileDown size={15} />
                         <span>Download PDF</span>
                         <span className="badge bg-white bg-opacity-25 rounded-pill ms-1 text-white" style={{ fontSize: '0.68rem', padding: '2px 7px' }}>
-                            {filteredMembers.length}
+                            {sortedMembers.length}
                         </span>
                     </button>
 
@@ -377,41 +414,67 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                     )}
                 </div>
 
-                {/* Department Horizontal Scroll Pills */}
-                <div className="d-flex align-items-center gap-1.5 overflow-x-auto pb-1 pb-lg-0" style={{ scrollbarWidth: 'none' }}>
-                    <span className="extra-tiny text-muted me-1 fw-bold d-none d-xl-inline">
-                        <Filter size={11} className="me-1" />Wing:
-                    </span>
-                    {DEPARTMENTS.slice(0, 5).map(dept => (
-                        <button
-                            key={dept}
-                            type="button"
-                            onClick={() => setSelectedDept(dept)}
-                            className={`figma-dept-pill ${selectedDept === dept ? 'active' : ''}`}
-                        >
-                            {dept}
-                        </button>
-                    ))}
-                    {DEPARTMENTS.length > 5 && (
+                {/* Right Toolbar Controls: Wings Filter & Sort Order */}
+                <div className="d-flex align-items-center gap-2 flex-wrap">
+                    {/* Department Horizontal Scroll Pills */}
+                    <div className="d-flex align-items-center gap-1.5 overflow-x-auto pb-1 pb-lg-0" style={{ scrollbarWidth: 'none' }}>
+                        <span className="extra-tiny text-muted me-1 fw-bold d-none d-xl-inline">
+                            <Filter size={11} className="me-1" />Wing:
+                        </span>
+                        {DEPARTMENTS.slice(0, 5).map(dept => (
+                            <button
+                                key={dept}
+                                type="button"
+                                onClick={() => setSelectedDept(dept)}
+                                className={`figma-dept-pill ${selectedDept === dept ? 'active' : ''}`}
+                            >
+                                {dept}
+                            </button>
+                        ))}
+                        {DEPARTMENTS.length > 5 && (
+                            <select
+                                value={DEPARTMENTS.slice(5).includes(selectedDept) ? selectedDept : ''}
+                                onChange={e => e.target.value && setSelectedDept(e.target.value)}
+                                className="form-select form-select-sm rounded-pill extra-tiny text-main fw-bold border"
+                                style={{ 
+                                    width: 'auto', 
+                                    height: '32px', 
+                                    background: 'var(--input-bg)', 
+                                    borderColor: 'var(--glass-border)',
+                                    fontSize: '0.72rem',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <option value="">More Wings...</option>
+                                {DEPARTMENTS.slice(5).map(dept => (
+                                    <option key={dept} value={dept}>{dept}</option>
+                                ))}
+                            </select>
+                        )}
+                    </div>
+
+                    {/* Sort Order Selector (Entry Order / Hierarchy / A-Z) */}
+                    <div className="d-flex align-items-center gap-1 flex-nowrap ms-auto ms-lg-0">
                         <select
-                            value={DEPARTMENTS.slice(5).includes(selectedDept) ? selectedDept : ''}
-                            onChange={e => e.target.value && setSelectedDept(e.target.value)}
-                            className="form-select form-select-sm rounded-pill extra-tiny text-main fw-bold border"
+                            value={sortBy}
+                            onChange={e => setSortBy(e.target.value)}
+                            className="form-select form-select-sm rounded-pill extra-tiny text-main fw-bold border shadow-xs"
                             style={{ 
                                 width: 'auto', 
-                                height: '30px', 
+                                height: '32px', 
                                 background: 'var(--input-bg)', 
                                 borderColor: 'var(--glass-border)',
                                 fontSize: '0.72rem',
                                 cursor: 'pointer'
                             }}
+                            title="Arrange Members"
                         >
-                            <option value="">More Wings...</option>
-                            {DEPARTMENTS.slice(5).map(dept => (
-                                <option key={dept} value={dept}>{dept}</option>
-                            ))}
+                            <option value="entry_asc">Order: First Entered First</option>
+                            <option value="entry_desc">Order: Newest Entered First</option>
+                            <option value="hierarchy">Hierarchy: President &amp; Execs First</option>
+                            <option value="name_asc">Alphabetical: A to Z</option>
                         </select>
-                    )}
+                    </div>
                 </div>
             </div>
 
@@ -421,7 +484,7 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                     <div className="spinner-border spinner-border-sm text-primary mb-2" role="status"></div>
                     <div>Loading verified committee roster...</div>
                 </div>
-            ) : filteredMembers.length === 0 ? (
+            ) : sortedMembers.length === 0 ? (
                 <div className="figma-member-empty-hero my-3 shadow-xs">
                     <div className="figma-members-header-emblem mx-auto mb-3" style={{ width: '56px', height: '56px', borderRadius: '18px' }}>
                         <Users size={28} />
@@ -432,7 +495,7 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                     <p className="text-muted extra-tiny mb-4" style={{ maxWidth: '420px', margin: '0 auto', lineHeight: '1.5' }}>
                         {search || selectedDept !== 'All' 
                             ? 'No committee records matched your search query or department filter. Try clearing filters.'
-                            : `Add your festival executive committee, department leads, and ground volunteers for ${activeEntity || 'your entity'}.`}
+                            : `Add your festival executive committee, department leads, and ground volunteers for ${activePortalName ? `${activePortalName} (${activeEntity || 'your entity'})` : (activeEntity || 'your entity')}.`}
                     </p>
                     {isAdmin && (
                         <button
@@ -446,7 +509,7 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                 </div>
             ) : (
                 <div className="row g-3 g-xl-4">
-                    {filteredMembers.map((member) => {
+                    {sortedMembers.map((member, idx) => {
                         const style = getRoleStyle(member.role)
                         const RoleIcon = style.icon
 
@@ -614,7 +677,9 @@ export default function MembersSection({ type = 'festival', activeEntity = '' })
                                         <h6 className="modal-title fw-extrabold mb-0 text-main" style={{ fontSize: '1rem', letterSpacing: '-0.01em' }}>
                                             {editingMember ? 'Edit Committee Member' : 'Add Committee Member'}
                                         </h6>
-                                        <p className="extra-tiny text-muted mb-0">Record executive details for {activeEntity || 'your entity'}</p>
+                                        <p className="extra-tiny text-muted mb-0">
+                                            Record executive details for {activePortalName ? `${activePortalName} (${activeEntity || 'your entity'})` : (activeEntity || 'your entity')}
+                                        </p>
                                     </div>
                                 </div>
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="btn-close" aria-label="Close"></button>

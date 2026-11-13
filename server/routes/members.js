@@ -24,7 +24,7 @@ router.get('/', auth, async (req, res) => {
             query.department = req.query.department;
         }
 
-        const members = await Member.find(query).sort({ createdAt: -1 });
+        const members = await Member.find(query).sort({ createdAt: 1 });
         res.json(members);
     } catch (err) {
         console.error('Error fetching members:', err);

@@ -1006,6 +1006,8 @@ const Events = () => {
                 <MembersSection 
                     type="event" 
                     activeEntity={activeEvent?.entityName || user?.entityName} 
+                    festivalName={activeEvent?.title || (events && events[0]?.title) || ''}
+                    eventName={activeEvent?.title || (events && events[0]?.title) || ''}
                 />
             )}
 
