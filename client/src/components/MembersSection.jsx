@@ -5,14 +5,13 @@ import {
     Users, Plus, Search, FileDown, Edit3, Trash2, Phone, Mail, 
     ShieldCheck, CheckCircle2, Sparkles, Filter, X, Save, 
     MessageCircle, Award, UserCheck, ChevronDown, MapPin, Tag, Crown,
-    BadgeCheck, ExternalLink
+    BadgeCheck, ExternalLink, Settings, Check, Edit2
 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { exportMembersDirectoryPDF } from '../utils/pdfGenerator'
 
-const DEPARTMENTS = [
-    'All',
+const DEFAULT_DEPARTMENTS = [
     'Core Committee',
     'Executive Wing',
     'Cultural & Events',
@@ -22,7 +21,7 @@ const DEPARTMENTS = [
     'Advisory Board'
 ]
 
-const ROLE_PRESETS = [
+const DEFAULT_ROLE_PRESETS = [
     'President',
     'Vice President',
     'General Secretary',
@@ -35,8 +34,7 @@ const ROLE_PRESETS = [
     'Volunteer Head',
     'Committee Member',
     'Youth Wing Lead',
-    'Advisory Member',
-    'Other / Custom'
+    'Advisory Member'
 ]
 
 const getRoleStyle = (role = '') => {
@@ -96,6 +94,133 @@ export default function MembersSection({
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingMember, setEditingMember] = useState(null)
     const [submitting, setSubmitting] = useState(false)
+
+    // CRUD State for Roles and Departments
+    const [customRoles, setCustomRoles] = useState(() => {
+        try {
+            const saved = localStorage.getItem('vishwautsav_custom_roles')
+            return saved ? JSON.parse(saved) : []
+        } catch (e) {
+            return []
+        }
+    })
+
+    const [customDepts, setCustomDepts] = useState(() => {
+        try {
+            const saved = localStorage.getItem('vishwautsav_custom_depts')
+            return saved ? JSON.parse(saved) : []
+        } catch (e) {
+            return []
+        }
+    })
+
+    // Inline quick-add state for form dropdowns
+    const [isAddingInlineRole, setIsAddingInlineRole] = useState(false)
+    const [inlineRoleName, setInlineRoleName] = useState('')
+    const [isAddingInlineDept, setIsAddingInlineDept] = useState(false)
+    const [inlineDeptName, setInlineDeptName] = useState('')
+
+    // Dedicated CRUD Manager Modal state
+    const [isManagerOpen, setIsManagerOpen] = useState(false)
+    const [managerTab, setManagerTab] = useState('roles') // 'roles' | 'departments'
+    const [managerNewName, setManagerNewName] = useState('')
+    const [editingItemName, setEditingItemName] = useState(null) // { type: 'roles'|'departments', oldName: string, currentVal: string }
+
+    // Sync custom roles & depts to localStorage
+    useEffect(() => {
+        try {
+            localStorage.setItem('vishwautsav_custom_roles', JSON.stringify(customRoles))
+        } catch (e) {}
+    }, [customRoles])
+
+    useEffect(() => {
+        try {
+            localStorage.setItem('vishwautsav_custom_depts', JSON.stringify(customDepts))
+        } catch (e) {}
+    }, [customDepts])
+
+    // Dynamic aggregated roles and departments
+    const allRoles = useMemo(() => {
+        const set = new Set([...DEFAULT_ROLE_PRESETS, ...customRoles])
+        members.forEach(m => {
+            if (m.role && m.role.trim() && m.role !== 'Other / Custom') set.add(m.role.trim())
+        })
+        return Array.from(set)
+    }, [customRoles, members])
+
+    const allDepartments = useMemo(() => {
+        const set = new Set([...DEFAULT_DEPARTMENTS, ...customDepts])
+        members.forEach(m => {
+            if (m.department && m.department.trim() && m.department !== 'All') set.add(m.department.trim())
+        })
+        return Array.from(set)
+    }, [customDepts, members])
+
+    // CRUD Handlers for Roles
+    const handleAddCustomRole = (name) => {
+        const trimmed = String(name || '').trim()
+        if (!trimmed) return
+        if (!allRoles.includes(trimmed)) {
+            setCustomRoles(prev => [...prev, trimmed])
+        }
+        setFormData(prev => ({ ...prev, role: trimmed }))
+        setIsAddingInlineRole(false)
+        setInlineRoleName('')
+    }
+
+    const handleRenameRole = (oldName, newName) => {
+        const trimmed = String(newName || '').trim()
+        if (!trimmed || trimmed === oldName) {
+            setEditingItemName(null)
+            return
+        }
+        setCustomRoles(prev => prev.map(r => r === oldName ? trimmed : r))
+        if (formData.role === oldName) {
+            setFormData(prev => ({ ...prev, role: trimmed }))
+        }
+        setEditingItemName(null)
+    }
+
+    const handleDeleteRole = (nameToDelete) => {
+        if (!window.confirm(`Delete custom role "${nameToDelete}"?`)) return
+        setCustomRoles(prev => prev.filter(r => r !== nameToDelete))
+        if (formData.role === nameToDelete) {
+            setFormData(prev => ({ ...prev, role: 'Committee Member' }))
+        }
+    }
+
+    // CRUD Handlers for Departments
+    const handleAddCustomDept = (name) => {
+        const trimmed = String(name || '').trim()
+        if (!trimmed) return
+        if (!allDepartments.includes(trimmed)) {
+            setCustomDepts(prev => [...prev, trimmed])
+        }
+        setFormData(prev => ({ ...prev, department: trimmed }))
+        setIsAddingInlineDept(false)
+        setInlineDeptName('')
+    }
+
+    const handleRenameDept = (oldName, newName) => {
+        const trimmed = String(newName || '').trim()
+        if (!trimmed || trimmed === oldName) {
+            setEditingItemName(null)
+            return
+        }
+        setCustomDepts(prev => prev.map(d => d === oldName ? trimmed : d))
+        if (formData.department === oldName) {
+            setFormData(prev => ({ ...prev, department: trimmed }))
+        }
+        setEditingItemName(null)
+    }
+
+    const handleDeleteDept = (nameToDelete) => {
+        if (!window.confirm(`Delete custom department / wing "${nameToDelete}"?`)) return
+        setCustomDepts(prev => prev.filter(d => d !== nameToDelete))
+        if (formData.department === nameToDelete) {
+            setFormData(prev => ({ ...prev, department: 'Core Committee' }))
+        }
+    }
 
     // Form State
     const [formData, setFormData] = useState({
@@ -193,13 +318,16 @@ export default function MembersSection({
 
     // Open Modal
     const handleOpenModal = (member = null) => {
+        setIsAddingInlineRole(false)
+        setIsAddingInlineDept(false)
+        setInlineRoleName('')
+        setInlineDeptName('')
         if (member) {
             setEditingMember(member)
-            const isPreset = ROLE_PRESETS.includes(member.role)
             setFormData({
                 name: member.name || '',
-                role: isPreset ? member.role : 'Other / Custom',
-                customRole: isPreset ? '' : member.role,
+                role: member.role || 'Committee Member',
+                customRole: '',
                 department: member.department || 'Core Committee',
                 contact: member.contact || '',
                 countryCode: member.countryCode || '+91',
@@ -237,6 +365,14 @@ export default function MembersSection({
         const finalRole = formData.role === 'Other / Custom' 
             ? (formData.customRole.trim() || 'Committee Member')
             : formData.role
+
+        // Auto-persist custom role or department if it's new
+        if (finalRole && !DEFAULT_ROLE_PRESETS.includes(finalRole) && !customRoles.includes(finalRole)) {
+            setCustomRoles(prev => [...prev, finalRole])
+        }
+        if (formData.department && !DEFAULT_DEPARTMENTS.includes(formData.department) && !customDepts.includes(formData.department)) {
+            setCustomDepts(prev => [...prev, formData.department])
+        }
 
         const payload = {
             ...formData,
@@ -434,7 +570,7 @@ export default function MembersSection({
                         <span className="extra-tiny text-muted me-1 fw-bold d-none d-xl-inline">
                             <Filter size={11} className="me-1" />Wing:
                         </span>
-                        {DEPARTMENTS.slice(0, 5).map(dept => (
+                        {['All', ...allDepartments].slice(0, 5).map(dept => (
                             <button
                                 key={dept}
                                 type="button"
@@ -444,9 +580,9 @@ export default function MembersSection({
                                 {dept}
                             </button>
                         ))}
-                        {DEPARTMENTS.length > 5 && (
+                        {['All', ...allDepartments].length > 5 && (
                             <select
-                                value={DEPARTMENTS.slice(5).includes(selectedDept) ? selectedDept : ''}
+                                value={['All', ...allDepartments].slice(5).includes(selectedDept) ? selectedDept : ''}
                                 onChange={e => e.target.value && setSelectedDept(e.target.value)}
                                 className="form-select form-select-sm rounded-pill extra-tiny text-main fw-bold border"
                                 style={{ 
@@ -459,7 +595,7 @@ export default function MembersSection({
                                 }}
                             >
                                 <option value="">More Wings...</option>
-                                {DEPARTMENTS.slice(5).map(dept => (
+                                {['All', ...allDepartments].slice(5).map(dept => (
                                     <option key={dept} value={dept}>{dept}</option>
                                 ))}
                             </select>
@@ -763,80 +899,234 @@ export default function MembersSection({
                                             </div>
                                         </div>
 
-                                        {/* Role / Designation */}
+                                        {/* Role / Designation with Full CRUD */}
                                         <div className="col-12 col-sm-6">
-                                            <label className="luxury-label">
-                                                <Award size={12} className="text-terracotta" />
-                                                <span>Role / Designation</span>
-                                                <span className="text-danger">*</span>
-                                            </label>
-                                            <div className="luxury-input-wrapper">
-                                                <div className="luxury-icon-box">
-                                                    <Award size={16} />
-                                                </div>
-                                                <select
-                                                    value={formData.role}
-                                                    onChange={e => setFormData({ ...formData, role: e.target.value })}
-                                                    className="luxury-input-field fw-semibold"
-                                                    style={{ cursor: 'pointer', background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}
-                                                >
-                                                    {ROLE_PRESETS.map(r => (
-                                                        <option key={r} value={r} style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>
-                                                            {r}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        {/* Department / Wing */}
-                                        <div className="col-12 col-sm-6">
-                                            <label className="luxury-label">
-                                                <Tag size={12} className="text-terracotta" />
-                                                <span>Department / Wing</span>
-                                            </label>
-                                            <div className="luxury-input-wrapper">
-                                                <div className="luxury-icon-box">
-                                                    <Tag size={16} />
-                                                </div>
-                                                <select
-                                                    value={formData.department}
-                                                    onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                                    className="luxury-input-field fw-semibold"
-                                                    style={{ cursor: 'pointer', background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}
-                                                >
-                                                    {DEPARTMENTS.filter(d => d !== 'All').map(d => (
-                                                        <option key={d} value={d} style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>
-                                                            {d}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        {/* Custom Role Input if 'Other / Custom' chosen */}
-                                        {formData.role === 'Other / Custom' && (
-                                            <div className="col-12">
-                                                <label className="luxury-label">
-                                                    <Sparkles size={12} className="text-terracotta" />
-                                                    <span>Custom Designation Title</span>
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <label className="luxury-label mb-0">
+                                                    <Award size={12} className="text-terracotta" />
+                                                    <span>Role / Designation</span>
                                                     <span className="text-danger">*</span>
                                                 </label>
+                                                <div className="d-flex align-items-center gap-1.5">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setIsAddingInlineRole(true)
+                                                            setInlineRoleName('')
+                                                        }}
+                                                        className="btn btn-link p-0 text-decoration-none extra-tiny fw-bold text-terracotta hover-underline"
+                                                        title="Quick Add Custom Role"
+                                                    >
+                                                        + New
+                                                    </button>
+                                                    <span className="text-muted opacity-50" style={{ fontSize: '0.65rem' }}>•</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setManagerTab('roles')
+                                                            setIsManagerOpen(true)
+                                                        }}
+                                                        className="btn btn-link p-0 text-decoration-none extra-tiny text-muted hover-text-main d-inline-flex align-items-center gap-0.5"
+                                                        title="Manage Custom Roles (CRUD)"
+                                                    >
+                                                        <Settings size={10} />
+                                                        <span>Manage</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {isAddingInlineRole ? (
                                                 <div className="luxury-input-wrapper">
                                                     <div className="luxury-icon-box">
-                                                        <Sparkles size={16} />
+                                                        <Award size={16} />
                                                     </div>
                                                     <input
                                                         type="text"
-                                                        required
-                                                        placeholder="e.g. Chief Patron, Head of Media, Stage Manager"
-                                                        value={formData.customRole}
-                                                        onChange={e => setFormData({ ...formData, customRole: e.target.value })}
+                                                        autoFocus
+                                                        placeholder="Type new role title..."
+                                                        value={inlineRoleName}
+                                                        onChange={e => setInlineRoleName(e.target.value)}
+                                                        onKeyDown={e => {
+                                                            if (e.key === 'Enter') {
+                                                                e.preventDefault()
+                                                                handleAddCustomRole(inlineRoleName)
+                                                            } else if (e.key === 'Escape') {
+                                                                setIsAddingInlineRole(false)
+                                                            }
+                                                        }}
                                                         className="luxury-input-field"
                                                     />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleAddCustomRole(inlineRoleName)}
+                                                        disabled={!inlineRoleName.trim()}
+                                                        className="btn btn-sm btn-success rounded-pill px-2.5 py-0.5 extra-tiny fw-bold text-white flex-shrink-0"
+                                                    >
+                                                        Add
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsAddingInlineRole(false)}
+                                                        className="btn btn-sm btn-light rounded-circle p-1 extra-tiny text-muted flex-shrink-0"
+                                                    >
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="luxury-input-wrapper">
+                                                    <div className="luxury-icon-box">
+                                                        <Award size={16} />
+                                                    </div>
+                                                    <select
+                                                        value={formData.role}
+                                                        onChange={e => {
+                                                            if (e.target.value === '__ADD_NEW_ROLE__') {
+                                                                setIsAddingInlineRole(true)
+                                                                setInlineRoleName('')
+                                                            } else {
+                                                                setFormData({ ...formData, role: e.target.value })
+                                                            }
+                                                        }}
+                                                        className="luxury-input-field fw-semibold"
+                                                        style={{ cursor: 'pointer', background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}
+                                                    >
+                                                        <optgroup label="Standard Roles">
+                                                            {DEFAULT_ROLE_PRESETS.map(r => (
+                                                                <option key={r} value={r} style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>
+                                                                    {r}
+                                                                </option>
+                                                            ))}
+                                                        </optgroup>
+                                                        {customRoles.length > 0 && (
+                                                            <optgroup label="Custom Roles">
+                                                                {customRoles.map(r => (
+                                                                    <option key={r} value={r} style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>
+                                                                        {r}
+                                                                    </option>
+                                                                ))}
+                                                            </optgroup>
+                                                        )}
+                                                        <option value="__ADD_NEW_ROLE__" style={{ fontWeight: 'bold', color: 'var(--accent-1)' }}>
+                                                            ➕ + Add Custom Role...
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Department / Wing with Full CRUD */}
+                                        <div className="col-12 col-sm-6">
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <label className="luxury-label mb-0">
+                                                    <Tag size={12} className="text-terracotta" />
+                                                    <span>Department / Wing</span>
+                                                </label>
+                                                <div className="d-flex align-items-center gap-1.5">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setIsAddingInlineDept(true)
+                                                            setInlineDeptName('')
+                                                        }}
+                                                        className="btn btn-link p-0 text-decoration-none extra-tiny fw-bold text-terracotta hover-underline"
+                                                        title="Quick Add Custom Wing"
+                                                    >
+                                                        + New
+                                                    </button>
+                                                    <span className="text-muted opacity-50" style={{ fontSize: '0.65rem' }}>•</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setManagerTab('departments')
+                                                            setIsManagerOpen(true)
+                                                        }}
+                                                        className="btn btn-link p-0 text-decoration-none extra-tiny text-muted hover-text-main d-inline-flex align-items-center gap-0.5"
+                                                        title="Manage Custom Wings (CRUD)"
+                                                    >
+                                                        <Settings size={10} />
+                                                        <span>Manage</span>
+                                                    </button>
                                                 </div>
                                             </div>
-                                        )}
+
+                                            {isAddingInlineDept ? (
+                                                <div className="luxury-input-wrapper">
+                                                    <div className="luxury-icon-box">
+                                                        <Tag size={16} />
+                                                    </div>
+                                                    <input
+                                                        type="text"
+                                                        autoFocus
+                                                        placeholder="Type new department name..."
+                                                        value={inlineDeptName}
+                                                        onChange={e => setInlineDeptName(e.target.value)}
+                                                        onKeyDown={e => {
+                                                            if (e.key === 'Enter') {
+                                                                e.preventDefault()
+                                                                handleAddCustomDept(inlineDeptName)
+                                                            } else if (e.key === 'Escape') {
+                                                                setIsAddingInlineDept(false)
+                                                            }
+                                                        }}
+                                                        className="luxury-input-field"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleAddCustomDept(inlineDeptName)}
+                                                        disabled={!inlineDeptName.trim()}
+                                                        className="btn btn-sm btn-success rounded-pill px-2.5 py-0.5 extra-tiny fw-bold text-white flex-shrink-0"
+                                                    >
+                                                        Add
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setIsAddingInlineDept(false)}
+                                                        className="btn btn-sm btn-light rounded-circle p-1 extra-tiny text-muted flex-shrink-0"
+                                                    >
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="luxury-input-wrapper">
+                                                    <div className="luxury-icon-box">
+                                                        <Tag size={16} />
+                                                    </div>
+                                                    <select
+                                                        value={formData.department}
+                                                        onChange={e => {
+                                                            if (e.target.value === '__ADD_NEW_DEPT__') {
+                                                                setIsAddingInlineDept(true)
+                                                                setInlineDeptName('')
+                                                            } else {
+                                                                setFormData({ ...formData, department: e.target.value })
+                                                            }
+                                                        }}
+                                                        className="luxury-input-field fw-semibold"
+                                                        style={{ cursor: 'pointer', background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}
+                                                    >
+                                                        <optgroup label="Standard Wings">
+                                                            {DEFAULT_DEPARTMENTS.map(d => (
+                                                                <option key={d} value={d} style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>
+                                                                    {d}
+                                                                </option>
+                                                            ))}
+                                                        </optgroup>
+                                                        {customDepts.length > 0 && (
+                                                            <optgroup label="Custom Wings">
+                                                                {customDepts.map(d => (
+                                                                    <option key={d} value={d} style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>
+                                                                        {d}
+                                                                    </option>
+                                                                ))}
+                                                            </optgroup>
+                                                        )}
+                                                        <option value="__ADD_NEW_DEPT__" style={{ fontWeight: 'bold', color: 'var(--accent-1)' }}>
+                                                            ➕ + Add Custom Wing...
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            )}
+                                        </div>
 
                                         {/* Contact Phone Number */}
                                         <div className="col-12 col-sm-7">
@@ -964,6 +1254,261 @@ export default function MembersSection({
             </AnimatePresence>,
             document.body
         )}
+
+            {/* Manage Roles & Departments Modal (Full CRUD Manager) */}
+            {typeof document !== 'undefined' && createPortal(
+                <AnimatePresence>
+                    {isManagerOpen && (
+                        <div 
+                            className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-2 p-sm-3" 
+                            style={{ 
+                                backgroundColor: 'rgba(0, 0, 0, 0.35)', 
+                                backdropFilter: 'blur(4px)',
+                                WebkitBackdropFilter: 'blur(4px)',
+                                zIndex: 100000,
+                                inset: 0
+                            }}
+                            onClick={(e) => {
+                                if (e.target === e.currentTarget) setIsManagerOpen(false)
+                            }}
+                        >
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                                transition={{ duration: 0.22, ease: 'easeOut' }}
+                                className="luxury-modal-card w-100 shadow-2xl d-flex flex-column overflow-hidden my-auto"
+                                style={{
+                                    maxWidth: '560px',
+                                    maxHeight: 'min(88vh, 680px)',
+                                    background: '#ffffff',
+                                    border: '1.5px solid var(--glass-border)',
+                                    borderRadius: '20px'
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {/* Header */}
+                                <div className="d-flex align-items-center justify-content-between px-3 px-sm-4 py-3 border-bottom flex-shrink-0" style={{ borderColor: 'var(--glass-border)', background: '#ffffff' }}>
+                                    <div className="d-flex align-items-center gap-2.5">
+                                        <div className="figma-members-header-emblem d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style={{ width: '38px', height: '38px', borderRadius: '12px' }}>
+                                            <Settings size={18} />
+                                        </div>
+                                        <div>
+                                            <h6 className="fw-extrabold mb-0 text-main" style={{ fontSize: '1.02rem', letterSpacing: '-0.01em' }}>
+                                                Manage Roles &amp; Wings
+                                            </h6>
+                                            <p className="extra-tiny text-muted mb-0">
+                                                Create, edit, or delete custom committee designations &amp; departments
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setIsManagerOpen(false)} 
+                                        className="btn btn-close-custom rounded-circle p-2 border shadow-sm hover-scale d-flex align-items-center justify-content-center" 
+                                        style={{ 
+                                            backgroundColor: 'var(--input-bg)', 
+                                            borderColor: 'var(--glass-border)',
+                                            width: '32px',
+                                            height: '32px'
+                                        }} 
+                                        aria-label="Close"
+                                    >
+                                        <X size={15} style={{ color: 'var(--text-main)' }} />
+                                    </button>
+                                </div>
+
+                                {/* Tabs */}
+                                <div className="d-flex border-bottom px-3 px-sm-4 pt-2 bg-light bg-opacity-50 flex-shrink-0" style={{ borderColor: 'var(--glass-border)' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setManagerTab('roles')
+                                            setManagerNewName('')
+                                            setEditingItemName(null)
+                                        }}
+                                        className={`btn btn-link text-decoration-none px-3 py-2 extra-tiny fw-bold border-bottom border-2 ${managerTab === 'roles' ? 'border-primary text-primary' : 'border-transparent text-muted'}`}
+                                    >
+                                        Roles / Designations ({allRoles.length})
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setManagerTab('departments')
+                                            setManagerNewName('')
+                                            setEditingItemName(null)
+                                        }}
+                                        className={`btn btn-link text-decoration-none px-3 py-2 extra-tiny fw-bold border-bottom border-2 ${managerTab === 'departments' ? 'border-primary text-primary' : 'border-transparent text-muted'}`}
+                                    >
+                                        Departments / Wings ({allDepartments.length})
+                                    </button>
+                                </div>
+
+                                {/* Manager Body */}
+                                <div className="p-3 p-sm-4 overflow-y-auto flex-grow-1" style={{ minHeight: 0 }}>
+                                    {/* Top Quick Add Bar */}
+                                    <div className="d-flex align-items-center gap-2 mb-3">
+                                        <input
+                                            type="text"
+                                            placeholder={managerTab === 'roles' ? 'Enter new role title (e.g. Stage Lead)...' : 'Enter new department name (e.g. Media Wing)...'}
+                                            value={managerNewName}
+                                            onChange={e => setManagerNewName(e.target.value)}
+                                            onKeyDown={e => {
+                                                if (e.key === 'Enter') {
+                                                    e.preventDefault()
+                                                    if (managerTab === 'roles') {
+                                                        handleAddCustomRole(managerNewName)
+                                                    } else {
+                                                        handleAddCustomDept(managerNewName)
+                                                    }
+                                                    setManagerNewName('')
+                                                }
+                                            }}
+                                            className="form-control form-control-sm rounded-3 text-main fw-semibold"
+                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)', fontSize: '0.82rem' }}
+                                        />
+                                        <button
+                                            type="button"
+                                            disabled={!managerNewName.trim()}
+                                            onClick={() => {
+                                                if (managerTab === 'roles') {
+                                                    handleAddCustomRole(managerNewName)
+                                                } else {
+                                                    handleAddCustomDept(managerNewName)
+                                                }
+                                                setManagerNewName('')
+                                            }}
+                                            className="btn btn-sm btn-premium rounded-pill px-3 py-1.5 extra-tiny fw-bold text-nowrap flex-shrink-0"
+                                        >
+                                            <Plus size={13} className="me-1" /> Add
+                                        </button>
+                                    </div>
+
+                                    {/* Items List */}
+                                    <div className="d-flex flex-column gap-1.5">
+                                        {(managerTab === 'roles' ? allRoles : allDepartments).map(item => {
+                                            const isDefault = managerTab === 'roles' 
+                                                ? DEFAULT_ROLE_PRESETS.includes(item)
+                                                : DEFAULT_DEPARTMENTS.includes(item)
+
+                                            const isEditing = editingItemName && editingItemName.type === managerTab && editingItemName.oldName === item
+
+                                            if (isEditing) {
+                                                return (
+                                                    <div key={item} className="d-flex align-items-center gap-2 p-2 rounded-3 border bg-light">
+                                                        <input
+                                                            type="text"
+                                                            autoFocus
+                                                            value={editingItemName.currentVal}
+                                                            onChange={e => setEditingItemName({ ...editingItemName, currentVal: e.target.value })}
+                                                            onKeyDown={e => {
+                                                                if (e.key === 'Enter') {
+                                                                    e.preventDefault()
+                                                                    if (managerTab === 'roles') {
+                                                                        handleRenameRole(item, editingItemName.currentVal)
+                                                                    } else {
+                                                                        handleRenameDept(item, editingItemName.currentVal)
+                                                                    }
+                                                                } else if (e.key === 'Escape') {
+                                                                    setEditingItemName(null)
+                                                                }
+                                                            }}
+                                                            className="form-control form-control-sm text-main fw-bold"
+                                                            style={{ fontSize: '0.82rem' }}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if (managerTab === 'roles') {
+                                                                    handleRenameRole(item, editingItemName.currentVal)
+                                                                } else {
+                                                                    handleRenameDept(item, editingItemName.currentVal)
+                                                                }
+                                                            }}
+                                                            className="btn btn-sm btn-success rounded-pill px-2.5 py-1 extra-tiny fw-bold text-white flex-shrink-0"
+                                                        >
+                                                            Save
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setEditingItemName(null)}
+                                                            className="btn btn-sm btn-light rounded-circle p-1 extra-tiny text-muted flex-shrink-0"
+                                                        >
+                                                            <X size={14} />
+                                                        </button>
+                                                    </div>
+                                                )
+                                            }
+
+                                            return (
+                                                <div 
+                                                    key={item} 
+                                                    className="d-flex align-items-center justify-content-between p-2 px-3 rounded-3 border border-opacity-50 hover-bg-light transition-all"
+                                                    style={{ borderColor: 'var(--glass-border)', background: 'var(--card-bg, #ffffff)' }}
+                                                >
+                                                    <div className="d-flex align-items-center gap-2 text-truncate">
+                                                        <span className="extra-tiny fw-bold text-main text-truncate" style={{ fontSize: '0.82rem' }}>
+                                                            {item}
+                                                        </span>
+                                                        {isDefault ? (
+                                                            <span className="badge bg-secondary bg-opacity-10 text-muted rounded-pill px-2 py-0.5" style={{ fontSize: '0.62rem' }}>
+                                                                Preset
+                                                            </span>
+                                                        ) : (
+                                                            <span className="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-0.5" style={{ fontSize: '0.62rem' }}>
+                                                                Custom
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {!isDefault && (
+                                                        <div className="d-flex align-items-center gap-1.5 flex-shrink-0">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setEditingItemName({ type: managerTab, oldName: item, currentVal: item })}
+                                                                className="btn btn-sm btn-light p-1 px-2 rounded extra-tiny text-muted hover-text-main"
+                                                                title="Rename"
+                                                            >
+                                                                <Edit3 size={12} />
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    if (managerTab === 'roles') {
+                                                                        handleDeleteRole(item)
+                                                                    } else {
+                                                                        handleDeleteDept(item)
+                                                                    }
+                                                                }}
+                                                                className="btn btn-sm btn-light p-1 px-2 rounded extra-tiny text-danger hover-bg-danger hover-text-white"
+                                                                title="Delete"
+                                                            >
+                                                                <Trash2 size={12} />
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* Footer */}
+                                <div className="d-flex justify-content-end p-3 border-top flex-shrink-0" style={{ borderColor: 'var(--glass-border)', background: '#ffffff' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsManagerOpen(false)}
+                                        className="btn btn-sm btn-light rounded-pill px-4 py-1.5 extra-tiny fw-bold"
+                                    >
+                                        Done
+                                    </button>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
         </div>
     )
 }
