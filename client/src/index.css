@@ -4611,8 +4611,8 @@ html, body, #root, .app-container {
 }
 
 .figma-members-toolbar {
-    border-radius: 16px;
-    padding: 10px 14px;
+    border-radius: 18px;
+    padding: 12px 14px;
     background: rgba(0, 0, 0, 0.025);
     border: 1px solid rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(12px);
@@ -4622,6 +4622,43 @@ html, body, #root, .app-container {
 [data-theme='dark'] .figma-members-toolbar {
     background: rgba(255, 255, 255, 0.04);
     border-color: rgba(255, 255, 255, 0.09);
+}
+
+.figma-dept-scroll {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.figma-dept-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.figma-toolbar-select {
+    height: 36px;
+    border-radius: 9999px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    background: var(--input-bg, #ffffff);
+    border: 1px solid var(--glass-border, rgba(0, 0, 0, 0.1));
+    color: var(--text-main, #0f172a);
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    text-overflow: ellipsis;
+    padding-left: 12px;
+    padding-right: 28px;
+    transition: all 0.2s ease;
+}
+
+.figma-toolbar-select:focus {
+    border-color: #E07A43;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(224, 122, 67, 0.15);
 }
 
 .figma-dept-pill {

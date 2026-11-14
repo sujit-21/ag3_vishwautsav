@@ -731,53 +731,90 @@ export default function MembersSection({
                 </div>
             </div>
 
-            {/* Search & Department Filters Toolbar */}
-            <div className="figma-members-toolbar d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4 shadow-xs">
-                {/* Search Bar */}
-                <div className="input-group action-item-pill search-pill-container px-3 flex-nowrap shadow-xs flex-grow-1" style={{ height: '36px', maxWidth: '400px' }}>
-                    <span className="input-group-text bg-transparent border-0 text-muted ps-1 pe-2 d-flex align-items-center">
-                        <Search size={14} />
-                    </span>
-                    <input
-                        type="text"
-                        placeholder="Search by name, role, phone, locality..."
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        className="form-control bg-transparent border-0 text-main extra-tiny p-0 shadow-none fw-semibold"
-                        style={{ fontSize: '0.78rem' }}
-                    />
-                    {search && (
-                        <button onClick={() => setSearch('')} className="btn btn-sm btn-link text-muted p-0 pe-1">
-                            <X size={13} />
-                        </button>
-                    )}
+            {/* Search & Department Filters Toolbar (Optimized for Smartphones & Desktops) */}
+            <div className="figma-members-toolbar mb-4 shadow-xs">
+                {/* Row 1: Search Bar + Symmetrical Filters */}
+                <div className="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center justify-content-between gap-2.5 mb-2.5">
+                    {/* Search Bar (100% full-width on mobile, auto-expanding on desktop) */}
+                    <div className="input-group action-item-pill search-pill-container px-3 flex-nowrap shadow-xs w-100 flex-lg-grow-1" style={{ height: '38px', maxWidth: '100%' }}>
+                        <span className="input-group-text bg-transparent border-0 text-muted ps-1 pe-2 d-flex align-items-center">
+                            <Search size={14} />
+                        </span>
+                        <input
+                            type="text"
+                            placeholder="Search by name, role, phone, locality..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            className="form-control bg-transparent border-0 text-main extra-tiny p-0 shadow-none fw-semibold"
+                            style={{ fontSize: '0.78rem' }}
+                        />
+                        {search && (
+                            <button onClick={() => setSearch('')} className="btn btn-sm btn-link text-muted p-0 pe-1" title="Clear Search">
+                                <X size={13} />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Dual Symmetrical Dropdown Selectors: 50% / 50% on Mobile, auto-width on Desktop */}
+                    <div className="d-flex align-items-center gap-2 w-100 w-lg-auto flex-nowrap">
+                        {/* Status & Visibility Selector */}
+                        <div className="flex-fill" style={{ minWidth: 0 }}>
+                            <select
+                                value={selectedStatus}
+                                onChange={e => setSelectedStatus(e.target.value)}
+                                className="figma-toolbar-select form-select form-select-sm w-100"
+                                title="Filter by Visibility or Status"
+                            >
+                                <option value="All">All ({metrics.total})</option>
+                                <option value="Visible">Visible ({metrics.visible})</option>
+                                <option value="Hidden">Hidden ({metrics.hidden})</option>
+                                <option value="Active">Active ({metrics.active})</option>
+                                <option value="Honorary">Honorary</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        {/* Sort Order Selector */}
+                        <div className="flex-fill" style={{ minWidth: 0 }}>
+                            <select
+                                value={sortBy}
+                                onChange={e => setSortBy(e.target.value)}
+                                className="figma-toolbar-select form-select form-select-sm w-100"
+                                title="Arrange Members"
+                            >
+                                <option value="entry_asc">Order: First Added</option>
+                                <option value="entry_desc">Order: Newest First</option>
+                                <option value="hierarchy">Hierarchy: Execs First</option>
+                                <option value="name_asc">Name: A to Z</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Right Toolbar Controls: Wings Filter & Sort Order */}
-                <div className="d-flex align-items-center gap-2 flex-wrap">
-                    {/* Department Horizontal Scroll Pills */}
-                    <div className="d-flex align-items-center gap-1.5 overflow-x-auto pb-1 pb-lg-0" style={{ scrollbarWidth: 'none' }}>
-                        <span className="extra-tiny text-muted me-1 fw-bold d-none d-xl-inline">
-                            <Filter size={11} className="me-1" />Wing:
-                        </span>
-                        {['All', ...allDepartments].slice(0, 5).map(dept => (
+                {/* Row 2: Department / Wing Horizontal Touch-Scroll Chips */}
+                <div className="d-flex align-items-center gap-1.5 w-100 pt-2 border-top border-secondary border-opacity-10">
+                    <span className="extra-tiny text-muted me-1 fw-bold d-none d-sm-inline-flex align-items-center flex-shrink-0">
+                        <Filter size={11} className="me-1" />Wing:
+                    </span>
+                    <div className="figma-dept-scroll flex-grow-1 pe-2 py-0.5">
+                        {['All', ...allDepartments].slice(0, 6).map(dept => (
                             <button
                                 key={dept}
                                 type="button"
                                 onClick={() => setSelectedDept(dept)}
-                                className={`figma-dept-pill ${selectedDept === dept ? 'active' : ''}`}
+                                className={`figma-dept-pill flex-shrink-0 ${selectedDept === dept ? 'active' : ''}`}
                             >
                                 {dept}
                             </button>
                         ))}
-                        {['All', ...allDepartments].length > 5 && (
+                        {['All', ...allDepartments].length > 6 && (
                             <select
-                                value={['All', ...allDepartments].slice(5).includes(selectedDept) ? selectedDept : ''}
+                                value={['All', ...allDepartments].slice(6).includes(selectedDept) ? selectedDept : ''}
                                 onChange={e => e.target.value && setSelectedDept(e.target.value)}
-                                className="form-select form-select-sm rounded-pill extra-tiny text-main fw-bold border"
+                                className="form-select form-select-sm rounded-pill extra-tiny text-main fw-bold border flex-shrink-0"
                                 style={{ 
                                     width: 'auto', 
-                                    height: '32px', 
+                                    height: '30px', 
                                     background: 'var(--input-bg)', 
                                     borderColor: 'var(--glass-border)',
                                     fontSize: '0.72rem',
@@ -785,59 +822,11 @@ export default function MembersSection({
                                 }}
                             >
                                 <option value="">More Wings...</option>
-                                {['All', ...allDepartments].slice(5).map(dept => (
+                                {['All', ...allDepartments].slice(6).map(dept => (
                                     <option key={dept} value={dept}>{dept}</option>
                                 ))}
                             </select>
                         )}
-                    </div>
-
-                    {/* Status & Visibility Selector */}
-                    <div className="d-flex align-items-center gap-1 flex-nowrap ms-auto ms-lg-0">
-                        <select
-                            value={selectedStatus}
-                            onChange={e => setSelectedStatus(e.target.value)}
-                            className="form-select form-select-sm rounded-pill extra-tiny text-main fw-bold border shadow-xs"
-                            style={{ 
-                                width: 'auto', 
-                                height: '32px', 
-                                background: 'var(--input-bg)', 
-                                borderColor: 'var(--glass-border)',
-                                fontSize: '0.72rem',
-                                cursor: 'pointer'
-                            }}
-                            title="Filter by Visibility or Status"
-                        >
-                            <option value="All">All Members ({metrics.total})</option>
-                            <option value="Visible">Visible on PDF ({metrics.visible})</option>
-                            <option value="Hidden">Hidden from PDF ({metrics.hidden})</option>
-                            <option value="Active">Active ({metrics.active})</option>
-                            <option value="Honorary">Honorary</option>
-                            <option value="Inactive">Inactive</option>
-                        </select>
-                    </div>
-
-                    {/* Sort Order Selector (Entry Order / Hierarchy / A-Z) */}
-                    <div className="d-flex align-items-center gap-1 flex-nowrap">
-                        <select
-                            value={sortBy}
-                            onChange={e => setSortBy(e.target.value)}
-                            className="form-select form-select-sm rounded-pill extra-tiny text-main fw-bold border shadow-xs"
-                            style={{ 
-                                width: 'auto', 
-                                height: '32px', 
-                                background: 'var(--input-bg)', 
-                                borderColor: 'var(--glass-border)',
-                                fontSize: '0.72rem',
-                                cursor: 'pointer'
-                            }}
-                            title="Arrange Members"
-                        >
-                            <option value="entry_asc">Order: First Entered First</option>
-                            <option value="entry_desc">Order: Newest Entered First</option>
-                            <option value="hierarchy">Hierarchy: President &amp; Execs First</option>
-                            <option value="name_asc">Alphabetical: A to Z</option>
-                        </select>
                     </div>
                 </div>
             </div>
