@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
     Users, Plus, Search, FileDown, Edit3, Trash2, Phone, Mail, 
     ShieldCheck, CheckCircle2, Sparkles, Filter, X, Save, 
@@ -124,6 +125,17 @@ export default function MembersSection({
     useEffect(() => {
         fetchMembers()
     }, [type, activeEntity])
+
+    // Keyboard ESC listener to safely close modal
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape' && isModalOpen) {
+                setIsModalOpen(false)
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [isModalOpen])
 
     // Filtered Members
     const filteredMembers = useMemo(() => {
@@ -651,30 +663,53 @@ export default function MembersSection({
                 </div>
             )}
 
-            {/* Modal Dialog for Add / Edit Member */}
-            {isModalOpen && (
-                <div 
-                    className="modal fade show d-block" 
-                    tabIndex="-1" 
-                    style={{ backgroundColor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(10px)', zIndex: 1060 }}
-                >
-                    <div className="modal-dialog modal-dialog-centered" style={{ maxWidth: '560px' }}>
-                        <div 
-                            className="modal-content rounded-4 border shadow-2xl overflow-hidden"
+            {/* Modal Dialog for Add / Edit Member (Figma Luxury, Fully Responsive with Sticky Header & Footer) */}
+            <AnimatePresence>
+                {isModalOpen && (
+                    <div 
+                        className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-2 p-sm-3" 
+                        style={{ 
+                            backgroundColor: 'rgba(15, 23, 42, 0.78)', 
+                            backdropFilter: 'blur(12px)',
+                            WebkitBackdropFilter: 'blur(12px)',
+                            zIndex: 1060 
+                        }}
+                        onClick={(e) => {
+                            if (e.target === e.currentTarget) setIsModalOpen(false)
+                        }}
+                    >
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                            transition={{ duration: 0.22, ease: 'easeOut' }}
+                            className="luxury-modal-card w-100 shadow-2xl d-flex flex-column overflow-hidden"
                             style={{
+                                maxWidth: '640px',
+                                maxHeight: 'min(92vh, 760px)',
                                 background: 'var(--card-bg, #ffffff)',
-                                borderColor: 'var(--glass-border)',
-                                color: 'var(--text-main)'
+                                border: '1.5px solid var(--glass-border)',
+                                borderRadius: '22px'
                             }}
+                            onClick={(e) => e.stopPropagation()}
                         >
-                            {/* Modal Header */}
-                            <div className="modal-header border-bottom px-4 py-3" style={{ borderColor: 'var(--glass-border)' }}>
+                            {/* Pinned / Sticky Modal Header */}
+                            <div 
+                                className="d-flex align-items-center justify-content-between px-3 px-sm-4 py-3 border-bottom flex-shrink-0" 
+                                style={{ 
+                                    borderColor: 'var(--glass-border)',
+                                    background: 'var(--card-bg, #ffffff)'
+                                }}
+                            >
                                 <div className="d-flex align-items-center gap-2.5">
-                                    <div className="figma-members-header-emblem" style={{ width: '38px', height: '38px', borderRadius: '12px' }}>
-                                        <Users size={18} />
+                                    <div 
+                                        className="figma-members-header-emblem d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" 
+                                        style={{ width: '40px', height: '40px', borderRadius: '12px' }}
+                                    >
+                                        <Users size={19} />
                                     </div>
                                     <div>
-                                        <h6 className="modal-title fw-extrabold mb-0 text-main" style={{ fontSize: '1rem', letterSpacing: '-0.01em' }}>
+                                        <h6 className="fw-extrabold mb-0 text-main" style={{ fontSize: '1.02rem', letterSpacing: '-0.01em' }}>
                                             {editingMember ? 'Edit Committee Member' : 'Add Committee Member'}
                                         </h6>
                                         <p className="extra-tiny text-muted mb-0">
@@ -682,171 +717,248 @@ export default function MembersSection({
                                         </p>
                                     </div>
                                 </div>
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="btn-close" aria-label="Close"></button>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setIsModalOpen(false)} 
+                                    className="btn btn-close-custom rounded-circle p-2 border shadow-sm hover-scale d-flex align-items-center justify-content-center" 
+                                    style={{ 
+                                        backgroundColor: 'var(--input-bg)', 
+                                        borderColor: 'var(--glass-border)',
+                                        width: '34px',
+                                        height: '34px'
+                                    }} 
+                                    aria-label="Close"
+                                >
+                                    <X size={16} style={{ color: 'var(--text-main)' }} />
+                                </button>
                             </div>
 
-                            {/* Modal Body Form */}
-                            <form onSubmit={handleSubmit} className="p-4">
-                                <div className="row g-3">
-                                    {/* Full Name */}
-                                    <div className="col-12">
-                                        <label className="form-label extra-tiny fw-bold text-muted mb-1">
-                                            Full Legal Name <span className="text-danger">*</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            required
-                                            placeholder="e.g. Rajesh Kumar Sharma"
-                                            value={formData.name}
-                                            onChange={e => setFormData({ ...formData, name: e.target.value })}
-                                            className="form-control form-control-sm rounded-3 text-main fw-semibold"
-                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}
-                                        />
-                                    </div>
-
-                                    {/* Role / Designation */}
-                                    <div className="col-12 col-sm-6">
-                                        <label className="form-label extra-tiny fw-bold text-muted mb-1">
-                                            Role / Designation <span className="text-danger">*</span>
-                                        </label>
-                                        <select
-                                            value={formData.role}
-                                            onChange={e => setFormData({ ...formData, role: e.target.value })}
-                                            className="form-select form-select-sm rounded-3 text-main fw-semibold"
-                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)', cursor: 'pointer' }}
-                                        >
-                                            {ROLE_PRESETS.map(r => (
-                                                <option key={r} value={r}>{r}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {/* Department / Wing */}
-                                    <div className="col-12 col-sm-6">
-                                        <label className="form-label extra-tiny fw-bold text-muted mb-1">
-                                            Department / Wing
-                                        </label>
-                                        <select
-                                            value={formData.department}
-                                            onChange={e => setFormData({ ...formData, department: e.target.value })}
-                                            className="form-select form-select-sm rounded-3 text-main fw-semibold"
-                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)', cursor: 'pointer' }}
-                                        >
-                                            {DEPARTMENTS.filter(d => d !== 'All').map(d => (
-                                                <option key={d} value={d}>{d}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {/* Custom Role Input if 'Other / Custom' chosen */}
-                                    {formData.role === 'Other / Custom' && (
+                            {/* Modal Form Wrapper with Scrollable Body and Sticky Footer */}
+                            <form onSubmit={handleSubmit} className="d-flex flex-column flex-grow-1 overflow-hidden" style={{ minHeight: 0 }}>
+                                {/* Scrollable Form Content */}
+                                <div className="px-3 px-sm-4 py-3 overflow-y-auto flex-grow-1" style={{ minHeight: 0 }}>
+                                    <div className="row g-3">
+                                        {/* Full Legal Name */}
                                         <div className="col-12">
-                                            <label className="form-label extra-tiny fw-bold text-muted mb-1">
-                                                Custom Designation Title <span className="text-danger">*</span>
+                                            <label className="luxury-label">
+                                                <UserCheck size={12} className="text-terracotta" />
+                                                <span>Full Legal Name</span>
+                                                <span className="text-danger">*</span>
                                             </label>
-                                            <input
-                                                type="text"
-                                                required
-                                                placeholder="e.g. Chief Patron, Head of Media, Stage Manager"
-                                                value={formData.customRole}
-                                                onChange={e => setFormData({ ...formData, customRole: e.target.value })}
-                                                className="form-control form-control-sm rounded-3 text-main fw-semibold"
-                                                style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}
-                                            />
+                                            <div className="luxury-input-wrapper">
+                                                <div className="luxury-icon-box">
+                                                    <UserCheck size={16} />
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    placeholder="e.g. Rajesh Kumar Sharma"
+                                                    value={formData.name}
+                                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                                    className="luxury-input-field"
+                                                />
+                                            </div>
                                         </div>
-                                    )}
 
-                                    {/* Phone / Contact */}
-                                    <div className="col-12 col-sm-7">
-                                        <label className="form-label extra-tiny fw-bold text-muted mb-1">
-                                            Contact Phone Number
-                                        </label>
-                                        <div className="input-group input-group-sm">
-                                            <span className="input-group-text extra-tiny fw-bold" style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)', color: 'var(--text-muted)' }}>
-                                                +91
-                                            </span>
-                                            <input
-                                                type="tel"
-                                                placeholder="Mobile / WhatsApp number"
-                                                value={formData.contact}
-                                                onChange={e => setFormData({ ...formData, contact: e.target.value })}
-                                                className="form-control form-control-sm text-main fw-semibold"
-                                                style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}
-                                            />
+                                        {/* Role / Designation */}
+                                        <div className="col-12 col-sm-6">
+                                            <label className="luxury-label">
+                                                <Award size={12} className="text-terracotta" />
+                                                <span>Role / Designation</span>
+                                                <span className="text-danger">*</span>
+                                            </label>
+                                            <div className="luxury-input-wrapper">
+                                                <div className="luxury-icon-box">
+                                                    <Award size={16} />
+                                                </div>
+                                                <select
+                                                    value={formData.role}
+                                                    onChange={e => setFormData({ ...formData, role: e.target.value })}
+                                                    className="luxury-input-field fw-semibold"
+                                                    style={{ cursor: 'pointer', background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}
+                                                >
+                                                    {ROLE_PRESETS.map(r => (
+                                                        <option key={r} value={r} style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>
+                                                            {r}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    {/* Status */}
-                                    <div className="col-12 col-sm-5">
-                                        <label className="form-label extra-tiny fw-bold text-muted mb-1">
-                                            Roster Status
-                                        </label>
-                                        <select
-                                            value={formData.status}
-                                            onChange={e => setFormData({ ...formData, status: e.target.value })}
-                                            className="form-select form-select-sm rounded-3 text-main fw-semibold"
-                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)', cursor: 'pointer' }}
-                                        >
-                                            <option value="Active">Active</option>
-                                            <option value="Honorary">Honorary</option>
-                                            <option value="Inactive">Inactive</option>
-                                        </select>
-                                    </div>
+                                        {/* Department / Wing */}
+                                        <div className="col-12 col-sm-6">
+                                            <label className="luxury-label">
+                                                <Tag size={12} className="text-terracotta" />
+                                                <span>Department / Wing</span>
+                                            </label>
+                                            <div className="luxury-input-wrapper">
+                                                <div className="luxury-icon-box">
+                                                    <Tag size={16} />
+                                                </div>
+                                                <select
+                                                    value={formData.department}
+                                                    onChange={e => setFormData({ ...formData, department: e.target.value })}
+                                                    className="luxury-input-field fw-semibold"
+                                                    style={{ cursor: 'pointer', background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}
+                                                >
+                                                    {DEPARTMENTS.filter(d => d !== 'All').map(d => (
+                                                        <option key={d} value={d} style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>
+                                                            {d}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
 
-                                    {/* Email */}
-                                    <div className="col-12">
-                                        <label className="form-label extra-tiny fw-bold text-muted mb-1">
-                                            Email Address <span className="text-muted">(Optional)</span>
-                                        </label>
-                                        <input
-                                            type="email"
-                                            placeholder="e.g. member@vishwautsav.com"
-                                            value={formData.email}
-                                            onChange={e => setFormData({ ...formData, email: e.target.value })}
-                                            className="form-control form-control-sm rounded-3 text-main"
-                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}
-                                        />
-                                    </div>
+                                        {/* Custom Role Input if 'Other / Custom' chosen */}
+                                        {formData.role === 'Other / Custom' && (
+                                            <div className="col-12">
+                                                <label className="luxury-label">
+                                                    <Sparkles size={12} className="text-terracotta" />
+                                                    <span>Custom Designation Title</span>
+                                                    <span className="text-danger">*</span>
+                                                </label>
+                                                <div className="luxury-input-wrapper">
+                                                    <div className="luxury-icon-box">
+                                                        <Sparkles size={16} />
+                                                    </div>
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        placeholder="e.g. Chief Patron, Head of Media, Stage Manager"
+                                                        value={formData.customRole}
+                                                        onChange={e => setFormData({ ...formData, customRole: e.target.value })}
+                                                        className="luxury-input-field"
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
 
-                                    {/* Address / Notes */}
-                                    <div className="col-12">
-                                        <label className="form-label extra-tiny fw-bold text-muted mb-1">
-                                            Locality / Residential Address / Notes <span className="text-muted">(Optional)</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            placeholder="e.g. Sakaripara Main Road, Ward 4"
-                                            value={formData.address}
-                                            onChange={e => setFormData({ ...formData, address: e.target.value })}
-                                            className="form-control form-control-sm rounded-3 text-main"
-                                            style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}
-                                        />
+                                        {/* Contact Phone Number */}
+                                        <div className="col-12 col-sm-7">
+                                            <label className="luxury-label">
+                                                <Phone size={12} className="text-terracotta" />
+                                                <span>Contact Phone Number</span>
+                                            </label>
+                                            <div className="luxury-input-wrapper">
+                                                <div className="luxury-icon-box">
+                                                    <Phone size={16} />
+                                                </div>
+                                                <span 
+                                                    className="extra-tiny fw-bold text-muted ps-1 pe-2" 
+                                                    style={{ borderRight: '1.5px solid var(--glass-border)', lineHeight: 1 }}
+                                                >
+                                                    +91
+                                                </span>
+                                                <input
+                                                    type="tel"
+                                                    placeholder="Mobile / WhatsApp number"
+                                                    value={formData.contact}
+                                                    onChange={e => setFormData({ ...formData, contact: e.target.value })}
+                                                    className="luxury-input-field ps-2"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Roster Status */}
+                                        <div className="col-12 col-sm-5">
+                                            <label className="luxury-label">
+                                                <ShieldCheck size={12} className="text-terracotta" />
+                                                <span>Roster Status</span>
+                                            </label>
+                                            <div className="luxury-input-wrapper">
+                                                <div className="luxury-icon-box">
+                                                    <ShieldCheck size={16} />
+                                                </div>
+                                                <select
+                                                    value={formData.status}
+                                                    onChange={e => setFormData({ ...formData, status: e.target.value })}
+                                                    className="luxury-input-field fw-semibold"
+                                                    style={{ cursor: 'pointer', background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}
+                                                >
+                                                    <option value="Active" style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>Active</option>
+                                                    <option value="Honorary" style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>Honorary</option>
+                                                    <option value="Inactive" style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>Inactive</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {/* Email Address */}
+                                        <div className="col-12">
+                                            <label className="luxury-label">
+                                                <Mail size={12} className="text-terracotta" />
+                                                <span>Email Address</span>
+                                                <span className="text-muted text-lowercase" style={{ fontSize: '0.65rem', fontWeight: 500 }}>(Optional)</span>
+                                            </label>
+                                            <div className="luxury-input-wrapper">
+                                                <div className="luxury-icon-box">
+                                                    <Mail size={16} />
+                                                </div>
+                                                <input
+                                                    type="email"
+                                                    placeholder="e.g. member@vishwautsav.com"
+                                                    value={formData.email}
+                                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                                    className="luxury-input-field"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Locality / Residential Address / Notes */}
+                                        <div className="col-12">
+                                            <label className="luxury-label">
+                                                <MapPin size={12} className="text-terracotta" />
+                                                <span>Locality / Residential Address / Notes</span>
+                                                <span className="text-muted text-lowercase" style={{ fontSize: '0.65rem', fontWeight: 500 }}>(Optional)</span>
+                                            </label>
+                                            <div className="luxury-input-wrapper">
+                                                <div className="luxury-icon-box">
+                                                    <MapPin size={16} />
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    placeholder="e.g. Sakaripara Main Road, Ward 4"
+                                                    value={formData.address}
+                                                    onChange={e => setFormData({ ...formData, address: e.target.value })}
+                                                    className="luxury-input-field"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Modal Actions */}
-                                <div className="d-flex justify-content-end gap-2 mt-4 pt-3 border-top" style={{ borderColor: 'var(--glass-border)' }}>
+                                {/* Sticky / Pinned Modal Footer Actions */}
+                                <div 
+                                    className="d-flex justify-content-end align-items-center gap-2.5 px-3 px-sm-4 py-3 border-top flex-shrink-0" 
+                                    style={{ 
+                                        borderColor: 'var(--glass-border)', 
+                                        background: 'var(--card-bg, #ffffff)' 
+                                    }}
+                                >
                                     <button
                                         type="button"
                                         onClick={() => setIsModalOpen(false)}
-                                        className="btn btn-sm btn-light px-3.5 py-1.5 rounded-pill extra-tiny fw-bold"
+                                        className="btn-luxury-cancel"
+                                        style={{ minHeight: '38px', padding: '0.45rem 1.25rem', fontSize: '0.82rem', borderRadius: '10px' }}
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={submitting}
-                                        className="btn btn-sm btn-premium px-4 py-1.5 rounded-pill extra-tiny fw-bold d-inline-flex align-items-center gap-1.5 shadow-sm hover-glow"
+                                        className="btn-luxury-submit"
+                                        style={{ minHeight: '38px', padding: '0.45rem 1.5rem', fontSize: '0.82rem', borderRadius: '10px' }}
                                     >
-                                        <Save size={13} />
+                                        <Save size={15} />
                                         <span>{submitting ? 'Saving...' : editingMember ? 'Update Member' : 'Save Member'}</span>
                                     </button>
                                 </div>
                             </form>
-                        </div>
+                        </motion.div>
                     </div>
-                </div>
-            )}
+                )}
+            </AnimatePresence>
         </div>
     )
 }
