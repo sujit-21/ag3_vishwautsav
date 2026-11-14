@@ -667,11 +667,11 @@ export default function MembersSection({
             <AnimatePresence>
                 {isModalOpen && (
                     <div 
-                        className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-2 p-sm-3" 
+                        className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-2 p-sm-3" 
                         style={{ 
-                            backgroundColor: 'rgba(15, 23, 42, 0.78)', 
-                            backdropFilter: 'blur(12px)',
-                            WebkitBackdropFilter: 'blur(12px)',
+                            backgroundColor: 'rgba(0, 0, 0, 0.10)', 
+                            backdropFilter: 'blur(4px)',
+                            WebkitBackdropFilter: 'blur(4px)',
                             zIndex: 1060 
                         }}
                         onClick={(e) => {
@@ -687,7 +687,7 @@ export default function MembersSection({
                             style={{
                                 maxWidth: '640px',
                                 maxHeight: 'min(92vh, 760px)',
-                                background: 'var(--card-bg, #ffffff)',
+                                background: '#ffffff',
                                 border: '1.5px solid var(--glass-border)',
                                 borderRadius: '22px'
                             }}
