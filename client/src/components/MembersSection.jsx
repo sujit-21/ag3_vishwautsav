@@ -5,7 +5,7 @@ import {
     Users, Plus, Search, FileDown, Edit3, Trash2, Phone, Mail, 
     ShieldCheck, CheckCircle2, Sparkles, Filter, X, Save, 
     MessageCircle, Award, UserCheck, ChevronDown, MapPin, Tag, Crown,
-    BadgeCheck, ExternalLink, Settings, Check, Edit2
+    BadgeCheck, ExternalLink, Settings, Check, Edit2, Eye, EyeOff
 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
@@ -233,6 +233,7 @@ export default function MembersSection({
         email: '',
         address: '',
         status: 'Active',
+        isHidden: false,
         notes: ''
     })
 
@@ -263,7 +264,7 @@ export default function MembersSection({
         return () => window.removeEventListener('keydown', handleKeyDown)
     }, [isModalOpen])
 
-    // Filtered Members
+    // Filtered Members (With full Hide / Visibility support)
     const filteredMembers = useMemo(() => {
         return members.filter(m => {
             const matchesSearch = 
@@ -275,11 +276,23 @@ export default function MembersSection({
                 m.address?.toLowerCase().includes(search.toLowerCase())
 
             const matchesDept = selectedDept === 'All' || m.department === selectedDept
-            const matchesStatus = selectedStatus === 'All' || m.status === selectedStatus
+
+            // Status & Visibility filter:
+            let matchesStatus = true
+            if (selectedStatus === 'Hidden') {
+                matchesStatus = Boolean(m.isHidden)
+            } else if (selectedStatus === 'Visible') {
+                matchesStatus = !m.isHidden
+            } else if (selectedStatus !== 'All') {
+                matchesStatus = m.status === selectedStatus && (!m.isHidden || isAdmin)
+            } else if (!isAdmin) {
+                // Non-admin viewers can never see hidden members
+                matchesStatus = !m.isHidden
+            }
 
             return matchesSearch && matchesDept && matchesStatus
         })
-    }, [members, search, selectedDept, selectedStatus])
+    }, [members, search, selectedDept, selectedStatus, isAdmin])
 
     // Sorted Members (Default: Entry order — whichever name is entered first is #1)
     const sortedMembers = useMemo(() => {
@@ -308,12 +321,19 @@ export default function MembersSection({
         return list
     }, [filteredMembers, sortBy])
 
+    // Visible Members count specifically for PDF Generation (never includes hidden members)
+    const visiblePDFCount = useMemo(() => {
+        return sortedMembers.filter(m => !m.isHidden).length
+    }, [sortedMembers])
+
     // KPI Metrics
     const metrics = useMemo(() => {
         const total = members.length
-        const execs = members.filter(m => /president|secretary|treasurer|lead|head/i.test(m.role || '')).length
-        const active = members.filter(m => m.status === 'Active').length
-        return { total, execs, active }
+        const hidden = members.filter(m => m.isHidden).length
+        const visible = total - hidden
+        const execs = members.filter(m => !m.isHidden && /president|secretary|treasurer|lead|head/i.test(m.role || '')).length
+        const active = members.filter(m => !m.isHidden && m.status === 'Active').length
+        return { total, visible, hidden, execs, active }
     }, [members])
 
     // Open Modal
@@ -334,6 +354,7 @@ export default function MembersSection({
                 email: member.email || '',
                 address: member.address || '',
                 status: member.status || 'Active',
+                isHidden: Boolean(member.isHidden || false),
                 notes: member.notes || ''
             })
         } else {
@@ -348,10 +369,34 @@ export default function MembersSection({
                 email: '',
                 address: '',
                 status: 'Active',
+                isHidden: false,
                 notes: ''
             })
         }
         setIsModalOpen(true)
+    }
+
+    // Fast Toggle Visibility (Hide / Unhide Member)
+    const handleToggleVisibility = async (id, currentHidden) => {
+        try {
+            const res = await axios.patch(`/api/members/${id}/toggle-visibility`)
+            setMembers(prev => prev.map(m => m._id === id ? res.data : m))
+        } catch (err) {
+            console.error('Error toggling member visibility:', err)
+            // Fallback to PUT
+            try {
+                const targetMember = members.find(m => m._id === id)
+                if (targetMember) {
+                    const res = await axios.put(`/api/members/${id}`, {
+                        ...targetMember,
+                        isHidden: !currentHidden
+                    })
+                    setMembers(prev => prev.map(m => m._id === id ? res.data : m))
+                }
+            } catch (err2) {
+                alert(err2.response?.data?.message || 'Failed to toggle visibility.')
+            }
+        }
     }
 
     // Submit
@@ -411,10 +456,15 @@ export default function MembersSection({
         }
     }
 
-    // Download PDF
+    // Download PDF (Strictly excludes hidden members)
     const handleDownloadPDF = () => {
+        const visibleMembers = sortedMembers.filter(m => !m.isHidden)
+        if (visibleMembers.length === 0) {
+            alert('No visible members found to export. All currently selected members are marked as Hidden.')
+            return
+        }
         exportMembersDirectoryPDF({
-            membersList: sortedMembers,
+            membersList: visibleMembers,
             entityName: activeEntity || user?.entityName || 'Vishwa Utsav',
             portalType: type === 'festival' ? 'Festival' : 'Event',
             festivalName: activePortalName
@@ -450,15 +500,15 @@ export default function MembersSection({
                 <div className="d-flex align-items-center gap-2 flex-nowrap w-100 w-sm-auto mt-2 mt-lg-0">
                     <button
                         onClick={handleDownloadPDF}
-                        disabled={sortedMembers.length === 0}
-                        title="Download Official Committee Members Directory as A4 PDF"
+                        disabled={visiblePDFCount === 0}
+                        title="Download Official Committee Members Directory as A4 PDF (Excludes Hidden Members)"
                         className="figma-btn-download-sheet shadow-sm flex-fill flex-sm-grow-0 justify-content-center text-nowrap px-3 px-sm-3.5"
                         style={{ height: '38px', minWidth: '0' }}
                     >
                         <FileDown size={14} className="flex-shrink-0" />
                         <span className="text-truncate">Download PDF</span>
                         <span className="badge bg-white bg-opacity-25 rounded-pill ms-1 text-white flex-shrink-0" style={{ fontSize: '0.68rem', padding: '2px 7px' }}>
-                            {sortedMembers.length}
+                            {visiblePDFCount}
                         </span>
                     </button>
 
@@ -602,8 +652,33 @@ export default function MembersSection({
                         )}
                     </div>
 
-                    {/* Sort Order Selector (Entry Order / Hierarchy / A-Z) */}
+                    {/* Status & Visibility Selector */}
                     <div className="d-flex align-items-center gap-1 flex-nowrap ms-auto ms-lg-0">
+                        <select
+                            value={selectedStatus}
+                            onChange={e => setSelectedStatus(e.target.value)}
+                            className="form-select form-select-sm rounded-pill extra-tiny text-main fw-bold border shadow-xs"
+                            style={{ 
+                                width: 'auto', 
+                                height: '32px', 
+                                background: 'var(--input-bg)', 
+                                borderColor: 'var(--glass-border)',
+                                fontSize: '0.72rem',
+                                cursor: 'pointer'
+                            }}
+                            title="Filter by Visibility or Status"
+                        >
+                            <option value="All">All Members ({metrics.total})</option>
+                            <option value="Visible">Visible on PDF ({metrics.visible})</option>
+                            <option value="Hidden">Hidden from PDF ({metrics.hidden})</option>
+                            <option value="Active">Active ({metrics.active})</option>
+                            <option value="Honorary">Honorary</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    {/* Sort Order Selector (Entry Order / Hierarchy / A-Z) */}
+                    <div className="d-flex align-items-center gap-1 flex-nowrap">
                         <select
                             value={sortBy}
                             onChange={e => setSortBy(e.target.value)}
@@ -664,7 +739,7 @@ export default function MembersSection({
 
                         return (
                             <div key={member._id} className="col-12 col-md-6 col-xl-4">
-                                <div className="figma-luxury-member-card">
+                                <div className={`figma-luxury-member-card ${member.isHidden ? 'opacity-75 border-warning border-opacity-40' : ''}`}>
                                     <div>
                                         {/* Card Top: Avatar, Name, Status */}
                                         <div className="d-flex align-items-start justify-content-between gap-2.5 mb-3">
@@ -692,20 +767,32 @@ export default function MembersSection({
                                                 </div>
                                             </div>
 
-                                            {/* Status Badge */}
-                                            <span 
-                                                className={`badge rounded-pill px-2.5 py-1 fw-bold ${
-                                                    member.status === 'Active' 
-                                                        ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' 
-                                                        : member.status === 'Honorary'
-                                                        ? 'bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25'
-                                                        : 'bg-secondary bg-opacity-10 text-muted border border-secondary border-opacity-25'
-                                                }`}
-                                                style={{ fontSize: '0.62rem' }}
-                                            >
-                                                {member.status === 'Active' && '● '}
-                                                {member.status || 'Active'}
-                                            </span>
+                                            {/* Status & Hidden Badges */}
+                                            <div className="d-flex align-items-center gap-1.5 flex-wrap justify-content-end">
+                                                {member.isHidden && (
+                                                    <span 
+                                                        className="badge rounded-pill px-2 py-0.5 fw-bold bg-warning bg-opacity-15 text-warning border border-warning border-opacity-35 d-inline-flex align-items-center gap-1"
+                                                        style={{ fontSize: '0.62rem' }}
+                                                        title="This member is hidden and excluded from PDF export"
+                                                    >
+                                                        <EyeOff size={10} />
+                                                        <span>Hidden (No PDF)</span>
+                                                    </span>
+                                                )}
+                                                <span 
+                                                    className={`badge rounded-pill px-2.5 py-1 fw-bold ${
+                                                        member.status === 'Active' 
+                                                            ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' 
+                                                            : member.status === 'Honorary'
+                                                            ? 'bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25'
+                                                            : 'bg-secondary bg-opacity-10 text-muted border border-secondary border-opacity-25'
+                                                    }`}
+                                                    style={{ fontSize: '0.62rem' }}
+                                                >
+                                                    {member.status === 'Active' && '● '}
+                                                    {member.status || 'Active'}
+                                                </span>
+                                            </div>
                                         </div>
 
                                         {/* Role / Designation Pill */}
@@ -774,6 +861,19 @@ export default function MembersSection({
                                             </span>
 
                                             <div className="d-flex align-items-center gap-1.5">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleToggleVisibility(member._id, member.isHidden)}
+                                                    className={`btn btn-sm p-1 px-2.5 rounded-pill extra-tiny fw-semibold transition-all ${
+                                                        member.isHidden
+                                                            ? 'btn-warning text-dark shadow-xs'
+                                                            : 'btn-light text-muted hover-text-main'
+                                                    }`}
+                                                    title={member.isHidden ? 'Click to unhide (include in roster & PDF)' : 'Click to hide (exclude from roster & PDF)'}
+                                                >
+                                                    {member.isHidden ? <Eye size={12} className="me-1 text-dark" /> : <EyeOff size={12} className="me-1" />}
+                                                    <span>{member.isHidden ? 'Unhide' : 'Hide'}</span>
+                                                </button>
                                                 <button
                                                     type="button"
                                                     onClick={() => handleOpenModal(member)}
@@ -1216,6 +1316,57 @@ export default function MembersSection({
                                                     onChange={e => setFormData({ ...formData, address: e.target.value })}
                                                     className="luxury-input-field"
                                                 />
+                                            </div>
+                                        </div>
+
+                                        {/* Hide Member Switch (Option 1) */}
+                                        <div className="col-12">
+                                            <div 
+                                                className="d-flex align-items-center justify-content-between p-2.5 px-3 rounded-3 border transition-all"
+                                                style={{ 
+                                                    borderColor: formData.isHidden ? 'rgba(245, 158, 11, 0.45)' : 'var(--glass-border)', 
+                                                    background: formData.isHidden ? 'rgba(245, 158, 11, 0.08)' : 'var(--input-bg)' 
+                                                }}
+                                            >
+                                                <div className="d-flex align-items-center gap-2.5">
+                                                    <div 
+                                                        className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                                        style={{ 
+                                                            width: '32px', 
+                                                            height: '32px', 
+                                                            background: formData.isHidden ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.12)',
+                                                            color: formData.isHidden ? '#d97706' : '#10b981'
+                                                        }}
+                                                    >
+                                                        {formData.isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                    </div>
+                                                    <div>
+                                                        <div className="extra-tiny fw-bold text-main d-flex align-items-center gap-1.5">
+                                                            <span>Hide Member from Roster &amp; PDF</span>
+                                                            {formData.isHidden && (
+                                                                <span className="badge rounded-pill bg-warning text-dark px-1.5" style={{ fontSize: '0.6rem' }}>
+                                                                    Hidden
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <p className="extra-tiny text-muted mb-0" style={{ fontSize: '0.67rem' }}>
+                                                            {formData.isHidden 
+                                                                ? 'This member is hidden and will NOT be included in any downloaded PDF directory or public roster.'
+                                                                : 'Member is visible and will be included in the downloaded PDF directory.'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="form-check form-switch m-0 ps-0">
+                                                    <input
+                                                        type="checkbox"
+                                                        role="switch"
+                                                        className="form-check-input ms-0"
+                                                        id="memberIsHiddenToggle"
+                                                        checked={formData.isHidden}
+                                                        onChange={e => setFormData({ ...formData, isHidden: e.target.checked })}
+                                                        style={{ cursor: 'pointer', width: '2.4em', height: '1.25em' }}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

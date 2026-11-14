@@ -39,7 +39,7 @@ router.post('/', auth, async (req, res) => {
             return res.status(403).json({ message: 'Access denied. Only administrators can add committee members.' });
         }
 
-        const { name, role, department, contact, countryCode, email, address, photo, type, status, notes } = req.body;
+        const { name, role, department, contact, countryCode, email, address, photo, type, status, isHidden, notes } = req.body;
 
         if (!name || !name.trim()) {
             return res.status(400).json({ message: 'Member full name is required.' });
@@ -64,6 +64,7 @@ router.post('/', auth, async (req, res) => {
             photo: photo || '',
             type: type || 'festival',
             status: status || 'Active',
+            isHidden: Boolean(isHidden),
             notes: notes ? notes.trim() : '',
             entityName: resolvedEntity,
             adminId: req.user.adminId || req.user.id
@@ -103,6 +104,27 @@ router.put('/:id', auth, async (req, res) => {
     } catch (err) {
         console.error('Error updating member:', err);
         res.status(400).json({ message: `Failed to update member: ${err.message}` });
+    }
+});
+
+// 3b. TOGGLE MEMBER VISIBILITY (Hide/Unhide) (Admin only)
+router.patch('/:id/toggle-visibility', auth, async (req, res) => {
+    try {
+        if (!isAuthorizedAdmin(req.user)) {
+            return res.status(403).json({ message: 'Access denied. Only administrators can change member visibility.' });
+        }
+
+        const member = await Member.findById(req.params.id);
+        if (!member) {
+            return res.status(404).json({ message: 'Member record not found.' });
+        }
+
+        member.isHidden = !member.isHidden;
+        await member.save();
+        res.json(member);
+    } catch (err) {
+        console.error('Error toggling member visibility:', err);
+        res.status(500).json({ message: `Failed to toggle visibility: ${err.message}` });
     }
 });
 
