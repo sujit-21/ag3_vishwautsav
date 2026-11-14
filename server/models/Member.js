@@ -13,6 +13,11 @@ const MemberSchema = new mongoose.Schema({
     type: { type: String, enum: ['festival', 'event', 'both'], default: 'festival' },
     status: { type: String, enum: ['Active', 'Honorary', 'Inactive'], default: 'Active' },
     isHidden: { type: Boolean, default: false },
+    hidePhone: { type: Boolean, default: false },
+    hideEmail: { type: Boolean, default: false },
+    hideAddress: { type: Boolean, default: false },
+    hideRole: { type: Boolean, default: false },
+    hideDepartment: { type: Boolean, default: false },
     notes: { type: String, trim: true },
     adminId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now }

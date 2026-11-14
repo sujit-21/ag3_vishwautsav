@@ -1210,7 +1210,8 @@ export const exportMembersDirectoryPDF = ({
     entityName = '', 
     portalType = 'Festival',
     festivalName = '',
-    eventName = ''
+    eventName = '',
+    columnVisibility = {}
 }) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
     const list = membersList || []
@@ -1271,23 +1272,80 @@ export const exportMembersDirectoryPDF = ({
         doc.text(kpi.value, x + 3.5, cardY + 10.2)
     })
 
-    // Table starts directly below KPIs
-    // Total printable width = 194mm (210mm A4 - 16mm margins: left 8mm, right 8mm)
-    // Column widths: 6 + 38 + 54 + 24 + 26 + 31 + 15 = 194.0mm
-    // Font sizes and paddings tightened to eliminate unnecessary line breaks and vertical spaces
+    // Dynamic Column Visibility & Sizing across full 194.0mm printable width
+    const colsConfig = {
+        role: columnVisibility?.role !== false,
+        department: columnVisibility?.department !== false,
+        contact: columnVisibility?.contact !== false,
+        email: columnVisibility?.email !== false,
+        address: columnVisibility?.address === true,
+        status: columnVisibility?.status !== false
+    }
+
+    const allDefs = [
+        { id: 'index', header: '#', baseWidth: 6, halign: 'center' },
+        { id: 'name', header: 'Full Name', baseWidth: 38, fontStyle: 'bold' },
+        ...(colsConfig.role ? [{ id: 'role', header: 'Role / Designation', baseWidth: 48, fontStyle: 'bold' }] : []),
+        ...(colsConfig.department ? [{ id: 'department', header: 'Department', baseWidth: 26 }] : []),
+        ...(colsConfig.contact ? [{ id: 'contact', header: 'Contact', baseWidth: 26 }] : []),
+        ...(colsConfig.email ? [{ id: 'email', header: 'Email Address', baseWidth: 31 }] : []),
+        ...(colsConfig.address ? [{ id: 'address', header: 'Locality / Address', baseWidth: 28 }] : []),
+        ...(colsConfig.status ? [{ id: 'status', header: 'Status', baseWidth: 15, halign: 'center', fontStyle: 'bold' }] : [])
+    ]
+
+    const totalBaseWidth = allDefs.reduce((acc, c) => acc + c.baseWidth, 0)
+    let assignedWidth = 0
+    const activeColumns = allDefs.map((col, idx) => {
+        if (idx === allDefs.length - 1) {
+            return { ...col, width: Math.round((194.0 - assignedWidth) * 10) / 10 }
+        }
+        const w = Math.round(((col.baseWidth / totalBaseWidth) * 194.0) * 10) / 10
+        assignedWidth += w
+        return { ...col, width: w }
+    })
+
+    const head = [activeColumns.map(c => c.header)]
+
+    // Build Rows with Per-Member Privacy Respect (Option A)
+    const body = list.map((m, idx) => {
+        return activeColumns.map(col => {
+            switch (col.id) {
+                case 'index':
+                    return String(idx + 1)
+                case 'name':
+                    return String(m.name || '—')
+                case 'role':
+                    return m.hideRole ? '—' : String(m.role || 'Member')
+                case 'department':
+                    return m.hideDepartment ? '—' : String(m.department || 'General Committee')
+                case 'contact':
+                    return m.hidePhone ? '—' : (m.contact ? `${m.countryCode || '+91'} ${m.contact}` : '—')
+                case 'email':
+                    return m.hideEmail ? '—' : String(m.email || '—')
+                case 'address':
+                    return m.hideAddress ? '—' : String(m.address || '—')
+                case 'status':
+                    return String(m.status || 'Active')
+                default:
+                    return '—'
+            }
+        })
+    })
+
+    const columnStyles = {}
+    activeColumns.forEach((col, idx) => {
+        columnStyles[idx] = {
+            cellWidth: col.width,
+            ...(col.halign ? { halign: col.halign } : {}),
+            ...(col.fontStyle ? { fontStyle: col.fontStyle } : {})
+        }
+    })
+
     autoTable(doc, {
         startY: 47,
         margin: { left: 8, right: 8 },
-        head: [['#', 'Full Name', 'Role / Designation', 'Department', 'Contact', 'Email Address', 'Status']],
-        body: list.map((m, idx) => [
-            String(idx + 1),
-            String(m.name || '—'),
-            String(m.role || 'Member'),
-            String(m.department || 'General Committee'),
-            m.contact ? `${m.countryCode || '+91'} ${m.contact}` : '—',
-            String(m.email || '—'),
-            String(m.status || 'Active')
-        ]),
+        head,
+        body,
         theme: 'grid',
         headStyles: {
             fillColor: FIGMA_COLORS.navyDark,
@@ -1304,48 +1362,33 @@ export const exportMembersDirectoryPDF = ({
             lineColor: FIGMA_COLORS.border,
             lineWidth: 0.15
         },
-        columnStyles: {
-            0: { cellWidth: 6, halign: 'center' },
-            1: { cellWidth: 38, fontStyle: 'bold' },
-            2: { cellWidth: 54, fontStyle: 'bold' },
-            3: { cellWidth: 24 },
-            4: { cellWidth: 26 }, // 26mm guarantees phone numbers like +91 9875557320 fit on 1 line
-            5: { cellWidth: 31 },
-            6: { cellWidth: 15, halign: 'center', fontStyle: 'bold' } // 15mm guarantees "Status" fits on 1 line without wrapping
-        },
+        columnStyles,
         didParseCell: (data) => {
             if (data.row.section === 'body') {
                 const isEvenRow = data.row.index % 2 === 0
                 data.cell.styles.fillColor = isEvenRow ? FIGMA_COLORS.white : FIGMA_COLORS.lightBg
 
-                // Highlight Executives
-                const roleText = String(data.row.cells?.[2]?.text?.[0] || '')
-                if (/president|secretary|treasurer/i.test(roleText)) {
-                    if (data.column.index === 1 || data.column.index === 2) {
-                        data.cell.styles.fillColor = [254, 243, 199] // Soft gold
-                        data.cell.styles.textColor = [180, 83, 9]     // Amber
+                const colDef = activeColumns[data.column.index]
+                if (!colDef) return
+
+                // Highlight Executives if role column exists
+                const roleColIdx = activeColumns.findIndex(c => c.id === 'role')
+                if (roleColIdx !== -1) {
+                    const roleText = String(data.row.cells?.[roleColIdx]?.text?.[0] || '')
+                    if (/president|secretary|treasurer/i.test(roleText)) {
+                        if (colDef.id === 'name' || colDef.id === 'role') {
+                            data.cell.styles.fillColor = [254, 243, 199] // Soft gold
+                            data.cell.styles.textColor = [180, 83, 9]     // Amber
+                        }
                     }
                 }
 
-                // Auto-scale Full Name so it NEVER wraps
-                if (data.column.index === 1) {
-                    const text = String(data.cell.raw || data.cell.text?.[0] || '')
-                    const usableW = 35
+                // Dynamic single-line font sizing
+                const text = String(data.cell.raw || data.cell.text?.[0] || '')
+                const usableW = Math.max(8, colDef.width - 3)
+
+                if (colDef.id === 'name') {
                     let fs = 7.0
-                    doc.setFont('helvetica', 'bold')
-                    doc.setFontSize(fs)
-                    while (doc.getTextWidth(text) > usableW && fs > 5.5) {
-                        fs -= 0.2
-                        doc.setFontSize(fs)
-                    }
-                    data.cell.styles.fontSize = fs
-                }
-
-                // Auto-scale Role / Designation so it NEVER wraps
-                if (data.column.index === 2) {
-                    const text = String(data.cell.raw || data.cell.text?.[0] || '')
-                    const usableW = 51
-                    let fs = 6.8
                     doc.setFont('helvetica', 'bold')
                     doc.setFontSize(fs)
                     while (doc.getTextWidth(text) > usableW && fs > 5.2) {
@@ -1353,37 +1396,44 @@ export const exportMembersDirectoryPDF = ({
                         doc.setFontSize(fs)
                     }
                     data.cell.styles.fontSize = fs
-                }
-
-                // Ensure single line Contact
-                if (data.column.index === 4) {
-                    data.cell.styles.fontSize = 6.8
-                }
-
-                // Auto-scale Email Address so it NEVER wraps
-                if (data.column.index === 5) {
-                    const text = String(data.cell.raw || data.cell.text?.[0] || '')
-                    const usableW = 28
-                    let fs = 6.5
-                    doc.setFont('helvetica', 'normal')
+                } else if (colDef.id === 'role') {
+                    let fs = 6.8
+                    doc.setFont('helvetica', 'bold')
                     doc.setFontSize(fs)
                     while (doc.getTextWidth(text) > usableW && fs > 5.0) {
                         fs -= 0.2
                         doc.setFontSize(fs)
                     }
                     data.cell.styles.fontSize = fs
-                }
-
-                // Highlight Status
-                if (data.column.index === 6) {
+                } else if (colDef.id === 'email') {
+                    let fs = 6.5
+                    doc.setFont('helvetica', 'normal')
+                    doc.setFontSize(fs)
+                    while (doc.getTextWidth(text) > usableW && fs > 4.8) {
+                        fs -= 0.2
+                        doc.setFontSize(fs)
+                    }
+                    data.cell.styles.fontSize = fs
+                } else if (colDef.id === 'address') {
+                    let fs = 6.2
+                    doc.setFont('helvetica', 'normal')
+                    doc.setFontSize(fs)
+                    while (doc.getTextWidth(text) > usableW && fs > 4.8) {
+                        fs -= 0.2
+                        doc.setFontSize(fs)
+                    }
+                    data.cell.styles.fontSize = fs
+                } else if (colDef.id === 'contact') {
+                    data.cell.styles.fontSize = 6.8
+                } else if (colDef.id === 'status') {
                     data.cell.styles.fontSize = 6.8
                     const statusVal = data.cell.text?.[0]
                     if (statusVal === 'Active') {
-                        data.cell.styles.textColor = [4, 120, 87] // Green
+                        data.cell.styles.textColor = [4, 120, 87]
                     } else if (statusVal === 'Honorary') {
-                        data.cell.styles.textColor = [30, 64, 175] // Blue
+                        data.cell.styles.textColor = [30, 64, 175]
                     } else {
-                        data.cell.styles.textColor = [156, 163, 175] // Gray
+                        data.cell.styles.textColor = [156, 163, 175]
                     }
                 }
             }

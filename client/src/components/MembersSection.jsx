@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
     Users, Plus, Search, FileDown, Edit3, Trash2, Phone, Mail, 
     ShieldCheck, CheckCircle2, Sparkles, Filter, X, Save, 
     MessageCircle, Award, UserCheck, ChevronDown, MapPin, Tag, Crown,
-    BadgeCheck, ExternalLink, Settings, Check, Edit2, Eye, EyeOff
+    BadgeCheck, ExternalLink, Settings, Check, Edit2, Eye, EyeOff, SlidersHorizontal
 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
@@ -222,7 +222,48 @@ export default function MembersSection({
         }
     }
 
-    // Form State
+    // Global PDF Columns Visibility Config (Option B)
+    const [showPdfColMenu, setShowPdfColMenu] = useState(false)
+    const pdfColMenuRef = useRef(null)
+    const [pdfColumns, setPdfColumns] = useState(() => {
+        try {
+            const saved = localStorage.getItem('vishwautsav_member_pdf_cols')
+            if (saved) return JSON.parse(saved)
+        } catch (_) {}
+        return {
+            role: true,
+            department: true,
+            contact: true,
+            email: true,
+            address: false,
+            status: true
+        }
+    })
+
+    const handleTogglePdfColumn = (colKey) => {
+        setPdfColumns(prev => {
+            const updated = { ...prev, [colKey]: !prev[colKey] }
+            try {
+                localStorage.setItem('vishwautsav_member_pdf_cols', JSON.stringify(updated))
+            } catch (_) {}
+            return updated
+        })
+    }
+
+    // Close PDF Columns menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (pdfColMenuRef.current && !pdfColMenuRef.current.contains(e.target)) {
+                setShowPdfColMenu(false)
+            }
+        }
+        if (showPdfColMenu) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [showPdfColMenu])
+
+    // Form State (Option A: per-field privacy)
     const [formData, setFormData] = useState({
         name: '',
         role: 'Committee Member',
@@ -234,6 +275,11 @@ export default function MembersSection({
         address: '',
         status: 'Active',
         isHidden: false,
+        hidePhone: false,
+        hideEmail: false,
+        hideAddress: false,
+        hideRole: false,
+        hideDepartment: false,
         notes: ''
     })
 
@@ -355,6 +401,11 @@ export default function MembersSection({
                 address: member.address || '',
                 status: member.status || 'Active',
                 isHidden: Boolean(member.isHidden || false),
+                hidePhone: Boolean(member.hidePhone || false),
+                hideEmail: Boolean(member.hideEmail || false),
+                hideAddress: Boolean(member.hideAddress || false),
+                hideRole: Boolean(member.hideRole || false),
+                hideDepartment: Boolean(member.hideDepartment || false),
                 notes: member.notes || ''
             })
         } else {
@@ -370,6 +421,11 @@ export default function MembersSection({
                 address: '',
                 status: 'Active',
                 isHidden: false,
+                hidePhone: false,
+                hideEmail: false,
+                hideAddress: false,
+                hideRole: false,
+                hideDepartment: false,
                 notes: ''
             })
         }
@@ -456,7 +512,7 @@ export default function MembersSection({
         }
     }
 
-    // Download PDF (Strictly excludes hidden members)
+    // Download PDF (Strictly excludes hidden members, respects global column visibility & per-member privacy)
     const handleDownloadPDF = () => {
         const visibleMembers = sortedMembers.filter(m => !m.isHidden)
         if (visibleMembers.length === 0) {
@@ -467,7 +523,8 @@ export default function MembersSection({
             membersList: visibleMembers,
             entityName: activeEntity || user?.entityName || 'Vishwa Utsav',
             portalType: type === 'festival' ? 'Festival' : 'Event',
-            festivalName: activePortalName
+            festivalName: activePortalName,
+            columnVisibility: pdfColumns
         })
     }
 
@@ -496,7 +553,7 @@ export default function MembersSection({
                     </div>
                 </div>
 
-                {/* Right Top Actions: Download PDF & Add Member (Horizontally side-by-side on Smartphones & Desktops) */}
+                {/* Right Top Actions: Download PDF, PDF Columns Selector & Add Member (Horizontally side-by-side on Smartphones & Desktops) */}
                 <div className="d-flex align-items-center gap-2 flex-nowrap w-100 w-sm-auto mt-2 mt-lg-0">
                     <button
                         onClick={handleDownloadPDF}
@@ -511,6 +568,89 @@ export default function MembersSection({
                             {visiblePDFCount}
                         </span>
                     </button>
+
+                    {/* PDF Columns Visibility Dropdown (Option B) */}
+                    <div className="position-relative flex-shrink-0" ref={pdfColMenuRef}>
+                        <button
+                            type="button"
+                            onClick={() => setShowPdfColMenu(prev => !prev)}
+                            title="Configure PDF Columns: choose which fields to include/exclude from generated PDF"
+                            className={`btn btn-sm rounded-pill d-inline-flex align-items-center gap-1 shadow-xs border ${showPdfColMenu ? 'btn-primary text-white' : 'btn-light text-muted hover-text-main'}`}
+                            style={{ height: '38px', padding: '0 10px', fontSize: '0.74rem', fontWeight: 600 }}
+                        >
+                            <SlidersHorizontal size={13} />
+                            <span className="d-none d-sm-inline">PDF Columns</span>
+                            <ChevronDown size={11} style={{ transform: showPdfColMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                        </button>
+
+                        {showPdfColMenu && (
+                            <div 
+                                className="position-absolute end-0 mt-2 p-3 rounded-4 shadow-lg border"
+                                style={{ 
+                                    top: '100%', 
+                                    zIndex: 1050, 
+                                    minWidth: '240px', 
+                                    background: 'var(--card-bg, #ffffff)', 
+                                    borderColor: 'var(--glass-border)' 
+                                }}
+                            >
+                                <div className="d-flex align-items-center justify-content-between pb-2 border-bottom mb-2">
+                                    <span className="extra-tiny fw-bold text-main d-flex align-items-center gap-1">
+                                        <SlidersHorizontal size={12} className="text-primary" />
+                                        <span>PDF Columns</span>
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPdfColMenu(false)}
+                                        className="btn btn-sm btn-light rounded-circle p-1 extra-tiny text-muted"
+                                    >
+                                        <X size={11} />
+                                    </button>
+                                </div>
+                                <div className="d-flex flex-column gap-2 mb-2">
+                                    {[
+                                        { key: 'role', label: 'Role / Designation' },
+                                        { key: 'department', label: 'Department / Wing' },
+                                        { key: 'contact', label: 'Contact Phone Number' },
+                                        { key: 'email', label: 'Email Address' },
+                                        { key: 'address', label: 'Locality / Address' },
+                                        { key: 'status', label: 'Roster Status' }
+                                    ].map(col => (
+                                        <label key={col.key} className="d-flex align-items-center gap-2 extra-tiny text-main cursor-pointer user-select-none mb-0">
+                                            <input
+                                                type="checkbox"
+                                                checked={Boolean(pdfColumns[col.key])}
+                                                onChange={() => handleTogglePdfColumn(col.key)}
+                                                className="form-check-input mt-0"
+                                                style={{ cursor: 'pointer' }}
+                                            />
+                                            <span>{col.label}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                                <div className="pt-2 border-top d-flex justify-content-between align-items-center">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const reset = { role: true, department: true, contact: true, email: true, address: false, status: true }
+                                            setPdfColumns(reset)
+                                            try { localStorage.setItem('vishwautsav_member_pdf_cols', JSON.stringify(reset)) } catch (_) {}
+                                        }}
+                                        className="btn btn-link p-0 text-muted extra-tiny text-decoration-none hover-text-main"
+                                    >
+                                        Reset
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPdfColMenu(false)}
+                                        className="btn btn-sm btn-primary rounded-pill px-2.5 py-0.5 extra-tiny text-white fw-bold"
+                                    >
+                                        Done
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     {isAdmin && (
                         <button
@@ -763,6 +903,11 @@ export default function MembersSection({
                                                     <div className="extra-tiny text-muted d-flex align-items-center gap-1 mt-0.5">
                                                         <Tag size={10} className="text-primary" />
                                                         <span>{member.department || 'Core Committee'}</span>
+                                                        {member.hideDepartment && (
+                                                            <span className="badge rounded-pill bg-warning bg-opacity-20 text-dark extra-tiny px-1 py-0 ms-1" style={{ fontSize: '0.55rem' }} title="Department excluded from PDF directory">
+                                                                <EyeOff size={8} className="text-warning" /> No PDF
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>
@@ -808,18 +953,34 @@ export default function MembersSection({
                                             >
                                                 <RoleIcon size={12} />
                                                 <span>{member.role}</span>
+                                                {member.hideRole && (
+                                                    <span className="badge rounded-pill bg-warning bg-opacity-25 text-dark extra-tiny px-1.5 py-0.5 ms-1" style={{ fontSize: '0.58rem' }} title="Role excluded from PDF directory">
+                                                        <EyeOff size={9} className="me-0.5 text-warning" /> No PDF
+                                                    </span>
+                                                )}
                                             </span>
                                         </div>
 
                                         {/* Contact & Locality Details */}
                                         <div className="extra-tiny text-muted d-flex flex-column gap-1.5 mb-2">
                                             {member.contact ? (
-                                                <div className="d-flex align-items-center justify-content-between p-1.5 px-2 rounded-2" style={{ background: 'rgba(0, 0, 0, 0.02)', border: '1px solid rgba(0, 0, 0, 0.05)' }}>
-                                                    <div className="d-flex align-items-center gap-1.5">
-                                                        <Phone size={12} className="text-muted" />
+                                                <div 
+                                                    className="d-flex align-items-center justify-content-between p-1.5 px-2 rounded-2" 
+                                                    style={{ 
+                                                        background: member.hidePhone ? 'rgba(245, 158, 11, 0.06)' : 'rgba(0, 0, 0, 0.02)', 
+                                                        border: member.hidePhone ? '1px solid rgba(245, 158, 11, 0.25)' : '1px solid rgba(0, 0, 0, 0.05)' 
+                                                    }}
+                                                >
+                                                    <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                                                        <Phone size={12} className={member.hidePhone ? "text-warning" : "text-muted"} />
                                                         <a href={`tel:${member.contact}`} className="text-decoration-none text-main fw-bold">
                                                             {member.countryCode || '+91'} {member.contact}
                                                         </a>
+                                                        {member.hidePhone && (
+                                                            <span className="badge rounded-pill bg-warning bg-opacity-20 text-dark extra-tiny px-1.5 py-0.5" style={{ fontSize: '0.58rem' }} title="Phone excluded from PDF directory">
+                                                                <EyeOff size={9} className="me-0.5 text-warning" /> No PDF
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     <a 
                                                         href={`https://wa.me/${(member.countryCode || '+91').replace(/[^0-9]/g, '')}${member.contact.replace(/[^0-9]/g, '')}`}
@@ -837,17 +998,27 @@ export default function MembersSection({
 
                                             {member.email && (
                                                 <div className="d-flex align-items-center gap-1.5 text-truncate px-1">
-                                                    <Mail size={12} className="text-muted flex-shrink-0" />
+                                                    <Mail size={12} className={member.hideEmail ? "text-warning flex-shrink-0" : "text-muted flex-shrink-0"} />
                                                     <a href={`mailto:${member.email}`} className="text-decoration-none text-muted text-truncate">
                                                         {member.email}
                                                     </a>
+                                                    {member.hideEmail && (
+                                                        <span className="badge rounded-pill bg-warning bg-opacity-20 text-dark extra-tiny px-1 py-0 ms-1 flex-shrink-0" style={{ fontSize: '0.55rem' }} title="Email excluded from PDF directory">
+                                                            <EyeOff size={8} className="text-warning" /> No PDF
+                                                        </span>
+                                                    )}
                                                 </div>
                                             )}
 
                                             {member.address && (
                                                 <div className="d-flex align-items-center gap-1.5 extra-tiny text-muted text-truncate px-1 opacity-80">
-                                                    <MapPin size={12} className="text-muted flex-shrink-0" />
+                                                    <MapPin size={12} className={member.hideAddress ? "text-warning flex-shrink-0" : "text-muted flex-shrink-0"} />
                                                     <span className="text-truncate">{member.address}</span>
+                                                    {member.hideAddress && (
+                                                        <span className="badge rounded-pill bg-warning bg-opacity-20 text-dark extra-tiny px-1 py-0 ms-1 flex-shrink-0" style={{ fontSize: '0.55rem' }} title="Address excluded from PDF directory">
+                                                            <EyeOff size={8} className="text-warning" /> No PDF
+                                                        </span>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -1032,6 +1203,16 @@ export default function MembersSection({
                                                         <Settings size={10} />
                                                         <span>Manage</span>
                                                     </button>
+                                                    <span className="text-muted opacity-50" style={{ fontSize: '0.65rem' }}>•</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData(prev => ({ ...prev, hideRole: !prev.hideRole }))}
+                                                        className={`btn btn-link p-0 text-decoration-none extra-tiny d-inline-flex align-items-center gap-1 ${formData.hideRole ? 'text-warning fw-bold' : 'text-muted hover-text-main'}`}
+                                                        title={formData.hideRole ? "Role Hidden from PDF: click to make visible" : "Role Visible in PDF: click to hide"}
+                                                    >
+                                                        {formData.hideRole ? <EyeOff size={11} className="text-warning" /> : <Eye size={11} />}
+                                                        <span>{formData.hideRole ? 'Hidden' : 'Visible'}</span>
+                                                    </button>
                                                 </div>
                                             </div>
 
@@ -1146,6 +1327,16 @@ export default function MembersSection({
                                                         <Settings size={10} />
                                                         <span>Manage</span>
                                                     </button>
+                                                    <span className="text-muted opacity-50" style={{ fontSize: '0.65rem' }}>•</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData(prev => ({ ...prev, hideDepartment: !prev.hideDepartment }))}
+                                                        className={`btn btn-link p-0 text-decoration-none extra-tiny d-inline-flex align-items-center gap-1 ${formData.hideDepartment ? 'text-warning fw-bold' : 'text-muted hover-text-main'}`}
+                                                        title={formData.hideDepartment ? "Department Hidden from PDF: click to make visible" : "Department Visible in PDF: click to hide"}
+                                                    >
+                                                        {formData.hideDepartment ? <EyeOff size={11} className="text-warning" /> : <Eye size={11} />}
+                                                        <span>{formData.hideDepartment ? 'Hidden' : 'Visible'}</span>
+                                                    </button>
                                                 </div>
                                             </div>
 
@@ -1230,10 +1421,21 @@ export default function MembersSection({
 
                                         {/* Contact Phone Number */}
                                         <div className="col-12 col-sm-7">
-                                            <label className="luxury-label">
-                                                <Phone size={12} className="text-terracotta" />
-                                                <span>Contact Phone Number</span>
-                                            </label>
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <label className="luxury-label mb-0">
+                                                    <Phone size={12} className="text-terracotta" />
+                                                    <span>Contact Phone Number</span>
+                                                </label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, hidePhone: !prev.hidePhone }))}
+                                                    className={`btn btn-link p-0 text-decoration-none extra-tiny d-inline-flex align-items-center gap-1 ${formData.hidePhone ? 'text-warning fw-bold' : 'text-muted hover-text-main'}`}
+                                                    title={formData.hidePhone ? "Phone Hidden from PDF: click to make visible" : "Phone Visible in PDF: click to hide"}
+                                                >
+                                                    {formData.hidePhone ? <EyeOff size={11} className="text-warning" /> : <Eye size={11} />}
+                                                    <span>{formData.hidePhone ? 'Hidden' : 'Visible'}</span>
+                                                </button>
+                                            </div>
                                             <div className="luxury-input-wrapper">
                                                 <div className="luxury-icon-box">
                                                     <Phone size={16} />
@@ -1279,11 +1481,22 @@ export default function MembersSection({
 
                                         {/* Email Address */}
                                         <div className="col-12">
-                                            <label className="luxury-label">
-                                                <Mail size={12} className="text-terracotta" />
-                                                <span>Email Address</span>
-                                                <span className="text-muted text-lowercase" style={{ fontSize: '0.65rem', fontWeight: 500 }}>(Optional)</span>
-                                            </label>
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <label className="luxury-label mb-0">
+                                                    <Mail size={12} className="text-terracotta" />
+                                                    <span>Email Address</span>
+                                                    <span className="text-muted text-lowercase ms-1" style={{ fontSize: '0.65rem', fontWeight: 500 }}>(Optional)</span>
+                                                </label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, hideEmail: !prev.hideEmail }))}
+                                                    className={`btn btn-link p-0 text-decoration-none extra-tiny d-inline-flex align-items-center gap-1 ${formData.hideEmail ? 'text-warning fw-bold' : 'text-muted hover-text-main'}`}
+                                                    title={formData.hideEmail ? "Email Hidden in PDF: click to make visible" : "Email Visible in PDF: click to hide"}
+                                                >
+                                                    {formData.hideEmail ? <EyeOff size={11} className="text-warning" /> : <Eye size={11} />}
+                                                    <span>{formData.hideEmail ? 'Hidden' : 'Visible'}</span>
+                                                </button>
+                                            </div>
                                             <div className="luxury-input-wrapper">
                                                 <div className="luxury-icon-box">
                                                     <Mail size={16} />
@@ -1300,11 +1513,22 @@ export default function MembersSection({
 
                                         {/* Locality / Residential Address / Notes */}
                                         <div className="col-12">
-                                            <label className="luxury-label">
-                                                <MapPin size={12} className="text-terracotta" />
-                                                <span>Locality / Residential Address / Notes</span>
-                                                <span className="text-muted text-lowercase" style={{ fontSize: '0.65rem', fontWeight: 500 }}>(Optional)</span>
-                                            </label>
+                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                                <label className="luxury-label mb-0">
+                                                    <MapPin size={12} className="text-terracotta" />
+                                                    <span>Locality / Residential Address / Notes</span>
+                                                    <span className="text-muted text-lowercase ms-1" style={{ fontSize: '0.65rem', fontWeight: 500 }}>(Optional)</span>
+                                                </label>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, hideAddress: !prev.hideAddress }))}
+                                                    className={`btn btn-link p-0 text-decoration-none extra-tiny d-inline-flex align-items-center gap-1 ${formData.hideAddress ? 'text-warning fw-bold' : 'text-muted hover-text-main'}`}
+                                                    title={formData.hideAddress ? "Address Hidden in PDF: click to make visible" : "Address Visible in PDF: click to hide"}
+                                                >
+                                                    {formData.hideAddress ? <EyeOff size={11} className="text-warning" /> : <Eye size={11} />}
+                                                    <span>{formData.hideAddress ? 'Hidden' : 'Visible'}</span>
+                                                </button>
+                                            </div>
                                             <div className="luxury-input-wrapper">
                                                 <div className="luxury-icon-box">
                                                     <MapPin size={16} />

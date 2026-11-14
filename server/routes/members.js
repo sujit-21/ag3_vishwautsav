@@ -39,7 +39,10 @@ router.post('/', auth, async (req, res) => {
             return res.status(403).json({ message: 'Access denied. Only administrators can add committee members.' });
         }
 
-        const { name, role, department, contact, countryCode, email, address, photo, type, status, isHidden, notes } = req.body;
+        const { 
+            name, role, department, contact, countryCode, email, address, photo, type, status, 
+            isHidden, hidePhone, hideEmail, hideAddress, hideRole, hideDepartment, notes 
+        } = req.body;
 
         if (!name || !name.trim()) {
             return res.status(400).json({ message: 'Member full name is required.' });
@@ -65,6 +68,11 @@ router.post('/', auth, async (req, res) => {
             type: type || 'festival',
             status: status || 'Active',
             isHidden: Boolean(isHidden),
+            hidePhone: Boolean(hidePhone),
+            hideEmail: Boolean(hideEmail),
+            hideAddress: Boolean(hideAddress),
+            hideRole: Boolean(hideRole),
+            hideDepartment: Boolean(hideDepartment),
             notes: notes ? notes.trim() : '',
             entityName: resolvedEntity,
             adminId: req.user.adminId || req.user.id
