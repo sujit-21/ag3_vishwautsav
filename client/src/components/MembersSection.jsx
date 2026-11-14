@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
     Users, Plus, Search, FileDown, Edit3, Trash2, Phone, Mail, 
@@ -285,7 +286,7 @@ export default function MembersSection({
     }
 
     return (
-        <div className="figma-members-container mx-auto w-100 mb-4 animate-in">
+        <div className="figma-members-container mx-auto w-100 mb-4">
             {/* Top Bar Header */}
             <div className="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
                 <div className="d-flex align-items-center gap-3">
@@ -309,18 +310,18 @@ export default function MembersSection({
                     </div>
                 </div>
 
-                {/* Right Top Actions: Download PDF & Add Member */}
-                <div className="d-flex align-items-center gap-2.5 flex-wrap">
+                {/* Right Top Actions: Download PDF & Add Member (Horizontally side-by-side on Smartphones & Desktops) */}
+                <div className="d-flex align-items-center gap-2 flex-nowrap w-100 w-sm-auto mt-2 mt-lg-0">
                     <button
                         onClick={handleDownloadPDF}
                         disabled={sortedMembers.length === 0}
                         title="Download Official Committee Members Directory as A4 PDF"
-                        className="figma-btn-download-sheet shadow-sm"
-                        style={{ height: '38px' }}
+                        className="figma-btn-download-sheet shadow-sm flex-fill flex-sm-grow-0 justify-content-center text-nowrap px-3 px-sm-3.5"
+                        style={{ height: '38px', minWidth: '0' }}
                     >
-                        <FileDown size={15} />
-                        <span>Download PDF</span>
-                        <span className="badge bg-white bg-opacity-25 rounded-pill ms-1 text-white" style={{ fontSize: '0.68rem', padding: '2px 7px' }}>
+                        <FileDown size={14} className="flex-shrink-0" />
+                        <span className="text-truncate">Download PDF</span>
+                        <span className="badge bg-white bg-opacity-25 rounded-pill ms-1 text-white flex-shrink-0" style={{ fontSize: '0.68rem', padding: '2px 7px' }}>
                             {sortedMembers.length}
                         </span>
                     </button>
@@ -328,10 +329,10 @@ export default function MembersSection({
                     {isAdmin && (
                         <button
                             onClick={() => handleOpenModal(null)}
-                            className="btn btn-premium d-inline-flex align-items-center gap-1.5 px-3.5 py-1.5 rounded-pill fw-bold shadow-sm transition-all hover-glow"
-                            style={{ height: '38px', fontSize: '0.78rem' }}
+                            className="btn btn-premium d-inline-flex align-items-center justify-content-center gap-1.5 px-3 px-sm-3.5 py-1.5 rounded-pill fw-bold shadow-sm transition-all hover-glow flex-fill flex-sm-grow-0 text-nowrap"
+                            style={{ height: '38px', fontSize: '0.78rem', minWidth: '0' }}
                         >
-                            <Plus size={15} />
+                            <Plus size={15} className="flex-shrink-0" />
                             <span>Add Member</span>
                         </button>
                     )}
@@ -663,36 +664,38 @@ export default function MembersSection({
                 </div>
             )}
 
-            {/* Modal Dialog for Add / Edit Member (Figma Luxury, Fully Responsive with Sticky Header & Footer) */}
-            <AnimatePresence>
-                {isModalOpen && (
-                    <div 
-                        className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-2 p-sm-3" 
-                        style={{ 
-                            backgroundColor: 'rgba(0, 0, 0, 0.10)', 
-                            backdropFilter: 'blur(4px)',
-                            WebkitBackdropFilter: 'blur(4px)',
-                            zIndex: 1060 
-                        }}
-                        onClick={(e) => {
-                            if (e.target === e.currentTarget) setIsModalOpen(false)
-                        }}
-                    >
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                            transition={{ duration: 0.22, ease: 'easeOut' }}
-                            className="luxury-modal-card w-100 shadow-2xl d-flex flex-column overflow-hidden"
-                            style={{
-                                maxWidth: '640px',
-                                maxHeight: 'min(92vh, 760px)',
-                                background: '#ffffff',
-                                border: '1.5px solid var(--glass-border)',
-                                borderRadius: '22px'
+            {/* Modal Dialog for Add / Edit Member (Figma Luxury, Fully Responsive with Sticky Header & Footer, rendered in React Portal) */}
+            {typeof document !== 'undefined' && createPortal(
+                <AnimatePresence>
+                    {isModalOpen && (
+                        <div 
+                            className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-2 p-sm-3" 
+                            style={{ 
+                                backgroundColor: 'rgba(0, 0, 0, 0.20)', 
+                                backdropFilter: 'blur(3px)',
+                                WebkitBackdropFilter: 'blur(3px)',
+                                zIndex: 99999,
+                                inset: 0
                             }}
-                            onClick={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                                if (e.target === e.currentTarget) setIsModalOpen(false)
+                            }}
                         >
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 15 }}
+                                transition={{ duration: 0.22, ease: 'easeOut' }}
+                                className="luxury-modal-card w-100 shadow-2xl d-flex flex-column overflow-hidden my-auto"
+                                style={{
+                                    maxWidth: '640px',
+                                    maxHeight: 'min(90vh, 760px)',
+                                    background: '#ffffff',
+                                    border: '1.5px solid var(--glass-border)',
+                                    borderRadius: '20px'
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
                             {/* Pinned / Sticky Modal Header */}
                             <div 
                                 className="d-flex align-items-center justify-content-between px-3 px-sm-4 py-3 border-bottom flex-shrink-0" 
@@ -958,7 +961,9 @@ export default function MembersSection({
                         </motion.div>
                     </div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence>,
+            document.body
+        )}
         </div>
     )
 }
