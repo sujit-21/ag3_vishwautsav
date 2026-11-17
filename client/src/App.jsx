@@ -17,6 +17,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import ForgotPassword from './pages/ForgotPassword'
 import RoleSelection from './pages/RoleSelection'
 import NotFound from './pages/NotFound'
+import PublicEnrollment from './pages/PublicEnrollment/PublicEnrollment'
 
 import musicConcertImg from './homepage_images/Music Concert.jpg'
 import consertImg from './homepage_images/consert.jpg'
@@ -76,6 +77,10 @@ function App() {
                     <Route path="/feedback" element={<FeedSupport />} />
                     
                     <Route path="/gallery" element={<Gallery />} />
+
+                    {/* Public Open Link for Member Enrollment & Donation/Contribution */}
+                    <Route path="/enroll/:slug" element={<PublicEnrollment />} />
+                    <Route path="/enroll" element={<PublicEnrollment />} />
 
                     {/* Protected Routes */}
                     <Route path="/" element={<Home />} />

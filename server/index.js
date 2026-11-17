@@ -60,6 +60,7 @@ app.use('/api/otp', require('./routes/otp'));
 app.use('/api/activity-logs', require('./routes/activityLogs'));
 app.use('/api/members', require('./routes/members'));
 app.use('/api/sponsors', require('./routes/sponsors'));
+app.use('/api/enrollments', require('./routes/enrollments'));
 
 // Public endpoint for Home Tab: Combines all active live festivals & events across all entities
 app.get('/api/public/live-celebrations', async (req, res) => {

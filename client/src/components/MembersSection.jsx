@@ -6,11 +6,12 @@ import {
     ShieldCheck, CheckCircle2, Sparkles, Filter, X, Save, 
     MessageCircle, Award, UserCheck, ChevronDown, MapPin, Tag, Crown,
     BadgeCheck, ExternalLink, Settings, Check, Edit2, Eye, EyeOff, SlidersHorizontal,
-    Copy, Calendar
+    Copy, Calendar, Link2
 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { exportMembersDirectoryPDF } from '../utils/pdfGenerator'
+import EnrollmentManagerModal from './EnrollmentManagerModal'
 
 const DEFAULT_DEPARTMENTS = [
     'Core Committee',
@@ -132,6 +133,9 @@ export default function MembersSection({
     const [managerTab, setManagerTab] = useState('roles') // 'roles' | 'departments'
     const [managerNewName, setManagerNewName] = useState('')
     const [editingItemName, setEditingItemName] = useState(null) // { type: 'roles'|'departments', oldName: string, currentVal: string }
+
+    // Public Member & Contributor Enrollment Link Modal
+    const [isEnrollmentManagerOpen, setIsEnrollmentManagerOpen] = useState(false)
 
     // Sync custom roles & depts to localStorage
     useEffect(() => {
@@ -691,6 +695,17 @@ export default function MembersSection({
 
                     {isAdmin && (
                         <div className="d-flex align-items-center gap-1.5 flex-fill flex-sm-grow-0">
+                            <button
+                                type="button"
+                                onClick={() => setIsEnrollmentManagerOpen(true)}
+                                className="btn btn-sm btn-light border rounded-pill d-inline-flex align-items-center gap-1 shadow-xs extra-tiny fw-bold text-main px-2.5 px-sm-3 hover-bg-light"
+                                style={{ height: '38px', fontSize: '0.74rem' }}
+                                title="Open Public Link for Member Enrollment & Donations (Admin CRUD & Auto-Sync)"
+                            >
+                                <Link2 size={13} className="text-terracotta flex-shrink-0" />
+                                <span className="d-none d-sm-inline">Public Link</span>
+                            </button>
+
                             {festivalsList && festivalsList.filter(f => (f.title || f) !== activePortalName).length > 0 && (
                                 <button
                                     type="button"
@@ -2099,6 +2114,16 @@ export default function MembersSection({
                 </AnimatePresence>,
                 document.body
             )}
+
+            {/* Public Member & Contributor Enrollment Manager Modal */}
+            <EnrollmentManagerModal
+                isOpen={isEnrollmentManagerOpen}
+                onClose={() => setIsEnrollmentManagerOpen(false)}
+                type={type}
+                activePortalName={activePortalName}
+                activeEntity={activeEntity || user?.entityName}
+                onRosterUpdated={fetchMembers}
+            />
         </div>
     )
 }

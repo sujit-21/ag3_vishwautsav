@@ -5,11 +5,12 @@ import {
     Award, Plus, Search, FileDown, Edit3, Trash2, Phone, Mail, 
     ShieldCheck, Sparkles, Filter, X, Save, MessageCircle, 
     ChevronDown, MapPin, Tag, Crown, BadgeCheck, SlidersHorizontal, 
-    Eye, EyeOff, Coins, Gift, DollarSign, Building2, CheckCircle2
+    Eye, EyeOff, Coins, Gift, DollarSign, Building2, CheckCircle2, Link2
 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { exportSponsorsDirectoryPDF } from '../utils/pdfGenerator'
+import EnrollmentManagerModal from './EnrollmentManagerModal'
 
 const SPONSORSHIP_TIERS = [
     'Title Sponsor',
@@ -119,6 +120,7 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingSponsor, setEditingSponsor] = useState(null)
     const [submitting, setSubmitting] = useState(false)
+    const [isEnrollmentManagerOpen, setIsEnrollmentManagerOpen] = useState(false)
 
     // Global PDF Columns Visibility Config
     const [showPdfColMenu, setShowPdfColMenu] = useState(false)
@@ -513,14 +515,27 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                     </div>
 
                     {isAdmin && (
-                        <button
-                            onClick={() => handleOpenModal(null)}
-                            className="btn btn-premium d-inline-flex align-items-center justify-content-center gap-1.5 px-3 px-sm-3.5 py-1.5 rounded-pill fw-bold shadow-sm transition-all hover-glow flex-fill flex-sm-grow-0 text-nowrap"
-                            style={{ height: '38px', fontSize: '0.78rem', minWidth: '0' }}
-                        >
-                            <Plus size={15} className="flex-shrink-0" />
-                            <span>Add Sponsor</span>
-                        </button>
+                        <div className="d-flex align-items-center gap-1.5 flex-fill flex-sm-grow-0">
+                            <button
+                                type="button"
+                                onClick={() => setIsEnrollmentManagerOpen(true)}
+                                className="btn btn-sm btn-light border rounded-pill d-inline-flex align-items-center gap-1 shadow-xs extra-tiny fw-bold text-main px-2.5 px-sm-3 hover-bg-light"
+                                style={{ height: '38px', fontSize: '0.74rem' }}
+                                title="Open Public Link for Contributor & Donor Enrollment (Admin CRUD & Auto-Sync)"
+                            >
+                                <Link2 size={13} className="text-terracotta flex-shrink-0" />
+                                <span className="d-none d-sm-inline">Public Link</span>
+                            </button>
+
+                            <button
+                                onClick={() => handleOpenModal(null)}
+                                className="btn btn-premium d-inline-flex align-items-center justify-content-center gap-1.5 px-3 px-sm-3.5 py-1.5 rounded-pill fw-bold shadow-sm transition-all hover-glow flex-fill flex-sm-grow-0 text-nowrap"
+                                style={{ height: '38px', fontSize: '0.78rem', minWidth: '0' }}
+                            >
+                                <Plus size={15} className="flex-shrink-0" />
+                                <span>Add Sponsor</span>
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
@@ -1283,6 +1298,16 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                 </div>,
                 document.body
             )}
+
+            {/* Public Member & Contributor Enrollment Manager Modal */}
+            <EnrollmentManagerModal
+                isOpen={isEnrollmentManagerOpen}
+                onClose={() => setIsEnrollmentManagerOpen(false)}
+                type={type}
+                activePortalName={activePortalName}
+                activeEntity={activeEntity || user?.entityName}
+                onRosterUpdated={fetchSponsors}
+            />
         </div>
     )
 }
