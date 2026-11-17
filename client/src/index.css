@@ -4787,6 +4787,24 @@ html, body, #root, .app-container {
     border-color: rgba(245, 158, 11, 0.5);
 }
 
+.figma-sponsor-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.05rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    flex-shrink: 0;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.figma-luxury-sponsor-card:hover .figma-sponsor-avatar {
+    transform: scale(1.05);
+}
+
 /* Contribution & Valuation Hero Bento Capsule */
 .figma-sponsor-donation-hero {
     background: linear-gradient(135deg, rgba(254, 243, 199, 0.5) 0%, rgba(255, 237, 213, 0.35) 100%);

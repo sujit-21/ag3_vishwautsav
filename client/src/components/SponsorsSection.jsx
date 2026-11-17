@@ -709,27 +709,28 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                                     style={{ borderTop: `3.5px solid ${style.accentColor}` }}
                                 >
                                     <div>
-                                        {/* Card Top: Avatar, Name & Status */}
-                                        <div className="d-flex align-items-start justify-content-between gap-2.5 mb-2.5">
+                                        {/* Card Top: Avatar, Name & Status with Generous Separation */}
+                                        <div className="d-flex align-items-center justify-content-between gap-3 pb-3 mb-3 border-bottom border-secondary border-opacity-10">
                                             <div className="d-flex align-items-center gap-2.5" style={{ minWidth: 0 }}>
+                                                {/* Circular Luxury Avatar */}
                                                 <div 
-                                                    className="figma-member-avatar-ring"
+                                                    className="figma-sponsor-avatar shadow-xs"
                                                     style={{
                                                         background: style.bg,
                                                         color: style.text,
-                                                        border: `1.5px solid ${style.border}`
+                                                        border: `2px solid ${style.border}`
                                                     }}
                                                 >
                                                     {sponsor.name ? sponsor.name.charAt(0).toUpperCase() : 'S'}
                                                 </div>
 
                                                 <div className="text-truncate">
-                                                    <h6 className="fw-extrabold text-main mb-0 text-truncate" style={{ fontSize: '0.96rem', lineHeight: '1.2' }}>
+                                                    <h6 className="fw-extrabold text-main mb-0.5 text-truncate" style={{ fontSize: '1rem', letterSpacing: '-0.01em' }}>
                                                         {sponsor.name}
                                                     </h6>
                                                     {sponsor.company ? (
                                                         <div className="extra-tiny text-muted d-flex align-items-center gap-1 mt-0.5 text-truncate">
-                                                            <Building2 size={10} className="text-terracotta flex-shrink-0" />
+                                                            <Building2 size={11} className="text-terracotta flex-shrink-0" />
                                                             <span className="fw-semibold text-truncate">{sponsor.company}</span>
                                                         </div>
                                                     ) : (
@@ -753,7 +754,7 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                                                     </span>
                                                 )}
                                                 <span 
-                                                    className={`badge rounded-pill px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 ${
+                                                    className={`badge rounded-pill px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 shadow-2xs ${
                                                         sponsor.paymentStatus === 'Received' 
                                                             ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' 
                                                             : sponsor.paymentStatus === 'Pledged'
@@ -768,18 +769,19 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                                             </div>
                                         </div>
 
-                                        {/* Tier & Category Badges */}
-                                        <div className="d-flex align-items-center gap-1.5 flex-wrap my-2.5">
+                                        {/* Distinct Tier & Category Badges Row */}
+                                        <div className="d-flex align-items-center justify-content-between gap-2 mb-3 flex-wrap">
                                             <span 
-                                                className="badge rounded-pill px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 shadow-xs"
+                                                className="badge rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs"
                                                 style={{
                                                     background: style.bg,
                                                     color: style.text,
-                                                    border: `1px solid ${style.border}`,
-                                                    fontSize: '0.72rem'
+                                                    border: `1.5px solid ${style.border}`,
+                                                    fontSize: '0.74rem',
+                                                    letterSpacing: '0.2px'
                                                 }}
                                             >
-                                                <TierIcon size={12} />
+                                                <TierIcon size={13} />
                                                 <span>{sponsor.tier || 'Community Donor'}</span>
                                             </span>
                                             <span 
