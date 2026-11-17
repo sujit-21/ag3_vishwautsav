@@ -48,24 +48,35 @@ const EnrollmentManagerModal = ({
         }
     }, [activePortalName, festivalsList])
 
-    // Fetch or initialize enrollment link & submissions
+    // Fetch or initialize enrollment link & submissions safely
     const fetchData = async (portalToFetch) => {
         const target = portalToFetch || selectedPortal || activePortalName || (festivalsList && festivalsList.length > 0 ? (festivalsList[0]?.title || festivalsList[0]) : '')
         if (!target) {
             setLoading(false)
-            setErrorMsg(`No ${type === 'event' ? 'event' : 'festival'} selected. Please choose or create one first.`)
             return
         }
         setLoading(true)
         setErrorMsg('')
         try {
-            // 1. Get or create link for this festival / event
-            const enrollRes = await axios.post('/api/enrollments', {
-                type,
-                festOrEventName: target,
-                entityName: activeEntity
-            })
-            setEnrollment(enrollRes.data)
+            // 1. Fetch or initialize link for this festival / event
+            try {
+                const enrollRes = await axios.post('/api/enrollments', {
+                    type,
+                    festOrEventName: target,
+                    entityName: activeEntity
+                })
+                setEnrollment(enrollRes.data)
+            } catch (enrollErr) {
+                console.warn('Link auto-creation notice:', enrollErr?.response?.data?.message || enrollErr.message)
+                try {
+                    const fallbackRes = await axios.get('/api/enrollments', {
+                        params: { festOrEventName: target, type }
+                    })
+                    if (fallbackRes.data && fallbackRes.data.length > 0) {
+                        setEnrollment(fallbackRes.data[0])
+                    }
+                } catch (_) {}
+            }
 
             // 2. Fetch incoming submissions
             const subRes = await axios.get('/api/enrollments/submissions/all', {
@@ -75,9 +86,13 @@ const EnrollmentManagerModal = ({
                 }
             })
             setSubmissions(subRes.data || [])
+            setErrorMsg('')
         } catch (err) {
-            console.error('Failed to load enrollment data:', err)
-            setErrorMsg(err.response?.data?.message || 'Could not load enrollment information.')
+            console.error('Failed to load submissions:', err)
+            // Only set error message if both failed and no existing data is present
+            if (!submissions || submissions.length === 0) {
+                setErrorMsg(err.response?.data?.message || 'Could not load enrollment information.')
+            }
         } finally {
             setLoading(false)
         }
@@ -544,15 +559,15 @@ const EnrollmentManagerModal = ({
                     ) : (
                         /* TAB 2: INCOMING SUBMISSIONS (CRUD) */
                         <div>
-                            {/* Toolbar: Search & Segmented Status Filters */}
-                            <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-between gap-2.5 mb-3">
-                                <div className="input-group enr-search-container flex-grow-1" style={{ maxWidth: '400px' }}>
+                            {/* Responsive Toolbar: Search & Locked Filter Controls */}
+                            <div className="enr-toolbar-wrapper mb-3">
+                                <div className="input-group enr-search-container">
                                     <span className="input-group-text bg-transparent border-0 text-muted ps-3 pe-2 d-flex align-items-center">
                                         <Search size={14} />
                                     </span>
                                     <input
                                         type="text"
-                                        placeholder="Search applications by name, phone, UTR..."
+                                        placeholder="Search by name, phone, UTR..."
                                         value={searchQuery}
                                         onChange={e => setSearchQuery(e.target.value)}
                                         className="form-control bg-transparent border-0 text-main extra-tiny p-0 shadow-none fw-semibold"
@@ -565,8 +580,8 @@ const EnrollmentManagerModal = ({
                                     )}
                                 </div>
 
-                                {/* Segmented Filter Pills */}
-                                <div className="d-flex align-items-center gap-2 flex-wrap">
+                                {/* Segmented Filter Pills & Refresh Action Locked Together */}
+                                <div className="enr-filters-actions-group">
                                     <div className="enr-filter-segmented-control">
                                         {[
                                             { id: 'All', label: 'All', count: counts.total },
@@ -591,8 +606,7 @@ const EnrollmentManagerModal = ({
                                         type="button"
                                         onClick={fetchData}
                                         title="Refresh applications"
-                                        className="btn btn-sm btn-light border rounded-circle p-1.5 text-muted hover-text-main shadow-2xs ms-1"
-                                        style={{ width: '34px', height: '34px' }}
+                                        className="enr-btn-refresh-circle"
                                     >
                                         <RefreshCw size={13} />
                                     </button>
@@ -636,7 +650,7 @@ const EnrollmentManagerModal = ({
                                                 className={`enr-sub-card ${isApproved ? 'card-approved' : isRejected ? 'card-rejected' : 'card-pending'}`}
                                             >
                                                 {/* Top Row: User Avatar Monogram, Name, Ref ID & Explicit Status Pill */}
-                                                <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-2.5">
+                                                <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-3.5 pb-2.5 border-bottom border-secondary border-opacity-10">
                                                     <div className="d-flex align-items-center gap-2.5">
                                                         <div className="enr-user-avatar">
                                                             <span>{getInitials(sub.name)}</span>

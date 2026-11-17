@@ -5416,6 +5416,15 @@ html, body, #root, .app-container {
     box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
 }
 
+/* Toolbar Wrapper */
+.enr-toolbar-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+}
+
 /* Search Container */
 .enr-search-container {
     background: #ffffff;
@@ -5425,11 +5434,73 @@ html, body, #root, .app-container {
     align-items: center;
     transition: all 0.2s ease;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    flex: 1 1 240px;
+    max-width: 380px;
 }
 
 .enr-search-container:focus-within {
     border-color: #e07a43;
     box-shadow: 0 0 0 3px rgba(224, 122, 67, 0.15);
+}
+
+.enr-filters-actions-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    flex-wrap: nowrap;
+}
+
+.enr-btn-refresh-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    color: #64748b;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.enr-btn-refresh-circle:hover {
+    color: #e07a43;
+    border-color: #e07a43;
+    transform: rotate(90deg);
+}
+
+/* Responsive Breakpoints for All Devices */
+@media (max-width: 768px) {
+    .enr-toolbar-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+    
+    .enr-search-container {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .enr-filters-actions-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .enr-filter-segmented-control {
+        flex: 1;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .enr-filter-segmented-control::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 /* Filter Segmented Control */
@@ -5532,12 +5603,13 @@ html, body, #root, .app-container {
 
 .enr-avatar-status-dot {
     position: absolute;
-    bottom: -2px;
-    right: -2px;
-    width: 11px;
-    height: 11px;
+    bottom: 0px;
+    right: 0px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
     border: 2px solid #ffffff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
 /* Explicit Status Pills (Fixes Invisible Text & Solid Yellow Bug) */

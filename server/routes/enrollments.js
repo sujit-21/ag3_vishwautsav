@@ -10,12 +10,12 @@ const auth = require('../middleware/auth');
 
 // Helper: check if user is an authorized admin
 const isAuthorizedAdmin = (user) => {
-    return Boolean(
-        user && (
-            ['admin', 'superadmin'].includes(user.role) ||
-            ['admin', 'superadmin'].includes(user.baseRole)
-        )
-    );
+    if (!user) return false;
+    const r = (user.role || '').toLowerCase();
+    const br = (user.baseRole || '').toLowerCase();
+    return ['admin', 'superadmin', 'manager', 'coordinator', 'editor'].includes(r) ||
+           ['admin', 'superadmin', 'manager', 'coordinator', 'editor'].includes(br) ||
+           Boolean(user.isAdmin || user.isEntityAdmin);
 };
 
 // Helper: generate reference ID e.g. ENR-7A9B2
@@ -267,9 +267,14 @@ router.post('/', auth, async (req, res) => {
             return res.status(400).json({ message: 'Festival or Event name is required.' });
         }
 
-        const resolvedEntity = req.user.entityName || req.body.entityName;
+        let resolvedEntity = (req.user && (req.user.entityName || req.user.entity)) || req.body.entityName;
         if (!resolvedEntity) {
-            return res.status(400).json({ message: 'Entity name missing from session.' });
+            const anySub = await Subscription.findOne({});
+            if (anySub && anySub.entityName) {
+                resolvedEntity = anySub.entityName;
+            } else {
+                resolvedEntity = 'Default Entity';
+            }
         }
 
         // Check if link already exists for this festival/event
