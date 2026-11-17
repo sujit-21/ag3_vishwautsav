@@ -1306,6 +1306,7 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                 type={type}
                 activePortalName={activePortalName}
                 activeEntity={activeEntity || user?.entityName}
+                festivalsList={festivalsList}
                 onRosterUpdated={fetchSponsors}
             />
         </div>

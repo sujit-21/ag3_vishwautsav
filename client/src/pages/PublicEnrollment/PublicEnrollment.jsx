@@ -37,14 +37,13 @@ export default function PublicEnrollment() {
 
     useEffect(() => {
         const fetchPortal = async () => {
-            if (!slug) {
-                setError('Enrollment link is missing or invalid.')
-                setLoading(false)
-                return
-            }
             try {
                 setLoading(true)
-                const res = await axios.get(`/api/enrollments/public/${slug}`)
+                setError(null)
+                const endpoint = slug && slug !== 'latest' 
+                    ? `/api/enrollments/public/${slug}` 
+                    : '/api/enrollments/public-latest'
+                const res = await axios.get(endpoint)
                 setPortal(res.data)
                 if (res.data.suggestedRoles && res.data.suggestedRoles.length > 0) {
                     setFormData(prev => ({ 

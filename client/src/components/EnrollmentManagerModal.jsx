@@ -13,6 +13,7 @@ const EnrollmentManagerModal = ({
     type = 'festival',
     activePortalName = '',
     activeEntity = '',
+    festivalsList = [],
     onRosterUpdated
 }) => {
     const [activeTab, setActiveTab] = useState('link') // 'link' | 'submissions'
@@ -26,16 +27,32 @@ const EnrollmentManagerModal = ({
     const [errorMsg, setErrorMsg] = useState('')
     const [successMsg, setSuccessMsg] = useState('')
 
+    // Effective selected festival / event
+    const initialPortalName = activePortalName || (festivalsList && festivalsList.length > 0 ? (festivalsList[0]?.title || festivalsList[0]) : '')
+    const [selectedPortal, setSelectedPortal] = useState(initialPortalName)
+
+    useEffect(() => {
+        const bestName = activePortalName || (festivalsList && festivalsList.length > 0 ? (festivalsList[0]?.title || festivalsList[0]) : '')
+        if (bestName) {
+            setSelectedPortal(bestName)
+        }
+    }, [activePortalName, festivalsList])
+
     // Fetch or initialize enrollment link & submissions
-    const fetchData = async () => {
-        if (!activePortalName) return
+    const fetchData = async (portalToFetch) => {
+        const target = portalToFetch || selectedPortal || activePortalName || (festivalsList && festivalsList.length > 0 ? (festivalsList[0]?.title || festivalsList[0]) : '')
+        if (!target) {
+            setLoading(false)
+            setErrorMsg(`No ${type === 'event' ? 'event' : 'festival'} selected. Please choose or create one first.`)
+            return
+        }
         setLoading(true)
         setErrorMsg('')
         try {
             // 1. Get or create link for this festival / event
             const enrollRes = await axios.post('/api/enrollments', {
                 type,
-                festOrEventName: activePortalName,
+                festOrEventName: target,
                 entityName: activeEntity
             })
             setEnrollment(enrollRes.data)
@@ -43,7 +60,7 @@ const EnrollmentManagerModal = ({
             // 2. Fetch incoming submissions
             const subRes = await axios.get('/api/enrollments/submissions/all', {
                 params: {
-                    festOrEventName: activePortalName,
+                    festOrEventName: target,
                     type
                 }
             })
@@ -57,10 +74,20 @@ const EnrollmentManagerModal = ({
     }
 
     useEffect(() => {
-        if (isOpen && activePortalName) {
-            fetchData()
+        if (isOpen) {
+            const target = selectedPortal || activePortalName || (festivalsList && festivalsList.length > 0 ? (festivalsList[0]?.title || festivalsList[0]) : '')
+            if (target) {
+                fetchData(target)
+            } else {
+                setLoading(false)
+            }
         }
-    }, [isOpen, activePortalName])
+    }, [isOpen, selectedPortal])
+
+    const handleSwitchPortal = (newName) => {
+        setSelectedPortal(newName)
+        fetchData(newName)
+    }
 
     // Construct public share URL
     const publicUrl = useMemo(() => {
@@ -93,10 +120,12 @@ const EnrollmentManagerModal = ({
         }
     }
 
+    const currentPortalName = selectedPortal || activePortalName || (festivalsList && festivalsList.length > 0 ? (festivalsList[0]?.title || festivalsList[0]) : '')
+
     // Direct WhatsApp share
     const handleShareWhatsApp = () => {
         if (!publicUrl) return
-        const text = `🎉 Join the Official Committee & Support *${activePortalName}*!\n\nOrganized by *${activeEntity || 'our community'}*. You can enroll as a committee member, volunteer, or contribute donations/in-kind support.\n\n🔗 Click to register now:\n${publicUrl}`
+        const text = `🎉 Join the Official Committee & Support *${currentPortalName}*!\n\nOrganized by *${activeEntity || 'our community'}*. You can enroll as a committee member, volunteer, or contribute donations/in-kind support.\n\n🔗 Click to register now:\n${publicUrl}`
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
     }
 
@@ -108,7 +137,7 @@ const EnrollmentManagerModal = ({
             const blob = await res.blob()
             const link = document.createElement('a')
             link.href = URL.createObjectURL(blob)
-            link.download = `${(activePortalName || 'enrollment').replace(/\s+/g, '_')}_QR_Code.png`
+            link.download = `${(currentPortalName || 'enrollment').replace(/\s+/g, '_')}_QR_Code.png`
             document.body.appendChild(link)
             link.click()
             document.body.removeChild(link)
@@ -246,7 +275,21 @@ const EnrollmentManagerModal = ({
                                 Open Member &amp; Contributor Link
                             </h5>
                             <div className="extra-tiny text-muted d-flex align-items-center gap-1.5 flex-wrap">
-                                <span className="fw-bold text-primary">{activePortalName}</span>
+                                {festivalsList && festivalsList.length > 1 ? (
+                                    <select
+                                        value={selectedPortal || currentPortalName}
+                                        onChange={e => handleSwitchPortal(e.target.value)}
+                                        className="form-select form-select-sm py-0.5 px-2 rounded-pill fw-bold text-primary border-primary border-opacity-30 extra-tiny shadow-2xs"
+                                        style={{ width: 'auto', minWidth: '160px', height: '26px' }}
+                                    >
+                                        {festivalsList.map(f => {
+                                            const title = f.title || f
+                                            return <option key={title} value={title}>{title}</option>
+                                        })}
+                                    </select>
+                                ) : (
+                                    <span className="fw-bold text-primary">{currentPortalName || 'Vishwa Utsav'}</span>
+                                )}
                                 <span>•</span>
                                 <span>{type === 'festival' ? 'Festival' : 'Event'} Portal</span>
                                 {enrollment?.isActive ? (
@@ -368,7 +411,7 @@ const EnrollmentManagerModal = ({
                                         </div>
                                     )}
                                     <div className="extra-tiny fw-extrabold text-main mt-2 text-truncate">
-                                        {activePortalName}
+                                        {currentPortalName || 'Vishwa Utsav'}
                                     </div>
                                     <div className="extra-tiny text-muted opacity-75">
                                         Powered by Vishwa Utsav
@@ -631,7 +674,7 @@ const EnrollmentManagerModal = ({
                                                                 <span>{sub.countryCode || '+91'} {sub.contact}</span>
                                                             </div>
                                                             <a
-                                                                href={`https://wa.me/${(sub.countryCode || '+91').replace(/\+/g, '')}${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(`Namaste ${sub.name}, regarding your enrollment for ${activePortalName}:`)}`}
+                                                                href={`https://wa.me/${(sub.countryCode || '+91').replace(/\+/g, '')}${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(`Namaste ${sub.name}, regarding your enrollment for ${currentPortalName}:`)}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="badge bg-success text-white rounded-pill extra-tiny px-2 py-0.5 text-decoration-none d-inline-flex align-items-center gap-1"

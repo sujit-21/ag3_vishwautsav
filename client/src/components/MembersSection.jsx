@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
@@ -135,7 +136,14 @@ export default function MembersSection({
     const [editingItemName, setEditingItemName] = useState(null) // { type: 'roles'|'departments', oldName: string, currentVal: string }
 
     // Public Member & Contributor Enrollment Link Modal
-    const [isEnrollmentManagerOpen, setIsEnrollmentManagerOpen] = useState(false)
+    const [searchParams] = useSearchParams()
+    const [isEnrollmentManagerOpen, setIsEnrollmentManagerOpen] = useState(searchParams.get('openEnroll') === 'true')
+
+    useEffect(() => {
+        if (searchParams.get('openEnroll') === 'true') {
+            setIsEnrollmentManagerOpen(true)
+        }
+    }, [searchParams])
 
     // Sync custom roles & depts to localStorage
     useEffect(() => {
@@ -2122,6 +2130,7 @@ export default function MembersSection({
                 type={type}
                 activePortalName={activePortalName}
                 activeEntity={activeEntity || user?.entityName}
+                festivalsList={festivalsList}
                 onRosterUpdated={fetchMembers}
             />
         </div>

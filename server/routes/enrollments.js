@@ -39,6 +39,50 @@ const generateSlug = (title = '', entity = '') => {
 // 1. PUBLIC ROUTES (No Login Required)
 // ==========================================
 
+// GET /api/enrollments/public-latest (Get active celebration enrollment)
+router.get('/public-latest', async (req, res) => {
+    try {
+        const query = { isActive: true };
+        if (req.query.type) {
+            query.type = { $in: [req.query.type, 'both'] };
+        }
+        if (req.query.festOrEventName) {
+            query.festOrEventName = req.query.festOrEventName.trim();
+        }
+        if (req.query.entityName) {
+            query.entityName = req.query.entityName.trim();
+        }
+
+        let enrollment = await Enrollment.findOne(query).sort({ createdAt: -1 });
+        if (!enrollment) {
+            enrollment = await Enrollment.findOne({}).sort({ createdAt: -1 });
+        }
+
+        if (!enrollment) {
+            return res.status(404).json({ message: 'No enrollment portals currently exist. Please ask your administrator to generate one.' });
+        }
+
+        res.json({
+            slug: enrollment.slug,
+            type: enrollment.type,
+            festOrEventName: enrollment.festOrEventName,
+            entityName: enrollment.entityName,
+            title: enrollment.title || `${enrollment.festOrEventName} — Committee & Donor Enrollment`,
+            description: enrollment.description || `Official community member enrollment and patron sponsorship for ${enrollment.festOrEventName}.`,
+            acceptDonations: enrollment.acceptDonations,
+            allowInKind: enrollment.allowInKind,
+            suggestedAmounts: enrollment.suggestedAmounts,
+            suggestedRoles: enrollment.suggestedRoles,
+            suggestedDepts: enrollment.suggestedDepts,
+            submissionsCount: enrollment.submissionsCount,
+            expiresAt: enrollment.expiresAt
+        });
+    } catch (err) {
+        console.error('Error fetching latest enrollment:', err);
+        res.status(500).json({ message: 'Server error loading latest enrollment portal.' });
+    }
+});
+
 // GET /api/enrollments/public/:slug
 router.get('/public/:slug', async (req, res) => {
     try {

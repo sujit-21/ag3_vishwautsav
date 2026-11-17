@@ -2,7 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './Events.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, ShieldCheck, Lock, User, IndianRupee, Crown, CreditCard, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Hash, FileText, Layers, Smartphone, QrCode, Building2, Wallet, TrendingUp, Receipt, ArrowDownRight, ArrowUpRight, Scale, ChevronRight, Users, Ticket } from 'lucide-react'
+import { Search, MapPin, Calendar, Clock, Plus, Trash2, Edit3, X, Save, Tag, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, ShieldCheck, Lock, User, IndianRupee, Crown, CreditCard, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Hash, FileText, Layers, Smartphone, QrCode, Building2, Wallet, TrendingUp, Receipt, ArrowDownRight, ArrowUpRight, Scale, ChevronRight, Users, Ticket, Link2 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -22,6 +22,7 @@ import {
 } from '../../utils/pdfGenerator'
 import MembersSection from '../../components/MembersSection'
 import SponsorsSection from '../../components/SponsorsSection'
+import EnrollmentManagerModal from '../../components/EnrollmentManagerModal'
 
 const countryCodes = [
     { code: '+91', country: 'IN' },
@@ -288,6 +289,8 @@ const Events = () => {
     const [sponsorsList, setSponsorsList] = useState([])
     const [isCardAdding, setIsCardAdding] = useState(false)
     const [editingCardId, setEditingCardId] = useState(null)
+    const [isCardEnrollOpen, setIsCardEnrollOpen] = useState(false)
+    const [enrollModalEvent, setEnrollModalEvent] = useState('')
 
     const generateSubID = () => Math.random().toString(36).substring(2, 12).toUpperCase()
 
@@ -1157,6 +1160,24 @@ const Events = () => {
 
                                             {/* Right Side: Actions */}
                                             <div className="d-flex align-items-center gap-2 ms-lg-auto mt-2 mt-lg-0 flex-wrap">
+                                                {/* Public Open Enrollment & Donation Link */}
+                                                {user?.role === 'admin' && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setEnrollModalEvent(evt.title);
+                                                            setIsCardEnrollOpen(true);
+                                                        }}
+                                                        className="btn btn-sm btn-light border rounded-pill d-inline-flex align-items-center gap-1.5 px-2.5 py-1 fw-bold text-main shadow-2xs hover-bg-light"
+                                                        style={{ fontSize: '0.72rem' }}
+                                                        title="Open & Share Public Enrollment and Donation Link for this Event"
+                                                    >
+                                                        <Link2 size={12} className="text-terracotta flex-shrink-0" />
+                                                        <span>Public Link</span>
+                                                    </button>
+                                                )}
+
                                                 {/* Go Live Toggle Button */}
                                                 {user?.role === 'admin' && (
                                                     <button
@@ -3542,6 +3563,16 @@ const Events = () => {
                     </div>
                 )}
             </AnimatePresence>
+
+            {/* Public Member & Contributor Enrollment Manager Modal */}
+            <EnrollmentManagerModal
+                isOpen={isCardEnrollOpen}
+                onClose={() => setIsCardEnrollOpen(false)}
+                type="event"
+                activePortalName={enrollModalEvent || activeEvent?.title || (events && events[0]?.title) || ''}
+                activeEntity={activeEvent?.entityName || user?.entityName}
+                festivalsList={events}
+            />
 
         </div>
     )
