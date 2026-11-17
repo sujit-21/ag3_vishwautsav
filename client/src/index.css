@@ -1851,6 +1851,15 @@ html, body, #root, .app-container {
     box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.45), 0 0 35px -10px var(--premium-glow), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15) !important;
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
+    max-height: min(88dvh, 760px);
+}
+
+@media (max-width: 640px) {
+    .luxury-modal-card {
+        border-radius: 18px !important;
+        margin: auto !important;
+        max-height: min(90dvh, 680px) !important;
+    }
 }
 
 .luxury-input-wrapper {

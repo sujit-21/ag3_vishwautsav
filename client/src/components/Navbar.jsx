@@ -7,7 +7,7 @@ import {
     Calendar, Ticket, CreditCard, FileSpreadsheet,
     Sparkles, Home as HomeIcon, MessageSquare, LayoutDashboard, Settings,
     Image as ImageIcon, Building2, ShieldCheck, UserCheck, RefreshCw, LogIn,
-    UserPlus, Download, History, Users
+    UserPlus, Download, History, Users, Award
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
@@ -36,6 +36,7 @@ const ReceiptSymbolIcon = ({ size = 15, className = '' }) => (
 const festivalSubTabs = [
     { id: 'members', label: 'Committee Members', sub: 'Executive & volunteer team', icon: Users, path: '/festivals?tab=members' },
     { id: 'festivals', label: 'All Festivals', sub: 'Directory & management', icon: Calendar, path: '/festivals?tab=festivals' },
+    { id: 'sponsors', label: 'Sponsors & Donors', sub: 'Patrons & contributions', icon: Award, path: '/festivals?tab=sponsors' },
     { id: 'new_attendee', label: '+ New Attendee', sub: 'Quick register attendee', icon: UserPlus, path: '/festivals?tab=new_attendee', isAction: true },
     { id: 'subscriptions', label: 'Attendees & Passes', sub: 'Registration roster', icon: Ticket, path: '/festivals?tab=subscriptions' },
     { id: 'expenses', label: 'Expense Tracker', sub: 'Budget & vendor bills', icon: ReceiptSymbolIcon, path: '/festivals?tab=expenses' },
@@ -48,6 +49,7 @@ const festivalSubTabs = [
 const eventSubTabs = [
     { id: 'members', label: 'Committee Members', sub: 'Crew & organizers team', icon: Users, path: '/events?tab=members' },
     { id: 'events', label: 'All Events', sub: 'Shows & workshops list', icon: Sparkles, path: '/events?tab=events' },
+    { id: 'sponsors', label: 'Sponsors & Donors', sub: 'Patrons & contributions', icon: Award, path: '/events?tab=sponsors' },
     { id: 'new_attendee', label: '+ New Attendee', sub: 'Quick register attendee', icon: UserPlus, path: '/events?tab=new_attendee', isAction: true },
     { id: 'subscriptions', label: 'Attendees & Passes', sub: 'Attendee booking list', icon: Ticket, path: '/events?tab=subscriptions' },
     { id: 'expenses', label: 'Expense Tracker', sub: 'Cost tracking & ledger', icon: ReceiptSymbolIcon, path: '/events?tab=expenses' },

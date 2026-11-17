@@ -323,7 +323,7 @@ const applyBadgeStyles = (data, { nameColIndices = [], paymentColIndex = -1, tie
 // ============================================================================
 // 1. ATTENDEE MASTER DIRECTORY (A4 LANDSCAPE: 297mm x 210mm)
 // ============================================================================
-export const exportAttendeeMasterPDF = ({ subscriptionsList, activeTitle, entityName, getTierDisplayName, getPaymentDisplayName }) => {
+export const exportAttendeeMasterPDF = ({ subscriptionsList, sponsorsList = [], activeTitle, entityName, getTierDisplayName, getPaymentDisplayName }) => {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
     const list = subscriptionsList || []
 
@@ -428,6 +428,47 @@ export const exportAttendeeMasterPDF = ({ subscriptionsList, activeTitle, entity
             amountColIndex: 8 
         })
     })
+
+    // Sponsors & Donors Acknowledgment (Bullet Marking)
+    const visibleSponsors = (sponsorsList || []).filter(sp => !sp.isHidden)
+    if (visibleSponsors.length > 0) {
+        let spY = (doc.lastAutoTable?.finalY || 150) + 6
+        if (spY + 28 > 195) {
+            doc.addPage()
+            spY = 20
+        }
+
+        const boxW = 269
+        const displaySponsors = visibleSponsors.slice(0, 8)
+        const boxH = Math.min(38, Math.max(16, 12 + displaySponsors.length * 4.2))
+
+        doc.setFillColor(...FIGMA_COLORS.lightBg)
+        doc.roundedRect(14, spY, boxW, boxH, 2, 2, 'F')
+        doc.setDrawColor(...FIGMA_COLORS.border)
+        doc.setLineWidth(0.3)
+        doc.roundedRect(14, spY, boxW, boxH, 2, 2, 'S')
+
+        doc.setFillColor(...FIGMA_COLORS.saffron)
+        doc.rect(16, spY, boxW - 4, 1.0, 'F')
+
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(7.2)
+        doc.setTextColor(...FIGMA_COLORS.slateNavy)
+        doc.text('OFFICIAL SPONSORS & DONORS ACKNOWLEDGMENT', 18, spY + 5.2)
+
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(6.4)
+        doc.setTextColor(...FIGMA_COLORS.textDark)
+
+        let bulletY = spY + 9.8
+        displaySponsors.forEach((sp) => {
+            if (bulletY + 3.5 < spY + boxH) {
+                const bulletText = `•  ${sp.name}${sp.company ? ` (${sp.company})` : ''}  —  Donated: ${sp.contribution || 'Sponsorship'}  —  ${fmtCurrency(sp.amount)}`
+                doc.text(bulletText, 18, bulletY)
+                bulletY += 4.2
+            }
+        })
+    }
 
     drawFooter(doc, true)
     doc.save(`Attendees_${String(activeTitle || 'Roster').replace(/\s+/g, '_')}.pdf`)
@@ -747,7 +788,7 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
 // ============================================================================
 // 4. MASTER DATA AUDIT PACKAGE (A4 LANDSCAPE: 297mm x 210mm)
 // ============================================================================
-export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, activeTitle, entityName, expenseTypes = [], getTierDisplayName, getPaymentDisplayName }) => {
+export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, sponsorsList = [], activeTitle, entityName, expenseTypes = [], getTierDisplayName, getPaymentDisplayName }) => {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
 
     const totalCollection = (subscriptionsList || []).reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
@@ -891,6 +932,47 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
         }
     })
 
+    // Sponsors & Donors Acknowledgment (Bullet Marking)
+    const visibleSponsors = (sponsorsList || []).filter(sp => !sp.isHidden)
+    if (visibleSponsors.length > 0) {
+        let spY = (doc.lastAutoTable?.finalY || 150) + 6
+        if (spY + 28 > 195) {
+            doc.addPage()
+            spY = 20
+        }
+
+        const boxW = 269
+        const displaySponsors = visibleSponsors.slice(0, 8)
+        const boxH = Math.min(38, Math.max(16, 12 + displaySponsors.length * 4.2))
+
+        doc.setFillColor(...FIGMA_COLORS.lightBg)
+        doc.roundedRect(14, spY, boxW, boxH, 2, 2, 'F')
+        doc.setDrawColor(...FIGMA_COLORS.border)
+        doc.setLineWidth(0.3)
+        doc.roundedRect(14, spY, boxW, boxH, 2, 2, 'S')
+
+        doc.setFillColor(...FIGMA_COLORS.saffron)
+        doc.rect(16, spY, boxW - 4, 1.0, 'F')
+
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(7.2)
+        doc.setTextColor(...FIGMA_COLORS.slateNavy)
+        doc.text('OFFICIAL SPONSORS & DONORS ACKNOWLEDGMENT', 18, spY + 5.2)
+
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(6.4)
+        doc.setTextColor(...FIGMA_COLORS.textDark)
+
+        let bulletY = spY + 9.8
+        displaySponsors.forEach((sp) => {
+            if (bulletY + 3.5 < spY + boxH) {
+                const bulletText = `•  ${sp.name}${sp.company ? ` (${sp.company})` : ''}  —  Donated: ${sp.contribution || 'Sponsorship'}  —  ${fmtCurrency(sp.amount)}`
+                doc.text(bulletText, 18, bulletY)
+                bulletY += 4.2
+            }
+        })
+    }
+
     drawFooter(doc, true)
     doc.save(`MASTER_DATA_${String(activeTitle || 'Bundle').replace(/\s+/g, '_')}.pdf`)
 }
@@ -898,7 +980,7 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, ac
 // ============================================================================
 // 5. INDIVIDUAL ATTENDEE OFFICIAL RECEIPT (A4 PORTRAIT: 210mm x 297mm)
 // ============================================================================
-export const exportSingleAttendeeReceiptPDF = async ({ sub, festOrEvent = {}, entityName = '', getTierDisplayName, getPaymentDisplayName }) => {
+export const exportSingleAttendeeReceiptPDF = async ({ sub, festOrEvent = {}, entityName = '', sponsorsList = [], getTierDisplayName, getPaymentDisplayName }) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
     const logoImg = await getLogoImage()
 
@@ -1014,9 +1096,49 @@ export const exportSingleAttendeeReceiptPDF = async ({ sub, festOrEvent = {}, en
         }
     })
 
+    // Official Sponsors Bullet Marking (As requested)
+    const visibleSponsors = (sponsorsList || []).filter(sp => !sp.isHidden)
+    let curY = (doc.lastAutoTable?.finalY || 135) + 6
+
+    if (visibleSponsors.length > 0) {
+        const displaySponsors = visibleSponsors.slice(0, 5)
+        const spBoxW = 182
+        const spBoxH = Math.max(14, 9 + displaySponsors.length * 4.4)
+
+        doc.setFillColor(...FIGMA_COLORS.lightBg)
+        doc.roundedRect(14, curY, spBoxW, spBoxH, 2, 2, 'F')
+        doc.setDrawColor(...FIGMA_COLORS.border)
+        doc.setLineWidth(0.3)
+        doc.roundedRect(14, curY, spBoxW, spBoxH, 2, 2, 'S')
+
+        // Top Accent Strip
+        doc.setFillColor(...FIGMA_COLORS.amber)
+        doc.rect(16, curY, spBoxW - 4, 0.9, 'F')
+
+        // Header Title
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(6.8)
+        doc.setTextColor(...FIGMA_COLORS.slateNavy)
+        doc.text('OFFICIAL CELEBRATION SPONSORS & DONORS ACKNOWLEDGMENT', 18, curY + 4.8)
+
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(6.2)
+        doc.setTextColor(...FIGMA_COLORS.textDark)
+
+        let lineY = curY + 9.2
+        displaySponsors.forEach((sp) => {
+            const amountPart = sp.hideAmount ? '' : `  —  ${fmtCurrency(sp.amount)}`
+            const bulletText = `•  ${sp.name}${sp.company ? ` (${sp.company})` : ''}  —  Donated: ${sp.contribution || 'Sponsorship'}${amountPart}`
+            doc.text(bulletText, 18, lineY)
+            lineY += 4.4
+        })
+
+        curY += spBoxH + 6
+    }
+
     // Verification & Signatures Block
-    const signY = (doc.lastAutoTable?.finalY || 180) + 12
-    if (signY < 240) {
+    const signY = Math.min(240, Math.max(curY, (doc.lastAutoTable?.finalY || 180) + 10))
+    if (signY < 255) {
         // VU Verification Box (Width 86mm, Height 24mm)
         const boxW = 86
         const boxH = 24
@@ -1510,4 +1632,267 @@ export const exportMembersDirectoryPDF = ({
     drawFooter(doc, false)
     const filePrefix = resolvedFestivalName ? resolvedFestivalName.replace(/[^a-zA-Z0-9_-]/g, '_') : portalType
     doc.save(`${filePrefix}_Members_${String(entityName || 'Directory').replace(/\s+/g, '_')}.pdf`)
+}
+
+// ============================================================================
+// 8. OFFICIAL SPONSORS & DONORS DIRECTORY (A4 PORTRAIT: 210mm x 297mm)
+// ============================================================================
+export const exportSponsorsDirectoryPDF = ({ 
+    sponsorsList = [], 
+    entityName = '', 
+    portalType = 'Festival',
+    festivalName = '',
+    eventName = '',
+    columnVisibility = {}
+}) => {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const list = sponsorsList || []
+    const resolvedFestivalName = String(festivalName || eventName || '').trim()
+
+    const totalFunds = list.reduce((acc, s) => acc + (Number(s.amount) || 0), 0)
+    const titleOrPlatinum = list.filter(s => /title|platinum|gold/i.test(s.tier || '')).length
+
+    // Centered Header
+    const headerTitle = resolvedFestivalName 
+        ? `${resolvedFestivalName.toUpperCase()} — ${portalType.toUpperCase()} SPONSORS & PATRONS`
+        : `${portalType.toUpperCase()} SPONSORS & DONORS DIRECTORY`
+
+    const headerSubtitle = [
+        resolvedFestivalName ? `${portalType}: ${resolvedFestivalName}` : null,
+        `Entity: ${entityName || 'Vishwa Utsav'}`,
+        `Patrons: ${list.length} Sponsors`,
+        `Total Value: ${fmtCurrency(totalFunds)}`,
+        `Generated: ${new Date().toLocaleString('en-IN')}`
+    ].filter(Boolean).join('  |  ')
+
+    drawHeader(doc, {
+        title: headerTitle,
+        subtitle: headerSubtitle,
+        accentColor: FIGMA_COLORS.amber,
+        isLandscape: false
+    })
+
+    // 3 Bento KPI Mini-Cards across full 194mm width (margins: left 8mm, right 8mm)
+    const cardY = 31
+    const cardH = 13
+    const cardW = 62
+    const gap = 4
+    const kpis = [
+        { label: 'TOTAL SPONSORS & DONORS', value: `${list.length} Patrons`, color: FIGMA_COLORS.slateNavy },
+        { label: 'TOTAL CONTRIBUTION VALUE', value: fmtCurrency(totalFunds), color: FIGMA_COLORS.emerald },
+        { label: 'KEY & LEAD PATRONS', value: `${titleOrPlatinum} Leaders`, color: FIGMA_COLORS.amber }
+    ]
+
+    kpis.forEach((kpi, idx) => {
+        const x = 8 + idx * (cardW + gap)
+        doc.setFillColor(...FIGMA_COLORS.lightBg)
+        doc.roundedRect(x, cardY, cardW, cardH, 2, 2, 'F')
+        doc.setDrawColor(...FIGMA_COLORS.border)
+        doc.setLineWidth(0.3)
+        doc.roundedRect(x, cardY, cardW, cardH, 2, 2, 'S')
+
+        doc.setFillColor(...kpi.color)
+        doc.rect(x + 2, cardY, cardW - 4, 1.2, 'F')
+
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(6.2)
+        doc.setTextColor(...FIGMA_COLORS.muted)
+        doc.text(kpi.label, x + 3.5, cardY + 5.2)
+
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(9.5)
+        doc.setTextColor(...kpi.color)
+        doc.text(kpi.value, x + 3.5, cardY + 10.2)
+    })
+
+    // Dynamic Columns across full 194.0mm
+    const colsConfig = {
+        tier: columnVisibility?.tier !== false,
+        contribution: columnVisibility?.contribution !== false,
+        category: columnVisibility?.category !== false,
+        amount: columnVisibility?.amount !== false,
+        contact: columnVisibility?.contact === true,
+        paymentStatus: columnVisibility?.paymentStatus !== false
+    }
+
+    const allDefs = [
+        { id: 'index', header: '#', baseWidth: 6, halign: 'center' },
+        { id: 'name', header: 'Sponsor / Organization', baseWidth: 44, fontStyle: 'bold' },
+        ...(colsConfig.tier ? [{ id: 'tier', header: 'Tier / Level', baseWidth: 28, fontStyle: 'bold' }] : []),
+        ...(colsConfig.contribution ? [{ id: 'contribution', header: 'What They Donated / Contribution', baseWidth: 46 }] : []),
+        ...(colsConfig.category ? [{ id: 'category', header: 'Category', baseWidth: 22 }] : []),
+        ...(colsConfig.amount ? [{ id: 'amount', header: 'Amount / Value', baseWidth: 28, halign: 'right', fontStyle: 'bold' }] : []),
+        ...(colsConfig.contact ? [{ id: 'contact', header: 'Contact', baseWidth: 24 }] : []),
+        ...(colsConfig.paymentStatus ? [{ id: 'paymentStatus', header: 'Status', baseWidth: 20, halign: 'center', fontStyle: 'bold' }] : [])
+    ]
+
+    const totalBaseWidth = allDefs.reduce((acc, c) => acc + c.baseWidth, 0)
+    let assignedWidth = 0
+    const activeColumns = allDefs.map((col, idx) => {
+        if (idx === allDefs.length - 1) {
+            return { ...col, width: Math.round((194.0 - assignedWidth) * 10) / 10 }
+        }
+        const w = Math.round(((col.baseWidth / totalBaseWidth) * 194.0) * 10) / 10
+        assignedWidth += w
+        return { ...col, width: w }
+    })
+
+    const head = [activeColumns.map(c => c.header)]
+
+    const body = list.map((sp, idx) => {
+        return activeColumns.map(col => {
+            switch (col.id) {
+                case 'index':
+                    return String(idx + 1)
+                case 'name':
+                    return `${sp.name || '—'}${sp.company ? `\n(${sp.company})` : ''}`
+                case 'tier':
+                    return String(sp.tier || 'Community Donor')
+                case 'contribution':
+                    return String(sp.contribution || '—')
+                case 'category':
+                    return String(sp.category || 'Cash')
+                case 'amount':
+                    return sp.hideAmount ? '— (Confidential)' : fmtCurrency(sp.amount)
+                case 'contact':
+                    return sp.hideContact ? '— (Private)' : (sp.contact ? `${sp.countryCode || '+91'} ${sp.contact}` : '—')
+                case 'paymentStatus':
+                    return String(sp.paymentStatus || 'Received')
+                default:
+                    return '—'
+            }
+        })
+    })
+
+    const columnStyles = {}
+    activeColumns.forEach((col, idx) => {
+        columnStyles[idx] = {
+            cellWidth: col.width,
+            ...(col.halign ? { halign: col.halign } : {}),
+            ...(col.fontStyle ? { fontStyle: col.fontStyle } : {})
+        }
+    })
+
+    autoTable(doc, {
+        startY: 47,
+        margin: { left: 8, right: 8 },
+        head,
+        body,
+        theme: 'grid',
+        headStyles: {
+            fillColor: FIGMA_COLORS.navyDark,
+            textColor: [255, 255, 255],
+            fontSize: 7.0,
+            fontStyle: 'bold',
+            halign: 'left',
+            cellPadding: { top: 2.2, bottom: 2.2, left: 1.5, right: 1.5 }
+        },
+        bodyStyles: {
+            fontSize: 6.8,
+            textColor: FIGMA_COLORS.textDark,
+            cellPadding: { top: 2.0, bottom: 2.0, left: 1.5, right: 1.5 },
+            lineColor: FIGMA_COLORS.border,
+            lineWidth: 0.15
+        },
+        columnStyles,
+        didParseCell: (data) => {
+            if (data.row.section === 'body') {
+                const isEvenRow = data.row.index % 2 === 0
+                data.cell.styles.fillColor = isEvenRow ? FIGMA_COLORS.white : FIGMA_COLORS.lightBg
+
+                const colDef = activeColumns[data.column.index]
+                if (!colDef) return
+
+                // Highlight Title / Platinum / Gold tiers
+                if (colDef.id === 'tier') {
+                    const tierText = String(data.cell.raw || data.cell.text?.[0] || '')
+                    if (/title|platinum|gold/i.test(tierText)) {
+                        data.cell.styles.fillColor = [254, 243, 199] // Soft gold
+                        data.cell.styles.textColor = [180, 83, 9]     // Amber
+                    }
+                }
+
+                // Amount coloring
+                if (colDef.id === 'amount') {
+                    data.cell.styles.textColor = [4, 120, 87]
+                }
+
+                // Status coloring
+                if (colDef.id === 'paymentStatus') {
+                    const st = String(data.cell.raw || data.cell.text?.[0] || '')
+                    if (st === 'Received') {
+                        data.cell.styles.textColor = [4, 120, 87]
+                    } else if (st === 'Pledged') {
+                        data.cell.styles.textColor = [30, 64, 175]
+                    } else {
+                        data.cell.styles.textColor = [217, 119, 6]
+                    }
+                }
+            }
+        }
+    })
+
+    // Attestation Container Box at bottom
+    const finalTableY = doc.lastAutoTable?.finalY || 160
+    const pageH = 297
+    const footerTop = pageH - 14
+
+    if (finalTableY + 40 < footerTop) {
+        const boxY = finalTableY + 5
+        const boxH = Math.min(32, footerTop - boxY - 4)
+
+        doc.setFillColor(...FIGMA_COLORS.lightBg)
+        doc.roundedRect(8, boxY, 194, boxH, 2, 2, 'F')
+        doc.setDrawColor(...FIGMA_COLORS.border)
+        doc.setLineWidth(0.3)
+        doc.roundedRect(8, boxY, 194, boxH, 2, 2, 'S')
+
+        doc.setFillColor(...FIGMA_COLORS.amber)
+        doc.rect(10, boxY, 190, 1.0, 'F')
+
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(6.8)
+        doc.setTextColor(...FIGMA_COLORS.slateNavy)
+        doc.text('OFFICIAL SPONSORS & DONORS GOVERNANCE ATTESTATION', 12, boxY + 5.5)
+
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(6.2)
+        doc.setTextColor(...FIGMA_COLORS.textDark)
+        const certDesc = `This official document attests and acknowledges all corporate sponsors, institutional partners, and generous community donors contributing to ${resolvedFestivalName || portalType} under the administrative oversight of ${entityName || 'Vishwa Utsav'}. All financial donations and in-kind services are officially recorded in the audit register.`
+        const wrappedDesc = doc.splitTextToSize(certDesc, 115)
+        doc.text(wrappedDesc, 12, boxY + 10.2)
+
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(5.8)
+        doc.setTextColor(...FIGMA_COLORS.emeraldDark)
+        doc.text(`[SPONSORS: ${list.length}]    [FUNDS: ${fmtCurrency(totalFunds)}]    [STATUS: AUDITED & VERIFIED]`, 12, boxY + boxH - 3.8)
+
+        // Dual Signatures
+        const sigLineY = boxY + boxH - 8
+        doc.setDrawColor(...FIGMA_COLORS.muted)
+        doc.setLineWidth(0.3)
+        doc.line(134, sigLineY, 160, sigLineY)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(6.0)
+        doc.setTextColor(...FIGMA_COLORS.slateNavy)
+        doc.text('President / Convener', 134, sigLineY + 3.2)
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(5.2)
+        doc.setTextColor(...FIGMA_COLORS.muted)
+        doc.text('Executive Authority', 134, sigLineY + 5.8)
+
+        doc.line(166, sigLineY, 196, sigLineY)
+        doc.setFont('helvetica', 'bold')
+        doc.setFontSize(6.0)
+        doc.setTextColor(...FIGMA_COLORS.slateNavy)
+        doc.text('Treasurer / Finance Head', 166, sigLineY + 3.2)
+        doc.setFont('helvetica', 'normal')
+        doc.setFontSize(5.2)
+        doc.setTextColor(...FIGMA_COLORS.muted)
+        doc.text('Official Entity Stamp & Seal', 166, sigLineY + 5.8)
+    }
+
+    drawFooter(doc, false)
+    const filePrefix = resolvedFestivalName ? resolvedFestivalName.replace(/[^a-zA-Z0-9_-]/g, '_') : portalType
+    doc.save(`${filePrefix}_Sponsors_${String(entityName || 'Directory').replace(/\s+/g, '_')}.pdf`)
 }

@@ -21,6 +21,7 @@ import {
     exportMasterDataPackagePDF
 } from '../../utils/pdfGenerator'
 import MembersSection from '../../components/MembersSection'
+import SponsorsSection from '../../components/SponsorsSection'
 
 const countryCodes = [
     { code: '+91', country: 'IN' },
@@ -192,7 +193,7 @@ const Events = () => {
         currency: '₹'
     })
     const [searchParams, setSearchParams] = useSearchParams()
-    const validTabs = ['members', 'events', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'activity_logs', 'data']
+    const validTabs = ['members', 'sponsors', 'events', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'activity_logs', 'data']
     const urlTab = searchParams.get('tab')
     const [isDataOpen, setIsDataOpen] = useState(urlTab === 'data')
     const [activeTab, setActiveTab] = useState(
@@ -284,6 +285,7 @@ const Events = () => {
     const [editingSubId, setEditingSubId] = useState(null)
     const [editingExpId, setEditingExpId] = useState(null)
     const [cardsList, setCardsList] = useState([])
+    const [sponsorsList, setSponsorsList] = useState([])
     const [isCardAdding, setIsCardAdding] = useState(false)
     const [editingCardId, setEditingCardId] = useState(null)
 
@@ -373,6 +375,7 @@ const Events = () => {
                 sub,
                 festOrEvent: event,
                 entityName: event.entityName || activeEvent?.entityName,
+                sponsorsList,
                 getTierDisplayName,
                 getPaymentDisplayName
             });
@@ -512,6 +515,7 @@ const Events = () => {
         try {
             exportAttendeeMasterPDF({
                 subscriptionsList,
+                sponsorsList,
                 activeTitle: activeEvent?.title,
                 entityName: activeEvent?.entityName,
                 getTierDisplayName,
@@ -557,6 +561,7 @@ const Events = () => {
             exportMasterDataPackagePDF({
                 subscriptionsList,
                 expensesList,
+                sponsorsList,
                 activeTitle: activeEvent?.title,
                 entityName: activeEvent?.entityName,
                 expenseTypes: eventExpenseTypes,
@@ -579,8 +584,20 @@ const Events = () => {
             fetchSubscriptions()
             fetchExpenses()
             fetchCards()
+            fetchSponsors()
         }
     }, [activeEvent])
+
+    const fetchSponsors = async () => {
+        try {
+            const queryParams = new URLSearchParams({ type: 'event' })
+            if (activeEvent?.title) queryParams.set('festOrEventName', activeEvent.title)
+            const res = await axios.get(`/api/sponsors?${queryParams.toString()}`)
+            setSponsorsList(Array.isArray(res.data) ? res.data : [])
+        } catch (err) {
+            console.error('Fetch sponsors error:', err)
+        }
+    }
 
     const fetchCards = async () => {
         try {
@@ -1005,6 +1022,15 @@ const Events = () => {
 
             {activeTab === 'members' && (
                 <MembersSection 
+                    type="event" 
+                    activeEntity={activeEvent?.entityName || user?.entityName} 
+                    festivalName={activeEvent?.title || (events && events[0]?.title) || ''}
+                    eventName={activeEvent?.title || (events && events[0]?.title) || ''}
+                />
+            )}
+
+            {activeTab === 'sponsors' && (
+                <SponsorsSection 
                     type="event" 
                     activeEntity={activeEvent?.entityName || user?.entityName} 
                     festivalName={activeEvent?.title || (events && events[0]?.title) || ''}

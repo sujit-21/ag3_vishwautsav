@@ -1065,27 +1065,36 @@ export default function MembersSection({
                 <AnimatePresence>
                     {isModalOpen && (
                         <div 
-                            className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-2 p-sm-3" 
+                            className="d-flex align-items-center justify-content-center p-2.5 p-sm-4" 
                             style={{ 
-                                backgroundColor: 'rgba(0, 0, 0, 0.20)', 
-                                backdropFilter: 'blur(3px)',
-                                WebkitBackdropFilter: 'blur(3px)',
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                width: '100vw',
+                                height: '100dvh',
+                                backgroundColor: 'rgba(0, 0, 0, 0.45)', 
+                                backdropFilter: 'blur(4px)',
+                                WebkitBackdropFilter: 'blur(4px)',
                                 zIndex: 99999,
-                                inset: 0
+                                overflowY: 'auto'
                             }}
                             onClick={(e) => {
                                 if (e.target === e.currentTarget) setIsModalOpen(false)
                             }}
                         >
                             <motion.div 
-                                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                                initial={{ opacity: 0, scale: 0.96, y: 0 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                                transition={{ duration: 0.22, ease: 'easeOut' }}
-                                className="luxury-modal-card w-100 shadow-2xl d-flex flex-column overflow-hidden my-auto"
+                                exit={{ opacity: 0, scale: 0.96, y: 0 }}
+                                transition={{ duration: 0.2, ease: 'easeOut' }}
+                                className="luxury-modal-card w-100 shadow-2xl d-flex flex-column overflow-hidden"
                                 style={{
                                     maxWidth: '640px',
-                                    maxHeight: 'min(90vh, 760px)',
+                                    maxHeight: 'min(88dvh, 740px)',
+                                    height: 'auto',
+                                    margin: 'auto',
                                     background: '#ffffff',
                                     border: '1.5px solid var(--glass-border)',
                                     borderRadius: '20px'
@@ -1624,27 +1633,36 @@ export default function MembersSection({
                 <AnimatePresence>
                     {isManagerOpen && (
                         <div 
-                            className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-2 p-sm-3" 
+                            className="d-flex align-items-center justify-content-center p-2.5 p-sm-4" 
                             style={{ 
-                                backgroundColor: 'rgba(0, 0, 0, 0.35)', 
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                width: '100vw',
+                                height: '100dvh',
+                                backgroundColor: 'rgba(0, 0, 0, 0.45)', 
                                 backdropFilter: 'blur(4px)',
                                 WebkitBackdropFilter: 'blur(4px)',
                                 zIndex: 100000,
-                                inset: 0
+                                overflowY: 'auto'
                             }}
                             onClick={(e) => {
                                 if (e.target === e.currentTarget) setIsManagerOpen(false)
                             }}
                         >
                             <motion.div 
-                                initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                                initial={{ opacity: 0, scale: 0.96, y: 0 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95, y: 15 }}
-                                transition={{ duration: 0.22, ease: 'easeOut' }}
-                                className="luxury-modal-card w-100 shadow-2xl d-flex flex-column overflow-hidden my-auto"
+                                exit={{ opacity: 0, scale: 0.96, y: 0 }}
+                                transition={{ duration: 0.2, ease: 'easeOut' }}
+                                className="luxury-modal-card w-100 shadow-2xl d-flex flex-column overflow-hidden"
                                 style={{
                                     maxWidth: '560px',
-                                    maxHeight: 'min(88vh, 680px)',
+                                    maxHeight: 'min(88dvh, 680px)',
+                                    height: 'auto',
+                                    margin: 'auto',
                                     background: '#ffffff',
                                     border: '1.5px solid var(--glass-border)',
                                     borderRadius: '20px'
