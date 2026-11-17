@@ -9,6 +9,9 @@ const EnrollmentSchema = new mongoose.Schema({
     description: { type: String, trim: true },
     acceptDonations: { type: Boolean, default: true },
     allowInKind: { type: Boolean, default: true },
+    currency: { type: String, default: '₹', trim: true },
+    defaultPayeeName: { type: String, trim: true },
+    defaultPayeeNumber: { type: String, trim: true },
     suggestedAmounts: { 
         type: [Number], 
         default: [501, 1001, 2100, 5001] 

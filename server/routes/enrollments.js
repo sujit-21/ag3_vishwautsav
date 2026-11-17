@@ -4,6 +4,8 @@ const Enrollment = require('../models/Enrollment');
 const EnrollmentSubmission = require('../models/EnrollmentSubmission');
 const Member = require('../models/Member');
 const Sponsor = require('../models/Sponsor');
+const Event = require('../models/Event');
+const Subscription = require('../models/Subscription');
 const auth = require('../middleware/auth');
 
 // Helper: check if user is an authorized admin
@@ -71,6 +73,9 @@ router.get('/public-latest', async (req, res) => {
             description: enrollment.description || `Official community member enrollment and patron sponsorship for ${enrollment.festOrEventName}.`,
             acceptDonations: enrollment.acceptDonations,
             allowInKind: enrollment.allowInKind,
+            currency: enrollment.currency || '₹',
+            defaultPayeeName: enrollment.defaultPayeeName || '',
+            defaultPayeeNumber: enrollment.defaultPayeeNumber || '',
             suggestedAmounts: enrollment.suggestedAmounts,
             suggestedRoles: enrollment.suggestedRoles,
             suggestedDepts: enrollment.suggestedDepts,
@@ -120,6 +125,9 @@ router.get('/public/:slug', async (req, res) => {
             description: enrollment.description || `Official community member enrollment and patron sponsorship for ${enrollment.festOrEventName}.`,
             acceptDonations: enrollment.acceptDonations,
             allowInKind: enrollment.allowInKind,
+            currency: enrollment.currency || '₹',
+            defaultPayeeName: enrollment.defaultPayeeName || '',
+            defaultPayeeNumber: enrollment.defaultPayeeNumber || '',
             suggestedAmounts: enrollment.suggestedAmounts,
             suggestedRoles: enrollment.suggestedRoles,
             suggestedDepts: enrollment.suggestedDepts,
@@ -144,7 +152,8 @@ router.post('/public/:slug/submit', async (req, res) => {
 
         const {
             name, roleInterest, departmentInterest, contact, countryCode, email, address, notes,
-            donate, estimatedAmount, contributionItem, category, paymentMode
+            donate, estimatedAmount, contributionItem, category, paymentMode,
+            payeeName, payeeNumber, transactionRefId, receiptImage
         } = req.body;
 
         if (!name || !name.trim()) {
@@ -152,6 +161,20 @@ router.post('/public/:slug/submit', async (req, res) => {
         }
         if (!contact || !contact.trim()) {
             return res.status(400).json({ message: 'Contact Mobile / WhatsApp number is required.' });
+        }
+
+        // When UPI / Online Transfer is chosen, receipt image is COMPULSORY
+        if (Boolean(donate) && paymentMode === 'UPI / Online') {
+            if (!receiptImage || !receiptImage.trim()) {
+                return res.status(400).json({ 
+                    message: 'Image of payment receipt is compulsory for UPI / Online Transfer. Please upload your payment screenshot/receipt.' 
+                });
+            }
+            if (!transactionRefId || !transactionRefId.trim()) {
+                return res.status(400).json({ 
+                    message: 'Transaction Reference ID / UTR Number is required for UPI / Online Transfer.' 
+                });
+            }
         }
 
         const refId = generateReferenceId();
@@ -173,9 +196,14 @@ router.post('/public/:slug/submit', async (req, res) => {
             notes: notes ? notes.trim() : '',
             donate: Boolean(donate),
             estimatedAmount: Number(estimatedAmount) || 0,
+            currency: enrollment.currency || '₹',
             contributionItem: contributionItem ? contributionItem.trim() : '',
             category: category || 'Cash',
             paymentMode: paymentMode || 'Pledged',
+            payeeName: payeeName ? payeeName.trim() : '',
+            payeeNumber: payeeNumber ? payeeNumber.trim() : '',
+            transactionRefId: transactionRefId ? transactionRefId.trim() : '',
+            receiptImage: receiptImage ? receiptImage.trim() : '',
             status: 'Pending'
         });
 
@@ -262,6 +290,18 @@ router.post('/', auth, async (req, res) => {
 
         const slug = generateSlug(festOrEventName, resolvedEntity);
 
+        // Resolve default currency used by entity or event
+        let resolvedCurrency = req.body.currency;
+        if (!resolvedCurrency) {
+            const eventMatch = await Event.findOne({ title: festOrEventName.trim(), entityName: resolvedEntity });
+            if (eventMatch && eventMatch.currency) {
+                resolvedCurrency = eventMatch.currency;
+            } else {
+                const subMatch = await Subscription.findOne({ entityName: resolvedEntity, currency: { $exists: true, $ne: '' } });
+                resolvedCurrency = (subMatch && subMatch.currency) ? subMatch.currency : '₹';
+            }
+        }
+
         const enrollment = new Enrollment({
             slug,
             type: type || 'festival',
@@ -271,6 +311,9 @@ router.post('/', auth, async (req, res) => {
             description: description ? description.trim() : `Open public registration for committee members, volunteers, and patrons for ${festOrEventName.trim()}.`,
             acceptDonations: acceptDonations !== false,
             allowInKind: allowInKind !== false,
+            currency: resolvedCurrency,
+            defaultPayeeName: req.body.defaultPayeeName || '',
+            defaultPayeeNumber: req.body.defaultPayeeNumber || '',
             suggestedAmounts: Array.isArray(suggestedAmounts) && suggestedAmounts.length ? suggestedAmounts : [501, 1001, 2100, 5001],
             suggestedRoles: Array.isArray(suggestedRoles) && suggestedRoles.length ? suggestedRoles : ['Committee Member', 'Ground Volunteer', 'Cultural Coordinator', 'Logistics & Security', 'Prasad / Food Seva'],
             suggestedDepts: Array.isArray(suggestedDepts) && suggestedDepts.length ? suggestedDepts : ['Core Committee', 'Executive Wing', 'Cultural & Events', 'Logistics & Security', 'Youth & Volunteers'],

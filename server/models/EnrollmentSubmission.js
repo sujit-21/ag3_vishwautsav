@@ -21,6 +21,7 @@ const EnrollmentSubmissionSchema = new mongoose.Schema({
     // Donation / Contribution Details
     donate: { type: Boolean, default: false },
     estimatedAmount: { type: Number, default: 0 },
+    currency: { type: String, default: '₹', trim: true },
     contributionItem: { type: String, trim: true }, // e.g. "Prasad / Fruits", "Stage Flowers", "Sound System"
     category: { 
         type: String, 
@@ -32,6 +33,12 @@ const EnrollmentSubmissionSchema = new mongoose.Schema({
         enum: ['Pledged', 'Cash', 'UPI / Online', 'In-Kind / Material'], 
         default: 'Pledged' 
     },
+
+    // UPI / Online Payment Details (Receipt is compulsory)
+    payeeName: { type: String, trim: true }, // To whom paid (name)
+    payeeNumber: { type: String, trim: true }, // To whom paid (number / UPI)
+    transactionRefId: { type: String, trim: true }, // UTR / Reference ID
+    receiptImage: { type: String, trim: true }, // Compulsory for UPI / Online
 
     // Status & Approval Sync
     status: { 

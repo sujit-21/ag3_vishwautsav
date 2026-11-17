@@ -5,7 +5,7 @@ import {
     Users, User, Heart, Phone, Mail, MapPin, Tag, Gift, DollarSign, 
     Sparkles, CheckCircle2, ShieldCheck, Share2, Copy, Check, 
     Printer, ArrowRight, AlertCircle, Building2, Calendar, ChevronDown,
-    Award, Layers, HelpCircle, MessageSquare
+    Award, Layers, HelpCircle, MessageSquare, Upload, X, CreditCard, Camera
 } from 'lucide-react'
 import axios from 'axios'
 import logoImage from '../../images/logo-emblem.png'
@@ -34,7 +34,11 @@ export default function PublicEnrollment() {
         estimatedAmount: '',
         contributionItem: '',
         category: 'Cash',
-        paymentMode: 'Pledged'
+        paymentMode: 'Pledged',
+        payeeName: '',
+        payeeNumber: '',
+        transactionRefId: '',
+        receiptImage: ''
     })
 
     useEffect(() => {
@@ -54,6 +58,13 @@ export default function PublicEnrollment() {
                         departmentInterest: (res.data.suggestedDepts && res.data.suggestedDepts[0]) || 'Core Committee'
                     }))
                 }
+                if (res.data.defaultPayeeName || res.data.defaultPayeeNumber) {
+                    setFormData(prev => ({
+                        ...prev,
+                        payeeName: prev.payeeName || res.data.defaultPayeeName || '',
+                        payeeNumber: prev.payeeNumber || res.data.defaultPayeeNumber || ''
+                    }))
+                }
             } catch (err) {
                 console.error('Error loading enrollment portal:', err)
                 setError(err.response?.data?.message || 'Enrollment link is currently unavailable or has expired.')
@@ -63,6 +74,38 @@ export default function PublicEnrollment() {
         }
         fetchPortal()
     }, [slug])
+
+    const currencySymbol = portal?.currency || '₹'
+
+    const handleReceiptUpload = (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        if (file.size > 8 * 1024 * 1024) {
+            alert('Receipt image size exceeds 8MB. Please select a smaller photo or screenshot.')
+            return
+        }
+
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            const base64Data = reader.result
+            setFormData(prev => ({ ...prev, receiptImage: base64Data }))
+
+            // Optional background upload
+            const uploadData = new FormData()
+            uploadData.append('file', file)
+            axios.post('/api/upload', uploadData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            }).then(res => {
+                if (res.data?.url) {
+                    setFormData(prev => ({ ...prev, receiptImage: res.data.url }))
+                }
+            }).catch(err => {
+                console.log('Background upload note (using base64):', err?.message)
+            })
+        }
+        reader.readAsDataURL(file)
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault()
@@ -75,10 +118,31 @@ export default function PublicEnrollment() {
             return
         }
 
+        // Validate UPI / Online Transfer compulsory fields
+        if (formData.donate && formData.paymentMode === 'UPI / Online') {
+            if (!formData.payeeName.trim()) {
+                alert('Please enter "To Whom Paid (Name)" for UPI transfer verification.')
+                return
+            }
+            if (!formData.payeeNumber.trim()) {
+                alert('Please enter "Paid To (Phone / UPI ID)" for UPI transfer verification.')
+                return
+            }
+            if (!formData.transactionRefId.trim()) {
+                alert('Please enter Transaction Reference ID / UTR Number.')
+                return
+            }
+            if (!formData.receiptImage) {
+                alert('Image of payment receipt is COMPULSORY for UPI / Online Transfer. Please upload your payment receipt screenshot before submitting.')
+                return
+            }
+        }
+
         try {
             setSubmitting(true)
             const res = await axios.post(`/api/enrollments/public/${slug}/submit`, {
                 ...formData,
+                currency: currencySymbol,
                 estimatedAmount: Number(formData.estimatedAmount) || 0
             })
             setSubmittedData(res.data)
@@ -100,10 +164,11 @@ export default function PublicEnrollment() {
 
     const shareWhatsAppConfirmation = () => {
         if (!submittedData) return
+        const cur = submittedData.currency || currencySymbol
         const text = `🎉 I have registered for ${submittedData.festOrEventName}!%0A` +
             `👤 Name: ${submittedData.name}%0A` +
             `🔖 Role: ${submittedData.roleInterest}%0A` +
-            (submittedData.estimatedAmount ? `💰 Pledged Contribution: ₹${Number(submittedData.estimatedAmount).toLocaleString('en-IN')}%0A` : '') +
+            (submittedData.estimatedAmount ? `💰 Pledged Contribution: ${cur}${Number(submittedData.estimatedAmount).toLocaleString('en-IN')}%0A` : '') +
             (submittedData.contributionItem ? `🎁 Contribution Item: ${submittedData.contributionItem}%0A` : '') +
             `🆔 Reference Code: ${submittedData.referenceId}%0A` +
             `Register your participation here: ${window.location.href}`
@@ -227,9 +292,33 @@ export default function PublicEnrollment() {
                                     <div className="d-flex justify-content-between py-2 border-bottom">
                                         <span className="text-muted fw-semibold">Pledged Support:</span>
                                         <span className="fw-black text-success" style={{ fontSize: '0.85rem' }}>
-                                            ₹{Number(submittedData.estimatedAmount).toLocaleString('en-IN')} ({submittedData.paymentMode || 'Pledged'})
+                                            {submittedData.currency || currencySymbol}{Number(submittedData.estimatedAmount).toLocaleString('en-IN')} ({submittedData.paymentMode || 'Pledged'})
                                         </span>
                                     </div>
+                                )}
+                                {submittedData.paymentMode === 'UPI / Online' && (
+                                    <>
+                                        {submittedData.payeeName && (
+                                            <div className="d-flex justify-content-between py-2 border-bottom">
+                                                <span className="text-muted fw-semibold">Paid To (Payee):</span>
+                                                <span className="fw-bold text-main">{submittedData.payeeName} {submittedData.payeeNumber ? `(${submittedData.payeeNumber})` : ''}</span>
+                                            </div>
+                                        )}
+                                        {submittedData.transactionRefId && (
+                                            <div className="d-flex justify-content-between py-2 border-bottom">
+                                                <span className="text-muted fw-semibold">UTR / Bank Ref:</span>
+                                                <span className="fw-bold text-main font-monospace">{submittedData.transactionRefId}</span>
+                                            </div>
+                                        )}
+                                        {submittedData.receiptImage && (
+                                            <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                                <span className="text-muted fw-semibold">Payment Receipt:</span>
+                                                <span className="badge bg-success bg-opacity-15 text-success border border-success border-opacity-30 extra-tiny px-2 py-1">
+                                                    ✓ Receipt Photo Uploaded
+                                                </span>
+                                            </div>
+                                        )}
+                                    </>
                                 )}
                                 {submittedData.contributionItem && (
                                     <div className="d-flex justify-content-between py-2">
@@ -518,7 +607,7 @@ export default function PublicEnrollment() {
                                         {/* Suggested Amount Chips */}
                                         <div className="mb-3">
                                             <label className="pe-label">
-                                                <span>Suggested Contribution Amount (₹)</span>
+                                                <span>Suggested Contribution Amount ({currencySymbol})</span>
                                                 <span className="pe-label-optional">Tap to choose</span>
                                             </label>
                                             <div className="d-flex align-items-center gap-2 flex-wrap">
@@ -529,7 +618,7 @@ export default function PublicEnrollment() {
                                                         onClick={() => setFormData({ ...formData, estimatedAmount: amt })}
                                                         className={`pe-amount-chip ${Number(formData.estimatedAmount) === amt ? 'active' : ''}`}
                                                     >
-                                                        ₹{amt.toLocaleString('en-IN')}
+                                                        {currencySymbol}{amt.toLocaleString('en-IN')}
                                                     </button>
                                                 ))}
                                                 <button
@@ -546,11 +635,12 @@ export default function PublicEnrollment() {
                                             {/* Estimated Cash Amount */}
                                             <div className="col-12 col-md-6">
                                                 <label className="pe-label">
-                                                    <span>Estimated Cash Amount (₹)</span>
+                                                    <span>Estimated Cash Amount ({currencySymbol})</span>
                                                 </label>
                                                 <div className="pe-input-box">
-                                                    <DollarSign size={16} className="pe-field-icon text-success" />
-                                                    <span className="fw-bold text-success">₹</span>
+                                                    <span className="fw-black text-success fs-5 px-1 d-inline-flex align-items-center justify-content-center" style={{ minWidth: '22px' }}>
+                                                        {currencySymbol}
+                                                    </span>
                                                     <input
                                                         type="number"
                                                         min="0"
@@ -621,6 +711,164 @@ export default function PublicEnrollment() {
                                                     <ChevronDown size={16} className="pe-select-chevron" />
                                                 </div>
                                             </div>
+
+                                            {/* UPI / ONLINE TRANSFER DEDICATED VERIFICATION CARD */}
+                                            {formData.paymentMode === 'UPI / Online' && (
+                                                <div className="col-12">
+                                                    <div className="pe-upi-card p-3 rounded-4 border shadow-xs" style={{ background: '#f0fdf4', borderColor: 'rgba(16, 185, 129, 0.35)' }}>
+                                                        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 pb-2 border-bottom border-success border-opacity-20">
+                                                            <div className="d-flex align-items-center gap-2">
+                                                                <div className="rounded-circle bg-success text-white p-1.5 d-flex align-items-center justify-content-center" style={{ width: '28px', height: '28px' }}>
+                                                                    <CreditCard size={15} />
+                                                                </div>
+                                                                <div>
+                                                                    <div className="fw-black text-main extra-tiny uppercase tracking-wider">
+                                                                        UPI / Online Transfer Verification
+                                                                    </div>
+                                                                    <div className="text-muted extra-tiny">
+                                                                        Enter transfer details &amp; upload receipt proof
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <span className="badge rounded-pill bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 extra-tiny px-2.5 py-0.5 fw-black">
+                                                                Receipt Photo Compulsory *
+                                                            </span>
+                                                        </div>
+
+                                                        <div className="row g-2.5">
+                                                            {/* To Whom Paid Name */}
+                                                            <div className="col-12 col-sm-6">
+                                                                <label className="pe-label mb-1">
+                                                                    <span>To Whom to Pay Name</span>
+                                                                    <span className="text-danger fw-bold">*</span>
+                                                                </label>
+                                                                <div className="pe-input-box">
+                                                                    <User size={15} className="pe-field-icon text-muted" />
+                                                                    <input
+                                                                        type="text"
+                                                                        required
+                                                                        placeholder="e.g. Ramesh Kumar (Treasurer)"
+                                                                        value={formData.payeeName}
+                                                                        onChange={e => setFormData({ ...formData, payeeName: e.target.value })}
+                                                                        className="pe-field-control"
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            {/* To Whom Paid Number / UPI ID */}
+                                                            <div className="col-12 col-sm-6">
+                                                                <label className="pe-label mb-1">
+                                                                    <span>To Whom to Pay Number / UPI ID</span>
+                                                                    <span className="text-danger fw-bold">*</span>
+                                                                </label>
+                                                                <div className="pe-input-box">
+                                                                    <Phone size={15} className="pe-field-icon text-muted" />
+                                                                    <input
+                                                                        type="text"
+                                                                        required
+                                                                        placeholder="e.g. 9876543210 or utsav@upi"
+                                                                        value={formData.payeeNumber}
+                                                                        onChange={e => setFormData({ ...formData, payeeNumber: e.target.value })}
+                                                                        className="pe-field-control"
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Reference ID / UTR */}
+                                                            <div className="col-12">
+                                                                <label className="pe-label mb-1">
+                                                                    <span>Transaction Reference ID / UTR Number</span>
+                                                                    <span className="text-danger fw-bold">*</span>
+                                                                </label>
+                                                                <div className="pe-input-box">
+                                                                    <CreditCard size={15} className="pe-field-icon text-muted" />
+                                                                    <input
+                                                                        type="text"
+                                                                        required
+                                                                        placeholder="e.g. 12-digit UTR No. (429182740192) or Bank Ref ID"
+                                                                        value={formData.transactionRefId}
+                                                                        onChange={e => setFormData({ ...formData, transactionRefId: e.target.value })}
+                                                                        className="pe-field-control font-monospace"
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Image of Receipt (COMPULSORY) */}
+                                                            <div className="col-12">
+                                                                <label className="pe-label mb-1 d-flex align-items-center justify-content-between">
+                                                                    <span className="d-flex align-items-center gap-1.5">
+                                                                        <Camera size={14} className="text-danger" />
+                                                                        <span>Image of Payment Receipt</span>
+                                                                        <span className="text-danger fw-black">* (COMPULSORY)</span>
+                                                                    </span>
+                                                                    {formData.receiptImage && (
+                                                                        <span className="text-success fw-bold extra-tiny d-inline-flex align-items-center gap-1">
+                                                                            <CheckCircle2 size={13} />
+                                                                            <span>Receipt Attached</span>
+                                                                        </span>
+                                                                    )}
+                                                                </label>
+
+                                                                {!formData.receiptImage ? (
+                                                                    <label className="pe-receipt-dropzone d-flex flex-column align-items-center justify-content-center p-3.5 rounded-3 border border-2 border-dashed text-center cursor-pointer transition-all position-relative" style={{ borderColor: 'rgba(239, 68, 68, 0.45)', background: '#fffcfb' }}>
+                                                                        <input
+                                                                            type="file"
+                                                                            accept="image/*"
+                                                                            onChange={handleReceiptUpload}
+                                                                            className="position-absolute opacity-0 w-100 h-100 start-0 top-0 cursor-pointer"
+                                                                            style={{ zIndex: 2 }}
+                                                                        />
+                                                                        <div className="rounded-circle bg-danger bg-opacity-10 text-danger p-2 mb-2 d-flex align-items-center justify-content-center" style={{ width: '42px', height: '42px' }}>
+                                                                            <Upload size={20} />
+                                                                        </div>
+                                                                        <div className="fw-bold text-main extra-tiny mb-0.5">
+                                                                            Tap or Click to Upload Payment Receipt / Screenshot
+                                                                        </div>
+                                                                        <div className="text-muted extra-tiny">
+                                                                            Screenshot from GPay, PhonePe, Paytm, BHIM or NetBanking (JPEG, PNG, WebP)
+                                                                        </div>
+                                                                        <div className="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-30 rounded-pill extra-tiny px-2.5 py-1 mt-2 fw-black tracking-wide">
+                                                                            ⚠ COMPULSORY PROOF OF TRANSFER
+                                                                        </div>
+                                                                    </label>
+                                                                ) : (
+                                                                    <div className="pe-receipt-preview-card p-2.5 rounded-3 border d-flex align-items-center justify-content-between gap-3 bg-white shadow-2xs">
+                                                                        <div className="d-flex align-items-center gap-2.5 overflow-hidden">
+                                                                            <img
+                                                                                src={formData.receiptImage}
+                                                                                alt="Payment Receipt"
+                                                                                className="rounded-2 border object-fit-cover flex-shrink-0"
+                                                                                style={{ width: '56px', height: '56px' }}
+                                                                            />
+                                                                            <div className="text-truncate">
+                                                                                <div className="fw-bold text-success extra-tiny d-flex align-items-center gap-1">
+                                                                                    <CheckCircle2 size={13} />
+                                                                                    <span>Receipt Attached &amp; Ready</span>
+                                                                                </div>
+                                                                                <div className="text-muted extra-tiny text-truncate">
+                                                                                    UTR: {formData.transactionRefId || 'Reference entered above'}
+                                                                                </div>
+                                                                                <span className="badge bg-light text-muted border extra-tiny px-1.5 py-0.5">
+                                                                                    Compulsory receipt attached
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => setFormData({ ...formData, receiptImage: '' })}
+                                                                            className="btn btn-sm btn-outline-danger rounded-pill extra-tiny px-2.5 py-1 d-inline-flex align-items-center gap-1 flex-shrink-0"
+                                                                            title="Change receipt image"
+                                                                        >
+                                                                            <X size={13} />
+                                                                            <span>Change</span>
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}

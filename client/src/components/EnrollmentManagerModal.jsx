@@ -4,7 +4,8 @@ import {
     Link2, Copy, Check, ExternalLink, Share2, QrCode, Download,
     X, CheckCircle2, XCircle, Trash2, Edit3, Filter, Search,
     Users, Coins, Sparkles, Clock, Phone, MapPin, Mail, FileText,
-    RefreshCw, AlertCircle, Calendar, Gift, ChevronRight, ChevronDown, Eye, EyeOff
+    RefreshCw, AlertCircle, Calendar, Gift, ChevronRight, ChevronDown, Eye, EyeOff,
+    CreditCard, Camera
 } from 'lucide-react'
 
 const EnrollmentManagerModal = ({
@@ -26,6 +27,7 @@ const EnrollmentManagerModal = ({
     const [searchQuery, setSearchQuery] = useState('')
     const [errorMsg, setErrorMsg] = useState('')
     const [successMsg, setSuccessMsg] = useState('')
+    const [viewingReceipt, setViewingReceipt] = useState(null)
 
     // Effective selected festival / event
     const initialPortalName = activePortalName || (festivalsList && festivalsList.length > 0 ? (festivalsList[0]?.title || festivalsList[0]) : '')
@@ -727,9 +729,9 @@ const EnrollmentManagerModal = ({
                                                                         </div>
                                                                         <div className="extra-tiny fw-extrabold text-main">
                                                                             {sub.contributionItem ? (
-                                                                                <span>{sub.contributionItem} {sub.estimatedAmount > 0 ? `(Est. ₹${sub.estimatedAmount.toLocaleString('en-IN')})` : ''}</span>
+                                                                                <span>{sub.contributionItem} {sub.estimatedAmount > 0 ? `(Est. ${sub.currency || '₹'}${sub.estimatedAmount.toLocaleString('en-IN')})` : ''}</span>
                                                                             ) : (
-                                                                                <span>₹{sub.estimatedAmount.toLocaleString('en-IN')} (Cash/UPI Pledge)</span>
+                                                                                <span>{sub.currency || '₹'}{sub.estimatedAmount.toLocaleString('en-IN')} ({sub.paymentMode || 'Cash/UPI Pledge'})</span>
                                                                             )}
                                                                         </div>
                                                                     </div>
@@ -737,6 +739,43 @@ const EnrollmentManagerModal = ({
                                                                 <span className="badge rounded-pill bg-white text-dark border extra-tiny px-2 py-1 fw-semibold shadow-2xs">
                                                                     Category: {sub.category}
                                                                 </span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {/* UPI / Online Verification Info (Payee, Number, UTR & Compulsory Receipt) */}
+                                                    {(sub.paymentMode === 'UPI / Online' || sub.receiptImage || sub.transactionRefId) && (
+                                                        <div className="col-12">
+                                                            <div className="p-2.5 rounded-3 border d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2" style={{ background: '#f0fdf4', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+                                                                <div className="d-flex align-items-center gap-2">
+                                                                    <div className="rounded-circle bg-success text-white p-1 d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '26px', height: '26px' }}>
+                                                                        <CreditCard size={13} />
+                                                                    </div>
+                                                                    <div className="extra-tiny">
+                                                                        <div className="fw-bold text-main">
+                                                                            Paid To: <span className="text-success">{sub.payeeName || 'N/A'}</span> {sub.payeeNumber && `(${sub.payeeNumber})`}
+                                                                        </div>
+                                                                        <div className="text-muted font-monospace">
+                                                                            UTR / Ref ID: <span className="fw-bold text-dark">{sub.transactionRefId || 'N/A'}</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                {sub.receiptImage ? (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => setViewingReceipt(sub.receiptImage)}
+                                                                        className="btn btn-sm btn-white border border-success border-opacity-40 text-success rounded-pill extra-tiny px-2.5 py-1 d-inline-flex align-items-center gap-1.5 shadow-2xs hover-glow flex-shrink-0"
+                                                                    >
+                                                                        <img src={sub.receiptImage} alt="Receipt thumb" className="rounded-1 border object-fit-cover" style={{ width: '22px', height: '22px' }} />
+                                                                        <span className="fw-bold">View Receipt Slip</span>
+                                                                        <ExternalLink size={11} />
+                                                                    </button>
+                                                                ) : (
+                                                                    <span className="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 extra-tiny px-2 py-0.5">
+                                                                        No Receipt Attached
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </div>
                                                     )}
@@ -836,6 +875,62 @@ const EnrollmentManagerModal = ({
                     </button>
                 </div>
             </div>
+
+            {/* Receipt Image Lightbox Modal */}
+            {viewingReceipt && (
+                <div 
+                    className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
+                    style={{ zIndex: 1300, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(6px)' }}
+                    onClick={() => setViewingReceipt(null)}
+                >
+                    <div 
+                        className="position-relative bg-white rounded-4 p-3 shadow-2xl d-flex flex-column"
+                        style={{ maxWidth: '600px', width: '100%', maxHeight: '90vh' }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                            <span className="fw-black text-main extra-tiny d-flex align-items-center gap-1.5 text-uppercase tracking-wider">
+                                <CreditCard size={15} className="text-success" />
+                                <span>Verified Payment Receipt Slip</span>
+                            </span>
+                            <button 
+                                type="button" 
+                                onClick={() => setViewingReceipt(null)}
+                                className="btn btn-sm btn-light rounded-circle p-1 text-muted hover-text-main"
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+                        <div className="overflow-auto text-center p-2 rounded-3 bg-light" style={{ maxHeight: '68vh' }}>
+                            <img 
+                                src={viewingReceipt} 
+                                alt="Payment Receipt Slip" 
+                                className="img-fluid rounded-3 shadow-xs"
+                                style={{ maxHeight: '65vh', objectFit: 'contain' }}
+                            />
+                        </div>
+                        <div className="d-flex align-items-center justify-content-between pt-2.5 border-top mt-2">
+                            <a 
+                                href={viewingReceipt} 
+                                download="payment_receipt.png" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="btn btn-sm btn-outline-primary rounded-pill extra-tiny px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1"
+                            >
+                                <ExternalLink size={12} />
+                                <span>Open Full Resolution</span>
+                            </a>
+                            <button 
+                                type="button" 
+                                onClick={() => setViewingReceipt(null)}
+                                className="btn btn-sm btn-secondary rounded-pill extra-tiny px-3 py-1.5"
+                            >
+                                Close Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
