@@ -386,7 +386,10 @@ export default function PublicEnrollment() {
                         {portal?.title || `${portal?.festOrEventName} — Official Committee & Donor Enrollment`}
                     </h1>
 
-                    <p className="pe-hero-subtitle">
+                    <p 
+                        className="pe-hero-subtitle"
+                        title={portal?.description || `Open public registration for committee members, volunteers, and patrons for ${portal?.festOrEventName}.`}
+                    >
                         {portal?.description || `Open public registration for committee members, volunteers, and patrons for ${portal?.festOrEventName}.`}
                     </p>
 
