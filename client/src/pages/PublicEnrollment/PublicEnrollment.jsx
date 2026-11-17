@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { 
     Users, User, Heart, Phone, Mail, MapPin, Tag, Gift, DollarSign, 
     Sparkles, CheckCircle2, ShieldCheck, Share2, Copy, Check, 
@@ -513,125 +513,117 @@ export default function PublicEnrollment() {
                                     Would you also like to pledge a donation or sponsor an item for <strong>{portal?.festOrEventName}</strong>? (Completely optional)
                                 </p>
 
-                                <AnimatePresence>
-                                    {formData.donate && (
-                                        <motion.div 
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 'auto' }}
-                                            exit={{ opacity: 0, height: 0 }}
-                                            transition={{ duration: 0.25 }}
-                                            className="pt-3 mt-3 border-top border-warning border-opacity-30 overflow-hidden"
-                                        >
-                                            {/* Suggested Amount Chips */}
-                                            <div className="mb-3">
-                                                <label className="pe-label">
-                                                    <span>Suggested Contribution Amount (₹)</span>
-                                                    <span className="pe-label-optional">Tap to choose</span>
-                                                </label>
-                                                <div className="d-flex align-items-center gap-2 flex-wrap">
-                                                    {(portal?.suggestedAmounts || [501, 1001, 2100, 5001]).map(amt => (
-                                                        <button
-                                                            key={amt}
-                                                            type="button"
-                                                            onClick={() => setFormData({ ...formData, estimatedAmount: amt })}
-                                                            className={`pe-amount-chip ${Number(formData.estimatedAmount) === amt ? 'active' : ''}`}
-                                                        >
-                                                            ₹{amt.toLocaleString('en-IN')}
-                                                        </button>
-                                                    ))}
+                                {formData.donate && (
+                                    <div className="pe-donation-expandable pt-3 mt-3 border-top border-warning border-opacity-30">
+                                        {/* Suggested Amount Chips */}
+                                        <div className="mb-3">
+                                            <label className="pe-label">
+                                                <span>Suggested Contribution Amount (₹)</span>
+                                                <span className="pe-label-optional">Tap to choose</span>
+                                            </label>
+                                            <div className="d-flex align-items-center gap-2 flex-wrap">
+                                                {(portal?.suggestedAmounts || [501, 1001, 2100, 5001]).map(amt => (
                                                     <button
+                                                        key={amt}
                                                         type="button"
-                                                        onClick={() => setFormData({ ...formData, estimatedAmount: '' })}
-                                                        className={`pe-amount-chip ${!portal?.suggestedAmounts?.includes(Number(formData.estimatedAmount)) && formData.estimatedAmount ? 'active' : ''}`}
+                                                        onClick={() => setFormData({ ...formData, estimatedAmount: amt })}
+                                                        className={`pe-amount-chip ${Number(formData.estimatedAmount) === amt ? 'active' : ''}`}
                                                     >
-                                                        Custom Amount
+                                                        ₹{amt.toLocaleString('en-IN')}
                                                     </button>
+                                                ))}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData({ ...formData, estimatedAmount: '' })}
+                                                    className={`pe-amount-chip ${!portal?.suggestedAmounts?.includes(Number(formData.estimatedAmount)) && formData.estimatedAmount ? 'active' : ''}`}
+                                                >
+                                                    Custom Amount
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="row g-3">
+                                            {/* Estimated Cash Amount */}
+                                            <div className="col-12 col-md-6">
+                                                <label className="pe-label">
+                                                    <span>Estimated Cash Amount (₹)</span>
+                                                </label>
+                                                <div className="pe-input-box">
+                                                    <DollarSign size={16} className="pe-field-icon text-success" />
+                                                    <span className="fw-bold text-success">₹</span>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        placeholder="e.g. 1000"
+                                                        value={formData.estimatedAmount}
+                                                        onChange={e => setFormData({ ...formData, estimatedAmount: e.target.value })}
+                                                        className="pe-field-control"
+                                                    />
                                                 </div>
                                             </div>
 
-                                            <div className="row g-3">
-                                                {/* Estimated Cash Amount */}
-                                                <div className="col-12 col-md-6">
-                                                    <label className="pe-label">
-                                                        <span>Estimated Cash Amount (₹)</span>
-                                                    </label>
-                                                    <div className="pe-input-box">
-                                                        <DollarSign size={16} className="pe-field-icon text-success" />
-                                                        <span className="fw-bold text-success">₹</span>
-                                                        <input
-                                                            type="number"
-                                                            min="0"
-                                                            placeholder="e.g. 1000"
-                                                            value={formData.estimatedAmount}
-                                                            onChange={e => setFormData({ ...formData, estimatedAmount: e.target.value })}
-                                                            className="pe-field-control"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                {/* In-Kind / Material Item */}
-                                                <div className="col-12 col-md-6">
-                                                    <label className="pe-label">
-                                                        <span>In-Kind / Material Item</span>
-                                                        <span className="pe-label-optional">(optional)</span>
-                                                    </label>
-                                                    <div className="pe-input-box">
-                                                        <Gift size={16} className="pe-field-icon text-warning" />
-                                                        <input
-                                                            type="text"
-                                                            placeholder="e.g. Prasad, 500 Water Bottles, Flowers"
-                                                            value={formData.contributionItem}
-                                                            onChange={e => setFormData({ ...formData, contributionItem: e.target.value })}
-                                                            className="pe-field-control"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                {/* Preferred Payment Mode */}
-                                                <div className="col-12 col-md-6">
-                                                    <label className="pe-label">
-                                                        <span>Payment / Contribution Mode</span>
-                                                    </label>
-                                                    <div className="pe-select-wrapper">
-                                                        <select
-                                                            value={formData.paymentMode}
-                                                            onChange={e => setFormData({ ...formData, paymentMode: e.target.value })}
-                                                            className="pe-select-box"
-                                                        >
-                                                            <option value="Pledged">Pledged (Will contribute during event/festival)</option>
-                                                            <option value="Cash">Cash in hand</option>
-                                                            <option value="UPI / Online">UPI / Online Transfer</option>
-                                                            <option value="In-Kind / Material">In-Kind Goods / Materials</option>
-                                                        </select>
-                                                        <ChevronDown size={16} className="pe-select-chevron" />
-                                                    </div>
-                                                </div>
-
-                                                {/* Category */}
-                                                <div className="col-12 col-md-6">
-                                                    <label className="pe-label">
-                                                        <span>Donation Category</span>
-                                                    </label>
-                                                    <div className="pe-select-wrapper">
-                                                        <select
-                                                            value={formData.category}
-                                                            onChange={e => setFormData({ ...formData, category: e.target.value })}
-                                                            className="pe-select-box"
-                                                        >
-                                                            <option value="Cash">Cash Donation</option>
-                                                            <option value="Food / Prasad">Food / Prasad Seva</option>
-                                                            <option value="Stage & Sound">Stage &amp; Sound</option>
-                                                            <option value="In-Kind Services">In-Kind Services</option>
-                                                            <option value="Logistics & Security">Logistics &amp; Security</option>
-                                                            <option value="Other">Other</option>
-                                                        </select>
-                                                        <ChevronDown size={16} className="pe-select-chevron" />
-                                                    </div>
+                                            {/* In-Kind / Material Item */}
+                                            <div className="col-12 col-md-6">
+                                                <label className="pe-label">
+                                                    <span>In-Kind / Material Item</span>
+                                                    <span className="pe-label-optional">(optional)</span>
+                                                </label>
+                                                <div className="pe-input-box">
+                                                    <Gift size={16} className="pe-field-icon text-warning" />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="e.g. Prasad, 500 Water Bottles, Flowers"
+                                                        value={formData.contributionItem}
+                                                        onChange={e => setFormData({ ...formData, contributionItem: e.target.value })}
+                                                        className="pe-field-control"
+                                                    />
                                                 </div>
                                             </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
+
+                                            {/* Preferred Payment Mode */}
+                                            <div className="col-12 col-md-6">
+                                                <label className="pe-label">
+                                                    <span>Payment / Contribution Mode</span>
+                                                </label>
+                                                <div className="pe-select-wrapper">
+                                                    <select
+                                                        value={formData.paymentMode}
+                                                        onChange={e => setFormData({ ...formData, paymentMode: e.target.value })}
+                                                        className="pe-select-box"
+                                                    >
+                                                        <option value="Pledged">Pledged (Will contribute during event/festival)</option>
+                                                        <option value="Cash">Cash in hand</option>
+                                                        <option value="UPI / Online">UPI / Online Transfer</option>
+                                                        <option value="In-Kind / Material">In-Kind Goods / Materials</option>
+                                                    </select>
+                                                    <ChevronDown size={16} className="pe-select-chevron" />
+                                                </div>
+                                            </div>
+
+                                            {/* Category */}
+                                            <div className="col-12 col-md-6">
+                                                <label className="pe-label">
+                                                    <span>Donation Category</span>
+                                                </label>
+                                                <div className="pe-select-wrapper">
+                                                    <select
+                                                        value={formData.category}
+                                                        onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                                        className="pe-select-box"
+                                                    >
+                                                        <option value="Cash">Cash Donation</option>
+                                                        <option value="Food / Prasad">Food / Prasad Seva</option>
+                                                        <option value="Stage & Sound">Stage &amp; Sound</option>
+                                                        <option value="In-Kind Services">In-Kind Services</option>
+                                                        <option value="Logistics & Security">Logistics &amp; Security</option>
+                                                        <option value="Other">Other</option>
+                                                    </select>
+                                                    <ChevronDown size={16} className="pe-select-chevron" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -643,15 +635,14 @@ export default function PublicEnrollment() {
                                 <span>Message or Special Skill Offering</span>
                                 <span className="pe-label-optional">(optional)</span>
                             </label>
-                            <div className="pe-input-box" style={{ height: 'auto', minHeight: '74px', padding: '10px 14px' }}>
+                            <div className="pe-textarea-box">
                                 <MessageSquare size={16} className="pe-field-icon align-self-start mt-1" />
                                 <textarea
                                     rows="2"
                                     placeholder="Share your availability, skills, musical talents, or festive greetings..."
                                     value={formData.notes}
                                     onChange={e => setFormData({ ...formData, notes: e.target.value })}
-                                    className="pe-field-control"
-                                    style={{ resize: 'none' }}
+                                    className="pe-textarea-control"
                                 />
                             </div>
                         </div>
