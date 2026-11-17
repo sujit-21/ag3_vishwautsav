@@ -4975,6 +4975,226 @@ html, body, #root, .app-container {
     color: #dc2626;
 }
 
+/* ==========================================================================
+   FIGMA LUXURY TOKENS FOR ACTION TOOLBAR & PORTAL MODAL HEADER
+   ========================================================================== */
+
+/* Modern Action Toolbar */
+.figma-action-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+    .figma-action-toolbar {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .figma-action-toolbar .figma-toolbar-full-mobile {
+        grid-column: 1 / -1;
+    }
+}
+
+.figma-btn-action-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 9999px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    white-space: nowrap !important;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid var(--glass-border, rgba(0, 0, 0, 0.1));
+    background: var(--card-bg, #ffffff);
+    color: var(--text-main, #0f172a);
+}
+
+.figma-btn-action-pill:hover {
+    transform: translateY(-1.5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    background: #f8fafc;
+    color: #0f172a;
+}
+
+.figma-btn-action-pill.pill-primary-accent {
+    border-color: rgba(224, 122, 67, 0.32);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 247, 242, 0.95));
+    color: #c2410c;
+}
+
+.figma-btn-action-pill.pill-primary-accent:hover {
+    border-color: #e07a43;
+    background: linear-gradient(135deg, rgba(255, 247, 242, 1), rgba(254, 237, 227, 0.98));
+    color: #9a3412;
+    box-shadow: 0 4px 14px rgba(224, 122, 67, 0.18);
+}
+
+.dark-mode .figma-btn-action-pill {
+    background: rgba(30, 71, 85, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f1f5f9;
+}
+
+.dark-mode .figma-btn-action-pill:hover {
+    background: rgba(40, 90, 110, 0.7);
+    color: #ffffff;
+}
+
+.dark-mode .figma-btn-action-pill.pill-primary-accent {
+    background: rgba(224, 122, 67, 0.16);
+    border-color: rgba(224, 122, 67, 0.4);
+    color: #fb923c;
+}
+
+/* Modal Portal Header Tokens */
+.figma-portal-selector-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.figma-portal-selector-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: rgba(224, 122, 67, 0.08);
+    border: 1px solid rgba(224, 122, 67, 0.3);
+    color: #c2410c;
+    border-radius: 9999px;
+    padding: 4px 26px 4px 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    outline: none !important;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+    max-width: 220px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.figma-portal-selector-select:focus,
+.figma-portal-selector-select:hover {
+    border-color: #e07a43;
+    background: rgba(224, 122, 67, 0.14);
+}
+
+.dark-mode .figma-portal-selector-select {
+    background: rgba(224, 122, 67, 0.18);
+    border-color: rgba(224, 122, 67, 0.45);
+    color: #fb923c;
+}
+
+.figma-portal-selector-chevron {
+    position: absolute;
+    right: 9px;
+    pointer-events: none;
+    color: #c2410c;
+}
+
+.figma-portal-name-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(224, 122, 67, 0.08);
+    border: 1px solid rgba(224, 122, 67, 0.25);
+    color: #c2410c;
+    border-radius: 9999px;
+    padding: 3px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.dark-mode .figma-portal-name-badge {
+    background: rgba(224, 122, 67, 0.18);
+    border-color: rgba(224, 122, 67, 0.4);
+    color: #fb923c;
+}
+
+.figma-portal-type-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    color: var(--text-muted, #64748b);
+    border-radius: 9999px;
+    padding: 3px 9px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.dark-mode .figma-portal-type-pill {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #94a3b8;
+}
+
+.figma-portal-status-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(16, 185, 129, 0.12) !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    color: #047857 !important;
+    border-radius: 9999px;
+    padding: 3px 10px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+}
+
+.figma-portal-status-paused {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(245, 158, 11, 0.12) !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+    color: #b45309 !important;
+    border-radius: 9999px;
+    padding: 3px 10px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.figma-status-pulse-dot {
+    width: 6.5px;
+    height: 6.5px;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 0 2.5px rgba(16, 185, 129, 0.25);
+    display: inline-block;
+    animation: figmaPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.figma-status-dot-amber {
+    width: 6.5px;
+    height: 6.5px;
+    border-radius: 50%;
+    background-color: #f59e0b;
+    display: inline-block;
+}
+
+@keyframes figmaPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.18); }
+}
+
+
 
 
 

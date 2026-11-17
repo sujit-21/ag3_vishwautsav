@@ -602,33 +602,32 @@ export default function MembersSection({
                     </div>
                 </div>
 
-                {/* Right Top Actions: Download PDF, PDF Columns Selector & Add Member (Horizontally side-by-side on Smartphones & Desktops) */}
-                <div className="d-flex align-items-center gap-2 flex-nowrap w-100 w-sm-auto mt-2 mt-lg-0">
+                {/* Right Top Actions: Responsive Figma Layout for All Screens */}
+                <div className="d-flex align-items-center gap-2 flex-wrap justify-content-start justify-content-lg-end w-100 w-lg-auto mt-2 mt-lg-0">
                     <button
+                        type="button"
                         onClick={handleDownloadPDF}
                         disabled={visiblePDFCount === 0}
                         title="Download Official Committee Members Directory as A4 PDF (Excludes Hidden Members)"
-                        className="figma-btn-download-sheet shadow-sm flex-fill flex-sm-grow-0 justify-content-center text-nowrap px-3 px-sm-3.5"
-                        style={{ height: '38px', minWidth: '0' }}
+                        className="figma-btn-download-sheet shadow-xs flex-shrink-0"
                     >
                         <FileDown size={14} className="flex-shrink-0" />
-                        <span className="text-truncate">Download PDF</span>
+                        <span>Download PDF</span>
                         <span className="badge bg-white bg-opacity-25 rounded-pill ms-1 text-white flex-shrink-0" style={{ fontSize: '0.68rem', padding: '2px 7px' }}>
                             {visiblePDFCount}
                         </span>
                     </button>
 
-                    {/* PDF Columns Visibility Dropdown (Option B) */}
+                    {/* PDF Columns Visibility Dropdown */}
                     <div className="position-relative flex-shrink-0" ref={pdfColMenuRef}>
                         <button
                             type="button"
                             onClick={() => setShowPdfColMenu(prev => !prev)}
                             title="Configure PDF Columns: choose which fields to include/exclude from generated PDF"
-                            className={`btn btn-sm rounded-pill d-inline-flex align-items-center gap-1 shadow-xs border ${showPdfColMenu ? 'btn-primary text-white' : 'btn-light text-muted hover-text-main'}`}
-                            style={{ height: '38px', padding: '0 10px', fontSize: '0.74rem', fontWeight: 600 }}
+                            className={`figma-btn-action-pill ${showPdfColMenu ? 'border-primary text-primary' : ''}`}
                         >
-                            <SlidersHorizontal size={13} />
-                            <span className="d-none d-sm-inline">PDF Columns</span>
+                            <SlidersHorizontal size={13} className="text-muted" />
+                            <span>PDF Columns</span>
                             <ChevronDown size={11} style={{ transform: showPdfColMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
                         </button>
 
@@ -702,16 +701,15 @@ export default function MembersSection({
                     </div>
 
                     {isAdmin && (
-                        <div className="d-flex align-items-center gap-1.5 flex-fill flex-sm-grow-0">
+                        <>
                             <button
                                 type="button"
                                 onClick={() => setIsEnrollmentManagerOpen(true)}
-                                className="btn btn-sm btn-light border rounded-pill d-inline-flex align-items-center gap-1 shadow-xs extra-tiny fw-bold text-main px-2.5 px-sm-3 hover-bg-light"
-                                style={{ height: '38px', fontSize: '0.74rem' }}
+                                className="figma-btn-action-pill pill-primary-accent"
                                 title="Open Public Link for Member Enrollment & Donations (Admin CRUD & Auto-Sync)"
                             >
                                 <Link2 size={13} className="text-terracotta flex-shrink-0" />
-                                <span className="d-none d-sm-inline">Public Link</span>
+                                <span>Public Link</span>
                             </button>
 
                             {festivalsList && festivalsList.filter(f => (f.title || f) !== activePortalName).length > 0 && (
@@ -724,24 +722,24 @@ export default function MembersSection({
                                         }
                                         setIsCopyModalOpen(true)
                                     }}
-                                    className="btn btn-sm btn-light border rounded-pill d-inline-flex align-items-center gap-1 shadow-xs extra-tiny fw-bold text-main px-2.5 px-sm-3 hover-bg-light"
-                                    style={{ height: '38px', fontSize: '0.74rem' }}
+                                    className="figma-btn-action-pill"
                                     title="Copy committee roster from another festival / event"
                                 >
                                     <Copy size={13} className="text-primary flex-shrink-0" />
-                                    <span className="d-none d-md-inline">Copy Roster</span>
+                                    <span>Copy Roster</span>
                                 </button>
                             )}
 
                             <button
+                                type="button"
                                 onClick={() => handleOpenModal(null)}
-                                className="btn btn-premium d-inline-flex align-items-center justify-content-center gap-1.5 px-3 px-sm-3.5 py-1.5 rounded-pill fw-bold shadow-sm transition-all hover-glow flex-fill flex-sm-grow-0 text-nowrap"
-                                style={{ height: '38px', fontSize: '0.78rem', minWidth: '0' }}
+                                className="btn btn-premium d-inline-flex align-items-center justify-content-center gap-1.5 px-3.5 py-1.5 rounded-pill fw-bold shadow-sm transition-all hover-glow flex-shrink-0 text-nowrap"
+                                style={{ height: '38px', fontSize: '0.78rem' }}
                             >
                                 <Plus size={15} className="flex-shrink-0" />
                                 <span>Add Member</span>
                             </button>
-                        </div>
+                        </>
                     )}
                 </div>
             </div>

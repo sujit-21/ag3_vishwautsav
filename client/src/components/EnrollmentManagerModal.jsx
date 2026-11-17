@@ -257,48 +257,59 @@ const EnrollmentManagerModal = ({
             >
                 {/* Header */}
                 <div className="p-3 p-sm-4 border-bottom d-flex align-items-center justify-content-between gap-3 bg-light bg-opacity-40">
-                    <div className="d-flex align-items-center gap-2.5" style={{ minWidth: 0 }}>
+                    <div className="d-flex align-items-center gap-3" style={{ minWidth: 0 }}>
                         <div 
-                            className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                            className="d-flex align-items-center justify-content-center rounded-4 flex-shrink-0 shadow-sm"
                             style={{
-                                width: '42px',
-                                height: '42px',
-                                background: 'linear-gradient(135deg, rgba(224, 122, 67, 0.2), rgba(217, 90, 34, 0.3))',
+                                width: '46px',
+                                height: '46px',
+                                background: 'linear-gradient(135deg, rgba(224, 122, 67, 0.16), rgba(217, 90, 34, 0.28))',
                                 color: '#D95A22',
                                 border: '1.5px solid rgba(224, 122, 67, 0.35)'
                             }}
                         >
-                            <Link2 size={20} />
+                            <Link2 size={22} />
                         </div>
-                        <div className="text-truncate">
-                            <h5 className="fw-extrabold text-main mb-0.5 text-truncate" style={{ fontSize: '1.1rem', letterSpacing: '-0.01em' }}>
-                                Open Member &amp; Contributor Link
+                        <div style={{ minWidth: 0 }}>
+                            <h5 className="fw-extrabold text-main mb-1 text-truncate" style={{ fontSize: '1.12rem', letterSpacing: '-0.02em' }}>
+                                Open Member &amp; Contributor Portal
                             </h5>
-                            <div className="extra-tiny text-muted d-flex align-items-center gap-1.5 flex-wrap">
+                            <div className="d-flex align-items-center gap-2 flex-wrap">
                                 {festivalsList && festivalsList.length > 1 ? (
-                                    <select
-                                        value={selectedPortal || currentPortalName}
-                                        onChange={e => handleSwitchPortal(e.target.value)}
-                                        className="form-select form-select-sm py-0.5 px-2 rounded-pill fw-bold text-primary border-primary border-opacity-30 extra-tiny shadow-2xs"
-                                        style={{ width: 'auto', minWidth: '160px', height: '26px' }}
-                                    >
-                                        {festivalsList.map(f => {
-                                            const title = f.title || f
-                                            return <option key={title} value={title}>{title}</option>
-                                        })}
-                                    </select>
+                                    <div className="figma-portal-selector-wrapper" title="Switch festival/event">
+                                        <select
+                                            value={selectedPortal || currentPortalName}
+                                            onChange={e => handleSwitchPortal(e.target.value)}
+                                            className="figma-portal-selector-select"
+                                        >
+                                            {festivalsList.map(f => {
+                                                const title = f.title || f
+                                                return <option key={title} value={title}>{title}</option>
+                                            })}
+                                        </select>
+                                        <ChevronDown size={11} className="figma-portal-selector-chevron" />
+                                    </div>
                                 ) : (
-                                    <span className="fw-bold text-primary">{currentPortalName || 'Vishwa Utsav'}</span>
+                                    <span className="figma-portal-name-badge">
+                                        <Calendar size={11} className="text-terracotta" />
+                                        <span>{currentPortalName || 'Vishwa Utsav'}</span>
+                                    </span>
                                 )}
-                                <span>•</span>
-                                <span>{type === 'festival' ? 'Festival' : 'Event'} Portal</span>
+
+                                <span className="figma-portal-type-pill">
+                                    <Sparkles size={10} className="text-terracotta" />
+                                    <span>{type === 'festival' ? 'Festival' : 'Event'}</span>
+                                </span>
+
                                 {enrollment?.isActive ? (
-                                    <span className="badge rounded-pill bg-success bg-opacity-15 text-success border border-success border-opacity-25 extra-tiny px-2 py-0.5 fw-bold">
-                                        ● Open for Public
+                                    <span className="figma-portal-status-live">
+                                        <span className="figma-status-pulse-dot" />
+                                        <span>Public Active</span>
                                     </span>
                                 ) : (
-                                    <span className="badge rounded-pill bg-warning bg-opacity-15 text-warning border border-warning border-opacity-25 extra-tiny px-2 py-0.5 fw-bold">
-                                        ○ Paused
+                                    <span className="figma-portal-status-paused">
+                                        <span className="figma-status-dot-amber" />
+                                        <span>Paused</span>
                                     </span>
                                 )}
                             </div>
