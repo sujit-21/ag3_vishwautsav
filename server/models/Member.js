@@ -9,6 +9,7 @@ const MemberSchema = new mongoose.Schema({
     email: { type: String, trim: true, lowercase: true },
     address: { type: String, trim: true },
     photo: { type: String, default: '' },
+    festOrEventName: { type: String, trim: true }, // Associated festival or event title
     entityName: { type: String, required: true, trim: true },
     type: { type: String, enum: ['festival', 'event', 'both'], default: 'festival' },
     status: { type: String, enum: ['Active', 'Honorary', 'Inactive'], default: 'Active' },

@@ -23,6 +23,9 @@ router.get('/', auth, async (req, res) => {
         if (req.query.department && req.query.department !== 'All') {
             query.department = req.query.department;
         }
+        if (req.query.festOrEventName) {
+            query.festOrEventName = req.query.festOrEventName.trim();
+        }
 
         const members = await Member.find(query).sort({ createdAt: 1 });
         res.json(members);
@@ -41,6 +44,7 @@ router.post('/', auth, async (req, res) => {
 
         const { 
             name, role, department, contact, countryCode, email, address, photo, type, status, 
+            festOrEventName,
             isHidden, hidePhone, hideEmail, hideAddress, hideRole, hideDepartment, notes 
         } = req.body;
 
@@ -67,6 +71,7 @@ router.post('/', auth, async (req, res) => {
             photo: photo || '',
             type: type || 'festival',
             status: status || 'Active',
+            festOrEventName: festOrEventName ? festOrEventName.trim() : '',
             isHidden: Boolean(isHidden),
             hidePhone: Boolean(hidePhone),
             hideEmail: Boolean(hideEmail),
@@ -153,6 +158,65 @@ router.delete('/:id', auth, async (req, res) => {
     } catch (err) {
         console.error('Error deleting member:', err);
         res.status(500).json({ message: `Failed to delete member: ${err.message}` });
+    }
+});
+
+// 5. COPY COMMITTEE MEMBERS FROM ANOTHER FESTIVAL / EVENT (Admin only)
+router.post('/copy-from-festival', auth, async (req, res) => {
+    try {
+        if (!isAuthorizedAdmin(req.user)) {
+            return res.status(403).json({ message: 'Access denied. Only administrators can duplicate committee rosters.' });
+        }
+        const { fromFestival, toFestival, type } = req.body;
+        if (!fromFestival || !toFestival) {
+            return res.status(400).json({ message: 'Both source and target festival / event are required.' });
+        }
+        if (fromFestival.trim() === toFestival.trim()) {
+            return res.status(400).json({ message: 'Source and target festival must be different.' });
+        }
+
+        const query = req.entityQuery();
+        query.festOrEventName = fromFestival.trim();
+        if (type) query.type = { $in: [type, 'both'] };
+
+        const sourceMembers = await Member.find(query);
+        if (!sourceMembers.length) {
+            return res.status(404).json({ message: `No committee members found in "${fromFestival}".` });
+        }
+
+        const resolvedEntity = req.user.entityName || sourceMembers[0].entityName;
+        const newMembers = sourceMembers.map(m => ({
+            name: m.name,
+            role: m.role,
+            department: m.department,
+            contact: m.contact,
+            countryCode: m.countryCode,
+            email: m.email,
+            address: m.address,
+            photo: m.photo,
+            type: m.type,
+            status: m.status,
+            isHidden: m.isHidden,
+            hidePhone: m.hidePhone,
+            hideEmail: m.hideEmail,
+            hideAddress: m.hideAddress,
+            hideRole: m.hideRole,
+            hideDepartment: m.hideDepartment,
+            notes: m.notes,
+            festOrEventName: toFestival.trim(),
+            entityName: resolvedEntity,
+            adminId: req.user.adminId || req.user.id
+        }));
+
+        const inserted = await Member.insertMany(newMembers);
+        res.status(201).json({ 
+            message: `Successfully copied ${inserted.length} committee members from "${fromFestival}" to "${toFestival}".`, 
+            count: inserted.length,
+            members: inserted
+        });
+    } catch (err) {
+        console.error('Error copying members:', err);
+        res.status(500).json({ message: `Failed to copy members: ${err.message}` });
     }
 });
 

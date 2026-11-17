@@ -1026,6 +1026,7 @@ const Events = () => {
                     activeEntity={activeEvent?.entityName || user?.entityName} 
                     festivalName={activeEvent?.title || (events && events[0]?.title) || ''}
                     eventName={activeEvent?.title || (events && events[0]?.title) || ''}
+                    festivalsList={events}
                 />
             )}
 
@@ -1035,6 +1036,7 @@ const Events = () => {
                     activeEntity={activeEvent?.entityName || user?.entityName} 
                     festivalName={activeEvent?.title || (events && events[0]?.title) || ''}
                     eventName={activeEvent?.title || (events && events[0]?.title) || ''}
+                    festivalsList={events}
                 />
             )}
 

@@ -5,7 +5,8 @@ import {
     Users, Plus, Search, FileDown, Edit3, Trash2, Phone, Mail, 
     ShieldCheck, CheckCircle2, Sparkles, Filter, X, Save, 
     MessageCircle, Award, UserCheck, ChevronDown, MapPin, Tag, Crown,
-    BadgeCheck, ExternalLink, Settings, Check, Edit2, Eye, EyeOff, SlidersHorizontal
+    BadgeCheck, ExternalLink, Settings, Check, Edit2, Eye, EyeOff, SlidersHorizontal,
+    Copy, Calendar
 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
@@ -79,7 +80,8 @@ export default function MembersSection({
     type = 'festival', 
     activeEntity = '', 
     festivalName = '', 
-    eventName = '' 
+    eventName = '',
+    festivalsList = []
 }) {
     const { user } = useAuth()
     const isAdmin = ['admin', 'superadmin'].includes(user?.role) || ['admin', 'superadmin'].includes(user?.baseRole)
@@ -94,6 +96,11 @@ export default function MembersSection({
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingMember, setEditingMember] = useState(null)
     const [submitting, setSubmitting] = useState(false)
+
+    // Copy Roster from another festival
+    const [isCopyModalOpen, setIsCopyModalOpen] = useState(false)
+    const [copyFromFest, setCopyFromFest] = useState('')
+    const [copying, setCopying] = useState(false)
 
     // CRUD State for Roles and Departments
     const [customRoles, setCustomRoles] = useState(() => {
@@ -280,13 +287,18 @@ export default function MembersSection({
         hideAddress: false,
         hideRole: false,
         hideDepartment: false,
-        notes: ''
+        notes: '',
+        festOrEventName: activePortalName
     })
 
     const fetchMembers = async () => {
         try {
             setLoading(true)
-            const res = await axios.get(`/api/members?type=${type}`)
+            const queryParams = new URLSearchParams()
+            if (type) queryParams.set('type', type)
+            if (activePortalName) queryParams.set('festOrEventName', activePortalName)
+
+            const res = await axios.get(`/api/members?${queryParams.toString()}`)
             setMembers(Array.isArray(res.data) ? res.data : [])
         } catch (err) {
             console.error('Failed to load members:', err)
@@ -297,7 +309,29 @@ export default function MembersSection({
 
     useEffect(() => {
         fetchMembers()
-    }, [type, activeEntity])
+    }, [type, activeEntity, activePortalName])
+
+    // Duplicate/Copy Committee Roster from another festival
+    const handleCopyFromFestival = async () => {
+        if (!copyFromFest || !activePortalName) return
+        try {
+            setCopying(true)
+            const res = await axios.post('/api/members/copy-from-festival', {
+                fromFestival: copyFromFest,
+                toFestival: activePortalName,
+                type
+            })
+            alert(res.data.message || `Successfully copied committee members to ${activePortalName}!`)
+            setIsCopyModalOpen(false)
+            setCopyFromFest('')
+            fetchMembers()
+        } catch (err) {
+            console.error('Failed to copy members:', err)
+            alert(err.response?.data?.message || 'Failed to copy members.')
+        } finally {
+            setCopying(false)
+        }
+    }
 
     // Keyboard ESC listener to safely close modal
     useEffect(() => {
@@ -406,7 +440,8 @@ export default function MembersSection({
                 hideAddress: Boolean(member.hideAddress || false),
                 hideRole: Boolean(member.hideRole || false),
                 hideDepartment: Boolean(member.hideDepartment || false),
-                notes: member.notes || ''
+                notes: member.notes || '',
+                festOrEventName: member.festOrEventName || activePortalName || ''
             })
         } else {
             setEditingMember(null)
@@ -426,7 +461,8 @@ export default function MembersSection({
                 hideAddress: false,
                 hideRole: false,
                 hideDepartment: false,
-                notes: ''
+                notes: '',
+                festOrEventName: activePortalName || ''
             })
         }
         setIsModalOpen(true)
@@ -479,6 +515,7 @@ export default function MembersSection({
             ...formData,
             role: finalRole,
             type,
+            festOrEventName: activePortalName || formData.festOrEventName || '',
             entityName: activeEntity || user?.entityName || 'Vishwa Utsav'
         }
 
@@ -653,14 +690,35 @@ export default function MembersSection({
                     </div>
 
                     {isAdmin && (
-                        <button
-                            onClick={() => handleOpenModal(null)}
-                            className="btn btn-premium d-inline-flex align-items-center justify-content-center gap-1.5 px-3 px-sm-3.5 py-1.5 rounded-pill fw-bold shadow-sm transition-all hover-glow flex-fill flex-sm-grow-0 text-nowrap"
-                            style={{ height: '38px', fontSize: '0.78rem', minWidth: '0' }}
-                        >
-                            <Plus size={15} className="flex-shrink-0" />
-                            <span>Add Member</span>
-                        </button>
+                        <div className="d-flex align-items-center gap-1.5 flex-fill flex-sm-grow-0">
+                            {festivalsList && festivalsList.filter(f => (f.title || f) !== activePortalName).length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const others = festivalsList.filter(f => (f.title || f) !== activePortalName)
+                                        if (others.length > 0 && !copyFromFest) {
+                                            setCopyFromFest(others[0].title || others[0])
+                                        }
+                                        setIsCopyModalOpen(true)
+                                    }}
+                                    className="btn btn-sm btn-light border rounded-pill d-inline-flex align-items-center gap-1 shadow-xs extra-tiny fw-bold text-main px-2.5 px-sm-3 hover-bg-light"
+                                    style={{ height: '38px', fontSize: '0.74rem' }}
+                                    title="Copy committee roster from another festival / event"
+                                >
+                                    <Copy size={13} className="text-primary flex-shrink-0" />
+                                    <span className="d-none d-md-inline">Copy Roster</span>
+                                </button>
+                            )}
+
+                            <button
+                                onClick={() => handleOpenModal(null)}
+                                className="btn btn-premium d-inline-flex align-items-center justify-content-center gap-1.5 px-3 px-sm-3.5 py-1.5 rounded-pill fw-bold shadow-sm transition-all hover-glow flex-fill flex-sm-grow-0 text-nowrap"
+                                style={{ height: '38px', fontSize: '0.78rem', minWidth: '0' }}
+                            >
+                                <Plus size={15} className="flex-shrink-0" />
+                                <span>Add Member</span>
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
@@ -851,13 +909,31 @@ export default function MembersSection({
                             : `Add your festival executive committee, department leads, and ground volunteers for ${activePortalName ? `${activePortalName} (${activeEntity || 'your entity'})` : (activeEntity || 'your entity')}.`}
                     </p>
                     {isAdmin && (
-                        <button
-                            onClick={() => handleOpenModal(null)}
-                            className="btn btn-premium px-4 py-2 rounded-pill fw-bold extra-tiny shadow-sm hover-glow"
-                        >
-                            <Plus size={14} className="me-1.5" />
-                            <span>Add First Committee Member</span>
-                        </button>
+                        <div className="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                            <button
+                                onClick={() => handleOpenModal(null)}
+                                className="btn btn-premium px-4 py-2 rounded-pill fw-bold extra-tiny shadow-sm hover-glow"
+                            >
+                                <Plus size={14} className="me-1.5" />
+                                <span>Add First Member for {activePortalName || 'Festival'}</span>
+                            </button>
+
+                            {festivalsList && festivalsList.filter(f => (f.title || f) !== activePortalName).length > 0 && (
+                                <button
+                                    onClick={() => {
+                                        const others = festivalsList.filter(f => (f.title || f) !== activePortalName)
+                                        if (others.length > 0 && !copyFromFest) {
+                                            setCopyFromFest(others[0].title || others[0])
+                                        }
+                                        setIsCopyModalOpen(true)
+                                    }}
+                                    className="btn btn-light border px-3.5 py-2 rounded-pill fw-bold extra-tiny shadow-xs hover-bg-light text-main"
+                                >
+                                    <Copy size={13} className="me-1.5 text-primary" />
+                                    <span>Copy Roster from Previous Festival</span>
+                                </button>
+                            )}
+                        </div>
                     )}
                 </div>
             ) : (
@@ -1146,6 +1222,22 @@ export default function MembersSection({
                                 {/* Scrollable Form Content */}
                                 <div className="px-3 px-sm-4 py-3 overflow-y-auto flex-grow-1" style={{ minHeight: 0 }}>
                                     <div className="row g-3">
+                                        {/* Active Festival Association Pill */}
+                                        {activePortalName && (
+                                            <div className="col-12">
+                                                <div className="d-flex align-items-center justify-content-between p-2 px-3 rounded-3" style={{ background: 'rgba(224, 122, 67, 0.08)', border: '1px solid rgba(224, 122, 67, 0.2)' }}>
+                                                    <div className="d-flex align-items-center gap-2">
+                                                        <Calendar size={13} className="text-terracotta flex-shrink-0" />
+                                                        <span className="extra-tiny text-muted fw-bold">Festival Roster:</span>
+                                                        <span className="extra-tiny fw-extrabold text-main">{activePortalName}</span>
+                                                    </div>
+                                                    <span className="badge rounded-pill bg-white text-muted extra-tiny border shadow-2xs">
+                                                        {activeEntity || 'Official'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         {/* Full Legal Name */}
                                         <div className="col-12">
                                             <label className="luxury-label">
@@ -1884,6 +1976,122 @@ export default function MembersSection({
                                     >
                                         Done
                                     </button>
+                                </div>
+                            </motion.div>
+                        </div>
+                    )}
+                </AnimatePresence>,
+                document.body
+            )}
+
+            {/* Copy / Clone Committee Roster Modal (Per-Festival Isolation) */}
+            {typeof document !== 'undefined' && createPortal(
+                <AnimatePresence>
+                    {isCopyModalOpen && (
+                        <div 
+                            className="d-flex align-items-center justify-content-center p-2.5 p-sm-4"
+                            style={{ 
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                width: '100vw',
+                                height: '100dvh',
+                                backgroundColor: 'rgba(0, 0, 0, 0.45)', 
+                                backdropFilter: 'blur(4px)',
+                                WebkitBackdropFilter: 'blur(4px)',
+                                zIndex: 100000,
+                                overflowY: 'auto'
+                            }}
+                            onClick={(e) => {
+                                if (e.target === e.currentTarget) setIsCopyModalOpen(false)
+                            }}
+                        >
+                            <motion.div 
+                                initial={{ opacity: 0, scale: 0.96, y: 0 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.96, y: 0 }}
+                                transition={{ duration: 0.2, ease: 'easeOut' }}
+                                className="luxury-modal-card w-100 shadow-2xl d-flex flex-column overflow-hidden"
+                                style={{
+                                    maxWidth: '520px',
+                                    maxHeight: 'min(88dvh, 600px)',
+                                    height: 'auto',
+                                    margin: 'auto',
+                                    background: '#ffffff',
+                                    border: '1.5px solid var(--glass-border)',
+                                    borderRadius: '20px'
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <div className="d-flex align-items-center justify-content-between px-3 px-sm-4 py-3 border-bottom flex-shrink-0" style={{ borderColor: 'var(--glass-border)' }}>
+                                    <div className="d-flex align-items-center gap-2.5">
+                                        <div className="figma-members-header-emblem d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" style={{ width: '38px', height: '38px', borderRadius: '12px' }}>
+                                            <Copy size={18} className="text-primary" />
+                                        </div>
+                                        <div>
+                                            <h6 className="fw-extrabold mb-0 text-main" style={{ fontSize: '1rem' }}>
+                                                Copy Committee Roster
+                                            </h6>
+                                            <p className="extra-tiny text-muted mb-0">
+                                                Clone roster into <span className="text-primary fw-bold">{activePortalName}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setIsCopyModalOpen(false)} 
+                                        className="btn btn-close-custom rounded-circle p-2 border shadow-sm hover-scale d-flex align-items-center justify-content-center" 
+                                        style={{ width: '34px', height: '34px' }}
+                                        aria-label="Close"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+
+                                <div className="p-3 p-sm-4">
+                                    <label className="luxury-label mb-1.5">
+                                        <Calendar size={13} className="text-terracotta" />
+                                        <span>Select Source Festival / Event</span>
+                                    </label>
+                                    <select
+                                        value={copyFromFest}
+                                        onChange={e => setCopyFromFest(e.target.value)}
+                                        className="form-select mb-3 fw-bold text-main"
+                                        style={{ borderRadius: '12px', padding: '0.6rem 0.8rem', fontSize: '0.85rem' }}
+                                    >
+                                        <option value="">-- Choose Festival to copy from --</option>
+                                        {festivalsList
+                                            .filter(f => (f.title || f) !== activePortalName)
+                                            .map(f => {
+                                                const title = f.title || f
+                                                return <option key={title} value={title}>{title}</option>
+                                            })
+                                        }
+                                    </select>
+
+                                    <div className="alert alert-info py-2 px-3 extra-tiny rounded-3 mb-4">
+                                        All committee members from the selected festival will be duplicated for <strong>{activePortalName}</strong>. You can subsequently customize, add, or edit roles for this festival independently.
+                                    </div>
+
+                                    <div className="d-flex align-items-center justify-content-end gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsCopyModalOpen(false)}
+                                            className="btn btn-light rounded-pill px-3 py-1.5 extra-tiny fw-bold text-muted"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleCopyFromFestival}
+                                            disabled={!copyFromFest || copying}
+                                            className="btn btn-premium rounded-pill px-4 py-1.5 extra-tiny fw-bold shadow-sm"
+                                        >
+                                            {copying ? 'Copying...' : 'Copy Committee Roster'}
+                                        </button>
+                                    </div>
                                 </div>
                             </motion.div>
                         </div>

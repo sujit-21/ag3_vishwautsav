@@ -1119,6 +1119,7 @@ const Festivals = () => {
                     type="festival" 
                     activeEntity={activeFestival?.entityName || user?.entityName} 
                     festivalName={activeFestival?.title || (festivals && festivals[0]?.title) || ''}
+                    festivalsList={festivals}
                 />
             )}
 
@@ -1127,6 +1128,7 @@ const Festivals = () => {
                     type="festival" 
                     activeEntity={activeFestival?.entityName || user?.entityName} 
                     festivalName={activeFestival?.title || (festivals && festivals[0]?.title) || ''}
+                    festivalsList={festivals}
                 />
             )}
 
