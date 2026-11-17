@@ -5,7 +5,7 @@ import {
     X, CheckCircle2, XCircle, Trash2, Edit3, Filter, Search,
     Users, Coins, Sparkles, Clock, Phone, MapPin, Mail, FileText,
     RefreshCw, AlertCircle, Calendar, Gift, ChevronRight, ChevronDown, Eye, EyeOff,
-    CreditCard, Camera
+    CreditCard, Camera, ShieldCheck, Award
 } from 'lucide-react'
 
 const EnrollmentManagerModal = ({
