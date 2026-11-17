@@ -2023,6 +2023,173 @@ html, body, #root, .app-container {
     box-shadow: 0 2px 10px rgba(217, 90, 34, 0.38);
 }
 
+/* ==========================================================================
+   FIGMA LUXURY FORM TOKENS & COMPONENTS (MEMBERS, SPONSORS & ADMIN MODALS)
+   ========================================================================== */
+.figma-form-section {
+    padding-bottom: 0.85rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.figma-form-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.01em;
+    margin-bottom: 0.75rem;
+}
+
+.figma-form-section-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(224, 122, 67, 0.12);
+    color: var(--palette-terracotta);
+    border: 1px solid rgba(224, 122, 67, 0.25);
+    flex-shrink: 0;
+}
+
+.figma-tap-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 9999px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    border: 1.5px solid var(--glass-border);
+    background: var(--input-bg, #f8fafc);
+    color: var(--text-muted, #475569);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+    white-space: nowrap;
+}
+
+.figma-tap-chip:hover {
+    border-color: rgba(224, 122, 67, 0.4);
+    background: rgba(224, 122, 67, 0.08);
+    color: var(--palette-terracotta);
+    transform: translateY(-1px);
+}
+
+.figma-tap-chip.active {
+    background: linear-gradient(135deg, var(--palette-terracotta, #e07a43), var(--palette-rust, #d95a22)) !important;
+    border-color: var(--palette-rust, #d95a22) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(224, 122, 67, 0.32);
+}
+
+.figma-tap-chip.active svg {
+    color: #ffffff !important;
+}
+
+/* Status Pill Selector */
+.figma-status-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.figma-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    border: 1.5px solid var(--glass-border);
+    background: var(--input-bg, #f8fafc);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.figma-status-pill .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.figma-status-pill.status-active .status-dot { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
+.figma-status-pill.status-honorary .status-dot { background: #f59e0b; box-shadow: 0 0 6px rgba(245, 158, 11, 0.6); }
+.figma-status-pill.status-inactive .status-dot { background: #94a3b8; }
+
+.figma-status-pill.selected.status-active {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: #10b981;
+    color: #047857;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.figma-status-pill.selected.status-honorary {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: #f59e0b;
+    color: #b45309;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.figma-status-pill.selected.status-inactive {
+    background: rgba(148, 163, 184, 0.14);
+    border-color: #94a3b8;
+    color: #334155;
+}
+
+/* Visibility Toggle Pill */
+.figma-visibility-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-size: 0.66rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    user-select: none;
+    background: transparent;
+}
+
+.figma-visibility-pill.is-visible {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.25);
+}
+
+.figma-visibility-pill.is-hidden {
+    color: #d97706;
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.figma-visibility-pill:hover {
+    transform: scale(1.04);
+}
+
+/* Country Phone Code Pill */
+.figma-country-code-pill {
+    background: rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    padding: 3px 8px;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--text-main, #334155);
+    flex-shrink: 0;
+    user-select: none;
+}
+
 /* ── Fully Responsive Analytics Section & Iframe ── */
 .analytics-glass-card {
     background: var(--card-bg, #ffffff);

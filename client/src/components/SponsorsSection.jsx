@@ -960,8 +960,9 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                             height: 'auto',
                             margin: 'auto',
                             background: 'var(--card-bg, #ffffff)', 
-                            border: '1.5px solid var(--glass-border)',
-                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' 
+                            border: '1.5px solid rgba(245, 158, 11, 0.28)',
+                            borderRadius: '24px',
+                            boxShadow: '0 25px 65px -15px rgba(245, 158, 11, 0.25), 0 10px 30px rgba(0, 0, 0, 0.08)' 
                         }}
                         onClick={e => e.stopPropagation()}
                     >

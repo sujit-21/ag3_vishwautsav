@@ -1188,13 +1188,14 @@ export default function MembersSection({
                                 transition={{ duration: 0.2, ease: 'easeOut' }}
                                 className="luxury-modal-card w-100 shadow-2xl d-flex flex-column overflow-hidden"
                                 style={{
-                                    maxWidth: '640px',
-                                    maxHeight: 'min(88dvh, 740px)',
+                                    maxWidth: '680px',
+                                    maxHeight: 'min(90dvh, 780px)',
                                     height: 'auto',
                                     margin: 'auto',
                                     background: '#ffffff',
-                                    border: '1.5px solid var(--glass-border)',
-                                    borderRadius: '20px'
+                                    border: '1.5px solid rgba(224, 122, 67, 0.25)',
+                                    borderRadius: '24px',
+                                    boxShadow: '0 25px 65px -15px rgba(224, 122, 67, 0.25), 0 10px 30px rgba(0, 0, 0, 0.08)'
                                 }}
                                 onClick={(e) => e.stopPropagation()}
                             >
@@ -1243,21 +1244,39 @@ export default function MembersSection({
                                 {/* Scrollable Form Content */}
                                 <div className="px-3 px-sm-4 py-3 overflow-y-auto flex-grow-1" style={{ minHeight: 0 }}>
                                     <div className="row g-3">
-                                        {/* Active Festival Association Pill */}
+                                        {/* Active Festival Association Banner */}
                                         {activePortalName && (
                                             <div className="col-12">
-                                                <div className="d-flex align-items-center justify-content-between p-2 px-3 rounded-3" style={{ background: 'rgba(224, 122, 67, 0.08)', border: '1px solid rgba(224, 122, 67, 0.2)' }}>
+                                                <div className="d-flex align-items-center justify-content-between p-2.5 px-3 rounded-3" style={{ background: 'linear-gradient(135deg, rgba(224, 122, 67, 0.1), rgba(245, 158, 11, 0.06))', border: '1.5px solid rgba(224, 122, 67, 0.25)' }}>
                                                     <div className="d-flex align-items-center gap-2">
-                                                        <Calendar size={13} className="text-terracotta flex-shrink-0" />
-                                                        <span className="extra-tiny text-muted fw-bold">{type === 'event' ? 'Event Roster:' : 'Festival Roster:'}</span>
-                                                        <span className="extra-tiny fw-extrabold text-main">{activePortalName}</span>
+                                                        <div className="d-inline-flex align-items-center justify-content-center rounded-circle bg-white shadow-2xs" style={{ width: '26px', height: '26px', color: '#c2410c' }}>
+                                                            <Calendar size={13} />
+                                                        </div>
+                                                        <div>
+                                                            <span className="extra-tiny text-muted fw-bold d-block" style={{ fontSize: '0.66rem', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
+                                                                {type === 'event' ? 'Assigned Event' : 'Assigned Festival'}
+                                                            </span>
+                                                            <span className="fw-extrabold text-main" style={{ fontSize: '0.88rem' }}>{activePortalName}</span>
+                                                        </div>
                                                     </div>
-                                                    <span className="badge rounded-pill bg-white text-muted extra-tiny border shadow-2xs">
-                                                        {activeEntity || 'Official'}
+                                                    <span className="badge rounded-pill bg-white text-dark extra-tiny border shadow-2xs px-2.5 py-1 fw-bold">
+                                                        {activeEntity || 'Official Entity'}
                                                     </span>
                                                 </div>
                                             </div>
                                         )}
+
+                                        {/* =========================================================================
+                                            SECTION 1: PERSONAL & LEADERSHIP ROLE
+                                            ========================================================================= */}
+                                        <div className="col-12">
+                                            <div className="figma-form-section-title">
+                                                <div className="figma-form-section-icon">
+                                                    <Users size={14} />
+                                                </div>
+                                                <span>1. Personal &amp; Committee Assignment</span>
+                                            </div>
+                                        </div>
 
                                         {/* Full Legal Name */}
                                         <div className="col-12">
@@ -1281,9 +1300,9 @@ export default function MembersSection({
                                             </div>
                                         </div>
 
-                                        {/* Role / Designation with Full CRUD */}
-                                        <div className="col-12 col-sm-6">
-                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                        {/* Role / Designation with Quick 1-Tap Chips & CRUD */}
+                                        <div className="col-12">
+                                            <div className="d-flex align-items-center justify-content-between mb-1.5">
                                                 <label className="luxury-label mb-0">
                                                     <Award size={12} className="text-terracotta" />
                                                     <span>Role / Designation</span>
@@ -1318,13 +1337,28 @@ export default function MembersSection({
                                                     <button
                                                         type="button"
                                                         onClick={() => setFormData(prev => ({ ...prev, hideRole: !prev.hideRole }))}
-                                                        className={`btn btn-link p-0 text-decoration-none extra-tiny d-inline-flex align-items-center gap-1 ${formData.hideRole ? 'text-warning fw-bold' : 'text-muted hover-text-main'}`}
+                                                        className={`figma-visibility-pill ${formData.hideRole ? 'is-hidden' : 'is-visible'}`}
                                                         title={formData.hideRole ? "Role Hidden from PDF: click to make visible" : "Role Visible in PDF: click to hide"}
                                                     >
-                                                        {formData.hideRole ? <EyeOff size={11} className="text-warning" /> : <Eye size={11} />}
-                                                        <span>{formData.hideRole ? 'Hidden' : 'Visible'}</span>
+                                                        {formData.hideRole ? <EyeOff size={11} /> : <Eye size={11} />}
+                                                        <span>{formData.hideRole ? 'Hidden from PDF' : 'Visible in PDF'}</span>
                                                     </button>
                                                 </div>
+                                            </div>
+
+                                            {/* 1-Tap Quick Role Chips */}
+                                            <div className="d-flex align-items-center gap-1.5 flex-wrap mb-2">
+                                                {DEFAULT_ROLE_PRESETS.slice(0, 8).map(r => (
+                                                    <button
+                                                        type="button"
+                                                        key={r}
+                                                        onClick={() => setFormData({ ...formData, role: r })}
+                                                        className={`figma-tap-chip ${formData.role === r ? 'active' : ''}`}
+                                                    >
+                                                        {formData.role === r && <Check size={11} />}
+                                                        <span>{r}</span>
+                                                    </button>
+                                                ))}
                                             </div>
 
                                             {isAddingInlineRole ? (
@@ -1365,7 +1399,7 @@ export default function MembersSection({
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <div className="luxury-input-wrapper">
+                                                <div className="luxury-input-wrapper position-relative">
                                                     <div className="luxury-icon-box">
                                                         <Award size={16} />
                                                     </div>
@@ -1379,7 +1413,7 @@ export default function MembersSection({
                                                                 setFormData({ ...formData, role: e.target.value })
                                                             }
                                                         }}
-                                                        className="luxury-input-field fw-semibold"
+                                                        className="luxury-input-field fw-semibold pe-4"
                                                         style={{ cursor: 'pointer', background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}
                                                     >
                                                         <optgroup label="Standard Roles">
@@ -1402,13 +1436,14 @@ export default function MembersSection({
                                                             ➕ + Add Custom Role...
                                                         </option>
                                                     </select>
+                                                    <ChevronDown size={14} className="position-absolute end-0 me-2.5 text-muted pointer-events-none" style={{ pointerEvents: 'none' }} />
                                                 </div>
                                             )}
                                         </div>
 
-                                        {/* Department / Wing with Full CRUD */}
-                                        <div className="col-12 col-sm-6">
-                                            <div className="d-flex align-items-center justify-content-between mb-1">
+                                        {/* Department / Wing with Quick 1-Tap Chips & CRUD */}
+                                        <div className="col-12">
+                                            <div className="d-flex align-items-center justify-content-between mb-1.5">
                                                 <label className="luxury-label mb-0">
                                                     <Tag size={12} className="text-terracotta" />
                                                     <span>Department / Wing</span>
@@ -1442,13 +1477,28 @@ export default function MembersSection({
                                                     <button
                                                         type="button"
                                                         onClick={() => setFormData(prev => ({ ...prev, hideDepartment: !prev.hideDepartment }))}
-                                                        className={`btn btn-link p-0 text-decoration-none extra-tiny d-inline-flex align-items-center gap-1 ${formData.hideDepartment ? 'text-warning fw-bold' : 'text-muted hover-text-main'}`}
+                                                        className={`figma-visibility-pill ${formData.hideDepartment ? 'is-hidden' : 'is-visible'}`}
                                                         title={formData.hideDepartment ? "Department Hidden from PDF: click to make visible" : "Department Visible in PDF: click to hide"}
                                                     >
-                                                        {formData.hideDepartment ? <EyeOff size={11} className="text-warning" /> : <Eye size={11} />}
-                                                        <span>{formData.hideDepartment ? 'Hidden' : 'Visible'}</span>
+                                                        {formData.hideDepartment ? <EyeOff size={11} /> : <Eye size={11} />}
+                                                        <span>{formData.hideDepartment ? 'Hidden from PDF' : 'Visible in PDF'}</span>
                                                     </button>
                                                 </div>
+                                            </div>
+
+                                            {/* 1-Tap Quick Wing Chips */}
+                                            <div className="d-flex align-items-center gap-1.5 flex-wrap mb-2">
+                                                {DEFAULT_DEPARTMENTS.slice(0, 6).map(d => (
+                                                    <button
+                                                        type="button"
+                                                        key={d}
+                                                        onClick={() => setFormData({ ...formData, department: d })}
+                                                        className={`figma-tap-chip ${formData.department === d ? 'active' : ''}`}
+                                                    >
+                                                        {formData.department === d && <Check size={11} />}
+                                                        <span>{d}</span>
+                                                    </button>
+                                                ))}
                                             </div>
 
                                             {isAddingInlineDept ? (
@@ -1489,7 +1539,7 @@ export default function MembersSection({
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <div className="luxury-input-wrapper">
+                                                <div className="luxury-input-wrapper position-relative">
                                                     <div className="luxury-icon-box">
                                                         <Tag size={16} />
                                                     </div>
@@ -1503,7 +1553,7 @@ export default function MembersSection({
                                                                 setFormData({ ...formData, department: e.target.value })
                                                             }
                                                         }}
-                                                        className="luxury-input-field fw-semibold"
+                                                        className="luxury-input-field fw-semibold pe-4"
                                                         style={{ cursor: 'pointer', background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}
                                                     >
                                                         <optgroup label="Standard Wings">
@@ -1526,12 +1576,25 @@ export default function MembersSection({
                                                             ➕ + Add Custom Wing...
                                                         </option>
                                                     </select>
+                                                    <ChevronDown size={14} className="position-absolute end-0 me-2.5 text-muted pointer-events-none" style={{ pointerEvents: 'none' }} />
                                                 </div>
                                             )}
                                         </div>
 
+                                        {/* =========================================================================
+                                            SECTION 2: CONTACT & ROSTER STATUS
+                                            ========================================================================= */}
+                                        <div className="col-12 mt-3 pt-2 border-top">
+                                            <div className="figma-form-section-title">
+                                                <div className="figma-form-section-icon">
+                                                    <Phone size={14} />
+                                                </div>
+                                                <span>2. Contact &amp; Roster Status</span>
+                                            </div>
+                                        </div>
+
                                         {/* Contact Phone Number */}
-                                        <div className="col-12 col-sm-7">
+                                        <div className="col-12 col-md-6">
                                             <div className="d-flex align-items-center justify-content-between mb-1">
                                                 <label className="luxury-label mb-0">
                                                     <Phone size={12} className="text-terracotta" />
@@ -1540,10 +1603,10 @@ export default function MembersSection({
                                                 <button
                                                     type="button"
                                                     onClick={() => setFormData(prev => ({ ...prev, hidePhone: !prev.hidePhone }))}
-                                                    className={`btn btn-link p-0 text-decoration-none extra-tiny d-inline-flex align-items-center gap-1 ${formData.hidePhone ? 'text-warning fw-bold' : 'text-muted hover-text-main'}`}
+                                                    className={`figma-visibility-pill ${formData.hidePhone ? 'is-hidden' : 'is-visible'}`}
                                                     title={formData.hidePhone ? "Phone Hidden from PDF: click to make visible" : "Phone Visible in PDF: click to hide"}
                                                 >
-                                                    {formData.hidePhone ? <EyeOff size={11} className="text-warning" /> : <Eye size={11} />}
+                                                    {formData.hidePhone ? <EyeOff size={11} /> : <Eye size={11} />}
                                                     <span>{formData.hidePhone ? 'Hidden' : 'Visible'}</span>
                                                 </button>
                                             </div>
@@ -1551,47 +1614,44 @@ export default function MembersSection({
                                                 <div className="luxury-icon-box">
                                                     <Phone size={16} />
                                                 </div>
-                                                <span 
-                                                    className="extra-tiny fw-bold text-muted ps-1 pe-2" 
-                                                    style={{ borderRight: '1.5px solid var(--glass-border)', lineHeight: 1 }}
-                                                >
-                                                    +91
-                                                </span>
+                                                <span className="figma-country-code-pill">🇮🇳 +91</span>
                                                 <input
                                                     type="tel"
-                                                    placeholder="Mobile / WhatsApp number"
+                                                    placeholder="10-digit mobile number"
                                                     value={formData.contact}
-                                                    onChange={e => setFormData({ ...formData, contact: e.target.value })}
+                                                    onChange={e => setFormData({ ...formData, contact: e.target.value.replace(/[^0-9]/g, '').slice(0, 10) })}
                                                     className="luxury-input-field ps-2"
                                                 />
                                             </div>
                                         </div>
 
-                                        {/* Roster Status */}
-                                        <div className="col-12 col-sm-5">
-                                            <label className="luxury-label">
+                                        {/* Roster Status (1-Tap Interactive Status Pills) */}
+                                        <div className="col-12 col-md-6">
+                                            <label className="luxury-label mb-1">
                                                 <ShieldCheck size={12} className="text-terracotta" />
                                                 <span>Roster Status</span>
                                             </label>
-                                            <div className="luxury-input-wrapper">
-                                                <div className="luxury-icon-box">
-                                                    <ShieldCheck size={16} />
-                                                </div>
-                                                <select
-                                                    value={formData.status}
-                                                    onChange={e => setFormData({ ...formData, status: e.target.value })}
-                                                    className="luxury-input-field fw-semibold"
-                                                    style={{ cursor: 'pointer', background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}
-                                                >
-                                                    <option value="Active" style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>Active</option>
-                                                    <option value="Honorary" style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>Honorary</option>
-                                                    <option value="Inactive" style={{ background: 'var(--card-bg, #ffffff)', color: 'var(--text-main, #0f172a)' }}>Inactive</option>
-                                                </select>
+                                            <div className="figma-status-group" style={{ height: '42px', alignItems: 'center' }}>
+                                                {[
+                                                    { id: 'Active', label: 'Active', cls: 'status-active' },
+                                                    { id: 'Honorary', label: 'Honorary', cls: 'status-honorary' },
+                                                    { id: 'Inactive', label: 'Inactive', cls: 'status-inactive' }
+                                                ].map(st => (
+                                                    <button
+                                                        type="button"
+                                                        key={st.id}
+                                                        onClick={() => setFormData({ ...formData, status: st.id })}
+                                                        className={`figma-status-pill ${st.cls} ${formData.status === st.id ? 'selected' : ''}`}
+                                                    >
+                                                        <span className="status-dot"></span>
+                                                        <span>{st.label}</span>
+                                                    </button>
+                                                ))}
                                             </div>
                                         </div>
 
                                         {/* Email Address */}
-                                        <div className="col-12">
+                                        <div className="col-12 col-md-6">
                                             <div className="d-flex align-items-center justify-content-between mb-1">
                                                 <label className="luxury-label mb-0">
                                                     <Mail size={12} className="text-terracotta" />
@@ -1601,10 +1661,10 @@ export default function MembersSection({
                                                 <button
                                                     type="button"
                                                     onClick={() => setFormData(prev => ({ ...prev, hideEmail: !prev.hideEmail }))}
-                                                    className={`btn btn-link p-0 text-decoration-none extra-tiny d-inline-flex align-items-center gap-1 ${formData.hideEmail ? 'text-warning fw-bold' : 'text-muted hover-text-main'}`}
+                                                    className={`figma-visibility-pill ${formData.hideEmail ? 'is-hidden' : 'is-visible'}`}
                                                     title={formData.hideEmail ? "Email Hidden in PDF: click to make visible" : "Email Visible in PDF: click to hide"}
                                                 >
-                                                    {formData.hideEmail ? <EyeOff size={11} className="text-warning" /> : <Eye size={11} />}
+                                                    {formData.hideEmail ? <EyeOff size={11} /> : <Eye size={11} />}
                                                     <span>{formData.hideEmail ? 'Hidden' : 'Visible'}</span>
                                                 </button>
                                             </div>
@@ -1623,20 +1683,20 @@ export default function MembersSection({
                                         </div>
 
                                         {/* Locality / Residential Address / Notes */}
-                                        <div className="col-12">
+                                        <div className="col-12 col-md-6">
                                             <div className="d-flex align-items-center justify-content-between mb-1">
                                                 <label className="luxury-label mb-0">
                                                     <MapPin size={12} className="text-terracotta" />
-                                                    <span>Locality / Residential Address / Notes</span>
+                                                    <span>Locality / Address</span>
                                                     <span className="text-muted text-lowercase ms-1" style={{ fontSize: '0.65rem', fontWeight: 500 }}>(Optional)</span>
                                                 </label>
                                                 <button
                                                     type="button"
                                                     onClick={() => setFormData(prev => ({ ...prev, hideAddress: !prev.hideAddress }))}
-                                                    className={`btn btn-link p-0 text-decoration-none extra-tiny d-inline-flex align-items-center gap-1 ${formData.hideAddress ? 'text-warning fw-bold' : 'text-muted hover-text-main'}`}
+                                                    className={`figma-visibility-pill ${formData.hideAddress ? 'is-hidden' : 'is-visible'}`}
                                                     title={formData.hideAddress ? "Address Hidden in PDF: click to make visible" : "Address Visible in PDF: click to hide"}
                                                 >
-                                                    {formData.hideAddress ? <EyeOff size={11} className="text-warning" /> : <Eye size={11} />}
+                                                    {formData.hideAddress ? <EyeOff size={11} /> : <Eye size={11} />}
                                                     <span>{formData.hideAddress ? 'Hidden' : 'Visible'}</span>
                                                 </button>
                                             </div>
@@ -1654,40 +1714,52 @@ export default function MembersSection({
                                             </div>
                                         </div>
 
-                                        {/* Hide Member Switch (Option 1) */}
+                                        {/* =========================================================================
+                                            SECTION 3: PDF PRIVACY & DIRECTORY GOVERNANCE
+                                            ========================================================================= */}
+                                        <div className="col-12 mt-3 pt-2 border-top">
+                                            <div className="figma-form-section-title">
+                                                <div className="figma-form-section-icon" style={{ background: 'rgba(245, 158, 11, 0.12)', color: '#b45309', borderColor: 'rgba(245, 158, 11, 0.25)' }}>
+                                                    <ShieldCheck size={14} />
+                                                </div>
+                                                <span>3. Directory &amp; PDF Privacy Controls</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Hide Member Switch Card */}
                                         <div className="col-12">
                                             <div 
-                                                className="d-flex align-items-center justify-content-between p-2.5 px-3 rounded-3 border transition-all"
+                                                className="d-flex align-items-center justify-content-between p-3 rounded-3 border transition-all"
                                                 style={{ 
                                                     borderColor: formData.isHidden ? 'rgba(245, 158, 11, 0.45)' : 'var(--glass-border)', 
-                                                    background: formData.isHidden ? 'rgba(245, 158, 11, 0.08)' : 'var(--input-bg)' 
+                                                    background: formData.isHidden ? 'linear-gradient(135deg, rgba(254, 243, 199, 0.35), rgba(255, 237, 213, 0.25))' : 'var(--input-bg)' 
                                                 }}
                                             >
-                                                <div className="d-flex align-items-center gap-2.5">
+                                                <div className="d-flex align-items-center gap-3">
                                                     <div 
                                                         className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
                                                         style={{ 
-                                                            width: '32px', 
-                                                            height: '32px', 
+                                                            width: '36px', 
+                                                            height: '36px', 
                                                             background: formData.isHidden ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.12)',
                                                             color: formData.isHidden ? '#d97706' : '#10b981'
                                                         }}
                                                     >
-                                                        {formData.isHidden ? <EyeOff size={16} /> : <Eye size={16} />}
+                                                        {formData.isHidden ? <EyeOff size={18} /> : <Eye size={18} />}
                                                     </div>
                                                     <div>
-                                                        <div className="extra-tiny fw-bold text-main d-flex align-items-center gap-1.5">
-                                                            <span>Hide Member from Roster &amp; PDF</span>
+                                                        <div className="extra-tiny fw-bold text-main d-flex align-items-center gap-2">
+                                                            <span style={{ fontSize: '0.82rem' }}>Hide Entire Member from Public Roster &amp; PDF</span>
                                                             {formData.isHidden && (
-                                                                <span className="badge rounded-pill bg-warning text-dark px-1.5" style={{ fontSize: '0.6rem' }}>
-                                                                    Hidden
+                                                                <span className="badge rounded-pill bg-warning text-dark px-2 py-0.5" style={{ fontSize: '0.62rem' }}>
+                                                                    Hidden Record
                                                                 </span>
                                                             )}
                                                         </div>
-                                                        <p className="extra-tiny text-muted mb-0" style={{ fontSize: '0.67rem' }}>
+                                                        <p className="extra-tiny text-muted mb-0" style={{ fontSize: '0.72rem', lineHeight: '1.4' }}>
                                                             {formData.isHidden 
-                                                                ? 'This member is hidden and will NOT be included in any downloaded PDF directory or public roster.'
-                                                                : 'Member is visible and will be included in the downloaded PDF directory.'}
+                                                                ? 'This member is hidden and will NOT appear on the public roster or downloaded PDF directory.'
+                                                                : 'Member is visible and included in official listings and PDF directories.'}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -1719,7 +1791,7 @@ export default function MembersSection({
                                         type="button"
                                         onClick={() => setIsModalOpen(false)}
                                         className="btn-luxury-cancel"
-                                        style={{ minHeight: '38px', padding: '0.45rem 1.25rem', fontSize: '0.82rem', borderRadius: '10px' }}
+                                        style={{ minHeight: '40px', padding: '0.45rem 1.4rem', fontSize: '0.84rem', borderRadius: '12px' }}
                                     >
                                         Cancel
                                     </button>
@@ -1727,7 +1799,7 @@ export default function MembersSection({
                                         type="submit"
                                         disabled={submitting}
                                         className="btn-luxury-submit"
-                                        style={{ minHeight: '38px', padding: '0.45rem 1.5rem', fontSize: '0.82rem', borderRadius: '10px' }}
+                                        style={{ minHeight: '40px', padding: '0.45rem 1.75rem', fontSize: '0.84rem', borderRadius: '12px' }}
                                     >
                                         <Save size={15} />
                                         <span>{submitting ? 'Saving...' : editingMember ? 'Update Member' : 'Save Member'}</span>
