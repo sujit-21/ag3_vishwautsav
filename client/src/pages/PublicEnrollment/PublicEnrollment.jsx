@@ -715,32 +715,34 @@ export default function PublicEnrollment() {
                                             {/* UPI / ONLINE TRANSFER DEDICATED VERIFICATION CARD */}
                                             {formData.paymentMode === 'UPI / Online' && (
                                                 <div className="col-12">
-                                                    <div className="pe-upi-card p-3 rounded-4 border shadow-xs" style={{ background: '#f0fdf4', borderColor: 'rgba(16, 185, 129, 0.35)' }}>
-                                                        <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 pb-2 border-bottom border-success border-opacity-20">
-                                                            <div className="d-flex align-items-center gap-2">
-                                                                <div className="rounded-circle bg-success text-white p-1.5 d-flex align-items-center justify-content-center" style={{ width: '28px', height: '28px' }}>
-                                                                    <CreditCard size={15} />
+                                                    <div className="pe-upi-card">
+                                                        {/* Luxury Card Header */}
+                                                        <div className="pe-upi-header">
+                                                            <div className="d-flex align-items-center gap-2.5">
+                                                                <div className="pe-upi-icon-badge">
+                                                                    <CreditCard size={18} />
                                                                 </div>
                                                                 <div>
-                                                                    <div className="fw-black text-main extra-tiny uppercase tracking-wider">
-                                                                        UPI / Online Transfer Verification
-                                                                    </div>
-                                                                    <div className="text-muted extra-tiny">
-                                                                        Enter transfer details &amp; upload receipt proof
-                                                                    </div>
+                                                                    <h4 className="pe-upi-title">
+                                                                        UPI &amp; Online Transfer Verification
+                                                                    </h4>
+                                                                    <p className="pe-upi-subtitle mb-0">
+                                                                        Direct community contribution via UPI, GPay, PhonePe, Paytm, or NetBanking
+                                                                    </p>
                                                                 </div>
                                                             </div>
-                                                            <span className="badge rounded-pill bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 extra-tiny px-2.5 py-0.5 fw-black">
-                                                                Receipt Photo Compulsory *
+                                                            <span className="pe-compulsory-badge">
+                                                                <ShieldCheck size={13} />
+                                                                <span>Receipt Photo Compulsory *</span>
                                                             </span>
                                                         </div>
 
-                                                        <div className="row g-2.5">
+                                                        <div className="row g-3">
                                                             {/* To Whom Paid Name */}
                                                             <div className="col-12 col-sm-6">
-                                                                <label className="pe-label mb-1">
+                                                                <label className="pe-label mb-1.5">
                                                                     <span>To Whom to Pay Name</span>
-                                                                    <span className="text-danger fw-bold">*</span>
+                                                                    <span className="text-danger fw-bold ms-1">*</span>
                                                                 </label>
                                                                 <div className="pe-input-box">
                                                                     <User size={15} className="pe-field-icon text-muted" />
@@ -757,9 +759,9 @@ export default function PublicEnrollment() {
 
                                                             {/* To Whom Paid Number / UPI ID */}
                                                             <div className="col-12 col-sm-6">
-                                                                <label className="pe-label mb-1">
+                                                                <label className="pe-label mb-1.5">
                                                                     <span>To Whom to Pay Number / UPI ID</span>
-                                                                    <span className="text-danger fw-bold">*</span>
+                                                                    <span className="text-danger fw-bold ms-1">*</span>
                                                                 </label>
                                                                 <div className="pe-input-box">
                                                                     <Phone size={15} className="pe-field-icon text-muted" />
@@ -776,9 +778,9 @@ export default function PublicEnrollment() {
 
                                                             {/* Reference ID / UTR */}
                                                             <div className="col-12">
-                                                                <label className="pe-label mb-1">
+                                                                <label className="pe-label mb-1.5">
                                                                     <span>Transaction Reference ID / UTR Number</span>
-                                                                    <span className="text-danger fw-bold">*</span>
+                                                                    <span className="text-danger fw-bold ms-1">*</span>
                                                                 </label>
                                                                 <div className="pe-input-box">
                                                                     <CreditCard size={15} className="pe-field-icon text-muted" />
@@ -795,22 +797,22 @@ export default function PublicEnrollment() {
 
                                                             {/* Image of Receipt (COMPULSORY) */}
                                                             <div className="col-12">
-                                                                <label className="pe-label mb-1 d-flex align-items-center justify-content-between">
+                                                                <label className="pe-label mb-1.5 d-flex align-items-center justify-content-between flex-wrap gap-1">
                                                                     <span className="d-flex align-items-center gap-1.5">
-                                                                        <Camera size={14} className="text-danger" />
+                                                                        <Camera size={14} className="text-terracotta" />
                                                                         <span>Image of Payment Receipt</span>
-                                                                        <span className="text-danger fw-black">* (COMPULSORY)</span>
+                                                                        <span className="text-danger fw-bold ms-1">* (Compulsory)</span>
                                                                     </span>
                                                                     {formData.receiptImage && (
                                                                         <span className="text-success fw-bold extra-tiny d-inline-flex align-items-center gap-1">
                                                                             <CheckCircle2 size={13} />
-                                                                            <span>Receipt Attached</span>
+                                                                            <span>Receipt Attached &amp; Ready</span>
                                                                         </span>
                                                                     )}
                                                                 </label>
 
                                                                 {!formData.receiptImage ? (
-                                                                    <label className="pe-receipt-dropzone d-flex flex-column align-items-center justify-content-center p-3.5 rounded-3 border border-2 border-dashed text-center cursor-pointer transition-all position-relative" style={{ borderColor: 'rgba(239, 68, 68, 0.45)', background: '#fffcfb' }}>
+                                                                    <label className="pe-receipt-dropzone">
                                                                         <input
                                                                             type="file"
                                                                             accept="image/*"
@@ -818,45 +820,45 @@ export default function PublicEnrollment() {
                                                                             className="position-absolute opacity-0 w-100 h-100 start-0 top-0 cursor-pointer"
                                                                             style={{ zIndex: 2 }}
                                                                         />
-                                                                        <div className="rounded-circle bg-danger bg-opacity-10 text-danger p-2 mb-2 d-flex align-items-center justify-content-center" style={{ width: '42px', height: '42px' }}>
-                                                                            <Upload size={20} />
+                                                                        <div className="pe-dropzone-icon-circle">
+                                                                            <Upload size={22} />
                                                                         </div>
-                                                                        <div className="fw-bold text-main extra-tiny mb-0.5">
-                                                                            Tap or Click to Upload Payment Receipt / Screenshot
+                                                                        <div className="pe-dropzone-title">
+                                                                            Tap or Click to Upload Payment Receipt
                                                                         </div>
-                                                                        <div className="text-muted extra-tiny">
-                                                                            Screenshot from GPay, PhonePe, Paytm, BHIM or NetBanking (JPEG, PNG, WebP)
+                                                                        <div className="pe-dropzone-subtitle">
+                                                                            Screenshot from GPay, PhonePe, Paytm, BHIM, or NetBanking (JPEG, PNG, WebP up to 8MB)
                                                                         </div>
-                                                                        <div className="badge bg-danger bg-opacity-15 text-danger border border-danger border-opacity-30 rounded-pill extra-tiny px-2.5 py-1 mt-2 fw-black tracking-wide">
-                                                                            ⚠ COMPULSORY PROOF OF TRANSFER
+                                                                        <div className="pe-browse-btn-pill">
+                                                                            <Upload size={13} />
+                                                                            <span>Choose Receipt Screenshot</span>
                                                                         </div>
                                                                     </label>
                                                                 ) : (
-                                                                    <div className="pe-receipt-preview-card p-2.5 rounded-3 border d-flex align-items-center justify-content-between gap-3 bg-white shadow-2xs">
-                                                                        <div className="d-flex align-items-center gap-2.5 overflow-hidden">
+                                                                    <div className="pe-receipt-preview-card">
+                                                                        <div className="d-flex align-items-center gap-3 overflow-hidden">
                                                                             <img
                                                                                 src={formData.receiptImage}
                                                                                 alt="Payment Receipt"
-                                                                                className="rounded-2 border object-fit-cover flex-shrink-0"
-                                                                                style={{ width: '56px', height: '56px' }}
+                                                                                className="pe-receipt-preview-thumb"
                                                                             />
                                                                             <div className="text-truncate">
-                                                                                <div className="fw-bold text-success extra-tiny d-flex align-items-center gap-1">
-                                                                                    <CheckCircle2 size={13} />
-                                                                                    <span>Receipt Attached &amp; Ready</span>
+                                                                                <div className="pe-receipt-verified-chip">
+                                                                                    <CheckCircle2 size={14} />
+                                                                                    <span>Payment Receipt Attached</span>
                                                                                 </div>
-                                                                                <div className="text-muted extra-tiny text-truncate">
-                                                                                    UTR: {formData.transactionRefId || 'Reference entered above'}
+                                                                                <div className="text-muted extra-tiny text-truncate mt-0.5">
+                                                                                    {formData.transactionRefId ? `UTR: ${formData.transactionRefId}` : 'Pending admin verification'}
                                                                                 </div>
-                                                                                <span className="badge bg-light text-muted border extra-tiny px-1.5 py-0.5">
-                                                                                    Compulsory receipt attached
+                                                                                <span className="badge rounded-pill bg-success bg-opacity-10 text-success border border-success border-opacity-25 extra-tiny px-2 py-0.5 mt-1 font-monospace">
+                                                                                    ✓ Image Verified
                                                                                 </span>
                                                                             </div>
                                                                         </div>
                                                                         <button
                                                                             type="button"
                                                                             onClick={() => setFormData({ ...formData, receiptImage: '' })}
-                                                                            className="btn btn-sm btn-outline-danger rounded-pill extra-tiny px-2.5 py-1 d-inline-flex align-items-center gap-1 flex-shrink-0"
+                                                                            className="btn btn-sm btn-outline-danger rounded-pill extra-tiny px-3 py-1.5 d-inline-flex align-items-center gap-1.5 flex-shrink-0 fw-bold shadow-2xs"
                                                                             title="Change receipt image"
                                                                         >
                                                                             <X size={13} />
