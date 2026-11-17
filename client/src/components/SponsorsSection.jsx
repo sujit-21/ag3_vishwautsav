@@ -99,7 +99,7 @@ const getTierStyle = (tier = '') => {
     }
 }
 
-const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', eventName = '' }) => {
+const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', eventName = '', festivalsList = [] }) => {
     const { user } = useAuth()
     const isAdmin = Boolean(
         user && (
