@@ -5361,6 +5361,315 @@ html, body, #root, .app-container {
     50% { opacity: 0.6; transform: scale(1.18); }
 }
 
+/* ==========================================================================
+   FIGMA LUXURY TOKENS — ENROLLMENT MANAGER MODAL (APPLICATIONS COCKPIT)
+   ========================================================================== */
+
+/* Top Tab Switcher Segmented Control */
+.enr-top-tab-switcher {
+    display: inline-flex;
+    align-items: center;
+    background: #f1f5f9;
+    padding: 3px;
+    border-radius: 9999px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.enr-tab-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #64748b;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+}
+
+.enr-tab-pill-btn:hover {
+    color: #0f172a;
+}
+
+.enr-tab-pill-btn.active {
+    background: #ffffff;
+    color: #c2410c;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.enr-tab-pill-badge {
+    background: rgba(0, 0, 0, 0.06);
+    color: #64748b;
+    font-size: 0.62rem;
+    font-weight: 800;
+    padding: 1px 7px;
+    border-radius: 9999px;
+}
+
+.enr-tab-pill-badge.alert {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35);
+}
+
+/* Search Container */
+.enr-search-container {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 9999px;
+    height: 38px;
+    align-items: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.enr-search-container:focus-within {
+    border-color: #e07a43;
+    box-shadow: 0 0 0 3px rgba(224, 122, 67, 0.15);
+}
+
+/* Filter Segmented Control */
+.enr-filter-segmented-control {
+    display: inline-flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 9999px;
+    padding: 3px;
+    gap: 2px;
+}
+
+.enr-filter-seg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.enr-filter-seg-btn:hover {
+    color: #0f172a;
+}
+
+.enr-filter-seg-btn.active {
+    background: #ffffff;
+    color: #c2410c;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.enr-filter-count-badge {
+    background: rgba(0, 0, 0, 0.06);
+    color: #64748b;
+    font-size: 0.62rem;
+    font-weight: 800;
+    padding: 1px 6px;
+    border-radius: 9999px;
+}
+
+.enr-filter-count-badge.alert {
+    background: #ef4444;
+    color: #ffffff;
+}
+
+/* Submission Card */
+.enr-sub-card {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 1.15rem 1.25rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.enr-sub-card:hover {
+    border-color: rgba(224, 122, 67, 0.4);
+    box-shadow: 0 10px 28px -6px rgba(224, 122, 67, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
+}
+
+.enr-sub-card.card-pending {
+    border-left: 4px solid #f59e0b;
+}
+
+.enr-sub-card.card-approved {
+    border-left: 4px solid #10b981;
+}
+
+.enr-sub-card.card-rejected {
+    border-left: 4px solid #ef4444;
+}
+
+/* User Avatar Initial Monogram */
+.enr-user-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(224, 122, 67, 0.16) 0%, rgba(217, 90, 34, 0.1) 100%);
+    color: #c2410c;
+    font-weight: 800;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    box-shadow: inset 0 0 0 1px rgba(224, 122, 67, 0.25);
+    flex-shrink: 0;
+}
+
+.enr-avatar-status-dot {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+}
+
+/* Explicit Status Pills (Fixes Invisible Text & Solid Yellow Bug) */
+.enr-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+}
+
+.enr-status-pill.status-pending {
+    background: #fffbeb !important;
+    color: #92400e !important;
+    border: 1.5px solid #fde68a !important;
+    box-shadow: 0 1px 3px rgba(245, 158, 11, 0.1);
+}
+
+.enr-status-pill.status-approved {
+    background: #ecfdf5 !important;
+    color: #047857 !important;
+    border: 1.5px solid #a7f3d0 !important;
+    box-shadow: 0 1px 3px rgba(16, 185, 129, 0.1);
+}
+
+.enr-status-pill.status-rejected {
+    background: #fef2f2 !important;
+    color: #991b1b !important;
+    border: 1.5px solid #fecaca !important;
+    box-shadow: 0 1px 3px rgba(239, 68, 68, 0.1);
+}
+
+.enr-pulse-dot-amber {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+    animation: figmaPulse 1.8s infinite;
+}
+
+/* WhatsApp Direct Button */
+.enr-whatsapp-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #16a34a;
+    color: #ffffff !important;
+    font-size: 0.68rem;
+    font-weight: 800;
+    padding: 4px 11px;
+    border-radius: 9999px;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(22, 163, 74, 0.25);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.enr-whatsapp-btn:hover {
+    background: #15803d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(22, 163, 74, 0.35);
+}
+
+/* Action Buttons */
+.enr-btn-approve {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    font-size: 0.76rem;
+    font-weight: 800;
+    padding: 6px 16px;
+    border-radius: 9999px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.enr-btn-approve:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.42);
+    filter: brightness(1.05);
+}
+
+.enr-btn-reject {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #ffffff;
+    color: #dc2626;
+    font-size: 0.74rem;
+    font-weight: 800;
+    padding: 5px 14px;
+    border-radius: 9999px;
+    border: 1.5px solid rgba(239, 68, 68, 0.35);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.enr-btn-reject:hover:not(:disabled) {
+    background: #fee2e2;
+    border-color: #dc2626;
+    transform: translateY(-1px);
+}
+
+.enr-btn-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.enr-btn-delete:hover:not(:disabled) {
+    color: #ef4444;
+    border-color: #fca5a5;
+    background: #fef2f2;
+}
+
 
 
 

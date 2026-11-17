@@ -28,6 +28,14 @@ const EnrollmentManagerModal = ({
     const [errorMsg, setErrorMsg] = useState('')
     const [successMsg, setSuccessMsg] = useState('')
     const [viewingReceipt, setViewingReceipt] = useState(null)
+    const [copiedRefId, setCopiedRefId] = useState(null)
+
+    const getInitials = (name) => {
+        if (!name) return 'VU'
+        const parts = name.trim().split(/\s+/)
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    }
 
     // Effective selected festival / event
     const initialPortalName = activePortalName || (festivalsList && festivalsList.length > 0 ? (festivalsList[0]?.title || festivalsList[0]) : '')
@@ -343,49 +351,41 @@ const EnrollmentManagerModal = ({
                     </div>
                 )}
 
-                {/* Navigation Tabs */}
-                <div className="px-3 px-sm-4 pt-3 border-bottom d-flex gap-2">
-                    <button
-                        type="button"
-                        onClick={() => setActiveTab('link')}
-                        className={`btn btn-sm pb-2.5 px-3 rounded-0 border-0 fw-bold extra-tiny position-relative ${
-                            activeTab === 'link' ? 'text-primary' : 'text-muted hover-text-main'
-                        }`}
-                        style={{
-                            borderBottom: activeTab === 'link' ? '2.5px solid var(--primary-color, #E07A43)' : '2.5px solid transparent'
-                        }}
-                    >
-                        <span className="d-flex align-items-center gap-1.5">
+                {/* Modern Segmented Navigation Tabs */}
+                <div className="px-3 px-sm-4 pt-3 pb-2.5 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2 bg-white">
+                    <div className="enr-top-tab-switcher">
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('link')}
+                            className={`enr-tab-pill-btn ${activeTab === 'link' ? 'active' : ''}`}
+                        >
                             <QrCode size={14} />
                             <span>Shareable Link &amp; QR Code</span>
-                        </span>
-                    </button>
+                        </button>
 
-                    <button
-                        type="button"
-                        onClick={() => setActiveTab('submissions')}
-                        className={`btn btn-sm pb-2.5 px-3 rounded-0 border-0 fw-bold extra-tiny position-relative ${
-                            activeTab === 'submissions' ? 'text-primary' : 'text-muted hover-text-main'
-                        }`}
-                        style={{
-                            borderBottom: activeTab === 'submissions' ? '2.5px solid var(--primary-color, #E07A43)' : '2.5px solid transparent'
-                        }}
-                    >
-                        <span className="d-flex align-items-center gap-1.5">
+                        <button
+                            type="button"
+                            onClick={() => setActiveTab('submissions')}
+                            className={`enr-tab-pill-btn ${activeTab === 'submissions' ? 'active' : ''}`}
+                        >
                             <Users size={14} />
-                            <span>Incoming Submissions</span>
-                            {counts.pending > 0 && (
-                                <span className="badge rounded-pill bg-danger text-white px-2 py-0.5 ms-1 extra-tiny animate-pulse">
+                            <span>Incoming Applications</span>
+                            {counts.pending > 0 ? (
+                                <span className="enr-tab-pill-badge alert animate-pulse">
                                     {counts.pending} New
                                 </span>
-                            )}
-                            {counts.total > 0 && counts.pending === 0 && (
-                                <span className="badge rounded-pill bg-secondary bg-opacity-20 text-muted px-2 py-0.5 ms-1 extra-tiny">
+                            ) : (
+                                <span className="enr-tab-pill-badge">
                                     {counts.total}
                                 </span>
                             )}
-                        </span>
-                    </button>
+                        </button>
+                    </div>
+
+                    <div className="extra-tiny text-muted d-none d-sm-flex align-items-center gap-1.5">
+                        <ShieldCheck size={14} className="text-success" />
+                        <span>Live Community Enrollment Cockpit</span>
+                    </div>
                 </div>
 
                 {/* Modal Body */}
@@ -544,51 +544,55 @@ const EnrollmentManagerModal = ({
                     ) : (
                         /* TAB 2: INCOMING SUBMISSIONS (CRUD) */
                         <div>
-                            {/* Toolbar: Search & Status Filters */}
-                            <div className="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-between gap-2.5 mb-3">
-                                <div className="input-group action-item-pill search-pill-container px-3 flex-nowrap shadow-xs flex-grow-1" style={{ height: '36px', maxWidth: '360px' }}>
-                                    <span className="input-group-text bg-transparent border-0 text-muted ps-0 pe-2 d-flex align-items-center">
-                                        <Search size={13} />
+                            {/* Toolbar: Search & Segmented Status Filters */}
+                            <div className="d-flex flex-column flex-md-row align-items-stretch align-items-md-center justify-content-between gap-2.5 mb-3">
+                                <div className="input-group enr-search-container flex-grow-1" style={{ maxWidth: '400px' }}>
+                                    <span className="input-group-text bg-transparent border-0 text-muted ps-3 pe-2 d-flex align-items-center">
+                                        <Search size={14} />
                                     </span>
                                     <input
                                         type="text"
-                                        placeholder="Search submissions by name, phone, item..."
+                                        placeholder="Search applications by name, phone, UTR..."
                                         value={searchQuery}
                                         onChange={e => setSearchQuery(e.target.value)}
                                         className="form-control bg-transparent border-0 text-main extra-tiny p-0 shadow-none fw-semibold"
-                                        style={{ fontSize: '0.76rem' }}
+                                        style={{ fontSize: '0.8rem' }}
                                     />
                                     {searchQuery && (
-                                        <button onClick={() => setSearchQuery('')} className="btn btn-sm btn-link text-muted p-0 pe-1">
-                                            <X size={12} />
+                                        <button onClick={() => setSearchQuery('')} className="btn btn-sm btn-link text-muted p-0 pe-3">
+                                            <X size={13} />
                                         </button>
                                     )}
                                 </div>
 
-                                {/* Filter Pills */}
-                                <div className="d-flex align-items-center gap-1.5 flex-wrap">
-                                    {['All', 'Pending', 'Approved', 'Rejected'].map(st => (
-                                        <button
-                                            key={st}
-                                            type="button"
-                                            onClick={() => setStatusFilter(st)}
-                                            className={`figma-dept-pill extra-tiny ${statusFilter === st ? 'active' : ''}`}
-                                            style={{ fontSize: '0.72rem', padding: '4px 10px' }}
-                                        >
-                                            {st}
-                                            {st === 'Pending' && counts.pending > 0 && (
-                                                <span className="badge rounded-pill bg-danger text-white ms-1 px-1.5 py-0.5" style={{ fontSize: '0.6rem' }}>
-                                                    {counts.pending}
+                                {/* Segmented Filter Pills */}
+                                <div className="d-flex align-items-center gap-2 flex-wrap">
+                                    <div className="enr-filter-segmented-control">
+                                        {[
+                                            { id: 'All', label: 'All', count: counts.total },
+                                            { id: 'Pending', label: 'Pending', count: counts.pending, alert: counts.pending > 0 },
+                                            { id: 'Approved', label: 'Approved', count: counts.approved },
+                                            { id: 'Rejected', label: 'Rejected', count: counts.rejected }
+                                        ].map(tab => (
+                                            <button
+                                                key={tab.id}
+                                                type="button"
+                                                onClick={() => setStatusFilter(tab.id)}
+                                                className={`enr-filter-seg-btn ${statusFilter === tab.id ? 'active' : ''}`}
+                                            >
+                                                <span>{tab.label}</span>
+                                                <span className={`enr-filter-count-badge ${tab.alert && statusFilter !== tab.id ? 'alert' : ''}`}>
+                                                    {tab.count}
                                                 </span>
-                                            )}
-                                        </button>
-                                    ))}
+                                            </button>
+                                        ))}
+                                    </div>
                                     <button
                                         type="button"
                                         onClick={fetchData}
-                                        title="Refresh submissions"
+                                        title="Refresh applications"
                                         className="btn btn-sm btn-light border rounded-circle p-1.5 text-muted hover-text-main shadow-2xs ms-1"
-                                        style={{ width: '32px', height: '32px' }}
+                                        style={{ width: '34px', height: '34px' }}
                                     >
                                         <RefreshCw size={13} />
                                     </button>
@@ -629,68 +633,77 @@ const EnrollmentManagerModal = ({
                                         return (
                                             <div 
                                                 key={sub._id}
-                                                className="p-3.5 rounded-4 border bg-white shadow-2xs transition-all position-relative"
-                                                style={{
-                                                    borderColor: isApproved ? 'rgba(16, 185, 129, 0.35)' : isPending ? 'rgba(224, 122, 67, 0.35)' : 'rgba(239, 68, 68, 0.25)',
-                                                    borderLeftWidth: '5px'
-                                                }}
+                                                className={`enr-sub-card ${isApproved ? 'card-approved' : isRejected ? 'card-rejected' : 'card-pending'}`}
                                             >
-                                                {/* Top Row: Name, Ref ID & Status */}
+                                                {/* Top Row: User Avatar Monogram, Name, Ref ID & Explicit Status Pill */}
                                                 <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2 mb-2.5">
-                                                    <div>
-                                                        <div className="d-flex align-items-center gap-2 flex-wrap">
-                                                            <h6 className="fw-extrabold text-main mb-0" style={{ fontSize: '0.96rem' }}>
-                                                                {sub.name}
-                                                            </h6>
-                                                            <span className="badge rounded-pill bg-light text-muted border extra-tiny px-2 py-0.5 font-monospace">
-                                                                {sub.referenceId}
-                                                            </span>
+                                                    <div className="d-flex align-items-center gap-2.5">
+                                                        <div className="enr-user-avatar">
+                                                            <span>{getInitials(sub.name)}</span>
+                                                            <span className={`enr-avatar-status-dot ${isApproved ? 'bg-success' : isRejected ? 'bg-danger' : 'bg-warning'}`} />
                                                         </div>
-                                                        <div className="extra-tiny text-muted d-flex align-items-center gap-2 mt-0.5 flex-wrap">
-                                                            <span className="d-flex align-items-center gap-1">
-                                                                <Clock size={11} />
-                                                                {new Date(sub.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                            </span>
-                                                            {sub.address && (
+                                                        <div>
+                                                            <div className="d-flex align-items-center gap-2 flex-wrap">
+                                                                <h6 className="fw-black text-main mb-0" style={{ fontSize: '0.98rem' }}>
+                                                                    {sub.name}
+                                                                </h6>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        navigator.clipboard.writeText(sub.referenceId)
+                                                                        setCopiedRefId(sub.referenceId)
+                                                                        setTimeout(() => setCopiedRefId(null), 2000)
+                                                                    }}
+                                                                    className="badge rounded-pill bg-light text-muted border extra-tiny px-2.5 py-0.5 font-monospace d-inline-flex align-items-center gap-1 cursor-pointer"
+                                                                    title="Click to copy Reference ID"
+                                                                >
+                                                                    <span>{sub.referenceId}</span>
+                                                                    {copiedRefId === sub.referenceId ? <Check size={11} className="text-success" /> : <Copy size={11} />}
+                                                                </button>
+                                                            </div>
+                                                            <div className="extra-tiny text-muted d-flex align-items-center gap-2.5 mt-0.5 flex-wrap">
                                                                 <span className="d-flex align-items-center gap-1">
-                                                                    <MapPin size={11} className="text-terracotta" />
-                                                                    {sub.address}
+                                                                    <Clock size={11} />
+                                                                    {new Date(sub.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                                 </span>
-                                                            )}
+                                                                {sub.address && (
+                                                                    <span className="d-flex align-items-center gap-1">
+                                                                        <MapPin size={11} className="text-terracotta" />
+                                                                        <span className="text-truncate" style={{ maxWidth: '240px' }}>{sub.address}</span>
+                                                                    </span>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
 
-                                                    {/* Status Badge */}
-                                                    <span 
-                                                        className={`badge rounded-pill px-2.5 py-1 fw-bold extra-tiny d-inline-flex align-items-center gap-1 ${
-                                                            isApproved 
-                                                                ? 'bg-success bg-opacity-15 text-success border border-success border-opacity-30'
-                                                                : isRejected
-                                                                ? 'bg-danger bg-opacity-15 text-danger border border-danger border-opacity-30'
-                                                                : 'bg-warning bg-opacity-15 text-warning border border-warning border-opacity-30'
-                                                        }`}
-                                                    >
-                                                        {isApproved && <CheckCircle2 size={11} />}
-                                                        {isRejected && <XCircle size={11} />}
-                                                        {isPending && <Clock size={11} />}
-                                                        <span>{sub.status}</span>
+                                                    {/* Explicit Status Pill (Resolves Yellow-on-Yellow Bug) */}
+                                                    <span className={`enr-status-pill ${isApproved ? 'status-approved' : isRejected ? 'status-rejected' : 'status-pending'}`}>
+                                                        {isApproved && <CheckCircle2 size={12} />}
+                                                        {isRejected && <XCircle size={12} />}
+                                                        {isPending && <span className="enr-pulse-dot-amber" />}
+                                                        <span>{isApproved ? 'Approved & Synced' : isRejected ? 'Rejected' : 'Pending Review'}</span>
                                                     </span>
                                                 </div>
 
                                                 {/* Middle: Details Grid */}
                                                 <div className="row g-2 mb-3">
-                                                    {/* Contact */}
+                                                    {/* Contact & WhatsApp */}
                                                     <div className="col-12 col-sm-6">
-                                                        <div className="p-2 rounded-3 bg-light bg-opacity-60 border border-secondary border-opacity-10 d-flex align-items-center justify-content-between">
-                                                            <div className="extra-tiny text-main fw-semibold d-flex align-items-center gap-1.5 text-truncate">
-                                                                <Phone size={12} className="text-primary flex-shrink-0" />
-                                                                <span>{sub.countryCode || '+91'} {sub.contact}</span>
+                                                        <div className="p-2.5 rounded-3 border d-flex align-items-center justify-content-between gap-2" style={{ background: '#f8fafc', borderColor: '#e2e8f0' }}>
+                                                            <div className="d-flex align-items-center gap-2 overflow-hidden">
+                                                                <div className="rounded-circle bg-primary bg-opacity-10 text-primary p-1.5 d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '28px', height: '28px' }}>
+                                                                    <Phone size={13} />
+                                                                </div>
+                                                                <div className="text-truncate">
+                                                                    <span className="text-muted extra-tiny d-block" style={{ fontSize: '0.64rem' }}>CONTACT / WHATSAPP</span>
+                                                                    <strong className="text-main extra-tiny">{sub.countryCode || '+91'} {sub.contact}</strong>
+                                                                </div>
                                                             </div>
                                                             <a
                                                                 href={`https://wa.me/${(sub.countryCode || '+91').replace(/\+/g, '')}${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(`Namaste ${sub.name}, regarding your enrollment for ${currentPortalName}:`)}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="badge bg-success text-white rounded-pill extra-tiny px-2 py-0.5 text-decoration-none d-inline-flex align-items-center gap-1"
+                                                                className="enr-whatsapp-btn"
                                                                 title="Message on WhatsApp"
                                                             >
                                                                 <span>WhatsApp</span>
@@ -700,11 +713,17 @@ const EnrollmentManagerModal = ({
 
                                                     {/* Role Preference */}
                                                     <div className="col-12 col-sm-6">
-                                                        <div className="p-2 rounded-3 bg-light bg-opacity-60 border border-secondary border-opacity-10">
-                                                            <div className="extra-tiny text-muted mb-0.5">Role / Wing Preference:</div>
-                                                            <div className="extra-tiny fw-bold text-main d-flex align-items-center gap-1 text-truncate">
-                                                                <Users size={12} className="text-terracotta flex-shrink-0" />
-                                                                <span>{sub.roleInterest} • <span className="text-muted">{sub.departmentInterest}</span></span>
+                                                        <div className="p-2.5 rounded-3 border d-flex align-items-center gap-2" style={{ background: '#f8fafc', borderColor: '#e2e8f0' }}>
+                                                            <div className="rounded-circle bg-warning bg-opacity-15 text-warning p-1.5 d-flex align-items-center justify-content-center flex-shrink-0" style={{ width: '28px', height: '28px' }}>
+                                                                <Award size={14} className="text-amber" />
+                                                            </div>
+                                                            <div className="text-truncate">
+                                                                <span className="text-muted extra-tiny d-block" style={{ fontSize: '0.64rem' }}>ROLE &amp; WING PREFERENCE</span>
+                                                                <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                                                                    <strong className="text-main extra-tiny">{sub.roleInterest}</strong>
+                                                                    <span className="text-muted extra-tiny">•</span>
+                                                                    <span className="badge rounded-pill bg-light text-muted border extra-tiny px-2 py-0.5">{sub.departmentInterest || 'Core Committee'}</span>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -792,20 +811,24 @@ const EnrollmentManagerModal = ({
 
                                                 {/* Bottom Actions Row (CRUD) */}
                                                 <div className="d-flex align-items-center justify-content-between pt-2.5 border-top border-secondary border-opacity-10 flex-wrap gap-2">
-                                                    <div className="extra-tiny text-muted">
+                                                    <div className="extra-tiny text-muted d-flex align-items-center gap-1.5">
                                                         {isApproved && (
-                                                            <span className="text-success fw-bold d-inline-flex align-items-center gap-1">
-                                                                <CheckCircle2 size={12} />
+                                                            <span className="text-success fw-bold d-inline-flex align-items-center gap-1.5">
+                                                                <CheckCircle2 size={13} />
                                                                 <span>Synced to Committee &amp; Sponsor Records</span>
                                                             </span>
                                                         )}
                                                         {isRejected && (
-                                                            <span className="text-danger fw-bold">
-                                                                Application Rejected
+                                                            <span className="text-danger fw-bold d-inline-flex align-items-center gap-1.5">
+                                                                <XCircle size={13} />
+                                                                <span>Application Marked as Rejected</span>
                                                             </span>
                                                         )}
                                                         {isPending && (
-                                                            <span>Review application details and decide below.</span>
+                                                            <span className="text-muted d-inline-flex align-items-center gap-1">
+                                                                <Clock size={12} className="text-warning" />
+                                                                <span>Awaiting review &amp; roster approval</span>
+                                                            </span>
                                                         )}
                                                     </div>
 
@@ -816,12 +839,12 @@ const EnrollmentManagerModal = ({
                                                                 type="button"
                                                                 disabled={submittingAction === `approve_${sub._id}`}
                                                                 onClick={() => handleApproveSubmission(sub._id)}
-                                                                className="btn btn-sm btn-success rounded-pill fw-bold extra-tiny text-white d-inline-flex align-items-center gap-1 px-3 py-1 shadow-2xs hover-glow"
+                                                                className="enr-btn-approve"
                                                             >
                                                                 {submittingAction === `approve_${sub._id}` ? (
                                                                     <div className="spinner-border spinner-border-sm" style={{ width: '11px', height: '11px' }} />
                                                                 ) : (
-                                                                    <CheckCircle2 size={12} />
+                                                                    <CheckCircle2 size={13} />
                                                                 )}
                                                                 <span>{isRejected ? 'Re-Approve & Sync' : 'Approve & Sync'}</span>
                                                             </button>
@@ -833,9 +856,9 @@ const EnrollmentManagerModal = ({
                                                                 type="button"
                                                                 disabled={submittingAction === `reject_${sub._id}`}
                                                                 onClick={() => handleRejectSubmission(sub._id)}
-                                                                className="btn btn-sm btn-outline-danger rounded-pill fw-bold extra-tiny d-inline-flex align-items-center gap-1 px-2.5 py-1 shadow-2xs"
+                                                                className="enr-btn-reject"
                                                             >
-                                                                <XCircle size={12} />
+                                                                <XCircle size={13} />
                                                                 <span>Reject</span>
                                                             </button>
                                                         )}
@@ -845,10 +868,10 @@ const EnrollmentManagerModal = ({
                                                             type="button"
                                                             disabled={submittingAction === `delete_${sub._id}`}
                                                             onClick={() => handleDeleteSubmission(sub._id)}
-                                                            className="btn btn-sm btn-light border text-danger rounded-pill extra-tiny p-1 px-2 hover-bg-danger-light"
+                                                            className="enr-btn-delete"
                                                             title="Delete submission record"
                                                         >
-                                                            <Trash2 size={12} />
+                                                            <Trash2 size={13} />
                                                         </button>
                                                     </div>
                                                 </div>
