@@ -4,7 +4,7 @@ import {
     Link2, Copy, Check, ExternalLink, Share2, QrCode, Download,
     X, CheckCircle2, XCircle, Trash2, Edit3, Filter, Search,
     Users, Coins, Sparkles, Clock, Phone, MapPin, Mail, FileText,
-    RefreshCw, AlertCircle, Calendar, Gift, ChevronRight, Eye, EyeOff
+    RefreshCw, AlertCircle, Calendar, Gift, ChevronRight, ChevronDown, Eye, EyeOff
 } from 'lucide-react'
 
 const EnrollmentManagerModal = ({

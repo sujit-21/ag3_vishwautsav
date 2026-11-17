@@ -10,6 +10,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { HelmetProvider } from 'react-helmet-async'
+import ErrorBoundary from './components/ErrorBoundary'
 import axios from 'axios'
 
 // Configure default base URL dynamically (empty string defaults to relative paths / vite proxy in dev)
@@ -45,7 +46,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
             <AuthProvider>
                 <ThemeProvider>
                     <ToastProvider>
-                        <App />
+                        <ErrorBoundary>
+                            <App />
+                        </ErrorBoundary>
                     </ToastProvider>
                 </ThemeProvider>
             </AuthProvider>
