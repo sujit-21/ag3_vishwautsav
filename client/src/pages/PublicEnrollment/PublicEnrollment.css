@@ -526,47 +526,429 @@
     cursor: not-allowed;
 }
 
-/* Digital Slip Success Card (Apple Wallet / Pass style) */
+/* ==========================================================================
+   DIGITAL SLIP SUCCESS PASS (APPLE WALLET / VIP PASS STYLE) — ANIMATED & LUXURY
+   ========================================================================== */
+
+/* Celebratory Floating Confetti */
+.pe-confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.pe-confetti {
+    position: absolute;
+    top: -20px;
+    width: 10px;
+    height: 14px;
+    border-radius: 3px;
+    opacity: 0.85;
+    animation: peConfettiDrop 4.5s ease-in-out infinite;
+}
+
+.pe-confetti-1 { background: #e07a43; transform: rotate(15deg); }
+.pe-confetti-2 { background: #f59e0b; transform: rotate(-25deg); }
+.pe-confetti-3 { background: #10b981; transform: rotate(35deg); width: 8px; height: 12px; }
+.pe-confetti-4 { background: #6366f1; transform: rotate(-15deg); }
+.pe-confetti-5 { background: #ec4899; transform: rotate(45deg); width: 12px; height: 8px; }
+
+@keyframes peConfettiDrop {
+    0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 0.9;
+    }
+    100% {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* Digital Slip Success Card (Apple Wallet / VIP Event Pass style) */
 .pe-slip-card {
     background: #ffffff;
-    border-radius: 28px;
-    border: 2px solid rgba(224, 122, 67, 0.22);
-    box-shadow: 0 28px 70px -15px rgba(224, 122, 67, 0.2), 0 8px 30px rgba(0, 0, 0, 0.06);
+    border-radius: 32px;
+    border: 2px solid rgba(224, 122, 67, 0.28);
+    box-shadow: 0 36px 90px -15px rgba(224, 122, 67, 0.28), 0 10px 35px rgba(0, 0, 0, 0.08);
     overflow: hidden;
     position: relative;
-    max-width: 560px;
+    max-width: 580px;
     margin: 0 auto;
+    z-index: 1;
 }
 
 .pe-slip-header {
-    background: linear-gradient(135deg, #e07a43 0%, #d95a22 100%);
+    background: linear-gradient(135deg, #c2410c 0%, #ea580c 45%, #d97706 100%);
     color: #ffffff;
-    padding: 1.75rem;
+    padding: 2.25rem 1.75rem 2.15rem 1.75rem;
     text-align: center;
     position: relative;
+    overflow: hidden;
+}
+
+.pe-slip-watermark {
+    position: absolute;
+    right: -25px;
+    bottom: -25px;
+    width: 170px;
+    height: auto;
+    opacity: 0.12;
+    pointer-events: none;
+    filter: brightness(2) contrast(1.2);
+    animation: peWatermarkSpin 45s linear infinite;
+}
+
+@keyframes peWatermarkSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Animated Glowing Success Badge */
+.pe-success-badge-wrapper {
+    position: relative;
+    width: 68px;
+    height: 68px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pe-pulse-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.45);
+    animation: pePulseRing 2.2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+.pe-pulse-ring-2 {
+    animation-delay: 0.7s;
+}
+
+@keyframes pePulseRing {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1.65);
+        opacity: 0;
+    }
+}
+
+.pe-success-circle {
+    position: relative;
+    z-index: 2;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.pe-vip-capsule {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    border-radius: 9999px;
+    padding: 4px 14px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.pe-slip-title {
+    font-size: 1.85rem;
+    font-weight: 900;
+    letter-spacing: -0.025em;
+    color: #ffffff;
+    margin-top: 0.4rem;
+    margin-bottom: 0.35rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+}
+
+.pe-slip-subtitle {
+    font-size: 0.83rem;
+    color: rgba(255, 255, 255, 0.95);
+    max-width: 440px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+/* Perforated Ticket Divider & Notches */
+.pe-ticket-tear-line {
+    position: relative;
+    border-top: 2px dashed rgba(224, 122, 67, 0.35);
+    margin: 0 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 0;
 }
 
 .pe-slip-notch-left,
 .pe-slip-notch-right {
     position: absolute;
-    bottom: -12px;
-    width: 24px;
-    height: 24px;
-    background: #f8fafc;
+    width: 32px;
+    height: 32px;
+    background: #fff8f3;
     border-radius: 50%;
-    z-index: 2;
+    z-index: 5;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.14);
 }
 
-.pe-slip-notch-left { left: -12px; }
-.pe-slip-notch-right { right: -12px; }
+.pe-slip-notch-left {
+    left: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.pe-slip-notch-right {
+    right: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.pe-tear-label {
+    background: #ffffff;
+    border: 1px solid rgba(224, 122, 67, 0.24);
+    border-radius: 9999px;
+    padding: 2px 12px;
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #c2410c;
+    letter-spacing: 0.8px;
+    transform: translateY(-50%);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
 
 .pe-slip-body {
-    padding: 2rem;
+    padding: 2.15rem 1.85rem 2rem 1.85rem;
+}
+
+/* Gold Foil Holographic Reference Code Card */
+.pe-hologram-ref-card {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 40%, #fff7ed 80%, #fffbeb 100%);
+    background-size: 200% 200%;
+    animation: peFoilShimmer 7s ease-in-out infinite;
+    border: 1.5px solid rgba(245, 158, 11, 0.45);
+    border-radius: 20px;
+    padding: 1.35rem;
+    box-shadow: 0 12px 30px -8px rgba(245, 158, 11, 0.22), inset 0 0 25px rgba(255, 255, 255, 0.7);
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes peFoilShimmer {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.pe-ref-label {
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    color: #92400e;
+}
+
+.pe-copy-ref-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    background: #ffffff;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    color: #b45309;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease;
+}
+
+.pe-copy-ref-pill:hover {
+    background: #fff7ed;
+    border-color: #d97706;
+    transform: translateY(-1px);
+}
+
+.pe-copy-ref-pill.copied {
+    background: #10b981;
+    border-color: #059669;
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+}
+
+.pe-ref-code-text {
+    font-size: 1.75rem;
+    font-weight: 900;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: 3.5px;
+    color: #b45309;
+    line-height: 1.15;
+    margin-bottom: 0.35rem;
+}
+
+.pe-ref-instruction {
+    font-size: 0.74rem;
+    color: #78350f;
+    line-height: 1.45;
+}
+
+.pe-barcode-box {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 8px 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* Luxury 2x2 Bento Tiles */
+.pe-bento-tile {
+    background: #f8fafc;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 16px;
+    padding: 0.85rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.pe-bento-tile:hover {
+    background: #ffffff;
+    border-color: rgba(224, 122, 67, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+}
+
+.pe-bento-icon-wrapper {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+}
+
+.pe-bento-label {
+    display: block;
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    color: #64748b;
+    margin-bottom: 2px;
+}
+
+.pe-bento-val {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.3;
+}
+
+/* Bento Donation Highlight Card */
+.pe-bento-donation-card {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(254, 243, 199, 0.3) 100%);
+    border: 1.5px solid rgba(245, 158, 11, 0.35);
+    border-radius: 18px;
+    padding: 1.15rem;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.08);
+}
+
+/* Action Button Toolbar */
+.pe-pass-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0.75rem 1.6rem;
+    border-radius: 9999px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border: none;
+    text-decoration: none;
+}
+
+.pe-pass-action-btn.btn-whatsapp {
+    background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+    color: #ffffff;
+    box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
+}
+
+.pe-pass-action-btn.btn-whatsapp:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(22, 163, 74, 0.42);
+    filter: brightness(1.05);
+}
+
+.pe-pass-action-btn.btn-print {
+    background: #ffffff;
+    color: #1e293b;
+    border: 1.5px solid #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.pe-pass-action-btn.btn-print:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Return Home Link */
+.pe-return-home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 18px;
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.04);
+    color: #64748b;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.pe-return-home-link:hover {
+    background: rgba(224, 122, 67, 0.12);
+    color: #c2410c;
+    transform: translateY(-1px);
 }
 
 @media (max-width: 576px) {
     .pe-slip-body {
-        padding: 1.5rem 1.25rem;
+        padding: 1.6rem 1.25rem 1.5rem 1.25rem;
+    }
+    .pe-slip-title {
+        font-size: 1.5rem;
+    }
+    .pe-ref-code-text {
+        font-size: 1.45rem;
+        letter-spacing: 2px;
     }
 }
 

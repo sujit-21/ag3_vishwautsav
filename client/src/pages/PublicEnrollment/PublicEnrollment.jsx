@@ -5,7 +5,8 @@ import {
     Users, User, Heart, Phone, Mail, MapPin, Tag, Gift, DollarSign, 
     Sparkles, CheckCircle2, ShieldCheck, Share2, Copy, Check, 
     Printer, ArrowRight, AlertCircle, Building2, Calendar, ChevronDown,
-    Award, Layers, HelpCircle, MessageSquare, Upload, X, CreditCard, Camera
+    Award, Layers, HelpCircle, MessageSquare, Upload, X, CreditCard, Camera,
+    QrCode
 } from 'lucide-react'
 import axios from 'axios'
 import logoImage from '../../images/logo-emblem.png'
@@ -214,143 +215,242 @@ export default function PublicEnrollment() {
         )
     }
 
-    // Success Screen (Apple Wallet / Digital Pass style)
+    // Success Screen (Apple Wallet / Digital VIP Pass style)
     if (submittedData) {
         return (
-            <div className="pe-page-wrapper py-4 py-sm-5 px-3 d-flex align-items-center justify-content-center">
-                <div className="pe-container">
+            <div className="pe-page-wrapper py-4 py-sm-5 px-3 d-flex flex-column align-items-center justify-content-center min-vh-100 position-relative">
+                {/* Celebratory Floating Confetti Elements */}
+                <div className="pe-confetti-container" aria-hidden="true">
+                    {[...Array(16)].map((_, i) => (
+                        <span key={i} className={`pe-confetti pe-confetti-${(i % 5) + 1}`} style={{ left: `${(i * 6.2) + 2}%`, animationDelay: `${(i * 0.16)}s` }} />
+                    ))}
+                </div>
+
+                <div className="pe-container" style={{ maxWidth: '620px' }}>
                     <motion.div 
-                        initial={{ opacity: 0, scale: 0.95, y: 15 }}
+                        initial={{ opacity: 0, scale: 0.9, y: 25 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                         className="pe-slip-card"
                     >
-                        {/* Notch Circles */}
+                        {/* Realistic Boarding Pass Ticket Notches */}
                         <div className="pe-slip-notch-left"></div>
                         <div className="pe-slip-notch-right"></div>
 
-                        {/* Slip Header */}
+                        {/* Top Ambient Watermark & Slip Header */}
                         <div className="pe-slip-header">
-                            <div className="d-inline-flex align-items-center justify-content-center rounded-circle bg-white shadow-sm mb-3" style={{ width: '60px', height: '60px', color: '#16a34a' }}>
-                                <CheckCircle2 size={34} />
+                            {/* Watermark Emblem */}
+                            <img src={logoImage} alt="" className="pe-slip-watermark" aria-hidden="true" />
+
+                            {/* Animated Glowing Checkmark Badge */}
+                            <div className="pe-success-badge-wrapper mb-3">
+                                <div className="pe-pulse-ring pe-pulse-ring-1"></div>
+                                <div className="pe-pulse-ring pe-pulse-ring-2"></div>
+                                <div className="pe-success-circle">
+                                    <CheckCircle2 size={36} />
+                                </div>
                             </div>
-                            <span className="badge rounded-pill bg-white text-dark fw-extrabold px-3 py-1 extra-tiny mb-2 shadow-2xs">
-                                OFFICIAL REGISTRATION PASS
-                            </span>
-                            <h3 className="fw-black text-white mb-1" style={{ letterSpacing: '-0.02em' }}>
+
+                            <div className="d-inline-flex align-items-center gap-1.5 pe-vip-capsule mb-2">
+                                <Sparkles size={13} className="text-warning" />
+                                <span>OFFICIAL EVENT PASS &amp; BADGE</span>
+                            </div>
+
+                            <h2 className="pe-slip-title">
                                 Registration Confirmed!
-                            </h3>
-                            <p className="text-white text-opacity-90 extra-tiny mb-0" style={{ maxWidth: '420px', margin: '0 auto' }}>
-                                Thank you, <span className="fw-bold">{submittedData.name}</span>. Your enrollment for <strong>{submittedData.festOrEventName}</strong> has been successfully recorded.
+                            </h2>
+
+                            <p className="pe-slip-subtitle">
+                                Welcome, <strong className="text-white text-decoration-underline text-underline-offset-2">{submittedData.name}</strong>. Your official participation in <strong>{submittedData.festOrEventName}</strong> has been secured.
                             </p>
+                        </div>
+
+                        {/* Perforated Ticket Divider */}
+                        <div className="pe-ticket-tear-line">
+                            <span className="pe-tear-label">OFFICIAL DIGITAL ACCESS PASS</span>
                         </div>
 
                         {/* Slip Body */}
                         <div className="pe-slip-body">
-                            {/* Reference ID Card */}
-                            <div className="p-3.5 rounded-3 mb-4 text-start border shadow-2xs" style={{ background: '#fffbeb', borderColor: '#fde68a' }}>
-                                <div className="d-flex align-items-center justify-content-between mb-1.5">
-                                    <span className="extra-tiny text-muted fw-bold text-uppercase" style={{ letterSpacing: '0.6px' }}>
-                                        Enrollment Reference Code
-                                    </span>
+                            {/* Gold Foil Holographic Reference Code Card */}
+                            <div className="pe-hologram-ref-card mb-4">
+                                <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 pb-2 border-bottom border-warning border-opacity-25">
+                                    <div className="d-flex align-items-center gap-1.5">
+                                        <ShieldCheck size={14} className="text-amber" />
+                                        <span className="pe-ref-label">ENROLLMENT REFERENCE CODE</span>
+                                    </div>
                                     <button 
                                         type="button"
                                         onClick={handleCopyRef} 
-                                        className="btn btn-sm btn-link p-0 extra-tiny text-decoration-none fw-bold text-terracotta d-flex align-items-center gap-1"
+                                        className={`pe-copy-ref-pill ${copied ? 'copied' : ''}`}
                                     >
-                                        {copied ? <Check size={13} className="text-success" /> : <Copy size={13} />}
+                                        {copied ? <Check size={12} /> : <Copy size={12} />}
                                         <span>{copied ? 'Copied to Clipboard!' : 'Copy Code'}</span>
                                     </button>
                                 </div>
-                                <div className="fw-black font-monospace text-main" style={{ fontSize: '1.4rem', letterSpacing: '2px', color: '#b45309' }}>
-                                    {submittedData.referenceId}
-                                </div>
-                                <div className="extra-tiny text-muted mt-1.5" style={{ fontSize: '0.72rem' }}>
-                                    Keep or screenshot this reference ID for official check-in, identity badge, and pass collection.
+
+                                <div className="d-flex align-items-center justify-content-between gap-3">
+                                    <div>
+                                        <div className="pe-ref-code-text">
+                                            {submittedData.referenceId}
+                                        </div>
+                                        <p className="pe-ref-instruction mb-0">
+                                            Keep or screenshot this reference ID for official check-in, identity badge, and pass collection.
+                                        </p>
+                                    </div>
+                                    <div className="pe-barcode-box flex-shrink-0 d-none d-sm-flex flex-column align-items-center justify-content-center">
+                                        <QrCode size={44} className="text-dark opacity-75 mb-1" />
+                                        <span className="extra-tiny font-monospace text-muted" style={{ fontSize: '0.6rem' }}>SCAN AT GATE</span>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Summary Details */}
-                            <div className="p-3.5 rounded-3 mb-4 text-start border bg-light extra-tiny">
-                                <div className="d-flex justify-content-between py-2 border-bottom">
-                                    <span className="text-muted fw-semibold">Festival / Event:</span>
-                                    <span className="fw-bold text-main">{submittedData.festOrEventName}</span>
-                                </div>
-                                <div className="d-flex justify-content-between py-2 border-bottom">
-                                    <span className="text-muted fw-semibold">Participant Name:</span>
-                                    <span className="fw-bold text-main">{submittedData.name}</span>
-                                </div>
-                                <div className="d-flex justify-content-between py-2 border-bottom">
-                                    <span className="text-muted fw-semibold">Role Interest:</span>
-                                    <span className="fw-bold text-primary">{submittedData.roleInterest}</span>
-                                </div>
-                                <div className="d-flex justify-content-between py-2 border-bottom">
-                                    <span className="text-muted fw-semibold">Department / Wing:</span>
-                                    <span className="fw-bold text-main">{submittedData.departmentInterest || 'Core Committee'}</span>
-                                </div>
-                                {Number(submittedData.estimatedAmount) > 0 && (
-                                    <div className="d-flex justify-content-between py-2 border-bottom">
-                                        <span className="text-muted fw-semibold">Pledged Support:</span>
-                                        <span className="fw-black text-success" style={{ fontSize: '0.85rem' }}>
-                                            {submittedData.currency || currencySymbol}{Number(submittedData.estimatedAmount).toLocaleString('en-IN')} ({submittedData.paymentMode || 'Pledged'})
-                                        </span>
+                            {/* Luxury 2x2 Bento Grid for Registration Details */}
+                            <div className="row g-2.5 mb-4">
+                                {/* Event / Celebration */}
+                                <div className="col-12 col-sm-6">
+                                    <div className="pe-bento-tile">
+                                        <div className="pe-bento-icon-wrapper text-terracotta">
+                                            <Calendar size={16} />
+                                        </div>
+                                        <div className="overflow-hidden">
+                                            <span className="pe-bento-label">EVENT / FESTIVAL</span>
+                                            <div className="pe-bento-val text-truncate">{submittedData.festOrEventName}</div>
+                                        </div>
                                     </div>
-                                )}
-                                {submittedData.paymentMode === 'UPI / Online' && (
-                                    <>
-                                        {submittedData.payeeName && (
-                                            <div className="d-flex justify-content-between py-2 border-bottom">
-                                                <span className="text-muted fw-semibold">Paid To (Payee):</span>
-                                                <span className="fw-bold text-main">{submittedData.payeeName} {submittedData.payeeNumber ? `(${submittedData.payeeNumber})` : ''}</span>
-                                            </div>
-                                        )}
-                                        {submittedData.transactionRefId && (
-                                            <div className="d-flex justify-content-between py-2 border-bottom">
-                                                <span className="text-muted fw-semibold">UTR / Bank Ref:</span>
-                                                <span className="fw-bold text-main font-monospace">{submittedData.transactionRefId}</span>
-                                            </div>
-                                        )}
-                                        {submittedData.receiptImage && (
-                                            <div className="d-flex justify-content-between align-items-center py-2 border-bottom">
-                                                <span className="text-muted fw-semibold">Payment Receipt:</span>
-                                                <span className="badge bg-success bg-opacity-15 text-success border border-success border-opacity-30 extra-tiny px-2 py-1">
-                                                    ✓ Receipt Photo Uploaded
+                                </div>
+
+                                {/* Participant Name */}
+                                <div className="col-12 col-sm-6">
+                                    <div className="pe-bento-tile">
+                                        <div className="pe-bento-icon-wrapper text-primary">
+                                            <User size={16} />
+                                        </div>
+                                        <div className="overflow-hidden">
+                                            <span className="pe-bento-label">PARTICIPANT NAME</span>
+                                            <div className="pe-bento-val text-truncate">{submittedData.name}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Role */}
+                                <div className="col-12 col-sm-6">
+                                    <div className="pe-bento-tile">
+                                        <div className="pe-bento-icon-wrapper text-warning">
+                                            <Award size={16} />
+                                        </div>
+                                        <div className="overflow-hidden">
+                                            <span className="pe-bento-label">OFFICIAL ROLE</span>
+                                            <div className="pe-bento-val text-truncate">
+                                                <span className="badge rounded-pill bg-warning bg-opacity-15 text-dark border border-warning border-opacity-30 extra-tiny px-2 py-0.5">
+                                                    {submittedData.roleInterest}
                                                 </span>
                                             </div>
-                                        )}
-                                    </>
-                                )}
-                                {submittedData.contributionItem && (
-                                    <div className="d-flex justify-content-between py-2">
-                                        <span className="text-muted fw-semibold">Material / In-Kind Item:</span>
-                                        <span className="fw-bold text-main">{submittedData.contributionItem}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Department / Wing */}
+                                <div className="col-12 col-sm-6">
+                                    <div className="pe-bento-tile">
+                                        <div className="pe-bento-icon-wrapper text-info">
+                                            <Layers size={16} />
+                                        </div>
+                                        <div className="overflow-hidden">
+                                            <span className="pe-bento-label">WING / DEPARTMENT</span>
+                                            <div className="pe-bento-val text-truncate">{submittedData.departmentInterest || 'Core Committee'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Donation Pledge / Payment Banner if Present */}
+                                {(Number(submittedData.estimatedAmount) > 0 || submittedData.contributionItem || submittedData.paymentMode === 'UPI / Online') && (
+                                    <div className="col-12">
+                                        <div className="pe-bento-donation-card">
+                                            <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2 pb-2 border-bottom border-warning border-opacity-30">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="rounded-circle bg-warning bg-opacity-20 text-dark p-1.5 d-flex align-items-center justify-content-center">
+                                                        <Gift size={16} className="text-amber" />
+                                                    </div>
+                                                    <div>
+                                                        <span className="pe-bento-label mb-0">CONTRIBUTION PLEDGE</span>
+                                                        <div className="fw-black text-main fs-6">
+                                                            {Number(submittedData.estimatedAmount) > 0 ? (
+                                                                <span className="text-success">
+                                                                    {submittedData.currency || currencySymbol}{Number(submittedData.estimatedAmount).toLocaleString('en-IN')}
+                                                                </span>
+                                                            ) : null}
+                                                            {submittedData.contributionItem ? (
+                                                                <span className="ms-1.5 fw-bold text-dark">
+                                                                    • {submittedData.contributionItem}
+                                                                </span>
+                                                            ) : null}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <span className="badge rounded-pill bg-white text-dark border extra-tiny px-2.5 py-1 fw-bold shadow-2xs">
+                                                    {submittedData.paymentMode || 'Pledged'}
+                                                </span>
+                                            </div>
+
+                                            {submittedData.paymentMode === 'UPI / Online' && (
+                                                <div className="row g-2 extra-tiny mt-1">
+                                                    {submittedData.payeeName && (
+                                                        <div className="col-12 col-sm-6">
+                                                            <div className="p-2 rounded-2 bg-white bg-opacity-80 border">
+                                                                <span className="text-muted d-block extra-tiny">Paid To (Payee):</span>
+                                                                <strong className="text-main">{submittedData.payeeName} {submittedData.payeeNumber ? `(${submittedData.payeeNumber})` : ''}</strong>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {submittedData.transactionRefId && (
+                                                        <div className="col-12 col-sm-6">
+                                                            <div className="p-2 rounded-2 bg-white bg-opacity-80 border">
+                                                                <span className="text-muted d-block extra-tiny">UTR / Bank Ref:</span>
+                                                                <strong className="text-main font-monospace">{submittedData.transactionRefId}</strong>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {submittedData.receiptImage && (
+                                                        <div className="col-12">
+                                                            <div className="p-2 rounded-2 bg-success bg-opacity-10 border border-success border-opacity-25 d-flex align-items-center justify-content-between">
+                                                                <span className="fw-bold text-success d-flex align-items-center gap-1.5">
+                                                                    <CheckCircle2 size={13} />
+                                                                    <span>Payment Receipt Attached &amp; Awaiting Approval</span>
+                                                                </span>
+                                                                <img src={submittedData.receiptImage} alt="Receipt thumbnail" className="rounded-1 border object-fit-cover" style={{ width: '28px', height: '28px' }} />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </div>
 
-                            {/* Action Buttons */}
+                            {/* Action Buttons Toolbar */}
                             <div className="d-flex align-items-center justify-content-center gap-2.5 flex-wrap">
                                 <button 
                                     onClick={shareWhatsAppConfirmation} 
-                                    className="btn btn-success rounded-pill px-4 py-2.5 fw-bold extra-tiny shadow-sm d-inline-flex align-items-center gap-2"
-                                    style={{ height: '44px' }}
+                                    className="pe-pass-action-btn btn-whatsapp"
                                 >
-                                    <Share2 size={15} />
+                                    <Share2 size={16} />
                                     <span>Share Slip on WhatsApp</span>
                                 </button>
                                 <button 
                                     onClick={() => window.print()} 
-                                    className="btn btn-light border rounded-pill px-4 py-2.5 fw-bold extra-tiny shadow-2xs d-inline-flex align-items-center gap-2"
-                                    style={{ height: '44px' }}
+                                    className="pe-pass-action-btn btn-print"
                                 >
-                                    <Printer size={15} />
+                                    <Printer size={16} />
                                     <span>Print Registration Pass</span>
                                 </button>
                             </div>
 
+                            {/* Return Navigation Link */}
                             <div className="mt-4 pt-3 border-top text-center">
-                                <Link to="/" className="text-muted extra-tiny text-decoration-none hover-text-main fw-bold d-inline-flex align-items-center gap-1">
-                                    ← Return to VishwaUtsav Home
+                                <Link to="/" className="pe-return-home-link">
+                                    <span>← Return to VishwaUtsav Home</span>
                                 </Link>
                             </div>
                         </div>
