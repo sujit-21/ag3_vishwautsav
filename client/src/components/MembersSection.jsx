@@ -1228,7 +1228,7 @@ export default function MembersSection({
                                                 <div className="d-flex align-items-center justify-content-between p-2 px-3 rounded-3" style={{ background: 'rgba(224, 122, 67, 0.08)', border: '1px solid rgba(224, 122, 67, 0.2)' }}>
                                                     <div className="d-flex align-items-center gap-2">
                                                         <Calendar size={13} className="text-terracotta flex-shrink-0" />
-                                                        <span className="extra-tiny text-muted fw-bold">Festival Roster:</span>
+                                                        <span className="extra-tiny text-muted fw-bold">{type === 'event' ? 'Event Roster:' : 'Festival Roster:'}</span>
                                                         <span className="extra-tiny fw-extrabold text-main">{activePortalName}</span>
                                                     </div>
                                                     <span className="badge rounded-pill bg-white text-muted extra-tiny border shadow-2xs">
@@ -2061,7 +2061,7 @@ export default function MembersSection({
                                         className="form-select mb-3 fw-bold text-main"
                                         style={{ borderRadius: '12px', padding: '0.6rem 0.8rem', fontSize: '0.85rem' }}
                                     >
-                                        <option value="">-- Choose Festival to copy from --</option>
+                                        <option value="">-- Choose {type === 'event' ? 'Event' : 'Festival'} to copy from --</option>
                                         {festivalsList
                                             .filter(f => (f.title || f) !== activePortalName)
                                             .map(f => {
@@ -2072,7 +2072,7 @@ export default function MembersSection({
                                     </select>
 
                                     <div className="alert alert-info py-2 px-3 extra-tiny rounded-3 mb-4">
-                                        All committee members from the selected festival will be duplicated for <strong>{activePortalName}</strong>. You can subsequently customize, add, or edit roles for this festival independently.
+                                        All committee members from the selected {type === 'event' ? 'event' : 'festival'} will be duplicated for <strong>{activePortalName}</strong>. You can subsequently customize, add, or edit roles for this {type === 'event' ? 'event' : 'festival'} independently.
                                     </div>
 
                                     <div className="d-flex align-items-center justify-content-end gap-2">
