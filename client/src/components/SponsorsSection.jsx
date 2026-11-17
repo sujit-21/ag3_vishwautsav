@@ -34,14 +34,14 @@ const DONATION_CATEGORIES = [
 ]
 
 const getTierStyle = (tier = '') => {
-    const t = tier.toLowerCase()
+    const t = (tier || '').toLowerCase()
     if (t.includes('title')) {
         return {
             bg: 'linear-gradient(135deg, rgba(245, 158, 11, 0.16), rgba(217, 119, 6, 0.28))',
             border: '#f59e0b',
             text: '#b45309',
-            icon: Crown,
-            badgeBg: 'bg-warning text-dark'
+            accentColor: '#f59e0b',
+            icon: Crown
         }
     }
     if (t.includes('platinum')) {
@@ -49,8 +49,8 @@ const getTierStyle = (tier = '') => {
             bg: 'linear-gradient(135deg, rgba(139, 92, 246, 0.14), rgba(124, 58, 237, 0.24))',
             border: '#8b5cf6',
             text: '#6d28d9',
-            icon: Sparkles,
-            badgeBg: 'bg-primary text-white'
+            accentColor: '#8b5cf6',
+            icon: Sparkles
         }
     }
     if (t.includes('gold')) {
@@ -58,8 +58,8 @@ const getTierStyle = (tier = '') => {
             bg: 'linear-gradient(135deg, rgba(234, 179, 8, 0.14), rgba(202, 138, 4, 0.22))',
             border: '#eab308',
             text: '#a16207',
-            icon: Award,
-            badgeBg: 'bg-warning text-dark'
+            accentColor: '#eab308',
+            icon: Award
         }
     }
     if (t.includes('silver')) {
@@ -67,8 +67,17 @@ const getTierStyle = (tier = '') => {
             bg: 'linear-gradient(135deg, rgba(148, 163, 184, 0.16), rgba(100, 116, 139, 0.24))',
             border: '#94a3b8',
             text: '#475569',
-            icon: BadgeCheck,
-            badgeBg: 'bg-secondary text-white'
+            accentColor: '#94a3b8',
+            icon: BadgeCheck
+        }
+    }
+    if (t.includes('bronze')) {
+        return {
+            bg: 'linear-gradient(135deg, rgba(205, 127, 50, 0.15), rgba(180, 83, 9, 0.22))',
+            border: '#cd7f32',
+            text: '#92400e',
+            accentColor: '#cd7f32',
+            icon: Award
         }
     }
     if (t.includes('in-kind') || t.includes('food')) {
@@ -76,16 +85,16 @@ const getTierStyle = (tier = '') => {
             bg: 'linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(5, 150, 105, 0.22))',
             border: '#10b981',
             text: '#047857',
-            icon: Gift,
-            badgeBg: 'bg-success text-white'
+            accentColor: '#10b981',
+            icon: Gift
         }
     }
     return {
-        bg: 'linear-gradient(135deg, rgba(224, 122, 67, 0.12), rgba(217, 90, 34, 0.18))',
+        bg: 'linear-gradient(135deg, rgba(224, 122, 67, 0.14), rgba(217, 90, 34, 0.22))',
         border: '#E07A43',
         text: '#D95A22',
-        icon: Coins,
-        badgeBg: 'bg-light text-main'
+        accentColor: '#E07A43',
+        icon: Coins
     }
 }
 
@@ -695,11 +704,14 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
 
                         return (
                             <div key={sponsor._id} className="col-12 col-md-6 col-xl-4">
-                                <div className={`figma-luxury-member-card ${sponsor.isHidden ? 'opacity-75 border-warning border-opacity-40' : ''}`}>
+                                <div 
+                                    className={`figma-luxury-sponsor-card ${sponsor.isHidden ? 'sponsor-card-hidden' : ''}`}
+                                    style={{ borderTop: `3.5px solid ${style.accentColor}` }}
+                                >
                                     <div>
-                                        {/* Card Top: Avatar, Name, Status */}
-                                        <div className="d-flex align-items-start justify-content-between gap-2.5 mb-3">
-                                            <div className="d-flex align-items-center gap-2.5">
+                                        {/* Card Top: Avatar, Name & Status */}
+                                        <div className="d-flex align-items-start justify-content-between gap-2.5 mb-2.5">
+                                            <div className="d-flex align-items-center gap-2.5" style={{ minWidth: 0 }}>
                                                 <div 
                                                     className="figma-member-avatar-ring"
                                                     style={{
@@ -711,21 +723,25 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                                                     {sponsor.name ? sponsor.name.charAt(0).toUpperCase() : 'S'}
                                                 </div>
 
-                                                <div>
-                                                    <h6 className="fw-extrabold text-main mb-0" style={{ fontSize: '0.94rem', lineHeight: '1.2' }}>
+                                                <div className="text-truncate">
+                                                    <h6 className="fw-extrabold text-main mb-0 text-truncate" style={{ fontSize: '0.96rem', lineHeight: '1.2' }}>
                                                         {sponsor.name}
                                                     </h6>
-                                                    {sponsor.company && (
-                                                        <div className="extra-tiny text-muted d-flex align-items-center gap-1 mt-0.5">
-                                                            <Building2 size={10} className="text-primary" />
-                                                            <span className="fw-semibold">{sponsor.company}</span>
+                                                    {sponsor.company ? (
+                                                        <div className="extra-tiny text-muted d-flex align-items-center gap-1 mt-0.5 text-truncate">
+                                                            <Building2 size={10} className="text-terracotta flex-shrink-0" />
+                                                            <span className="fw-semibold text-truncate">{sponsor.company}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="extra-tiny text-muted mt-0.5 opacity-75">
+                                                            Individual Patron
                                                         </div>
                                                     )}
                                                 </div>
                                             </div>
 
-                                            {/* Badges */}
-                                            <div className="d-flex align-items-center gap-1.5 flex-wrap justify-content-end">
+                                            {/* Status Badges */}
+                                            <div className="d-flex align-items-center gap-1.5 flex-wrap justify-content-end flex-shrink-0">
                                                 {sponsor.isHidden && (
                                                     <span 
                                                         className="badge rounded-pill px-2 py-0.5 fw-bold bg-warning bg-opacity-15 text-warning border border-warning border-opacity-35 d-inline-flex align-items-center gap-1"
@@ -737,70 +753,87 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                                                     </span>
                                                 )}
                                                 <span 
-                                                    className={`badge rounded-pill px-2.5 py-1 fw-bold ${
+                                                    className={`badge rounded-pill px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 ${
                                                         sponsor.paymentStatus === 'Received' 
                                                             ? 'bg-success bg-opacity-10 text-success border border-success border-opacity-25' 
                                                             : sponsor.paymentStatus === 'Pledged'
                                                             ? 'bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25'
                                                             : 'bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25'
                                                     }`}
-                                                    style={{ fontSize: '0.62rem' }}
+                                                    style={{ fontSize: '0.64rem' }}
                                                 >
-                                                    {sponsor.paymentStatus || 'Received'}
+                                                    {sponsor.paymentStatus === 'Received' ? <CheckCircle2 size={10} /> : <span style={{ fontSize: '0.55rem' }}>●</span>}
+                                                    <span>{sponsor.paymentStatus || 'Received'}</span>
                                                 </span>
                                             </div>
                                         </div>
 
-                                        {/* Tier Pill */}
-                                        <div className="mb-2.5 d-flex align-items-center gap-2">
+                                        {/* Tier & Category Badges */}
+                                        <div className="d-flex align-items-center gap-1.5 flex-wrap my-2.5">
                                             <span 
-                                                className="badge rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 shadow-xs"
+                                                className="badge rounded-pill px-2.5 py-1 fw-bold d-inline-flex align-items-center gap-1 shadow-xs"
                                                 style={{
                                                     background: style.bg,
                                                     color: style.text,
                                                     border: `1px solid ${style.border}`,
-                                                    fontSize: '0.74rem'
+                                                    fontSize: '0.72rem'
                                                 }}
                                             >
                                                 <TierIcon size={12} />
                                                 <span>{sponsor.tier || 'Community Donor'}</span>
                                             </span>
-                                            <span className="badge rounded-pill bg-light text-muted border extra-tiny px-2 py-1" style={{ fontSize: '0.66rem' }}>
-                                                {sponsor.category || 'Cash'}
+                                            <span 
+                                                className="badge rounded-pill px-2.5 py-1 fw-semibold d-inline-flex align-items-center gap-1 extra-tiny"
+                                                style={{
+                                                    background: 'rgba(0, 0, 0, 0.04)',
+                                                    color: 'var(--text-muted, #64748b)',
+                                                    border: '1px solid var(--glass-border, rgba(0, 0, 0, 0.08))',
+                                                    fontSize: '0.68rem'
+                                                }}
+                                            >
+                                                <Tag size={10} />
+                                                <span>{sponsor.category || 'Cash'}</span>
                                             </span>
                                         </div>
 
-                                        {/* Highlighted Donation & Contribution Box */}
-                                        <div 
-                                            className="p-2.5 rounded-3 mb-2.5" 
-                                            style={{ 
-                                                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(224, 122, 67, 0.05))',
-                                                border: '1px solid rgba(245, 158, 11, 0.22)'
-                                            }}
-                                        >
-                                            <div className="extra-tiny fw-bold text-muted uppercase tracking-wider mb-0.5 d-flex align-items-center gap-1">
-                                                <Gift size={11} className="text-warning" />
-                                                <span>Donated / Contributed:</span>
-                                            </div>
-                                            <div className="fw-extrabold text-main extra-tiny" style={{ fontSize: '0.82rem', lineHeight: '1.3' }}>
-                                                {sponsor.contribution}
+                                        {/* Redesigned Bento Donation Capsule */}
+                                        <div className="figma-sponsor-donation-hero mb-3">
+                                            <div className="d-flex align-items-start justify-content-between gap-2 mb-1.5">
+                                                <div className="flex-grow-1" style={{ minWidth: 0 }}>
+                                                    <span className="figma-donation-hero-label d-inline-flex align-items-center gap-1 mb-1">
+                                                        <Gift size={11} style={{ color: style.accentColor }} />
+                                                        <span>Donated / Contributed:</span>
+                                                    </span>
+                                                    <div className="figma-donation-hero-item text-truncate" title={sponsor.contribution}>
+                                                        {sponsor.contribution || 'Undisclosed Contribution'}
+                                                    </div>
+                                                </div>
                                             </div>
 
-                                            <div className="d-flex align-items-center justify-content-between mt-2 pt-1.5 border-top border-warning border-opacity-20">
-                                                <span className="extra-tiny text-muted fw-semibold">Value / Amount:</span>
-                                                <span className="fw-extrabold text-success" style={{ fontSize: '0.88rem' }}>
-                                                    {sponsor.hideAmount && !isAdmin ? '••••••' : `₹${(Number(sponsor.amount) || 0).toLocaleString('en-IN')}`}
-                                                </span>
+                                            <div className="figma-donation-hero-footer d-flex align-items-center justify-content-between pt-2 mt-1">
+                                                <span className="figma-donation-hero-label mb-0">Value / Amount:</span>
+                                                <div className="d-flex align-items-baseline gap-1">
+                                                    <span className="figma-donation-hero-amount">
+                                                        {sponsor.hideAmount && !isAdmin ? '••••••' : `₹${(Number(sponsor.amount) || 0).toLocaleString('en-IN')}`}
+                                                    </span>
+                                                    {sponsor.hideAmount && (
+                                                        <span className="badge rounded-pill bg-warning bg-opacity-20 text-dark extra-tiny px-1.5 py-0" style={{ fontSize: '0.55rem' }}>
+                                                            Protected
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
 
-                                        {/* Contact info */}
-                                        <div className="extra-tiny text-muted d-flex flex-column gap-1.5 mb-2">
+                                        {/* Contact & WhatsApp Bar */}
+                                        <div className="figma-sponsor-contact-box mb-3">
                                             {sponsor.contact ? (
-                                                <div className="d-flex align-items-center justify-content-between p-1 px-2 rounded-2" style={{ background: 'rgba(0, 0, 0, 0.02)' }}>
-                                                    <div className="d-flex align-items-center gap-1.5">
-                                                        <Phone size={12} className="text-muted" />
-                                                        <a href={`tel:${sponsor.contact}`} className="text-decoration-none text-main fw-bold">
+                                                <div className="d-flex align-items-center justify-content-between gap-2 p-1.5 px-2.5 rounded-3 contact-row">
+                                                    <div className="d-flex align-items-center gap-2 text-truncate" style={{ minWidth: 0 }}>
+                                                        <div className="contact-icon-pill">
+                                                            <Phone size={12} />
+                                                        </div>
+                                                        <a href={`tel:${sponsor.contact}`} className="contact-phone-link text-truncate">
                                                             {sponsor.countryCode || '+91'} {sponsor.contact}
                                                         </a>
                                                     </div>
@@ -808,27 +841,31 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                                                         href={`https://wa.me/${(sponsor.countryCode || '+91').replace(/[^0-9]/g, '')}${sponsor.contact.replace(/[^0-9]/g, '')}`}
                                                         target="_blank" 
                                                         rel="noreferrer"
-                                                        title="Message on WhatsApp"
-                                                        className="text-success hover-scale p-1 rounded d-inline-flex"
+                                                        title="Direct WhatsApp Message"
+                                                        className="whatsapp-action-pill"
                                                     >
-                                                        <MessageCircle size={14} />
+                                                        <MessageCircle size={13} />
+                                                        <span className="d-none d-sm-inline">WhatsApp</span>
                                                     </a>
                                                 </div>
                                             ) : null}
 
-                                            {sponsor.email && (
-                                                <div className="d-flex align-items-center gap-1.5 text-truncate px-1">
-                                                    <Mail size={12} className="text-muted flex-shrink-0" />
-                                                    <a href={`mailto:${sponsor.email}`} className="text-decoration-none text-muted text-truncate">
-                                                        {sponsor.email}
-                                                    </a>
-                                                </div>
-                                            )}
-
-                                            {sponsor.address && (
-                                                <div className="d-flex align-items-center gap-1.5 extra-tiny text-muted text-truncate px-1 opacity-80">
-                                                    <MapPin size={12} className="text-muted flex-shrink-0" />
-                                                    <span className="text-truncate">{sponsor.address}</span>
+                                            {(sponsor.address || sponsor.email) && (
+                                                <div className="d-flex align-items-center gap-3 px-1 mt-1.5 flex-wrap extra-tiny text-muted">
+                                                    {sponsor.address && (
+                                                        <div className="d-flex align-items-center gap-1 text-truncate" title={sponsor.address} style={{ maxWidth: '100%' }}>
+                                                            <MapPin size={11} className="text-terracotta flex-shrink-0" />
+                                                            <span className="text-truncate">{sponsor.address}</span>
+                                                        </div>
+                                                    )}
+                                                    {sponsor.email && (
+                                                        <div className="d-flex align-items-center gap-1 text-truncate" title={sponsor.email} style={{ maxWidth: '100%' }}>
+                                                            <Mail size={11} className="text-primary flex-shrink-0" />
+                                                            <a href={`mailto:${sponsor.email}`} className="text-muted text-decoration-none text-truncate">
+                                                                {sponsor.email}
+                                                            </a>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -836,8 +873,8 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
 
                                     {/* Card Bottom: Admin Controls */}
                                     {isAdmin && (
-                                        <div className="d-flex align-items-center justify-content-between pt-2.5 border-top border-secondary border-opacity-10 mt-3">
-                                            <span className="extra-tiny text-muted font-monospace opacity-75">
+                                        <div className="d-flex align-items-center justify-content-between pt-2.5 border-top border-secondary border-opacity-10 mt-2">
+                                            <span className="figma-sponsor-id-badge">
                                                 ID: {sponsor._id ? sponsor._id.slice(-6).toUpperCase() : 'SPON'}
                                             </span>
 
@@ -845,31 +882,29 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                                                 <button
                                                     type="button"
                                                     onClick={() => handleToggleVisibility(sponsor._id)}
-                                                    className={`btn btn-sm p-1 px-2.5 rounded-pill extra-tiny fw-semibold transition-all ${
-                                                        sponsor.isHidden
-                                                            ? 'btn-warning text-dark shadow-xs'
-                                                            : 'btn-light text-muted hover-text-main'
-                                                    }`}
-                                                    title={sponsor.isHidden ? 'Click to unhide' : 'Click to hide'}
+                                                    className={`figma-action-pill-btn ${sponsor.isHidden ? 'active-hidden' : ''}`}
+                                                    title={sponsor.isHidden ? 'Click to unhide from directory & PDF' : 'Click to hide from directory & PDF'}
                                                 >
-                                                    {sponsor.isHidden ? <Eye size={12} className="me-1 text-dark" /> : <EyeOff size={12} className="me-1" />}
+                                                    {sponsor.isHidden ? <Eye size={12} /> : <EyeOff size={12} />}
                                                     <span>{sponsor.isHidden ? 'Unhide' : 'Hide'}</span>
                                                 </button>
                                                 <button
                                                     type="button"
                                                     onClick={() => handleOpenModal(sponsor)}
-                                                    className="btn btn-sm btn-light p-1 px-2.5 rounded-pill extra-tiny text-secondary hover-bg-secondary hover-text-white transition-all fw-semibold"
-                                                    title="Edit Sponsor"
+                                                    className="figma-action-pill-btn edit-btn"
+                                                    title="Edit Sponsor Details"
                                                 >
-                                                    <Edit3 size={12} className="me-1" /> Edit
+                                                    <Edit3 size={12} />
+                                                    <span>Edit</span>
                                                 </button>
                                                 <button
                                                     type="button"
                                                     onClick={() => handleDelete(sponsor._id, sponsor.name)}
-                                                    className="btn btn-sm btn-light p-1 px-2.5 rounded-pill extra-tiny text-danger hover-bg-danger hover-text-white transition-all fw-semibold"
-                                                    title="Remove Sponsor"
+                                                    className="figma-action-pill-btn delete-btn"
+                                                    title="Remove Sponsor Record"
                                                 >
-                                                    <Trash2 size={12} className="me-1" /> Delete
+                                                    <Trash2 size={12} />
+                                                    <span>Delete</span>
                                                 </button>
                                             </div>
                                         </div>
