@@ -2289,13 +2289,6 @@ const Events = () => {
                                                                 ? 'badge-due'
                                                                 : 'badge-cash'
                                                         }`}>
-                                                            {exp.paymentType === 'Online' ? (
-                                                                <CreditCard size={11} className="flex-shrink-0" />
-                                                            ) : exp.paymentType === 'Due' ? (
-                                                                <Clock size={11} className="flex-shrink-0" />
-                                                            ) : (
-                                                                <Banknote size={11} className="flex-shrink-0" />
-                                                            )}
                                                             <span>{exp.paymentType === 'Online' && exp.onlineParticulars ? `Online (${exp.onlineParticulars})` : (exp.paymentType === 'Cash & Paid' ? 'Cash' : exp.paymentType)}</span>
                                                         </span>
                                                     </td>
