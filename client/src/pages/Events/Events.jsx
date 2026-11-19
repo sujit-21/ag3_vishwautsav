@@ -2190,7 +2190,8 @@ const Events = () => {
 
 
 
-                    <div className="table-responsive rounded-3 border border-secondary border-opacity-10 shadow-xs" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    {/* Desktop & Tablet Table View (Screens >= 768px) */}
+                    <div className="table-responsive rounded-3 border border-secondary border-opacity-10 shadow-xs d-none d-md-block" style={{ WebkitOverflowScrolling: 'touch' }}>
                         <table className="table table-hover align-middle mb-0 w-100">
                             <thead>
                                 <tr className="text-muted border-bottom border-secondary border-opacity-15" style={{ fontSize: '0.72rem', background: 'rgba(0, 0, 0, 0.02)' }}>
@@ -2243,7 +2244,7 @@ const Events = () => {
                                                     <td className="border-0 py-2.5 px-2">
                                                         <div className="d-flex align-items-center justify-content-between gap-2 w-100">
                                                             <div>
-                                                                <span className="fw-bold text-main" style={{ fontSize: '0.85rem', wordBreak: 'break-word', lineHeight: '1.3' }}>
+                                                                <span className="fw-bold text-main" style={{ fontSize: '0.88rem', wordBreak: 'normal', overflowWrap: 'break-word', lineHeight: '1.3' }}>
                                                                     {exp.particular}
                                                                 </span>
                                                                 {exp.paidTo && (
@@ -2434,6 +2435,196 @@ const Events = () => {
                                 )}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile Card View (Screens < 768px) */}
+                    <div className="d-block d-md-none">
+                        {filteredExpenses.length === 0 ? (
+                            <div className="text-center py-5 text-muted small">
+                                {expensesList.length === 0 ? "No expenses logged yet." : "No matching expenses found."}
+                            </div>
+                        ) : (
+                            filteredExpenses.map((exp) => {
+                                const isExpInfoOpen = !!openExpInfoIds[exp.expenseId];
+                                const isExpActionOpen = openActionExpId === exp.expenseId;
+                                return (
+                                    <div key={exp.expenseId} className="sub-mobile-card" style={{ zIndex: isExpActionOpen ? 1045 : 1 }}>
+                                        {/* Top Row: Particular & Amount */}
+                                        <div className="d-flex justify-content-between align-items-start mb-2 gap-2">
+                                            <div className="d-flex flex-column" style={{ minWidth: 0, flex: 1 }}>
+                                                <span className="fw-bold text-main" style={{ fontSize: '0.96rem', lineHeight: 1.3, wordBreak: 'normal', overflowWrap: 'break-word' }}>
+                                                    {exp.particular}
+                                                </span>
+                                                <div className="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                                                    <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace" style={{ fontSize: '0.68rem' }}>
+                                                        {exp.expenseId}
+                                                    </span>
+                                                    {exp.date && (
+                                                        <span className="extra-tiny text-muted d-inline-flex align-items-center gap-1 font-monospace">
+                                                            <Calendar size={11} className="text-secondary opacity-75" />
+                                                            {new Date(exp.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                {exp.paidTo && (
+                                                    <div className="extra-tiny text-muted mt-1">
+                                                        <span className="opacity-75">Paid To:</span> <strong className="text-main">{exp.paidTo}</strong>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <span className="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2.5 py-1 fw-bold shadow-xs flex-shrink-0" style={{ fontSize: '0.88rem' }}>
+                                                -{exp.currency}{(Number(exp.amount) || 0).toLocaleString('en-IN')}
+                                            </span>
+                                        </div>
+
+                                        {/* Bottom Row: Payment Badge, Category & Action Dropdown */}
+                                        <div className="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-10 gap-2">
+                                            <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                                                <span className={`figma-payment-badge ${
+                                                    exp.paymentType === 'Online'
+                                                        ? 'badge-online'
+                                                        : exp.paymentType === 'Due'
+                                                        ? 'badge-due'
+                                                        : 'badge-cash'
+                                                }`} style={{ fontSize: '0.68rem' }}>
+                                                    <span>{exp.paymentType === 'Online' && exp.onlineParticulars ? `Online (${exp.onlineParticulars})` : (exp.paymentType === 'Cash & Paid' ? 'Cash' : exp.paymentType)}</span>
+                                                </span>
+                                                {exp.expenseType && (
+                                                    <span className="badge rounded-pill px-2 py-0.5 extra-tiny fw-bold" style={{ background: 'rgba(67, 130, 149, 0.1)', color: 'var(--palette-slate-teal, #438295)', border: '1px solid rgba(67, 130, 149, 0.25)' }}>
+                                                        {exp.expenseType}
+                                                    </span>
+                                                )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setOpenExpInfoIds(prev => ({ ...prev, [exp.expenseId]: !prev[exp.expenseId] }))}
+                                                    className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center transition-all ${
+                                                        isExpInfoOpen ? 'bg-primary text-white shadow-sm' : 'bg-secondary bg-opacity-10 text-primary border-0'
+                                                    }`}
+                                                    style={{ width: '22px', height: '22px', minWidth: '22px' }}
+                                                    title={isExpInfoOpen ? "Hide info" : "Show info"}
+                                                >
+                                                    <Info size={12} strokeWidth={2.4} />
+                                                </button>
+                                            </div>
+
+                                            {/* Action Dropdown on Mobile */}
+                                            <div className="position-relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setOpenActionExpId(isExpActionOpen ? null : exp.expenseId)}
+                                                    className={`btn btn-sm d-flex align-items-center gap-1 px-2.5 py-1 rounded-pill fw-bold shadow-sm sub-action-btn ${
+                                                        isExpActionOpen ? 'btn-primary text-white' : 'btn-outline-secondary'
+                                                    }`}
+                                                    style={{ fontSize: '0.73rem', height: '28px' }}
+                                                >
+                                                    <span>Action</span>
+                                                    <ChevronDown size={12} style={{ transform: isExpActionOpen ? 'rotate(180deg)' : 'none' }} />
+                                                </button>
+
+                                                {isExpActionOpen && (
+                                                    <>
+                                                        <div
+                                                            className="position-fixed top-0 start-0 w-100 h-100"
+                                                            style={{ zIndex: 1040 }}
+                                                            onClick={() => setOpenActionExpId(null)}
+                                                        />
+                                                        <motion.div
+                                                            initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                            exit={{ opacity: 0, scale: 0.95 }}
+                                                            transition={{ duration: 0.15 }}
+                                                            className="sub-action-menu"
+                                                        >
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setOpenActionExpId(null)
+                                                                    downloadExpensePDF(exp)
+                                                                }}
+                                                                className="sub-action-item"
+                                                            >
+                                                                <FileDown size={14} className="text-info" />
+                                                                <span>Download PDF</span>
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    setOpenActionExpId(null)
+                                                                    setExpenseFormData({
+                                                                        ...exp,
+                                                                        paidTo: exp.paidTo || '',
+                                                                        contact: exp.contact || '',
+                                                                        date: exp.date ? new Date(exp.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                                                                    })
+                                                                    setEditingExpId(exp.expenseId)
+                                                                    setIsExpAdding(true)
+                                                                }}
+                                                                className="sub-action-item"
+                                                            >
+                                                                <Edit3 size={14} className="text-primary" />
+                                                                <span>Edit Expense</span>
+                                                            </button>
+                                                            <div className="sub-action-divider" />
+                                                            <button
+                                                                type="button"
+                                                                onClick={async () => {
+                                                                    setOpenActionExpId(null)
+                                                                    if (window.confirm('Delete this expense?')) {
+                                                                        await axios.delete(`/api/expenses/${exp.expenseId}`)
+                                                                        fetchExpenses()
+                                                                    }
+                                                                }}
+                                                                className="sub-action-item delete-item"
+                                                            >
+                                                                <Trash2 size={14} className="text-danger" />
+                                                                <span>Delete</span>
+                                                            </button>
+                                                        </motion.div>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Expandable Details Drawer */}
+                                        {isExpInfoOpen && (
+                                            <motion.div
+                                                initial={{ opacity: 0, height: 0 }}
+                                                animate={{ opacity: 1, height: 'auto' }}
+                                                exit={{ opacity: 0, height: 0 }}
+                                                transition={{ duration: 0.18 }}
+                                                className="figma-exp-detail-card d-flex flex-wrap align-items-center gap-2 mt-2 pt-2 border-top text-muted"
+                                                style={{ fontSize: '0.74rem' }}
+                                            >
+                                                {exp.date && (
+                                                    <div className="d-flex align-items-center gap-1">
+                                                        <Calendar size={12} className="text-warning opacity-75" />
+                                                        <span><strong>Date:</strong> {new Date(exp.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                                    </div>
+                                                )}
+                                                {exp.expenseType && (
+                                                    <div className="d-flex align-items-center gap-1">
+                                                        <Tag size={12} className="text-primary opacity-75" />
+                                                        <span><strong>Type:</strong> {exp.expenseType}</span>
+                                                    </div>
+                                                )}
+                                                {exp.contact && (
+                                                    <div className="d-flex align-items-center gap-1">
+                                                        <Phone size={12} className="text-info opacity-75" />
+                                                        <span><strong>Contact:</strong> {exp.contact}</span>
+                                                    </div>
+                                                )}
+                                                {exp.onlineReference && (
+                                                    <div className="d-flex align-items-center gap-1">
+                                                        <CreditCard size={12} className="text-info opacity-75" />
+                                                        <span><strong>Ref:</strong> {exp.onlineReference}</span>
+                                                    </div>
+                                                )}
+                                            </motion.div>
+                                        )}
+                                    </div>
+                                );
+                            })
+                        )}
                     </div>
                 </div>
             )}
