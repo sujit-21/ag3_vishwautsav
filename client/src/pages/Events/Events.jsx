@@ -1871,29 +1871,41 @@ const Events = () => {
 
 
             {activeTab === 'expenses' && (
-                <div className="figma-expense-section py-3 px-3 px-sm-4 shadow-sm mx-auto w-100" style={{ maxWidth: '760px' }}>
+                <div className="figma-expense-section py-3 px-3 px-sm-4 shadow-sm mx-auto w-100 mb-4">
                     {/* Expenses Header */}
-                    <div className="figma-expense-header">
+                    <div className="figma-expense-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
                         <div className="figma-expense-title-group">
                             <div className="figma-expense-icon-badge shadow-sm">
                                 <span className="figma-expense-emoji" role="img" aria-label="Receipt">🧾</span>
                             </div>
                             <div>
-                                <div className="d-flex align-items-center gap-2">
-                                    <h4 className="mb-0 fw-bold text-main" style={{ fontSize: '1.18rem', letterSpacing: '-0.3px' }}>Expenses</h4>
-                                    <span className="badge rounded-pill px-2 py-0.5 extra-tiny fw-bold" style={{ background: 'rgba(234, 88, 12, 0.12)', color: '#ea580c', border: '1px solid rgba(234, 88, 12, 0.25)' }}>
+                                <div className="d-flex align-items-center gap-2 flex-wrap">
+                                    <h4 className="mb-0 fw-bold text-main" style={{ fontSize: '1.2rem', letterSpacing: '-0.3px' }}>
+                                        {activeEvent?.title ? `${activeEvent.title} — ` : ''}Expenses
+                                    </h4>
+                                    <span className="badge rounded-pill px-2.5 py-0.5 extra-tiny fw-bold" style={{ background: 'rgba(234, 88, 12, 0.12)', color: '#ea580c', border: '1px solid rgba(234, 88, 12, 0.25)' }}>
                                         {filteredExpenses.length} Records
                                     </span>
                                 </div>
-                                <p className="text-muted tiny mb-0">Track and manage financial disbursements, invoices and audit trails.</p>
+                                <p className="text-muted tiny mb-0 mt-0.5">Track and manage financial disbursements, invoices and audit trails.</p>
+                            </div>
+                        </div>
+
+                        {/* Total Disbursed KPI Chip on Wide Screens */}
+                        <div className="d-flex align-items-center gap-2">
+                            <div className="figma-expense-kpi-chip">
+                                <span className="kpi-label">TOTAL DISBURSED</span>
+                                <span className="kpi-value text-danger">
+                                    -₹{filteredExpenses.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0).toLocaleString('en-IN')}
+                                </span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Toolbar below Title inside the Card */}
-                    <div className="d-flex flex-column gap-2 mb-3">
-                        {/* Row 1: New Expense, Search, All Expenses PDF */}
-                        <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
+                    {/* Responsive Toolbar inside the Card */}
+                    <div className="d-flex flex-column gap-2.5 mb-3">
+                        {/* Row 1: New Expense, Search, Action Buttons */}
+                        <div className="figma-expense-toolbar-row1 d-flex align-items-center gap-2.5 flex-wrap">
                             {!isExpAdding && (
                                 <button onClick={() => {
                                     setEditingExpId(null);
@@ -1911,84 +1923,109 @@ const Events = () => {
                                         onlineReference: ''
                                     });
                                     setIsExpAdding(true);
-                                }} className="figma-btn-submit py-1 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-sm" style={{ height: '30px', fontSize: '0.72rem' }}>
-                                    <Plus size={13} /> <span>New Expense</span>
+                                }} className="figma-btn-submit py-1.5 px-3.5 rounded-pill fw-bold text-nowrap transition-all shadow-sm d-inline-flex align-items-center gap-1.5" style={{ height: '34px', fontSize: '0.74rem' }}>
+                                    <Plus size={14} /> <span>New Expense</span>
                                 </button>
                             )}
-                            {/* Search Expenses */}
-                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm" style={{ height: '30px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={12} /></span>
+
+                            {/* Flexible Search Expenses Bar */}
+                            <div className="figma-expense-search-bar px-3 flex-grow-1 shadow-xs">
+                                <Search size={13} className="text-muted flex-shrink-0" />
                                 <input
                                     type="text"
-                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100"
-                                    placeholder="Search expenses by particular, ref..."
+                                    className="form-control bg-transparent border-0 text-main shadow-none p-0 ps-2"
+                                    placeholder="Search expenses by particular, vendor, ref..."
                                     value={expSearch}
                                     onChange={(e) => setExpSearch(e.target.value)}
-                                    style={{ fontSize: '0.75rem' }}
+                                    style={{ fontSize: '0.76rem' }}
                                 />
+                                {expSearch && (
+                                    <button onClick={() => setExpSearch('')} className="btn btn-sm btn-link text-muted p-0 pe-1">
+                                        <X size={13} />
+                                    </button>
+                                )}
                             </div>
-                            <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '30px', fontSize: '0.72rem' }}>
-                                <FileDown size={13} /> <span className="uppercase">All Expenses PDF</span>
-                            </button>
-                            <button onClick={() => setIsDataOpen(true)} className="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-sm" style={{ height: '30px', fontSize: '0.72rem' }} title="Open DATA Reports Hub">
-                                <Download size={13} /> <span className="uppercase">DATA Reports</span>
-                            </button>
+
+                            {/* Action Buttons Group */}
+                            <div className="figma-expense-btn-group d-flex align-items-center gap-2">
+                                <button onClick={downloadAllExpensesPDF} className="btn btn-outline-danger btn-sm d-inline-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-xs" style={{ height: '34px', fontSize: '0.74rem' }}>
+                                    <FileDown size={14} /> <span>All Expenses PDF</span>
+                                </button>
+                                <button onClick={() => setIsDataOpen(true)} className="btn btn-outline-warning btn-sm d-inline-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-xs" style={{ height: '34px', fontSize: '0.74rem' }} title="Open DATA Reports Hub">
+                                    <Download size={14} /> <span>DATA Reports</span>
+                                </button>
+                            </div>
                         </div>
 
                         {/* Row 2: Sort, Category Filter, Pay Filter */}
-                        <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
+                        <div className="figma-expense-toolbar-row2 d-flex align-items-center gap-2 flex-wrap">
                             {/* SORT */}
-                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '28px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
+                            <div className="figma-expense-select-pill">
+                                <ArrowUpDown size={12} className="text-primary flex-shrink-0 ms-2" />
                                 <select
-                                    className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.68rem' }}
+                                    className="form-select border-0 bg-transparent text-main shadow-none fw-bold"
                                     value={expSort}
                                     onChange={(e) => setExpSort(e.target.value)}
                                     title="Sort Expenses"
                                 >
-                                    <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
-                                    <option value="oldest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Oldest</option>
-                                    <option value="amount-high" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (High-Low)</option>
-                                    <option value="amount-low" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (Low-High)</option>
-                                    <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Particular (A-Z)</option>
+                                    <option value="newest">SORT: Newest</option>
+                                    <option value="oldest">SORT: Oldest</option>
+                                    <option value="amount-high">SORT: Amount (High-Low)</option>
+                                    <option value="amount-low">SORT: Amount (Low-High)</option>
+                                    <option value="name-asc">SORT: Particular (A-Z)</option>
                                 </select>
                             </div>
 
-                            {/* FILTER */}
-                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '28px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={expTypeFilter !== 'all' || expPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
+                            {/* CATEGORY FILTER */}
+                            <div className="figma-expense-select-pill">
+                                <Filter size={12} className={`flex-shrink-0 ms-2 ${expTypeFilter !== 'all' ? 'text-primary' : 'text-muted'}`} />
                                 <select
-                                    className="form-select select-cat bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold"
-                                    style={{ fontSize: '0.68rem' }}
+                                    className="form-select border-0 bg-transparent text-main shadow-none fw-bold"
                                     value={expTypeFilter}
                                     onChange={(e) => setExpTypeFilter(e.target.value)}
                                     title="Filter Category"
                                 >
-                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Category: All</option>
-                                    <option value="Venue & Location" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Venue & Location</option>
-                                    <option value="Sound & Lighting" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Sound & Lighting</option>
-                                    <option value="Catering & Food" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Catering & Food</option>
-                                    <option value="Marketing & PR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Marketing & PR</option>
-                                    <option value="Artist & Talent" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Artist & Talent</option>
-                                    <option value="Security & Logistics" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Security & Logistics</option>
-                                    <option value="Miscellaneous" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Miscellaneous</option>
+                                    <option value="all">Category: All</option>
+                                    <option value="Venue & Location">Venue & Location</option>
+                                    <option value="Sound & Lighting">Sound & Lighting</option>
+                                    <option value="Catering & Food">Catering & Food</option>
+                                    <option value="Marketing & PR">Marketing & PR</option>
+                                    <option value="Artist & Talent">Artist & Talent</option>
+                                    <option value="Security & Logistics">Security & Logistics</option>
+                                    <option value="Miscellaneous">Miscellaneous</option>
                                 </select>
+                            </div>
+
+                            {/* PAYMENT MODE FILTER */}
+                            <div className="figma-expense-select-pill">
+                                <CreditCard size={12} className={`flex-shrink-0 ms-2 ${expPaymentFilter !== 'all' ? 'text-primary' : 'text-muted'}`} />
                                 <select
-                                    className="form-select select-pay bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-1.5 h-100 fw-bold border-start border-secondary border-opacity-25"
-                                    style={{ fontSize: '0.68rem' }}
+                                    className="form-select border-0 bg-transparent text-main shadow-none fw-bold"
                                     value={expPaymentFilter}
                                     onChange={(e) => setExpPaymentFilter(e.target.value)}
                                     title="Filter Payment Mode"
                                 >
-                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Pay: All</option>
-                                    <option value="Cash" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cash</option>
-                                    <option value="Online" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Online</option>
-                                    <option value="Bank Transfer" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Bank Transfer</option>
-                                    <option value="Cheque" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Cheque</option>
-                                    <option value="UPI / QR" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>UPI / QR</option>
+                                    <option value="all">Pay: All</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Cheque">Cheque</option>
+                                    <option value="UPI / QR">UPI / QR</option>
                                 </select>
                             </div>
+
+                            {(expTypeFilter !== 'all' || expPaymentFilter !== 'all' || expSearch) && (
+                                <button
+                                    onClick={() => {
+                                        setExpTypeFilter('all');
+                                        setExpPaymentFilter('all');
+                                        setExpSearch('');
+                                    }}
+                                    className="btn btn-sm btn-link text-muted extra-tiny text-decoration-none d-inline-flex align-items-center gap-1 p-1 ms-auto"
+                                >
+                                    <X size={12} /> Clear Filters
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -2152,47 +2189,65 @@ const Events = () => {
 
 
 
-                    <div className="table-responsive rounded-2" style={{ WebkitOverflowScrolling: 'touch' }}>
-                        <table className="table table-hover align-middle mb-0" style={{ width: '100%', minWidth: '560px' }}>
-                            <colgroup>
-                                <col style={{ width: '110px' }} />
-                                <col style={{ width: '200px' }} />
-                                <col style={{ width: '110px' }} />
-                                <col style={{ width: '85px' }} />
-                                <col style={{ width: '85px' }} />
-                                <col />
-                            </colgroup>
+                    <div className="table-responsive rounded-3 border border-secondary border-opacity-10 shadow-xs" style={{ WebkitOverflowScrolling: 'touch' }}>
+                        <table className="table table-hover align-middle mb-0 w-100">
                             <thead>
-                                <tr className="text-muted" style={{ fontSize: '0.72rem' }}>
-                                    <th className="border-0 bg-transparent py-2 ps-2">EXPENSE ID</th>
-                                    <th className="border-0 bg-transparent py-2 px-1">PARTICULAR</th>
-                                    <th className="border-0 bg-transparent py-2 px-1">PAYMENT</th>
-                                    <th className="border-0 bg-transparent py-2 px-1">AMOUNT</th>
-                                    <th className="border-0 bg-transparent py-2 px-1">ACTION</th>
-                                    <th className="border-0 bg-transparent py-2"></th>
+                                <tr className="text-muted border-bottom border-secondary border-opacity-15" style={{ fontSize: '0.72rem', background: 'rgba(0, 0, 0, 0.02)' }}>
+                                    <th className="border-0 py-2.5 ps-3" style={{ width: '120px' }}>EXPENSE ID</th>
+                                    <th className="border-0 py-2.5 px-2 d-none d-md-table-cell" style={{ width: '120px' }}>DATE</th>
+                                    <th className="border-0 py-2.5 px-2">PARTICULAR &amp; BENEFICIARY</th>
+                                    <th className="border-0 py-2.5 px-2 d-none d-lg-table-cell" style={{ width: '150px' }}>CATEGORY</th>
+                                    <th className="border-0 py-2.5 px-2" style={{ width: '130px' }}>PAYMENT</th>
+                                    <th className="border-0 py-2.5 px-2 text-end" style={{ width: '120px' }}>AMOUNT</th>
+                                    <th className="border-0 py-2.5 pe-3 text-center" style={{ width: '100px' }}>ACTION</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredExpenses.length === 0 ? (
-                                    <tr><td colSpan="6" className="text-center py-5 text-muted">{expensesList.length === 0 ? "No expenses logged yet." : "No matching expenses found."}</td></tr>
+                                    <tr>
+                                        <td colSpan="7" className="text-center py-5 text-muted">
+                                            <div className="figma-expense-icon-badge mx-auto mb-2" style={{ width: '40px', height: '40px' }}>
+                                                <Receipt size={20} className="text-muted" />
+                                            </div>
+                                            <p className="fw-semibold mb-0 small">
+                                                {expensesList.length === 0 ? "No expenses logged yet." : "No matching expenses found."}
+                                            </p>
+                                        </td>
+                                    </tr>
                                 ) : (
                                     filteredExpenses.map((exp, index) => {
                                         const isExpInfoOpen = !!openExpInfoIds[exp.expenseId];
                                         const isEven = index % 2 === 0;
-                                        const rowBg = isExpInfoOpen ? 'rgba(67,130,149,0.14)' : isEven ? 'rgba(67,130,149,0.07)' : 'rgba(224,122,67,0.07)';
+                                        const rowBg = isExpInfoOpen ? 'rgba(67,130,149,0.12)' : isEven ? 'rgba(67,130,149,0.04)' : 'transparent';
                                         return (
                                             <Fragment key={exp.expenseId}>
                                                 <tr className="align-middle transition-all" style={{ backgroundColor: rowBg }}>
-                                                    <td className="border-0 py-2 ps-2 pe-1">
-                                                        <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace" style={{ fontSize: '0.7rem' }}>{exp.expenseId}</span>
+                                                    {/* EXPENSE ID */}
+                                                    <td className="border-0 py-2.5 ps-3 pe-2">
+                                                        <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace" style={{ fontSize: '0.72rem' }}>
+                                                            {exp.expenseId}
+                                                        </span>
                                                     </td>
-                                                    <td className="border-0 py-2 px-1 pe-2">
-                                                        <div className="d-flex align-items-center justify-content-between gap-1.5 w-100">
+
+                                                    {/* DATE (md+) */}
+                                                    <td className="border-0 py-2.5 px-2 d-none d-md-table-cell text-muted font-monospace" style={{ fontSize: '0.72rem' }}>
+                                                        <span className="d-inline-flex align-items-center gap-1.5">
+                                                            <Calendar size={11} className="text-secondary opacity-75" />
+                                                            {exp.date ? new Date(exp.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                                                        </span>
+                                                    </td>
+
+                                                    {/* PARTICULAR & BENEFICIARY */}
+                                                    <td className="border-0 py-2.5 px-2">
+                                                        <div className="d-flex align-items-center justify-content-between gap-2 w-100">
                                                             <div>
-                                                                <span className="fw-bold small" style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.25' }}>{exp.particular}</span>
+                                                                <span className="fw-bold text-main" style={{ fontSize: '0.85rem', wordBreak: 'break-word', lineHeight: '1.3' }}>
+                                                                    {exp.particular}
+                                                                </span>
                                                                 {exp.paidTo && (
-                                                                    <div className="extra-tiny text-muted d-flex align-items-center gap-1 mt-0.5" style={{ fontSize: '0.68rem' }}>
-                                                                        <span className="opacity-75">Paid To:</span> <strong className="text-main">{exp.paidTo}</strong>
+                                                                    <div className="extra-tiny text-muted d-flex align-items-center gap-1 mt-0.5 flex-wrap">
+                                                                        <span className="opacity-75">Paid To:</span> 
+                                                                        <strong className="text-main">{exp.paidTo}</strong>
                                                                         {exp.contact && <span className="text-muted ms-1">({exp.contact})</span>}
                                                                     </div>
                                                                 )}
@@ -2208,14 +2263,24 @@ const Events = () => {
                                                                         ? 'bg-primary text-white shadow-sm'
                                                                         : 'bg-secondary bg-opacity-10 text-primary border-0 hover-bg-primary hover-text-white'
                                                                 }`}
-                                                                style={{ width: '20px', height: '20px', minWidth: '20px', cursor: 'pointer' }}
-                                                                title={isExpInfoOpen ? 'Hide details' : 'Show Date & Type'}
+                                                                style={{ width: '22px', height: '22px', minWidth: '22px', cursor: 'pointer' }}
+                                                                title={isExpInfoOpen ? 'Hide details' : 'Show details'}
                                                             >
                                                                 <Info size={11} strokeWidth={2.5} />
                                                             </button>
                                                         </div>
                                                     </td>
-                                                    <td className="border-0 py-2 px-1">
+
+                                                    {/* CATEGORY (lg+) */}
+                                                    <td className="border-0 py-2.5 px-2 d-none d-lg-table-cell">
+                                                        <span className="badge rounded-pill px-2.5 py-1 extra-tiny fw-bold" style={{ background: 'rgba(67, 130, 149, 0.1)', color: 'var(--palette-slate-teal, #438295)', border: '1px solid rgba(67, 130, 149, 0.25)' }}>
+                                                            <Tag size={10} className="me-1 inline" />
+                                                            {exp.expenseType || 'General'}
+                                                        </span>
+                                                    </td>
+
+                                                    {/* PAYMENT MODE */}
+                                                    <td className="border-0 py-2.5 px-2">
                                                         <span className={`figma-payment-badge ${
                                                             exp.paymentType === 'Online'
                                                                 ? 'badge-online'
@@ -2233,33 +2298,58 @@ const Events = () => {
                                                             <span>{exp.paymentType === 'Online' && exp.onlineParticulars ? `Online (${exp.onlineParticulars})` : (exp.paymentType === 'Cash & Paid' ? 'Cash' : exp.paymentType)}</span>
                                                         </span>
                                                     </td>
-                                                    <td className="border-0 py-2 px-1 fw-bold text-danger" style={{ fontSize: '0.82rem' }}>-{exp.currency}{(Number(exp.amount) || 0).toLocaleString()}</td>
-                                                    <td className="border-0 py-2 px-1">
-                                                        <div className="d-flex align-items-center gap-1">
-                                                            <button onClick={() => downloadExpensePDF(exp)} className="btn btn-sm text-info p-0" title="Download PDF"><FileDown size={14} /></button>
-                                                            <button onClick={() => {
-                                                                setExpenseFormData({
-                                                                    ...exp,
-                                                                    paidTo: exp.paidTo || '',
-                                                                    contact: exp.contact || '',
-                                                                    date: exp.date ? new Date(exp.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
-                                                                })
-                                                                setEditingExpId(exp.expenseId)
-                                                                setIsExpAdding(true)
-                                                            }} className="btn btn-sm text-primary p-0" title="Edit"><Edit3 size={14} /></button>
-                                                            <button onClick={async () => {
-                                                                if (window.confirm('Delete this expense?')) {
-                                                                    await axios.delete(`/api/expenses/${exp.expenseId}`)
-                                                                    fetchExpenses()
-                                                                }
-                                                            }} className="btn btn-sm text-danger p-0"><Trash2 size={14} /></button>
+
+                                                    {/* AMOUNT */}
+                                                    <td className="border-0 py-2.5 px-2 text-end fw-black text-danger text-nowrap" style={{ fontSize: '0.88rem' }}>
+                                                        -{exp.currency}{(Number(exp.amount) || 0).toLocaleString('en-IN')}
+                                                    </td>
+
+                                                    {/* ACTIONS */}
+                                                    <td className="border-0 py-2.5 pe-3 text-center">
+                                                        <div className="d-flex align-items-center justify-content-center gap-1">
+                                                            <button 
+                                                                onClick={() => downloadExpensePDF(exp)} 
+                                                                className="figma-expense-action-btn btn-pdf text-info" 
+                                                                title="Download Voucher PDF"
+                                                            >
+                                                                <FileDown size={14} />
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setExpenseFormData({
+                                                                        ...exp,
+                                                                        paidTo: exp.paidTo || '',
+                                                                        contact: exp.contact || '',
+                                                                        date: exp.date ? new Date(exp.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                                                                    })
+                                                                    setEditingExpId(exp.expenseId)
+                                                                    setIsExpAdding(true)
+                                                                }} 
+                                                                className="figma-expense-action-btn btn-edit text-primary" 
+                                                                title="Edit Expense"
+                                                            >
+                                                                <Edit3 size={14} />
+                                                            </button>
+                                                            <button 
+                                                                onClick={async () => {
+                                                                    if (window.confirm('Delete this expense?')) {
+                                                                        await axios.delete(`/api/expenses/${exp.expenseId}`)
+                                                                        fetchExpenses()
+                                                                    }
+                                                                }} 
+                                                                className="figma-expense-action-btn btn-delete text-danger" 
+                                                                title="Delete Expense"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
                                                         </div>
                                                     </td>
-                                                    <td className="border-0 py-2"></td>
                                                 </tr>
+
+                                                {/* Expanded Detail Row */}
                                                 {isExpInfoOpen && (
-                                                    <tr style={{ backgroundColor: 'rgba(67,130,149,0.14)' }} className="border-top-0">
-                                                        <td colSpan="6" className="border-0 pt-0 pb-2 px-3">
+                                                    <tr style={{ backgroundColor: 'rgba(67,130,149,0.12)' }} className="border-top-0">
+                                                        <td colSpan="7" className="border-0 pt-0 pb-3 px-3">
                                                             <motion.div
                                                                 initial={{ opacity: 0, height: 0 }}
                                                                 animate={{ opacity: 1, height: 'auto' }}
@@ -2268,28 +2358,28 @@ const Events = () => {
                                                                 className="figma-exp-detail-card d-flex flex-wrap align-items-center gap-3 text-muted"
                                                                 style={{ fontSize: '0.78rem' }}
                                                             >
-                                                                <div className="d-flex align-items-center gap-1">
+                                                                <div className="d-flex align-items-center gap-1.5">
                                                                     <Calendar size={13} className="text-warning opacity-75" />
                                                                     <span><strong className="text-dark">Date:</strong> {exp.date ? new Date(exp.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</span>
                                                                 </div>
-                                                                <div className="d-flex align-items-center gap-1">
+                                                                <div className="d-flex align-items-center gap-1.5">
                                                                     <Tag size={13} className="text-primary opacity-75" />
                                                                     <span><strong className="text-dark">Type:</strong> {exp.expenseType || 'N/A'}</span>
                                                                 </div>
                                                                 {exp.paidTo && (
-                                                                    <div className="d-flex align-items-center gap-1">
+                                                                    <div className="d-flex align-items-center gap-1.5">
                                                                         <User size={13} className="text-success opacity-75" />
                                                                         <span><strong className="text-dark">Paid To:</strong> {exp.paidTo}</span>
                                                                     </div>
                                                                 )}
                                                                 {exp.contact && (
-                                                                    <div className="d-flex align-items-center gap-1">
+                                                                    <div className="d-flex align-items-center gap-1.5">
                                                                         <Phone size={13} className="text-info opacity-75" />
                                                                         <span><strong className="text-dark">Contact:</strong> {exp.contact}</span>
                                                                     </div>
                                                                 )}
                                                                 {exp.onlineReference && (
-                                                                    <div className="d-flex align-items-center gap-1">
+                                                                    <div className="d-flex align-items-center gap-1.5">
                                                                         <CreditCard size={13} className="text-info opacity-75" />
                                                                         <span><strong className="text-dark">Ref:</strong> {exp.onlineReference}</span>
                                                                     </div>
