@@ -186,6 +186,7 @@ const Festivals = () => {
     const [openInfoIds, setOpenInfoIds] = useState({})
     const [openExpInfoIds, setOpenExpInfoIds] = useState({})
     const [openActionSubId, setOpenActionSubId] = useState(null)
+    const [openActionExpId, setOpenActionExpId] = useState(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [editingFest, setEditingFest] = useState(null)
     const [formData, setFormData] = useState({
@@ -2297,6 +2298,7 @@ const Festivals = () => {
                                 ) : (
                                     filteredExpenses.map((exp, index) => {
                                         const isExpInfoOpen = !!openExpInfoIds[exp.expenseId];
+                                        const isExpActionOpen = openActionExpId === exp.expenseId;
                                         const isEven = index % 2 === 0;
                                         const rowBg = isExpInfoOpen ? 'rgba(67,130,149,0.12)' : isEven ? 'rgba(67,130,149,0.04)' : 'transparent';
                                         return (
@@ -2383,44 +2385,90 @@ const Festivals = () => {
                                                         -{exp.currency}{(Number(exp.amount) || 0).toLocaleString('en-IN')}
                                                     </td>
 
-                                                    {/* ACTIONS */}
-                                                    <td className="border-0 py-2.5 pe-3 text-center">
-                                                        <div className="d-flex align-items-center justify-content-center gap-1">
-                                                            <button 
-                                                                onClick={() => downloadExpensePDF(exp)} 
-                                                                className="figma-expense-action-btn btn-pdf text-info" 
-                                                                title="Download Voucher PDF"
+                                                    {/* ACTIONS: PILL DROPDOWN BUTTON */}
+                                                    <td className="border-0 py-2.5 pe-3 text-center position-relative">
+                                                        <div className="position-relative d-inline-block" style={{ zIndex: isExpActionOpen ? 1045 : 'auto' }}>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setOpenActionExpId(isExpActionOpen ? null : exp.expenseId)}
+                                                                className={`btn btn-sm d-flex align-items-center gap-1.5 px-2.5 rounded-pill fw-bold text-nowrap transition-all shadow-sm sub-action-btn ${
+                                                                    isExpActionOpen
+                                                                        ? 'btn-primary text-white'
+                                                                        : 'btn-outline-secondary'
+                                                                }`}
+                                                                style={{ height: '28px', fontSize: '0.73rem' }}
                                                             >
-                                                                <FileDown size={14} />
+                                                                <span>Action</span>
+                                                                <ChevronDown size={12} className={`transition-all ${isExpActionOpen ? 'rotate-180' : ''}`} style={{ transform: isExpActionOpen ? 'rotate(180deg)' : 'none' }} />
                                                             </button>
-                                                            <button 
-                                                                onClick={() => {
-                                                                    setExpenseFormData({
-                                                                        ...exp,
-                                                                        paidTo: exp.paidTo || '',
-                                                                        contact: exp.contact || '',
-                                                                        date: exp.date ? new Date(exp.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
-                                                                    })
-                                                                    setEditingExpId(exp.expenseId)
-                                                                    setIsExpAdding(true)
-                                                                }} 
-                                                                className="figma-expense-action-btn btn-edit text-primary" 
-                                                                title="Edit Expense"
-                                                            >
-                                                                <Edit3 size={14} />
-                                                            </button>
-                                                            <button 
-                                                                onClick={async () => {
-                                                                    if (window.confirm('Delete this expense?')) {
-                                                                        await axios.delete(`/api/expenses/${exp.expenseId}`)
-                                                                        fetchExpenses()
-                                                                    }
-                                                                }} 
-                                                                className="figma-expense-action-btn btn-delete text-danger" 
-                                                                title="Delete Expense"
-                                                            >
-                                                                <Trash2 size={14} />
-                                                            </button>
+
+                                                            {isExpActionOpen && (
+                                                                <>
+                                                                    <div
+                                                                        className="position-fixed top-0 start-0 w-100 h-100"
+                                                                        style={{ zIndex: 1040 }}
+                                                                        onClick={() => setOpenActionExpId(null)}
+                                                                    />
+                                                                    <motion.div
+                                                                        initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                                                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                                        exit={{ opacity: 0, scale: 0.95 }}
+                                                                        transition={{ duration: 0.15 }}
+                                                                        className="sub-action-menu"
+                                                                    >
+                                                                        {/* Download PDF */}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                setOpenActionExpId(null)
+                                                                                downloadExpensePDF(exp)
+                                                                            }}
+                                                                            className="sub-action-item"
+                                                                        >
+                                                                            <FileDown size={14} className="text-info" />
+                                                                            <span>Download PDF</span>
+                                                                        </button>
+
+                                                                        {/* Edit Expense */}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => {
+                                                                                setOpenActionExpId(null)
+                                                                                setExpenseFormData({
+                                                                                    ...exp,
+                                                                                    paidTo: exp.paidTo || '',
+                                                                                    contact: exp.contact || '',
+                                                                                    date: exp.date ? new Date(exp.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                                                                                })
+                                                                                setEditingExpId(exp.expenseId)
+                                                                                setIsExpAdding(true)
+                                                                            }}
+                                                                            className="sub-action-item"
+                                                                        >
+                                                                            <Edit3 size={14} className="text-primary" />
+                                                                            <span>Edit Expense</span>
+                                                                        </button>
+
+                                                                        <div className="sub-action-divider" />
+
+                                                                        {/* Delete Expense */}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={async () => {
+                                                                                setOpenActionExpId(null)
+                                                                                if (window.confirm('Delete this expense?')) {
+                                                                                    await axios.delete(`/api/expenses/${exp.expenseId}`)
+                                                                                    fetchExpenses()
+                                                                                }
+                                                                            }}
+                                                                            className="sub-action-item delete-item"
+                                                                        >
+                                                                            <Trash2 size={14} className="text-danger" />
+                                                                            <span>Delete</span>
+                                                                        </button>
+                                                                    </motion.div>
+                                                                </>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
