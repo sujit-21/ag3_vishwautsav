@@ -2248,7 +2248,6 @@ const Events = () => {
                                                                     <div className="extra-tiny text-muted d-flex align-items-center gap-1 mt-0.5 flex-wrap">
                                                                         <span className="opacity-75">Paid To:</span> 
                                                                         <strong className="text-main">{exp.paidTo}</strong>
-                                                                        {exp.contact && <span className="text-muted ms-1">({exp.contact})</span>}
                                                                     </div>
                                                                 )}
                                                             </div>
