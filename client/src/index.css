@@ -4087,6 +4087,11 @@ html, body, #root, .app-container {
     z-index: 1;
 }
 
+.gap-1\.5,
+.gap-1-5 {
+    gap: 0.375rem !important;
+}
+
 .gap-2\.5,
 .gap-2-5 {
     gap: 0.75rem !important;

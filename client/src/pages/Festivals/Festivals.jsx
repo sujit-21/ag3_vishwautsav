@@ -2559,7 +2559,7 @@ const Festivals = () => {
 
                                         {/* Bottom Row: Payment Badge, Category & Action Dropdown */}
                                         <div className="d-flex justify-content-between align-items-center pt-2 border-top border-secondary border-opacity-10 gap-2">
-                                            <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                                            <div className="d-flex align-items-center gap-2 flex-wrap" style={{ gap: '7px' }}>
                                                 <span className={`figma-payment-badge ${
                                                     exp.paymentType === 'Online'
                                                         ? 'badge-online'
