@@ -269,11 +269,8 @@ const Settings = () => {
                         </div>
 
                         <div className="settings-table-container">
-                            <div className="d-flex d-md-none align-items-center gap-1 extra-tiny text-muted px-2 pb-2">
-                                <ChevronRight size={13} className="text-primary flex-shrink-0" />
-                                <span>Swipe horizontally to view all columns &amp; actions</span>
-                            </div>
-                            <div className="table-responsive">
+                            {/* Desktop & Tablet Table (Screens >= 768px) */}
+                            <div className="table-responsive d-none d-md-block">
                                 <table className="settings-table">
                                     <thead>
                                         <tr>
@@ -381,6 +378,95 @@ const Settings = () => {
                                     </tbody>
                                 </table>
                             </div>
+
+                            {/* Mobile Cards (Screens < 768px) */}
+                            <div className="d-block d-md-none">
+                                {users.length > 0 ? users.map(u => {
+                                    const { email, phone } = parseUserContact(u)
+                                    const initial = (u.name || 'U').charAt(0).toUpperCase()
+                                    const isAdmin = u.role === 'admin' || u.role === 'superadmin'
+
+                                    return (
+                                        <div key={u._id} className="settings-mobile-card">
+                                            {/* Top Row: User Avatar, Name, Entity & Actions */}
+                                            <div className="d-flex justify-content-between align-items-start gap-2 mb-2.5">
+                                                <div className="d-flex align-items-center gap-2.5" style={{ minWidth: 0, flex: 1 }}>
+                                                    <div className={`settings-avatar-circle ${isAdmin ? 'admin' : ''}`}>
+                                                        {initial}
+                                                    </div>
+                                                    <div style={{ minWidth: 0 }}>
+                                                        <div className="fw-extrabold text-main" style={{ fontSize: '0.94rem', lineHeight: 1.25, wordBreak: 'break-word' }}>
+                                                            {u.name}
+                                                        </div>
+                                                        {u.entityName && (
+                                                            <span className="extra-tiny text-muted fw-semibold d-flex align-items-center gap-1 mt-0.5">
+                                                                <Building2 size={11} className="flex-shrink-0 text-primary" />
+                                                                <span className="text-truncate">{u.entityName}</span>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="d-flex align-items-center gap-1 flex-shrink-0">
+                                                    <span className={isAdmin ? 'badge-role-admin' : 'badge-role-user'} style={{ fontSize: '0.66rem', padding: '0.2rem 0.55rem' }}>
+                                                        {isAdmin ? <Shield size={10} /> : <User size={10} />}
+                                                        <span>{u.role || 'User'}</span>
+                                                    </span>
+                                                    <button 
+                                                        onClick={() => handleOpenUserModal(u)} 
+                                                        className="settings-action-btn edit" 
+                                                        title="Edit Credentials"
+                                                        style={{ width: '28px', height: '28px', margin: 0 }}
+                                                    >
+                                                        <Edit3 size={13} />
+                                                    </button>
+                                                    {user?.role === 'admin' && user.id !== u._id && (
+                                                        <button 
+                                                            onClick={() => deleteUser(u._id, u.name)} 
+                                                            className="settings-action-btn delete" 
+                                                            title="Delete User"
+                                                            style={{ width: '28px', height: '28px', margin: 0 }}
+                                                        >
+                                                            <Trash2 size={13} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Bottom Details: Email & Phone */}
+                                            <div className="d-flex flex-column gap-2 pt-2 border-top border-secondary border-opacity-10">
+                                                {email ? (
+                                                    <div className="settings-email-pill w-100 justify-content-start" style={{ fontSize: '0.76rem' }}>
+                                                        <Mail size={12} className="text-primary flex-shrink-0" />
+                                                        <span className="text-truncate">{email}</span>
+                                                    </div>
+                                                ) : (
+                                                    <button 
+                                                        onClick={() => handleOpenUserModal(u)}
+                                                        className="badge-email-empty border-0 w-100 justify-content-start"
+                                                        title="Click to link an official email address"
+                                                        style={{ fontSize: '0.72rem' }}
+                                                    >
+                                                        <AlertCircle size={12} />
+                                                        <span>No Email Linked • Add Email</span>
+                                                    </button>
+                                                )}
+
+                                                {phone && (
+                                                    <div className="settings-phone-pill w-100 justify-content-start" style={{ fontSize: '0.76rem' }}>
+                                                        <Phone size={12} className="text-success flex-shrink-0" />
+                                                        <span>{phone}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )
+                                }) : (
+                                    <div className="text-center py-4 text-muted extra-tiny">
+                                        No credential records located.
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </motion.div>
                 </div>
@@ -408,11 +494,8 @@ const Settings = () => {
                             </div>
 
                             <div className="settings-table-container">
-                                <div className="d-flex d-md-none align-items-center gap-1 extra-tiny text-muted px-2 pb-2">
-                                    <ChevronRight size={13} className="text-primary flex-shrink-0" />
-                                    <span>Swipe horizontally to view all columns &amp; actions</span>
-                                </div>
-                                <div className="table-responsive">
+                                {/* Desktop & Tablet Table (Screens >= 768px) */}
+                                <div className="table-responsive d-none d-md-block">
                                     <table className="settings-table entity-table">
                                         <thead>
                                             <tr>
@@ -472,7 +555,7 @@ const Settings = () => {
                                                         <td>
                                                             <span className="extra-tiny text-muted fw-semibold d-inline-flex align-items-center gap-1.5">
                                                                 <Calendar size={13} className="text-primary" />
-                                                                <span>{new Date(c.createdAt).toLocaleDateString()}</span>
+                                                                <span>{new Date(c.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
                                                             </span>
                                                         </td>
 
@@ -504,6 +587,96 @@ const Settings = () => {
                                             )}
                                         </tbody>
                                     </table>
+                                </div>
+
+                                {/* Mobile Cards (Screens < 768px) */}
+                                <div className="d-block d-md-none">
+                                    {entities.length > 0 ? entities.map(c => {
+                                        const isRevealed = revealedKeys[c._id]
+                                        const isCopied = copiedKeyId === c._id
+
+                                        return (
+                                            <div key={c._id} className="settings-mobile-card">
+                                                {/* Top Row: Entity Icon, Name & Actions */}
+                                                <div className="d-flex justify-content-between align-items-start gap-2 mb-2.5">
+                                                    <div className="d-flex align-items-center gap-2.5" style={{ minWidth: 0, flex: 1 }}>
+                                                        <div className="p-2 rounded-3 bg-primary bg-opacity-10 text-primary flex-shrink-0">
+                                                            <Building2 size={18} />
+                                                        </div>
+                                                        <div style={{ minWidth: 0 }}>
+                                                            <span className="fw-extrabold text-main d-block" style={{ fontSize: '0.96rem', wordBreak: 'break-word' }}>
+                                                                {c.name}
+                                                            </span>
+                                                            <div className="extra-tiny text-muted fw-semibold">Active Operating Node</div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="d-flex align-items-center gap-1 flex-shrink-0">
+                                                        <button 
+                                                            onClick={() => { setEditingEntity(c); setEntityForm({ name: c.name, securityKey: c.securityKey }); setIsEntityModalOpen(true); }} 
+                                                            className="settings-action-btn edit" 
+                                                            title="Edit Entity"
+                                                            style={{ width: '28px', height: '28px', margin: 0 }}
+                                                        >
+                                                            <Edit3 size={13} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => deleteEntity(c._id, c.name)} 
+                                                            className="settings-action-btn delete" 
+                                                            title="Delete Entity"
+                                                            style={{ width: '28px', height: '28px', margin: 0 }}
+                                                        >
+                                                            <Trash2 size={13} />
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {/* Bottom Row: Security Key & Created Date */}
+                                                <div className="d-flex flex-column gap-2 pt-2 border-top border-secondary border-opacity-10">
+                                                    {/* Key Bar */}
+                                                    <div className="d-flex align-items-center justify-content-between p-1.5 px-2.5 rounded-3 border w-100" style={{ background: 'var(--input-bg)', borderColor: 'var(--glass-border)' }}>
+                                                        <div className="d-flex align-items-center gap-1.5" style={{ minWidth: 0 }}>
+                                                            <Key size={13} className="text-primary flex-shrink-0" />
+                                                            <span className="font-monospace fw-bold extra-tiny text-truncate" style={{ letterSpacing: '1px' }}>
+                                                                {isRevealed ? c.securityKey : '••••••••••••••••'}
+                                                            </span>
+                                                        </div>
+                                                        <div className="d-flex align-items-center gap-1 flex-shrink-0">
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => toggleRevealKey(c._id)}
+                                                                className="btn btn-sm btn-link p-1 text-muted hover-text-main"
+                                                                title={isRevealed ? "Hide Key" : "Reveal Key"}
+                                                            >
+                                                                {isRevealed ? <EyeOff size={14} /> : <Eye size={14} />}
+                                                            </button>
+                                                            <button 
+                                                                type="button"
+                                                                onClick={() => copyToClipboard(c.securityKey, c._id)}
+                                                                className="btn btn-sm btn-link p-1 text-muted hover-text-main"
+                                                                title="Copy to Clipboard"
+                                                            >
+                                                                {isCopied ? <Check size={14} className="text-success" /> : <Copy size={13} />}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Created Date */}
+                                                    <div className="d-flex align-items-center justify-content-between extra-tiny text-muted">
+                                                        <span className="opacity-75">Configured Date:</span>
+                                                        <span className="fw-semibold d-inline-flex align-items-center gap-1">
+                                                            <Calendar size={11} className="text-primary opacity-75" />
+                                                            <span>{new Date(c.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )
+                                    }) : (
+                                        <div className="text-center py-4 text-muted extra-tiny">
+                                            No operating entities found. Click "+ New Entity" to register one.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </motion.div>

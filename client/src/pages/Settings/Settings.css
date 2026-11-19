@@ -400,11 +400,32 @@
     }
 
     .settings-table-container {
-        padding: 0.25rem 0.5rem 1rem;
+        padding: 0.75rem;
     }
 
     .settings-table tbody td,
     .settings-table thead th {
         padding: 0.75rem 0.65rem;
     }
+}
+
+/* ─── Mobile Cards View (< 768px) ─── */
+.settings-mobile-card {
+    background: var(--input-bg, rgba(15, 23, 42, 0.02));
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 1rem;
+    margin-bottom: 0.85rem;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.settings-mobile-card:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme='dark'] .settings-mobile-card {
+    background: rgba(30, 41, 59, 0.35);
+    border-color: rgba(255, 255, 255, 0.08);
 }
