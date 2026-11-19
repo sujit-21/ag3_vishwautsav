@@ -2462,7 +2462,7 @@ const Events = () => {
                                                     {exp.date && (
                                                         <span className="extra-tiny text-muted d-inline-flex align-items-center gap-1 font-monospace">
                                                             <Calendar size={11} className="text-secondary opacity-75" />
-                                                            {new Date(exp.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                                                            {new Date(exp.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                         </span>
                                                     )}
                                                 </div>
