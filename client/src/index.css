@@ -5929,6 +5929,68 @@ html, body, #root, .app-container {
     background: #fef2f2;
 }
 
+/* ==========================================================================
+   SMOOTHNESS & HARDWARE PERFORMANCE OPTIMIZATIONS (1, 2, 3, 5)
+   ========================================================================== */
+
+/* 1. GPU Hardware Acceleration for silky 60/120fps rendering */
+.sub-mobile-card,
+.figma-expense-section,
+.figma-expense-form-card,
+.settings-luxury-card,
+.settings-mobile-card,
+.luxury-modal-card,
+.modal-content,
+.sub-action-menu,
+.luxury-card,
+.smooth-tab-pane,
+.tab-slider-indicator {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
+
+/* 2. Native Touch Physics, Smooth Scrolling & Momentum Inertia */
+html {
+    scroll-behavior: smooth;
+}
+
+.table-responsive,
+.modal-body,
+.luxury-modal-card,
+.settings-table-container,
+.overflow-y-auto,
+.overflow-x-auto,
+.scrollbar-custom,
+.custom-scrollbar {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+}
+
+/* 3. Tactile Micro-Interactions (Physical Click/Tap Spring Scale Feedback) */
+button:active:not(:disabled),
+.btn:active:not(:disabled),
+.sub-mobile-action-btn:active,
+.sub-action-item:active,
+.sub-btn-filter-pill:active,
+.badge-filter-chip:active,
+.mode-toggle-pill:active,
+.enr-btn-action:active,
+.enr-btn-approve:active,
+.enr-btn-reject:active,
+.enr-btn-delete:active {
+    transform: scale(0.965) !important;
+    transition: transform 0.08s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* 5. Smooth Tab Switching Content Container */
+.smooth-tab-pane {
+    width: 100%;
+}
+
+
 
 
 

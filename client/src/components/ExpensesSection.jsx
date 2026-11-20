@@ -202,12 +202,16 @@ const ExpensesSection = ({
     const handleDeleteExpense = async (expenseId) => {
         setOpenActionExpId(null)
         if (window.confirm('Delete this expense?')) {
+            if (typeof setExpensesList === 'function') {
+                setExpensesList(prev => prev.filter(e => e.expenseId !== expenseId))
+            }
             try {
                 await axios.delete(`/api/expenses/${expenseId}`)
                 if (typeof fetchExpenses === 'function') fetchExpenses()
             } catch (err) {
                 console.error('Error deleting expense:', err)
                 alert('Could not delete expense')
+                if (typeof fetchExpenses === 'function') fetchExpenses()
             }
         }
     }

@@ -653,11 +653,13 @@ const Events = () => {
 
     const handleDelete = async (id) => {
         if (!window.confirm('Delete this event?')) return
+        setEvents(prev => prev.filter(e => e._id !== id))
         try {
             await axios.delete(`/api/events/${id}`)
             fetchEvents()
         } catch (err) {
             alert('Error deleting event')
+            fetchEvents()
         }
     }
 
@@ -964,7 +966,16 @@ const Events = () => {
                 {/* Subscriptions Modal moved to end */}
             </AnimatePresence>
 
-            {activeTab === 'members' && (
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="smooth-tab-pane"
+                >
+                    {activeTab === 'members' && (
                 <MembersSection 
                     type="event" 
                     activeEntity={activeEvent?.entityName || user?.entityName} 
@@ -1522,11 +1533,13 @@ const Events = () => {
                                                                             onClick={async () => {
                                                                                 setOpenActionSubId(null)
                                                                                 if (window.confirm('Delete registration?')) {
+                                                                                    setSubscriptionsList(prev => prev.filter(s => s.subId !== sub.subId))
                                                                                     try {
                                                                                         await axios.delete(`/api/subscriptions/${sub.subId}`)
                                                                                         fetchSubscriptions()
                                                                                     } catch (err) {
                                                                                         alert('Error deleting')
+                                                                                        fetchSubscriptions()
                                                                                     }
                                                                                 }
                                                                             }}
@@ -1713,11 +1726,13 @@ const Events = () => {
                                                                 onClick={async () => {
                                                                     setOpenActionSubId(null);
                                                                     if (window.confirm('Delete registration?')) {
+                                                                        setSubscriptionsList(prev => prev.filter(s => s.subId !== sub.subId));
                                                                         try {
                                                                             await axios.delete(`/api/subscriptions/${sub.subId}`);
                                                                             fetchSubscriptions();
                                                                         } catch (err) {
                                                                             alert('Error deleting');
+                                                                            fetchSubscriptions();
                                                                         }
                                                                     }
                                                                 }}
@@ -2300,6 +2315,8 @@ const Events = () => {
                     activeTitle={activeEvent?.title || ''}
                 />
             )}
+                </motion.div>
+            </AnimatePresence>
 
             <AnimatePresence>
                 {isModalOpen && (
