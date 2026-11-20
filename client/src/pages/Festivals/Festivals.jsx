@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react'
+import React, { useState, useEffect, Fragment, useDeferredValue } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './Festivals.css'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -12,6 +12,7 @@ import primeBg from '../../images/primemember.jpg'
 import regularBg from '../../images/regular.jpg'
 import vipBg from '../../images/vip elite.jpg'
 import ActivityLogsView from '../../components/ActivityLogsView'
+import { CardSkeleton, TableSkeleton, staggerContainer, staggerItem } from '../../components/SkeletonLoader'
 import {
     exportSingleAttendeeReceiptPDF,
     exportSingleExpenseVoucherPDF,
@@ -163,6 +164,11 @@ const Festivals = () => {
     const [search, setSearch] = useState('')
     const [subSearch, setSubSearch] = useState('')
     const [cardSearch, setCardSearch] = useState('')
+    const deferredSearch = useDeferredValue(search)
+    const deferredSubSearch = useDeferredValue(subSearch)
+    const deferredCardSearch = useDeferredValue(cardSearch)
+    const [isLoadingFestivals, setIsLoadingFestivals] = useState(true)
+    const [isLoadingSubs, setIsLoadingSubs] = useState(true)
 
     // Sort and Filter States for Festivals Main Tab
     const [festSort, setFestSort] = useState('newest')
@@ -590,6 +596,8 @@ const Festivals = () => {
             setSubscriptionsList(filtered)
         } catch (err) {
             console.error('Fetch subs error:', err)
+        } finally {
+            setIsLoadingSubs(false)
         }
     }
 
@@ -609,6 +617,8 @@ const Festivals = () => {
             setFestivals(res.data)
         } catch (err) {
             console.error('Fetch error:', err)
+        } finally {
+            setIsLoadingFestivals(false)
         }
     }
 
@@ -816,7 +826,7 @@ const Festivals = () => {
     const filteredFestivals = festivals
         .filter(f => {
             if (!f) return false;
-            const q = search.toLowerCase()
+            const q = deferredSearch.toLowerCase()
             const matchesSearch = !q || (
                 (f.title || '').toLowerCase().includes(q) ||
                 (f.location && f.location.toLowerCase().includes(q)) ||
@@ -836,7 +846,7 @@ const Festivals = () => {
     const filteredSubs = subscriptionsList
         .filter(sub => {
             if (!sub) return false;
-            const q = subSearch.toLowerCase()
+            const q = deferredSubSearch.toLowerCase()
             const matchesSearch = !q || (
                 (sub.subId || '').toLowerCase().includes(q) ||
                 (sub.name || '').toLowerCase().includes(q) ||
@@ -865,7 +875,7 @@ const Festivals = () => {
     const filteredCards = cardsList
         .filter(sub => {
             if (!sub) return false;
-            const q = cardSearch.toLowerCase()
+            const q = deferredCardSearch.toLowerCase()
             const matchesSearch = !q || (
                 (sub.cardId || '').toLowerCase().includes(q) ||
                 (sub.name || '').toLowerCase().includes(q) ||
@@ -1160,18 +1170,19 @@ const Festivals = () => {
                         </div>
                     </div>
 
-                    <div className="d-flex flex-column gap-2">
-                        {filteredFestivals.map((fest, idx) => {
-                            const isActive = activeFestival?._id === fest._id;
-                            return (
-                                <motion.div
-                                    key={fest._id || idx}
-                                    initial={{ opacity: 0, y: 5 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    whileHover={{ scale: 1.002 }}
-                                    transition={{ duration: 0.2 }}
-                                    className="w-100"
-                                >
+                    {isLoadingFestivals && festivals.length === 0 ? (
+                        <CardSkeleton count={3} />
+                    ) : (
+                        <motion.div variants={staggerContainer} initial="hidden" animate="show" className="d-flex flex-column gap-2">
+                            {filteredFestivals.map((fest, idx) => {
+                                const isActive = activeFestival?._id === fest._id;
+                                return (
+                                    <motion.div
+                                        key={fest._id || idx}
+                                        variants={staggerItem}
+                                        whileHover={{ scale: 1.002 }}
+                                        className="w-100"
+                                    >
                                     <div 
                                         className={`bg-white shadow-sm d-flex flex-column py-2 px-3 transition-all ${isActive ? 'border-primary border-2' : 'border border-secondary border-opacity-10'}`}
                                         style={{ borderRadius: '8px', cursor: 'default' }}
@@ -1323,7 +1334,8 @@ const Festivals = () => {
                                 </motion.div>
                             );
                         })}
-                    </div>
+                        </motion.div>
+                    )}
                 </>
             )}
 
@@ -1686,16 +1698,19 @@ const Festivals = () => {
 
                     {/* Mobile Attendee Cards (Smartphones < 768px) */}
                     <div className="d-block d-md-none">
-                        {filteredSubs.length === 0 ? (
+                        {isLoadingSubs && subscriptionsList.length === 0 ? (
+                            <CardSkeleton count={3} />
+                        ) : filteredSubs.length === 0 ? (
                             <div className="text-center py-5 text-muted small">
                                 {subscriptionsList.length === 0 ? "No subscriptions yet. Click 'Add New' to begin." : "No matching attendees found."}
                             </div>
                         ) : (
-                            filteredSubs.map((sub) => {
-                                const isInfoOpen = !!openInfoIds[sub.subId];
-                                const isActionOpen = openActionSubId === sub.subId;
-                                return (
-                                    <div key={sub.subId} className="sub-mobile-card" style={{ zIndex: isActionOpen ? 1045 : 1 }}>
+                            <motion.div variants={staggerContainer} initial="hidden" animate="show">
+                                {filteredSubs.map((sub) => {
+                                    const isInfoOpen = !!openInfoIds[sub.subId];
+                                    const isActionOpen = openActionSubId === sub.subId;
+                                    return (
+                                        <motion.div key={sub.subId} variants={staggerItem} className="sub-mobile-card" style={{ zIndex: isActionOpen ? 1045 : 1 }}>
                                         {/* Top Row: Attendee Name + Pass ID + Amount */}
                                         <div className="d-flex justify-content-between align-items-start mb-2 gap-2">
                                             <div className="d-flex flex-column">
@@ -1899,9 +1914,10 @@ const Festivals = () => {
                                                 </div>
                                             </motion.div>
                                         )}
-                                    </div>
+                                    </motion.div>
                                 );
-                            })
+                            })}
+                            </motion.div>
                         )}
                     </div>
                 </div>

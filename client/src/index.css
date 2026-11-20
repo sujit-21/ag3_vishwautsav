@@ -5990,6 +5990,57 @@ button:active:not(:disabled),
     width: 100%;
 }
 
+/* ==========================================================================
+   ADVANCED SMOOTHNESS: SKELETON SHIMMER & ROUTE TRANSITIONS
+   ========================================================================== */
+
+/* Shimmer Wave Animation */
+@keyframes skeletonWave {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton-shimmer {
+    background: linear-gradient(
+        90deg,
+        rgba(224, 122, 67, 0.07) 0%,
+        rgba(224, 122, 67, 0.18) 50%,
+        rgba(224, 122, 67, 0.07) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeletonWave 1.6s infinite ease-in-out;
+    display: inline-block;
+}
+
+.dark-mode .skeleton-shimmer {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.12) 50%,
+        rgba(255, 255, 255, 0.05) 100%
+    );
+    background-size: 200% 100%;
+}
+
+/* App-level Page Cross-Fade Wrapper */
+.route-transition-wrapper {
+    width: 100%;
+    min-height: calc(100vh - 140px);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Backdrop Soft Blur on Dialog Overlays */
+.modal-overlay {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+
 
 
 

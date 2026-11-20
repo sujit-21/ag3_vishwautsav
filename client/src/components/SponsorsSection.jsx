@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef, useDeferredValue } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { CardSkeleton, TableSkeleton, staggerContainer, staggerItem } from './SkeletonLoader'
 import { 
     Award, Plus, Search, FileDown, Edit3, Trash2, Phone, Mail, 
     ShieldCheck, Sparkles, Filter, X, Save, MessageCircle, 
@@ -112,6 +113,7 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
     const [sponsors, setSponsors] = useState([])
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
+    const deferredSearch = useDeferredValue(search)
     const [selectedTier, setSelectedTier] = useState('All')
     const [selectedCategory, setSelectedCategory] = useState('All')
     const [sortBy, setSortBy] = useState('amount_desc') // amount_desc, entry_asc, entry_desc, name_asc
@@ -218,7 +220,7 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
     // Filtered Sponsors
     const filteredSponsors = useMemo(() => {
         return sponsors.filter(sp => {
-            const q = search.trim().toLowerCase()
+            const q = deferredSearch.trim().toLowerCase()
             const matchesSearch = 
                 !q ||
                 sp.name?.toLowerCase().includes(q) ||

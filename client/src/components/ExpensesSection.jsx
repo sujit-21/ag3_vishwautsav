@@ -1,4 +1,4 @@
-import React, { useState, useMemo, Fragment } from 'react'
+import React, { useState, useMemo, Fragment, useDeferredValue } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     Plus, Search, FileDown, Edit3, Trash2, Calendar, Hash, FileText,
@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import axios from 'axios'
 import { exportSingleExpenseVoucherPDF, exportExpenseLedgerPDF } from '../utils/pdfGenerator'
+import { CardSkeleton, TableSkeleton, staggerContainer, staggerItem } from './SkeletonLoader'
 
 const DEFAULT_EXPENSE_TYPES = [
     'Decoration',
@@ -47,6 +48,7 @@ const ExpensesSection = ({
 }) => {
     // Toolbar, Search, Filter & Sort States
     const [expSearch, setExpSearch] = useState('')
+    const deferredExpSearch = useDeferredValue(expSearch)
     const [expSort, setExpSort] = useState('newest')
     const [expTypeFilter, setExpTypeFilter] = useState('all')
     const [expPaymentFilter, setExpPaymentFilter] = useState('all')
@@ -77,7 +79,7 @@ const ExpensesSection = ({
         let list = [...(expensesList || [])]
 
         if (expSearch.trim()) {
-            const q = expSearch.toLowerCase()
+            const q = deferredExpSearch.toLowerCase()
             list = list.filter(e =>
                 (e.particular && e.particular.toLowerCase().includes(q)) ||
                 (e.paidTo && e.paidTo.toLowerCase().includes(q)) ||
@@ -820,11 +822,12 @@ const ExpensesSection = ({
                         {expensesList.length === 0 ? "No expenses logged yet." : "No matching expenses found."}
                     </div>
                 ) : (
-                    filteredExpenses.map((exp) => {
-                        const isExpInfoOpen = !!openExpInfoIds[exp.expenseId]
-                        const isExpActionOpen = openActionExpId === exp.expenseId
-                        return (
-                            <div key={exp.expenseId} className="sub-mobile-card" style={{ zIndex: isExpActionOpen ? 1045 : 1 }}>
+                    <motion.div variants={staggerContainer} initial="hidden" animate="show">
+                        {filteredExpenses.map((exp) => {
+                            const isExpInfoOpen = !!openExpInfoIds[exp.expenseId]
+                            const isExpActionOpen = openActionExpId === exp.expenseId
+                            return (
+                                <motion.div key={exp.expenseId} variants={staggerItem} className="sub-mobile-card" style={{ zIndex: isExpActionOpen ? 1045 : 1 }}>
                                 {/* Top Row: Particular & Amount */}
                                 <div className="d-flex justify-content-between align-items-start mb-2 gap-2">
                                     <div className="d-flex flex-column" style={{ minWidth: 0, flex: 1 }}>
@@ -991,9 +994,10 @@ const ExpensesSection = ({
                                         )}
                                     </motion.div>
                                 )}
-                            </div>
+                            </motion.div>
                         )
-                    })
+                    })}
+                    </motion.div>
                 )}
             </div>
         </div>

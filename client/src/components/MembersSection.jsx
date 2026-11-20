@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react'
+import React, { useState, useEffect, useMemo, useRef, useDeferredValue } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -13,6 +13,7 @@ import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 import { exportMembersDirectoryPDF } from '../utils/pdfGenerator'
 import EnrollmentManagerModal from './EnrollmentManagerModal'
+import { CardSkeleton, TableSkeleton, staggerContainer, staggerItem } from './SkeletonLoader'
 
 const DEFAULT_DEPARTMENTS = [
     'Core Committee',
@@ -92,6 +93,7 @@ export default function MembersSection({
     const [members, setMembers] = useState([])
     const [loading, setLoading] = useState(false)
     const [search, setSearch] = useState('')
+    const deferredSearch = useDeferredValue(search)
     const [selectedDept, setSelectedDept] = useState('All')
     const [selectedStatus, setSelectedStatus] = useState('All')
     const [sortBy, setSortBy] = useState('entry_asc') // Default: First Entered First
@@ -360,12 +362,12 @@ export default function MembersSection({
     const filteredMembers = useMemo(() => {
         return members.filter(m => {
             const matchesSearch = 
-                !search.trim() ||
-                m.name?.toLowerCase().includes(search.toLowerCase()) ||
-                m.role?.toLowerCase().includes(search.toLowerCase()) ||
-                m.contact?.includes(search) ||
-                m.email?.toLowerCase().includes(search.toLowerCase()) ||
-                m.address?.toLowerCase().includes(search.toLowerCase())
+                !deferredSearch.trim() ||
+                m.name?.toLowerCase().includes(deferredSearch.toLowerCase()) ||
+                m.role?.toLowerCase().includes(deferredSearch.toLowerCase()) ||
+                m.contact?.includes(deferredSearch) ||
+                m.email?.toLowerCase().includes(deferredSearch.toLowerCase()) ||
+                m.address?.toLowerCase().includes(deferredSearch.toLowerCase())
 
             const matchesDept = selectedDept === 'All' || m.department === selectedDept
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -57,13 +58,19 @@ const BackgroundWrapper = () => {
     )
 }
 
-function App() {
+function AnimatedRoutes() {
+    const location = useLocation()
     return (
-        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <div className="app-container">
-                <BackgroundWrapper />
-                <Navbar />
-                <Routes>
+        <AnimatePresence mode="wait">
+            <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+                className="route-transition-wrapper"
+            >
+                <Routes location={location} key={location.pathname}>
                     {/* Public Routes */}
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
@@ -93,6 +100,18 @@ function App() {
                     {/* Catch All */}
                     <Route path="*" element={<NotFound />} />
                 </Routes>
+            </motion.div>
+        </AnimatePresence>
+    )
+}
+
+function App() {
+    return (
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+            <div className="app-container">
+                <BackgroundWrapper />
+                <Navbar />
+                <AnimatedRoutes />
                 <Footer />
             </div>
         </Router>
