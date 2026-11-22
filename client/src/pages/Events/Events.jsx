@@ -1626,142 +1626,146 @@ const Events = () => {
                                     const isActionOpen = openActionSubId === sub.subId;
                                     return (
                                                                                 <motion.div key={sub.subId} variants={staggerItem} className="sub-mobile-card" style={{ zIndex: isActionOpen ? 1045 : 1 }}>
-                                            {/* Line 1: Name + Id (Left) | (Amount, Cash & paid, None) together + Action (Right) */}
-                                            <div className="d-flex justify-content-between align-items-center mb-1 gap-1.5 flex-nowrap">
-                                                <div className="d-flex align-items-center gap-1.5 min-w-0 flex-shrink-1 overflow-hidden">
-                                                    <span className="fw-bold text-main text-truncate sub-card-name" style={{ fontSize: '0.82rem' }} title={sub.name}>
-                                                        {sub.name}
-                                                    </span>
-                                                    <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace flex-shrink-0" style={{ fontSize: '0.58rem', padding: '2px 5px' }}>
-                                                        {sub.subId}
-                                                    </span>
-                                                </div>
+                                            {/* Line 1: Name (Left) | (Amount, Cash & paid, None) together (Right) */}
+                                            <div className="d-flex justify-content-between align-items-center mb-1 gap-2 flex-nowrap">
+                                                <span className="fw-bold text-main text-truncate sub-card-name" style={{ fontSize: '0.88rem' }} title={sub.name}>
+                                                    {sub.name}
+                                                </span>
 
-                                                <div className="d-flex align-items-center gap-1 flex-shrink-0">
-                                                    <span className="badge bg-success text-white px-1.5 py-0.5 fw-bold shadow-xs flex-shrink-0 sub-card-amount" style={{ fontSize: '0.74rem' }}>
+                                                <div className="d-flex align-items-center gap-1.5 flex-shrink-0">
+                                                    <span className="badge bg-success text-white px-2 py-0.5 fw-bold shadow-xs flex-shrink-0 sub-card-amount" style={{ fontSize: '0.78rem' }}>
                                                         {sub.currency || '₹'}{String(sub.amount || 0).replace(/[^0-9.]/g, '')}
                                                     </span>
-                                                    <span className="badge px-1.5 py-0.5 rounded-pill fw-semibold border flex-shrink-0" style={{ ...getPaymentBadgeStyle(sub.paymentType), fontSize: '0.62rem' }}>
+                                                    <span className="badge px-1.5 py-0.5 rounded-pill fw-semibold border flex-shrink-0" style={{ ...getPaymentBadgeStyle(sub.paymentType), fontSize: '0.64rem' }}>
                                                         {getPaymentDisplayName(sub.paymentType)}
                                                     </span>
                                                     {sub.membershipType && (
-                                                        <span className="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 px-1.5 py-0.5 rounded-pill fw-semibold flex-shrink-0" style={{ fontSize: '0.62rem' }}>
+                                                        <span className="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 px-1.5 py-0.5 rounded-pill fw-semibold flex-shrink-0" style={{ fontSize: '0.64rem' }}>
                                                             {getTierDisplayName(sub.membershipType)}
                                                         </span>
                                                     )}
-
-                                                    {/* Action Dropdown on Mobile */}
-                                                    <div className="position-relative flex-shrink-0">
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setOpenActionSubId(isActionOpen ? null : sub.subId)}
-                                                            className={`btn btn-sm d-flex align-items-center gap-1 px-2 py-0.5 rounded-pill fw-bold shadow-xs sub-action-btn ${
-                                                                isActionOpen ? 'btn-primary text-white' : 'btn-outline-secondary'
-                                                            }`}
-                                                            style={{ fontSize: '0.68rem', height: '24px' }}
-                                                        >
-                                                            <span>Action</span>
-                                                            <ChevronDown size={10} style={{ transform: isActionOpen ? 'rotate(180deg)' : 'none' }} />
-                                                        </button>
-
-                                                        {isActionOpen && (
-                                                            <>
-                                                                <div
-                                                                    className="position-fixed top-0 start-0 w-100 h-100"
-                                                                    style={{ zIndex: 1040 }}
-                                                                    onClick={() => setOpenActionSubId(null)}
-                                                                />
-                                                                <motion.div
-                                                                    initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                                                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                                                    exit={{ opacity: 0, scale: 0.95 }}
-                                                                    transition={{ duration: 0.15 }}
-                                                                    className="sub-action-menu"
-                                                                >
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            setOpenActionSubId(null);
-                                                                            const message = `Halo ${sub.name}, your ${'event pass ID' } ${sub.subId} is confirmed.`;
-                                                                            window.open(`https://wa.me/${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
-                                                                        }}
-                                                                        className="sub-action-item"
-                                                                    >
-                                                                        <MessageCircle size={15} className="text-success" />
-                                                                        <span>WhatsApp</span>
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            setOpenActionSubId(null);
-                                                                            downloadPDF(sub);
-                                                                        }}
-                                                                        className="sub-action-item"
-                                                                    >
-                                                                        <FileDown size={15} className="text-info" />
-                                                                        <span>PDF Pass</span>
-                                                                    </button>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => {
-                                                                            setOpenActionSubId(null);
-                                                                            setSubFormData({
-                                                                                ...sub,
-                                                                                date: sub.date ? new Date(sub.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
-                                                                            });
-                                                                            setEditingSubId(sub.subId);
-                                                                            setIsSubAdding(true);
-                                                                        }}
-                                                                        className="sub-action-item"
-                                                                    >
-                                                                        <Edit3 size={15} className="text-primary" />
-                                                                        <span>Edit</span>
-                                                                    </button>
-                                                                    <div className="sub-action-divider" />
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={async () => {
-                                                                            setOpenActionSubId(null);
-                                                                            if (window.confirm(`Delete ${'registration' }?`)) {
-                                                                                setSubscriptionsList(prev => prev.filter(s => s.subId !== sub.subId));
-                                                                                try {
-                                                                                    await axios.delete(`/api/subscriptions/${sub.subId}`);
-                                                                                    fetchSubscriptions();
-                                                                                } catch (err) {
-                                                                                    alert('Error deleting');
-                                                                                    fetchSubscriptions();
-                                                                                }
-                                                                            }
-                                                                        }}
-                                                                        className="sub-action-item delete-item"
-                                                                    >
-                                                                        <Trash2 size={15} />
-                                                                        <span>Delete</span>
-                                                                    </button>
-                                                                </motion.div>
-                                                            </>
-                                                        )}
-                                                    </div>
                                                 </div>
                                             </div>
 
-                                            {/* Line 2: Date with year, Contact, Address */}
-                                            <div className="d-flex align-items-center gap-2 extra-tiny text-muted flex-nowrap overflow-hidden pt-0.5" style={{ fontSize: '0.68rem' }}>
-                                                {sub.date && (
-                                                    <span className="d-inline-flex align-items-center gap-1 flex-shrink-0 font-monospace text-nowrap">
-                                                        <Calendar size={10} className="text-secondary opacity-75 flex-shrink-0" />
-                                                        <span>{new Date(sub.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                            {/* Line 2: Id + Date with year (Left) | Action (Right) */}
+                                            <div className="d-flex justify-content-between align-items-center mb-1 gap-2 flex-nowrap">
+                                                <div className="d-flex align-items-center gap-2 min-w-0 flex-shrink-1 overflow-hidden">
+                                                    <span className="badge bg-secondary bg-opacity-10 text-muted font-monospace flex-shrink-0" style={{ fontSize: '0.62rem', padding: '2px 6px' }}>
+                                                        {sub.subId}
                                                     </span>
-                                                )}
+                                                    {sub.date && (
+                                                        <span className="extra-tiny text-muted d-inline-flex align-items-center gap-1 flex-shrink-0 font-monospace text-nowrap" style={{ fontSize: '0.68rem' }}>
+                                                            <Calendar size={11} className="text-secondary opacity-75 flex-shrink-0" />
+                                                            <span>{new Date(sub.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                                                        </span>
+                                                    )}
+                                                </div>
+
+                                                {/* Action Dropdown on Mobile */}
+                                                <div className="position-relative flex-shrink-0">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setOpenActionSubId(isActionOpen ? null : sub.subId)}
+                                                        className={`btn btn-sm d-flex align-items-center gap-1 px-2.5 py-0.5 rounded-pill fw-bold shadow-xs sub-action-btn ${
+                                                            isActionOpen ? 'btn-primary text-white' : 'btn-outline-secondary'
+                                                        }`}
+                                                        style={{ fontSize: '0.70rem', height: '24px' }}
+                                                    >
+                                                        <span>Action</span>
+                                                        <ChevronDown size={10} style={{ transform: isActionOpen ? 'rotate(180deg)' : 'none' }} />
+                                                    </button>
+
+                                                    {isActionOpen && (
+                                                        <>
+                                                            <div
+                                                                className="position-fixed top-0 start-0 w-100 h-100"
+                                                                style={{ zIndex: 1040 }}
+                                                                onClick={() => setOpenActionSubId(null)}
+                                                            />
+                                                            <motion.div
+                                                                initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                                                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                                                exit={{ opacity: 0, scale: 0.95 }}
+                                                                transition={{ duration: 0.15 }}
+                                                                className="sub-action-menu"
+                                                            >
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setOpenActionSubId(null);
+                                                                        const message = `Halo ${sub.name}, your ${'event pass ID' } ${sub.subId} is confirmed.`;
+                                                                        window.open(`https://wa.me/${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+                                                                    }}
+                                                                    className="sub-action-item"
+                                                                >
+                                                                    <MessageCircle size={15} className="text-success" />
+                                                                    <span>WhatsApp</span>
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setOpenActionSubId(null);
+                                                                        downloadPDF(sub);
+                                                                    }}
+                                                                    className="sub-action-item"
+                                                                >
+                                                                    <FileDown size={15} className="text-info" />
+                                                                    <span>PDF Pass</span>
+                                                                </button>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setOpenActionSubId(null);
+                                                                        setSubFormData({
+                                                                            ...sub,
+                                                                            date: sub.date ? new Date(sub.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                                                                        });
+                                                                        setEditingSubId(sub.subId);
+                                                                        setIsSubAdding(true);
+                                                                    }}
+                                                                    className="sub-action-item"
+                                                                >
+                                                                    <Edit3 size={15} className="text-primary" />
+                                                                    <span>Edit</span>
+                                                                </button>
+                                                                <div className="sub-action-divider" />
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={async () => {
+                                                                        setOpenActionSubId(null);
+                                                                        if (window.confirm(`Delete ${'registration' }?`)) {
+                                                                            setSubscriptionsList(prev => prev.filter(s => s.subId !== sub.subId));
+                                                                            try {
+                                                                                await axios.delete(`/api/subscriptions/${sub.subId}`);
+                                                                                fetchSubscriptions();
+                                                                            } catch (err) {
+                                                                                alert('Error deleting');
+                                                                                fetchSubscriptions();
+                                                                            }
+                                                                        }
+                                                                    }}
+                                                                    className="sub-action-item delete-item"
+                                                                >
+                                                                    <Trash2 size={15} />
+                                                                    <span>Delete</span>
+                                                                </button>
+                                                            </motion.div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Line 3: Contact, Address */}
+                                            <div className="d-flex align-items-center gap-2.5 extra-tiny text-muted flex-nowrap overflow-hidden pt-0.5" style={{ fontSize: '0.70rem' }}>
                                                 {sub.contact && (
                                                     <a href={`tel:${sub.contact}`} className="text-muted text-decoration-none d-inline-flex align-items-center gap-1 flex-shrink-0 font-monospace hover-text-main text-nowrap" title={sub.contact}>
-                                                        <Phone size={10} className="text-secondary opacity-75 flex-shrink-0" />
+                                                        <Phone size={11} className="text-secondary opacity-75 flex-shrink-0" />
                                                         <span>{sub.countryCode || ''} {sub.contact}</span>
                                                     </a>
                                                 )}
                                                 {sub.address && (
                                                     <span className="text-truncate d-inline-flex align-items-center gap-1 flex-shrink-1" title={sub.address}>
-                                                        <MapPin size={10} className="text-secondary opacity-75 flex-shrink-0" />
+                                                        <MapPin size={11} className="text-secondary opacity-75 flex-shrink-0" />
                                                         <span className="text-truncate">{sub.address}</span>
                                                     </span>
                                                 )}
