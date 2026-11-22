@@ -30,18 +30,9 @@ const AuthBackground = () => {
 }
 
 function AnimatedRoutes() {
-    const location = useLocation()
     return (
-        <AnimatePresence mode="wait">
-            <motion.div
-                key={location.pathname}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.14 }}
-                className="route-transition-wrapper"
-            >
-                <Routes location={location} key={location.pathname}>
+        <div className="route-transition-wrapper">
+            <Routes>
                     {/* Public Routes */}
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
@@ -71,8 +62,7 @@ function AnimatedRoutes() {
                     {/* Catch All */}
                     <Route path="*" element={<NotFound />} />
                 </Routes>
-            </motion.div>
-        </AnimatePresence>
+        </div>
     )
 }
 

@@ -1826,9 +1826,9 @@ label {
 }
 
 /* Global Horizontal Overflow Protection */
-html, body, #root, .app-container {
+html, body {
     max-width: 100%;
-    overflow-x: clip;
+    overflow-x: hidden;
 }
 
 /* ==========================================

@@ -974,15 +974,7 @@ const Events = () => {
                 {/* Subscriptions Modal moved to end */}
             </AnimatePresence>
 
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={activeTab}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
-                    className="smooth-tab-pane"
-                >
+            <div className="smooth-tab-pane">
                     {activeTab === 'members' && (
                 <MembersSection 
                     type="event" 
@@ -1081,13 +1073,12 @@ const Events = () => {
                     {isLoadingEvents && events.length === 0 ? (
                         <CardSkeleton count={3} />
                     ) : (
-                        <motion.div variants={staggerContainer} initial="hidden" animate="show" className="d-flex flex-column gap-2">
+                        <div className="d-flex flex-column gap-2">
                             {filteredEvents.map((evt) => {
                                 const isActive = activeEvent?._id === evt._id;
                                 return (
-                                    <motion.div
+                                    <div
                                         key={evt._id}
-                                        variants={staggerItem}
                                         className="w-100"
                                     >
                                     <div 
@@ -1245,10 +1236,10 @@ const Events = () => {
                                             )}
                                         </AnimatePresence>
                                     </div>
-                                </motion.div>
+                                </div>
                             );
                         })}
-                        </motion.div>
+                        </div>
                     )}
                 </>
             )}
@@ -2269,8 +2260,7 @@ const Events = () => {
                     activeTitle={activeEvent?.title || ''}
                 />
             )}
-                </motion.div>
-            </AnimatePresence>
+            </div>
 
             <AnimatePresence>
                 {isModalOpen && (
