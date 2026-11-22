@@ -1339,8 +1339,8 @@ const Festivals = () => {
 
                     {/* Toolbar below Title inside the Card */}
                     <div className="d-flex flex-column py-1 mb-3" style={{ gap: '10px', isolation: 'isolate', position: 'relative' }}>
-                        {/* Row 1: Add New, Search, Attendee PDF */}
-                        <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
+                        {/* Row 1: Add New, Search, Attendee PDF, Action Log (Single Horizontal Line) */}
+                        <div className="attendee-actions-toolbar">
                             {/* ADD NEW */}
                             {!isSubAdding && (
                                 <button onClick={() => {
@@ -1352,37 +1352,35 @@ const Festivals = () => {
                                         festOrEventName: activeFestival?.title || '',
                                         entityName: activeFestival?.entityName || ''
                                     })
-                                }} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.67rem' }}>
-                                    <Plus size={11} /> <span>Add New</span>
+                                }} className="btn btn-premium btn-sm d-flex align-items-center gap-1 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm">
+                                    <Plus size={10} /> <span>Add New</span>
                                 </button>
                             )}
 
                             {/* SEARCH */}
-                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm flex-grow-1 flex-sm-grow-0" style={{ height: '26px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
+                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm">
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={10} /></span>
                                 <input
                                     type="text"
                                     className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100 fw-bold"
                                     placeholder="Search attendees..."
                                     value={subSearch}
                                     onChange={(e) => setSubSearch(e.target.value)}
-                                    style={{ fontSize: '0.67rem' }}
                                 />
                             </div>
 
                             {/* ATTENDEE PDF */}
-                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.67rem' }}>
-                                <FileDown size={11} /> <span>Attendee PDF</span>
+                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm">
+                                <FileDown size={10} /> <span>Attendee PDF</span>
                             </button>
 
                             {/* ACTION LOGS */}
                             <button 
                                 onClick={() => handleTabChange('activity_logs')} 
-                                className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all shadow-sm" 
-                                style={{ height: '26px', fontSize: '0.67rem' }}
+                                className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 rounded-pill fw-bold text-nowrap transition-all shadow-sm" 
                                 title="View who created, updated, or deleted attendee records"
                             >
-                                <History size={11} className="text-primary" /> <span>Action Log</span>
+                                <History size={10} className="text-primary" /> <span>Action Log</span>
                             </button>
                         </div>
 

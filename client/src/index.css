@@ -1575,6 +1575,74 @@ label {
     }
 }
 
+/* Attendee Actions Toolbar (Single Horizontal Line on Smartphones & Desktops) */
+.attendee-actions-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 2px 0;
+    width: 100%;
+}
+
+.attendee-actions-toolbar::-webkit-scrollbar {
+    display: none;
+}
+
+.attendee-actions-toolbar .btn,
+.attendee-actions-toolbar .action-item-pill {
+    height: 24px !important;
+    font-size: 0.62rem !important;
+    padding: 0 8px !important;
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+}
+
+.attendee-actions-toolbar .btn span {
+    font-size: 0.62rem !important;
+}
+
+.attendee-actions-toolbar .action-item-pill input {
+    font-size: 0.62rem !important;
+    width: 110px !important;
+}
+
+@media (max-width: 575.98px) {
+    .attendee-actions-toolbar {
+        gap: 4px !important;
+    }
+
+    .attendee-actions-toolbar .btn,
+    .attendee-actions-toolbar .action-item-pill {
+        height: 23px !important;
+        font-size: 0.58rem !important;
+        padding: 0 6px !important;
+    }
+
+    .attendee-actions-toolbar .btn span {
+        font-size: 0.58rem !important;
+    }
+
+    .attendee-actions-toolbar .btn svg,
+    .attendee-actions-toolbar .action-item-pill svg {
+        width: 10px !important;
+        height: 10px !important;
+    }
+
+    .attendee-actions-toolbar .action-item-pill input {
+        font-size: 0.58rem !important;
+        width: 82px !important;
+    }
+
+    .attendee-actions-toolbar .action-item-pill input::placeholder {
+        font-size: 0.58rem !important;
+    }
+}
+
 .action-item-pill select {
     cursor: pointer;
     transition: color 0.2s ease;
