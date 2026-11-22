@@ -199,7 +199,7 @@ const Festivals = () => {
         description: ''
     })
     const [searchParams, setSearchParams] = useSearchParams()
-    const validTabs = ['members', 'sponsors', 'festivals', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'activity_logs', 'data']
+    const validTabs = ['festivals', 'members', 'sponsors', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'activity_logs', 'data']
     const urlTab = searchParams.get('tab')
     const [isDataOpen, setIsDataOpen] = useState(urlTab === 'data')
     const [activeTab, setActiveTab] = useState(

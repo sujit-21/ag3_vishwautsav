@@ -194,7 +194,7 @@ const Events = () => {
         currency: '₹'
     })
     const [searchParams, setSearchParams] = useSearchParams()
-    const validTabs = ['members', 'sponsors', 'events', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'activity_logs', 'data']
+    const validTabs = ['events', 'members', 'sponsors', 'new_attendee', 'subscriptions', 'expenses', 'card', 'balanceSheet', 'activity_logs', 'data']
     const urlTab = searchParams.get('tab')
     const [isDataOpen, setIsDataOpen] = useState(urlTab === 'data')
     const [activeTab, setActiveTab] = useState(
