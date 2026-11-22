@@ -309,17 +309,6 @@ const ExpensesSection = ({
                         >
                             <FileDown size={14} /> <span>All Expenses PDF</span>
                         </button>
-                        {onOpenDataReports && (
-                            <button
-                                type="button"
-                                onClick={onOpenDataReports}
-                                className="btn btn-outline-warning btn-sm d-inline-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-xs"
-                                style={{ height: '34px', fontSize: '0.74rem' }}
-                                title="Open DATA Reports Hub"
-                            >
-                                <Download size={14} /> <span>DATA Reports</span>
-                            </button>
-                        )}
                     </div>
                 </div>
 

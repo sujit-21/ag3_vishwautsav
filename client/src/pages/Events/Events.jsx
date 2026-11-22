@@ -1056,11 +1056,6 @@ const Events = () => {
                                 />
                             </div>
 
-                            {/* DATA REPORTS */}
-                            <button onClick={() => setIsDataOpen(true)} className="btn btn-outline-warning d-flex align-items-center justify-content-center px-2.5 rounded-pill fw-bold shadow-sm transition-all text-nowrap ms-1" style={{ fontSize: '0.66rem', height: '26px' }} title="Open DATA Reports Hub">
-                                <Download size={11} className="me-1" /> REPORTS
-                            </button>
-
                             {/* CREATE */}
                             {user?.role === 'admin' && (
                                 <button onClick={() => openModal()} className="btn btn-primary d-flex align-items-center justify-content-center px-2.5 rounded-pill fw-bold text-white shadow-sm transition-all hover-glow text-nowrap ms-1" style={{ fontSize: '0.66rem', height: '26px', backgroundColor: '#5c6cff', borderColor: '#5c6cff' }}>
@@ -1293,16 +1288,6 @@ const Events = () => {
                             {/* ATTENDEE PDF */}
                             <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.74rem' }}>
                                 <FileDown size={13} /> <span className="uppercase">Attendee PDF</span>
-                            </button>
-
-                            {/* DATA REPORTS */}
-                            <button 
-                                onClick={() => setIsDataOpen(true)} 
-                                className="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-sm" 
-                                style={{ height: '32px', fontSize: '0.74rem' }}
-                                title="Open DATA Reports Hub"
-                            >
-                                <Download size={13} /> <span className="uppercase">DATA Reports</span>
                             </button>
 
                             {/* ACTION LOGS */}
@@ -1830,10 +1815,6 @@ const Events = () => {
                                 <Plus size={14} /> <span>Create Pass</span>
                             </button>
 
-                            <button onClick={() => setIsDataOpen(true)} className="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-sm" style={{ height: '36px', fontSize: '0.74rem' }} title="Open DATA Reports Hub">
-                                <Download size={13} /> <span className="uppercase">DATA Reports</span>
-                            </button>
-
                             {/* SEARCH */}
                             <div className="figma-pass-control-pill flex-grow-1 px-2.5 shadow-sm">
                                 <Search size={13} className="text-muted me-1.5 flex-shrink-0" />
@@ -2071,9 +2052,6 @@ const Events = () => {
                                 </span>
                                 <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet" title="Download BalanceSheet PDF">
                                     <FileDown size={15} /> BalanceSheet Pdf Download
-                                </button>
-                                <button onClick={() => setIsDataOpen(true)} className="btn btn-outline-warning btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold shadow-sm" style={{ height: '38px', fontSize: '0.74rem' }} title="Open DATA Reports Hub">
-                                    <Download size={14} /> DATA Reports
                                 </button>
                             </div>
                         </div>
