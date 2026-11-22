@@ -1771,11 +1771,10 @@ const Events = () => {
                                                 <div className="sub-info-grid">
                                                     {/* Date */}
                                                     <div className="sub-info-chip">
-                                                        <div className="sub-info-icon-box bg-warning bg-opacity-15 text-warning">
-                                                            <Calendar size={14} strokeWidth={2.4} />
-                                                        </div>
-                                                        <div className="d-flex flex-column min-w-0">
-                                                            <span className="sub-info-label">Date</span>
+                                                        <div className="d-flex flex-column min-w-0 w-100">
+                                                            <span className="sub-info-label d-flex align-items-center gap-1.5">
+                                                                <Calendar size={12} className="text-muted opacity-75" /> Date
+                                                            </span>
                                                             <span className="sub-info-value text-truncate">
                                                                 {sub.date ? new Date(sub.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
                                                             </span>
@@ -1784,11 +1783,10 @@ const Events = () => {
 
                                                     {/* Contact */}
                                                     <div className="sub-info-chip">
-                                                        <div className="sub-info-icon-box bg-info bg-opacity-15 text-info">
-                                                            <Phone size={14} strokeWidth={2.4} />
-                                                        </div>
-                                                        <div className="d-flex flex-column min-w-0">
-                                                            <span className="sub-info-label">Contact</span>
+                                                        <div className="d-flex flex-column min-w-0 w-100">
+                                                            <span className="sub-info-label d-flex align-items-center gap-1.5">
+                                                                <Phone size={12} className="text-muted opacity-75" /> Contact
+                                                            </span>
                                                             {sub.contact ? (
                                                                 <a href={`tel:${sub.contact}`} className="sub-info-value text-truncate text-decoration-none" title={sub.contact}>
                                                                     {sub.countryCode || ''} {sub.contact}
@@ -1801,11 +1799,10 @@ const Events = () => {
 
                                                     {/* Address */}
                                                     <div className={`sub-info-chip ${sub.referenceName ? '' : 'full-width'}`}>
-                                                        <div className="sub-info-icon-box bg-danger bg-opacity-15 text-danger">
-                                                            <MapPin size={14} strokeWidth={2.4} />
-                                                        </div>
-                                                        <div className="d-flex flex-column min-w-0">
-                                                            <span className="sub-info-label">Address</span>
+                                                        <div className="d-flex flex-column min-w-0 w-100">
+                                                            <span className="sub-info-label d-flex align-items-center gap-1.5">
+                                                                <MapPin size={12} className="text-muted opacity-75" /> Address
+                                                            </span>
                                                             <span className="sub-info-value text-truncate" title={sub.address || 'Not provided'}>
                                                                 {sub.address || 'Not provided'}
                                                             </span>
@@ -1815,11 +1812,10 @@ const Events = () => {
                                                     {/* Reference (if available) */}
                                                     {sub.referenceName ? (
                                                         <div className="sub-info-chip">
-                                                            <div className="sub-info-icon-box bg-primary bg-opacity-15 text-primary">
-                                                                <Tag size={14} strokeWidth={2.4} />
-                                                            </div>
-                                                            <div className="d-flex flex-column min-w-0">
-                                                                <span className="sub-info-label">Reference</span>
+                                                            <div className="d-flex flex-column min-w-0 w-100">
+                                                                <span className="sub-info-label d-flex align-items-center gap-1.5">
+                                                                    <Tag size={12} className="text-muted opacity-75" /> Reference
+                                                                </span>
                                                                 <span className="sub-info-value text-truncate" title={sub.referenceName}>
                                                                     {sub.referenceName}
                                                                 </span>
