@@ -1097,7 +1097,7 @@ const Festivals = () => {
                             <h5 className="fw-extrabold mb-0 text-main">Festivals</h5>
                             <p className="text-muted tiny mb-0">Manage and explore all upcoming festivals.</p>
                         </div>
-                        <div className="d-flex align-items-center gap-2 flex-wrap py-1">
+                        <div className="d-flex align-items-center gap-2 flex-wrap py-1" style={{ isolation: 'isolate', position: 'relative' }}>
                             {/* SORT */}
                             <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
                                 <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
@@ -1338,7 +1338,7 @@ const Festivals = () => {
                     </div>
 
                     {/* Toolbar below Title inside the Card */}
-                    <div className="d-flex flex-column py-1 mb-3" style={{ gap: '10px' }}>
+                    <div className="d-flex flex-column py-1 mb-3" style={{ gap: '10px', isolation: 'isolate', position: 'relative' }}>
                         {/* Row 1: Add New, Search, Attendee PDF */}
                         <div className="d-flex align-items-center gap-2 flex-wrap flex-sm-nowrap">
                             {/* ADD NEW */}
