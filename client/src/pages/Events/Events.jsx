@@ -1267,48 +1267,48 @@ const Events = () => {
                                         festOrEventName: activeEvent?.title || '',
                                         entityName: activeEvent?.entityName || ''
                                     })
-                                }} className="btn btn-premium btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.74rem' }}>
-                                    <Plus size={13} /> <span className="uppercase">Add New</span>
+                                }} className="btn btn-premium btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.67rem' }}>
+                                    <Plus size={11} /> <span>Add New</span>
                                 </button>
                             )}
 
                             {/* SEARCH */}
-                            <div className="input-group action-item-pill search-pill-container px-2.5 flex-nowrap shadow-sm flex-grow-1 flex-sm-grow-0" style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={13} /></span>
+                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm flex-grow-1 flex-sm-grow-0" style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
                                 <input
                                     type="text"
                                     className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100 fw-bold"
                                     placeholder="Search attendees..."
                                     value={subSearch}
                                     onChange={(e) => setSubSearch(e.target.value)}
-                                    style={{ fontSize: '0.75rem' }}
+                                    style={{ fontSize: '0.67rem' }}
                                 />
                             </div>
 
                             {/* ATTENDEE PDF */}
-                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '32px', fontSize: '0.74rem' }}>
-                                <FileDown size={13} /> <span className="uppercase">Attendee PDF</span>
+                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm" style={{ height: '26px', fontSize: '0.67rem' }}>
+                                <FileDown size={11} /> <span>Attendee PDF</span>
                             </button>
 
                             {/* ACTION LOGS */}
                             <button 
                                 onClick={() => handleTabChange('activity_logs')} 
-                                className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1.5 px-3 rounded-pill fw-bold text-nowrap transition-all shadow-sm" 
-                                style={{ height: '32px', fontSize: '0.74rem' }}
+                                className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 px-2.5 rounded-pill fw-bold text-nowrap transition-all shadow-sm" 
+                                style={{ height: '26px', fontSize: '0.67rem' }}
                                 title="View who created, updated, or deleted attendee records"
                             >
-                                <History size={13} className="text-primary" /> <span className="uppercase">Action Log</span>
+                                <History size={11} className="text-primary" /> <span>Action Log</span>
                             </button>
                         </div>
 
                         {/* Row 2: Sort, Tier All, Pay All (Just below - clean horizontal swipe on mobile) */}
                         <div className="d-flex align-items-center gap-2 overflow-x-auto py-1 flex-nowrap">
                             {/* SORT */}
-                            <div className="input-group action-item-pill px-2.5 align-items-center flex-nowrap shadow-sm" style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={13} /></span>
+                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
                                 <select
                                     className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.75rem' }}
+                                    style={{ fontSize: '0.67rem' }}
                                     value={subSort}
                                     onChange={(e) => setSubSort(e.target.value)}
                                     title="Sort Attendees"
@@ -1323,11 +1323,11 @@ const Events = () => {
                             </div>
 
                             {/* TIER FILTER */}
-                            <div className={`input-group action-item-pill px-2.5 align-items-center flex-nowrap shadow-sm ${subMembershipFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={13} className={subMembershipFilter !== 'all' ? 'text-primary' : ''} /></span>
+                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${subMembershipFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={subMembershipFilter !== 'all' ? 'text-primary' : ''} /></span>
                                 <select
                                     className="form-select select-tier bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.75rem' }}
+                                    style={{ fontSize: '0.67rem' }}
                                     value={subMembershipFilter}
                                     onChange={(e) => setSubMembershipFilter(e.target.value)}
                                     title="Filter Tier"
@@ -1341,11 +1341,11 @@ const Events = () => {
                             </div>
 
                             {/* PAYMENT FILTER */}
-                            <div className={`input-group action-item-pill px-2.5 align-items-center flex-nowrap shadow-sm ${subPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '32px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><CreditCard size={13} className={subPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
+                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${subPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
+                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><CreditCard size={11} className={subPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
                                 <select
                                     className="form-select select-pay bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.75rem' }}
+                                    style={{ fontSize: '0.67rem' }}
                                     value={subPaymentFilter}
                                     onChange={(e) => setSubPaymentFilter(e.target.value)}
                                     title="Filter Payment"
