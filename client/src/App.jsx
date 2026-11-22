@@ -20,42 +20,13 @@ import RoleSelection from './pages/RoleSelection'
 import NotFound from './pages/NotFound'
 import PublicEnrollment from './pages/PublicEnrollment/PublicEnrollment'
 
-import musicConcertImg from './homepage_images/Music Concert.jpg'
-import consertImg from './homepage_images/consert.jpg'
-import holiImg from './homepage_images/holi.jpg'
-import southFestivalsImg from './homepage_images/south festivals.jpg'
-
-const bgImages = [musicConcertImg, consertImg, holiImg, southFestivalsImg]
-
-const BackgroundWrapper = () => {
+const AuthBackground = () => {
     const location = useLocation()
-    const [currentBgIndex, setCurrentBgIndex] = useState(0)
-
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentBgIndex((prev) => (prev + 1) % bgImages.length)
-        }, 6000)
-        return () => clearInterval(interval)
-    }, [])
-
     const showBg = ['/login', '/signup', '/forgot-password', '/role-selection'].includes(location.pathname)
 
     if (!showBg) return null
 
-    return (
-        <div className="position-fixed top-0 start-0 w-100 h-100 overflow-hidden pointer-events-none" style={{ zIndex: -1 }}>
-            {bgImages.map((img, idx) => (
-                <div
-                    key={idx}
-                    className={`slideshow-image ${idx === currentBgIndex ? 'active' : ''}`}
-                    style={{
-                        backgroundImage: `url("${img}")`
-                    }}
-                />
-            ))}
-            <div className="slideshow-overlay" />
-        </div>
-    )
+    return <div className="auth-page-ambient" aria-hidden="true" />
 }
 
 function AnimatedRoutes() {
@@ -109,7 +80,7 @@ function App() {
     return (
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <div className="app-container">
-                <BackgroundWrapper />
+                <AuthBackground />
                 <Navbar />
                 <AnimatedRoutes />
                 <Footer />
