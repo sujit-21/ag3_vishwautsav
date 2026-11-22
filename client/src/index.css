@@ -129,6 +129,12 @@
     background-color: var(--secondary-bg);
 }
 
+html {
+    max-width: 100%;
+    overflow-x: hidden;
+    scroll-behavior: auto;
+}
+
 body {
     margin: 0;
     font-family: var(--font-body);
@@ -138,8 +144,6 @@ body {
     text-rendering: optimizeLegibility;
     background-color: var(--primary-bg);
     color: var(--text-main);
-    overflow-x: hidden;
-    overscroll-behavior-y: none;
     letter-spacing: -0.011em;
 }
 
@@ -1849,7 +1853,7 @@ label {
 }
 
 /* Global Horizontal Overflow Protection */
-html, body {
+.app-container {
     max-width: 100%;
     overflow-x: hidden;
 }
@@ -5954,7 +5958,7 @@ html, body {
 
 /* 2. Native Touch Physics, Smooth Scrolling & Momentum Inertia */
 html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
 }
 
 .table-responsive,
