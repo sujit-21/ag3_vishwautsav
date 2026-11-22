@@ -35,10 +35,10 @@ function AnimatedRoutes() {
         <AnimatePresence mode="wait">
             <motion.div
                 key={location.pathname}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.14 }}
                 className="route-transition-wrapper"
             >
                 <Routes location={location} key={location.pathname}>

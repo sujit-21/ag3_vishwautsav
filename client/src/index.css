@@ -1540,7 +1540,6 @@ label {
     width: auto !important;
     max-width: fit-content !important;
     flex-shrink: 0 !important;
-    backface-visibility: hidden;
 }
 
 .action-item-pill:hover,
@@ -2313,7 +2312,6 @@ html, body, #root, .app-container {
                 border-color 0.22s ease,
                 border-left-color 0.22s ease;
     position: relative;
-    will-change: transform, box-shadow;
 }
 
 .sub-mobile-card:hover {
@@ -5925,23 +5923,10 @@ html, body, #root, .app-container {
    SMOOTHNESS & HARDWARE PERFORMANCE OPTIMIZATIONS (1, 2, 3, 5)
    ========================================================================== */
 
-/* 1. GPU Hardware Acceleration for silky 60/120fps rendering */
+/* 1. Standard hardware rendering without GPU layer memory overflow on mobile */
 .sub-mobile-card,
-.figma-expense-section,
-.figma-expense-form-card,
-.settings-luxury-card,
-.settings-mobile-card,
-.luxury-modal-card,
-.modal-content,
-.sub-action-menu,
-.luxury-card,
-.smooth-tab-pane,
-.tab-slider-indicator {
-    transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    will-change: transform, opacity;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
+.settings-mobile-card {
+    contain: layout style;
 }
 
 /* 2. Native Touch Physics, Smooth Scrolling & Momentum Inertia */

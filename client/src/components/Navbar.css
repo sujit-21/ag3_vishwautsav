@@ -1121,7 +1121,9 @@
     border-radius: 22px;
     padding: 7px 12px;
   }
-  .nav__track {
+  .nav__track,
+  .nav__goo,
+  .nav__glow {
     display: none !important;
   }
   .nav__mobile-toggle {

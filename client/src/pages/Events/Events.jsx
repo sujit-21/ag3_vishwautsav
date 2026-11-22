@@ -977,10 +977,10 @@ const Events = () => {
             <AnimatePresence mode="wait">
                 <motion.div
                     key={activeTab}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.15 }}
                     className="smooth-tab-pane"
                 >
                     {activeTab === 'members' && (
@@ -1088,7 +1088,6 @@ const Events = () => {
                                     <motion.div
                                         key={evt._id}
                                         variants={staggerItem}
-                                        whileHover={{ scale: 1.002 }}
                                         className="w-100"
                                     >
                                     <div 
