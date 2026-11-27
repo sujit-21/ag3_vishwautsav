@@ -4991,6 +4991,116 @@ label {
     color: #fbbf24;
 }
 
+/* ==========================================================================
+   Itemized Sponsor Accounting Breakdown Cards (Income, Contra, None)
+   ========================================================================== */
+/* 1. Emerald / Direct Income Card */
+.figma-sponsor-income-breakdown-card {
+    background: linear-gradient(145deg, #f0fdf4, #eefaf2);
+    border: 1.5px solid #bbf7d0;
+    border-left: 4px solid #10b981;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.08);
+}
+.figma-sponsor-income-breakdown-card .figma-misc-breakdown-header {
+    border-bottom: 1px dashed rgba(5, 150, 105, 0.28);
+}
+.figma-sponsor-income-breakdown-card .figma-misc-breakdown-title {
+    color: #047857;
+}
+.figma-sponsor-income-breakdown-card .figma-misc-breakdown-badge {
+    background: #dcfce7;
+    color: #065f46;
+    border: 1px solid #86efac;
+}
+.figma-sponsor-income-breakdown-card .figma-misc-item-row:hover {
+    background: rgba(220, 252, 231, 0.65);
+}
+.figma-sponsor-income-breakdown-card .figma-misc-item-amt {
+    color: #059669;
+}
+
+/* 2. Blue / Contra (Income & Expenses) Card */
+.figma-sponsor-contra-breakdown-card {
+    background: linear-gradient(145deg, #eff6ff, #f0f7ff);
+    border: 1.5px solid #bfdbfe;
+    border-left: 4px solid #3b82f6;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 10px rgba(59, 130, 246, 0.08);
+}
+.figma-sponsor-contra-breakdown-card .figma-misc-breakdown-header {
+    border-bottom: 1px dashed rgba(37, 99, 235, 0.28);
+}
+.figma-sponsor-contra-breakdown-card .figma-misc-breakdown-title {
+    color: #1d4ed8;
+}
+.figma-sponsor-contra-breakdown-card .figma-misc-breakdown-badge {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+.figma-sponsor-contra-breakdown-card .figma-misc-item-row:hover {
+    background: rgba(219, 234, 254, 0.65);
+}
+.figma-sponsor-contra-breakdown-card .figma-misc-item-amt {
+    color: #2563eb;
+}
+
+/* 3. Slate / Honorary (None Effect) Card */
+.figma-sponsor-none-breakdown-card {
+    background: linear-gradient(145deg, #f8fafc, #f1f5f9);
+    border: 1.5px solid #cbd5e1;
+    border-left: 4px solid #64748b;
+    border-radius: 12px;
+    padding: 10px 14px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 10px rgba(100, 116, 139, 0.08);
+}
+.figma-sponsor-none-breakdown-card .figma-misc-breakdown-header {
+    border-bottom: 1px dashed rgba(100, 116, 139, 0.28);
+}
+.figma-sponsor-none-breakdown-card .figma-misc-breakdown-title {
+    color: #475569;
+}
+.figma-sponsor-none-breakdown-card .figma-misc-breakdown-badge {
+    background: #e2e8f0;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+.figma-sponsor-none-breakdown-card .figma-misc-item-row:hover {
+    background: rgba(226, 232, 240, 0.65);
+}
+.figma-sponsor-none-breakdown-card .figma-misc-item-amt {
+    color: #64748b;
+}
+
+/* Dark Mode Overrides */
+.dark-mode .figma-sponsor-income-breakdown-card,
+[data-theme='dark'] .figma-sponsor-income-breakdown-card {
+    background: linear-gradient(145deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+    border-color: rgba(16, 185, 129, 0.3);
+    border-left-color: #10b981;
+}
+.dark-mode .figma-sponsor-contra-breakdown-card,
+[data-theme='dark'] .figma-sponsor-contra-breakdown-card {
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.05));
+    border-color: rgba(59, 130, 246, 0.3);
+    border-left-color: #3b82f6;
+}
+.dark-mode .figma-sponsor-none-breakdown-card,
+[data-theme='dark'] .figma-sponsor-none-breakdown-card {
+    background: linear-gradient(145deg, rgba(100, 116, 139, 0.1), rgba(71, 85, 105, 0.05));
+    border-color: rgba(100, 116, 139, 0.3);
+    border-left-color: #64748b;
+}
+
 /* 3. Data Reports Hub Modal */
 .figma-reports-modal {
     position: relative;

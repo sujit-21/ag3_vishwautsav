@@ -658,6 +658,9 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
         if (sponsorBothSidesAmt > 0) {
             execBody.push(['In-Kind Sponsorships (Inflow)', `${sponsorBothSidesSponsors.length} Patrons`, fmtCurrency(sponsorBothSidesAmt)])
         }
+        if (sponsorNoneAmt > 0) {
+            execBody.push(['Honorary Contributions (None)', `${sponsorNoneSponsors.length} Patrons (Excluded)`, `${fmtCurrency(sponsorNoneAmt)} (Info Only)`])
+        }
         execBody.push(['Total Consolidated Inflow', 'All Inflow Channels', fmtCurrency(effectiveInflow)])
     }
     execBody.push(['Outstanding Attendee Dues', 'Receivable', fmtCurrency(totalDues)])
@@ -718,6 +721,9 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
     }
     if (includeSponsors && sponsorBothSidesAmt > 0) {
         incomeRows.push(['Income: Sponsors (In-Kind Inflow)', fmtCurrency(sponsorBothSidesAmt)])
+    }
+    if (includeSponsors && sponsorNoneAmt > 0) {
+        incomeRows.push(['Info: Honorary Patrons (None)', `${fmtCurrency(sponsorNoneAmt)} (Excluded)`])
     }
 
     const expenseRows = []

@@ -2440,13 +2440,22 @@ const Events = () => {
                                 </div>
                             </div>
                             <div className="row g-4">
-                                {/* Left Column: Subscription Income */}
+                                {/* Left Column: Subscription & Inflow Income */}
                                 <div className="col-12 col-lg-6">
                                     <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-secondary border-opacity-15">
                                         <span className="figma-pass-label mb-0 text-success">
-                                            <ArrowDownRight size={13} className="text-success" /> SUBSCRIPTION INCOME
+                                            <ArrowDownRight size={13} className="text-success" /> SUBSCRIPTION &amp; INFLOW INCOME
                                         </span>
-                                        <span className="extra-tiny text-muted fw-bold">3 Inflow Channels</span>
+                                        <span className="extra-tiny text-muted fw-bold">
+                                            {[
+                                                cashPaidAmt > 0,
+                                                onlineAmt > 0,
+                                                couponAmt > 0,
+                                                includeSponsorsInBalanceSheet && sponsorIncomeAmt > 0,
+                                                includeSponsorsInBalanceSheet && sponsorBothSidesAmt > 0,
+                                                includeSponsorsInBalanceSheet && sponsorNoneAmt > 0
+                                            ].filter(Boolean).length} Inflow Channels
+                                        </span>
                                     </div>
                                     <div className="figma-ledger-row">
                                         <span className="d-flex align-items-center gap-2 extra-tiny fw-bold">
@@ -2472,26 +2481,134 @@ const Events = () => {
                                             ₹{couponAmt.toLocaleString()}
                                         </span>
                                     </div>
+
+                                    {/* 1. Direct Sponsor Revenue (Income Only Effect) */}
                                     {includeSponsorsInBalanceSheet && sponsorIncomeAmt > 0 && (
-                                        <div className="figma-ledger-row" style={{ background: 'rgba(16, 185, 129, 0.06)' }}>
-                                            <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-success">
-                                                <Coins size={14} className="text-success" /> Sponsors &amp; Donors (Direct Revenue):
-                                            </span>
-                                            <span className="fw-extrabold text-success font-monospace" style={{ fontSize: '0.86rem' }}>
-                                                ₹{sponsorIncomeAmt.toLocaleString()}
-                                            </span>
-                                        </div>
+                                        <>
+                                            <div className="figma-ledger-row" style={{ background: 'rgba(16, 185, 129, 0.06)' }}>
+                                                <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-success">
+                                                    <Coins size={14} className="text-success" /> Sponsors &amp; Donors (Direct Revenue):
+                                                </span>
+                                                <span className="fw-extrabold text-success font-monospace" style={{ fontSize: '0.86rem' }}>
+                                                    ₹{sponsorIncomeAmt.toLocaleString()}
+                                                </span>
+                                            </div>
+                                            {/* Itemized Direct Sponsor Inflows Card */}
+                                            <div className="figma-sponsor-income-breakdown-card">
+                                                <div className="figma-misc-breakdown-header">
+                                                    <span className="figma-misc-breakdown-title">
+                                                        <Coins size={12} className="text-success" /> Itemized Direct Sponsor Inflows (Income Only)
+                                                    </span>
+                                                    <span className="figma-misc-breakdown-badge">
+                                                        {sponsorIncomeSponsors.length} patrons
+                                                    </span>
+                                                </div>
+                                                <div className="d-flex flex-column gap-1">
+                                                    {sponsorIncomeSponsors.map((sp, idx) => (
+                                                        <div key={sp._id || idx} className="figma-misc-item-row">
+                                                            <div className="d-flex align-items-center gap-1.5 text-truncate me-2">
+                                                                <span className="text-success fw-bold" style={{ fontSize: '0.72rem' }}>•</span>
+                                                                <span className="figma-misc-item-name text-truncate">{sp.name}</span>
+                                                                {sp.company && (
+                                                                    <span className="figma-misc-item-vendor text-truncate">({sp.company})</span>
+                                                                )}
+                                                                <span className="badge rounded-pill bg-white text-muted border px-1.5 py-0" style={{ fontSize: '0.6rem' }}>
+                                                                    {sp.category || 'Cash'}
+                                                                </span>
+                                                            </div>
+                                                            <span className="figma-misc-item-amt flex-shrink-0 text-success">
+                                                                ₹{Number(sp.amount || 0).toLocaleString()}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </>
                                     )}
+
+                                    {/* 2. In-Kind / Matched Sponsors (Income & Expenses Effect - Inflow Side) */}
                                     {includeSponsorsInBalanceSheet && sponsorBothSidesAmt > 0 && (
-                                        <div className="figma-ledger-row" style={{ background: 'rgba(59, 130, 246, 0.06)' }}>
-                                            <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-primary">
-                                                <Sparkles size={14} className="text-primary" /> In-Kind / Matched Sponsors (Inflow):
-                                            </span>
-                                            <span className="fw-extrabold text-primary font-monospace" style={{ fontSize: '0.86rem' }}>
-                                                ₹{sponsorBothSidesAmt.toLocaleString()}
-                                            </span>
-                                        </div>
+                                        <>
+                                            <div className="figma-ledger-row" style={{ background: 'rgba(59, 130, 246, 0.06)' }}>
+                                                <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-primary">
+                                                    <Sparkles size={14} className="text-primary" /> In-Kind / Matched Sponsors (Inflow):
+                                                </span>
+                                                <span className="fw-extrabold text-primary font-monospace" style={{ fontSize: '0.86rem' }}>
+                                                    ₹{sponsorBothSidesAmt.toLocaleString()}
+                                                </span>
+                                            </div>
+                                            {/* Itemized In-Kind Inflow Card */}
+                                            <div className="figma-sponsor-contra-breakdown-card">
+                                                <div className="figma-misc-breakdown-header">
+                                                    <span className="figma-misc-breakdown-title">
+                                                        <Sparkles size={12} className="text-primary" /> Itemized In-Kind Sponsorships (Inflow)
+                                                    </span>
+                                                    <span className="figma-misc-breakdown-badge">
+                                                        {sponsorBothSidesSponsors.length} items
+                                                    </span>
+                                                </div>
+                                                <div className="d-flex flex-column gap-1">
+                                                    {sponsorBothSidesSponsors.map((sp, idx) => (
+                                                        <div key={sp._id || idx} className="figma-misc-item-row">
+                                                            <div className="d-flex align-items-center gap-1.5 text-truncate me-2">
+                                                                <span className="text-primary fw-bold" style={{ fontSize: '0.72rem' }}>•</span>
+                                                                <span className="figma-misc-item-name text-truncate">{sp.contribution || 'In-Kind Contribution'}</span>
+                                                                <span className="figma-misc-item-vendor text-truncate">({sp.name})</span>
+                                                            </div>
+                                                            <span className="figma-misc-item-amt flex-shrink-0 text-primary">
+                                                                ₹{Number(sp.amount || 0).toLocaleString()}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </>
                                     )}
+
+                                    {/* 3. Honorary / Non-Ledger Patrons (None Effect - Informational Breakdown) */}
+                                    {includeSponsorsInBalanceSheet && sponsorNoneSponsors.length > 0 && (
+                                        <>
+                                            <div className="figma-ledger-row" style={{ background: 'rgba(100, 116, 139, 0.06)' }}>
+                                                <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-secondary">
+                                                    <Info size={14} className="text-secondary" /> Honorary Patrons (None Effect):
+                                                </span>
+                                                <span className="fw-bold text-muted font-monospace" style={{ fontSize: '0.82rem' }}>
+                                                    ₹{sponsorNoneAmt.toLocaleString()} <span className="extra-tiny text-secondary fw-semibold">(Excluded • ₹0 Inflow)</span>
+                                                </span>
+                                            </div>
+                                            {/* Itemized Honorary Patrons Card */}
+                                            <div className="figma-sponsor-none-breakdown-card">
+                                                <div className="figma-misc-breakdown-header">
+                                                    <span className="figma-misc-breakdown-title">
+                                                        <Info size={12} className="text-secondary" /> Itemized Honorary Patrons (None • Excluded from Ledger)
+                                                    </span>
+                                                    <span className="figma-misc-breakdown-badge">
+                                                        {sponsorNoneSponsors.length} patrons
+                                                    </span>
+                                                </div>
+                                                <div className="d-flex flex-column gap-1">
+                                                    {sponsorNoneSponsors.map((sp, idx) => (
+                                                        <div key={sp._id || idx} className="figma-misc-item-row">
+                                                            <div className="d-flex align-items-center gap-1.5 text-truncate me-2">
+                                                                <span className="text-muted fw-bold" style={{ fontSize: '0.72rem' }}>•</span>
+                                                                <span className="figma-misc-item-name text-truncate">{sp.name}</span>
+                                                                {sp.company && (
+                                                                    <span className="figma-misc-item-vendor text-truncate">({sp.company})</span>
+                                                                )}
+                                                                <span className="badge rounded-pill bg-light text-muted border px-1.5 py-0" style={{ fontSize: '0.6rem' }}>
+                                                                    {sp.contribution || 'Honorary'}
+                                                                </span>
+                                                            </div>
+                                                            <span className="figma-misc-item-amt flex-shrink-0 text-muted">
+                                                                ₹{Number(sp.amount || 0).toLocaleString()} <span className="badge rounded-pill bg-light text-secondary border px-1" style={{ fontSize: '0.55rem' }}>₹0 Inflow</span>
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
                                     <div className="figma-ledger-total-box mt-3">
                                         <span className="fw-extrabold text-main extra-tiny uppercase tracking-wider">TOTAL INCOME</span>
                                         <span className="fw-extrabold text-success font-monospace" style={{ fontSize: '1.05rem' }}>
@@ -2504,9 +2621,11 @@ const Events = () => {
                                 <div className="col-12 col-lg-6">
                                     <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-secondary border-opacity-15">
                                         <span className="figma-pass-label mb-0 text-danger">
-                                            <ExpenseReceiptIcon size={13} className="text-danger" /> EXPENSE CATEGORIES
+                                            <ExpenseReceiptIcon size={13} className="text-danger" /> EXPENSE CATEGORIES &amp; OUTFLOWS
                                         </span>
-                                        <span className="extra-tiny text-muted fw-bold">Categorized Outflows</span>
+                                        <span className="extra-tiny text-muted fw-bold">
+                                            {eventExpenseTypes.filter(t => (expensesList || []).some(e => (e.expenseType || '').toLowerCase() === t.toLowerCase() && Number(e.amount) > 0)).length + (includeSponsorsInBalanceSheet && sponsorBothSidesAmt > 0 ? 1 : 0)} Outflow Categories
+                                        </span>
                                     </div>
                                     {eventExpenseTypes.map(type => {
                                         const matchingExpenses = (expensesList || []).filter(e => (e.expenseType || '').toLowerCase() === type.toLowerCase())
@@ -2555,16 +2674,44 @@ const Events = () => {
                                             </Fragment>
                                         )
                                     })}
+
                                     {/* In-Kind Sponsorship Allocations (Contra Outflow) */}
                                     {includeSponsorsInBalanceSheet && sponsorBothSidesAmt > 0 && (
-                                        <div className="figma-ledger-row" style={{ background: 'rgba(59, 130, 246, 0.06)' }}>
-                                            <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-primary">
-                                                <Sparkles size={14} className="text-primary" /> In-Kind Sponsorship Allocations (Outflow):
-                                            </span>
-                                            <span className="fw-extrabold text-primary font-monospace" style={{ fontSize: '0.86rem' }}>
-                                                ₹{sponsorBothSidesAmt.toLocaleString()}
-                                            </span>
-                                        </div>
+                                        <>
+                                            <div className="figma-ledger-row" style={{ background: 'rgba(59, 130, 246, 0.06)' }}>
+                                                <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-primary">
+                                                    <Sparkles size={14} className="text-primary" /> In-Kind Sponsorship Allocations (Outflow):
+                                                </span>
+                                                <span className="fw-extrabold text-primary font-monospace" style={{ fontSize: '0.86rem' }}>
+                                                    ₹{sponsorBothSidesAmt.toLocaleString()}
+                                                </span>
+                                            </div>
+                                            {/* Itemized In-Kind Allocations (Outflow) Card */}
+                                            <div className="figma-sponsor-contra-breakdown-card">
+                                                <div className="figma-misc-breakdown-header">
+                                                    <span className="figma-misc-breakdown-title">
+                                                        <Sparkles size={12} className="text-primary" /> Itemized In-Kind Allocations (Contra Outflow)
+                                                    </span>
+                                                    <span className="figma-misc-breakdown-badge">
+                                                        {sponsorBothSidesSponsors.length} items
+                                                    </span>
+                                                </div>
+                                                <div className="d-flex flex-column gap-1">
+                                                    {sponsorBothSidesSponsors.map((sp, idx) => (
+                                                        <div key={sp._id || idx} className="figma-misc-item-row">
+                                                            <div className="d-flex align-items-center gap-1.5 text-truncate me-2">
+                                                                <span className="text-primary fw-bold" style={{ fontSize: '0.72rem' }}>•</span>
+                                                                <span className="figma-misc-item-name text-truncate">{sp.contribution || 'In-Kind Contribution'}</span>
+                                                                <span className="figma-misc-item-vendor text-truncate">({sp.name})</span>
+                                                            </div>
+                                                            <span className="figma-misc-item-amt flex-shrink-0 text-primary">
+                                                                ₹{Number(sp.amount || 0).toLocaleString()}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </>
                                     )}
 
                                     <div className="figma-ledger-total-box mt-3">
