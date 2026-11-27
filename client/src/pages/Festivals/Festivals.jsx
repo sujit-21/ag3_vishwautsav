@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, Fragment, useDeferredValue } from '
 import { useSearchParams } from 'react-router-dom'
 import './Festivals.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Clock, Hash, FileText, Layers, Smartphone, QrCode, Building2, Wallet, TrendingUp, Receipt, ArrowDownRight, ArrowUpRight, Scale, ChevronRight, Users, Ticket, Link2, SlidersHorizontal } from 'lucide-react'
+import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Clock, Hash, FileText, Layers, Smartphone, QrCode, Building2, Wallet, TrendingUp, Receipt, ArrowDownRight, ArrowUpRight, Scale, ChevronRight, Users, Ticket, Link2, SlidersHorizontal, Coins, Gift, CheckCircle2 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -311,7 +311,7 @@ const Festivals = () => {
     const [editingSubId, setEditingSubId] = useState(null)
     const [cardsList, setCardsList] = useState([])
     const [sponsorsList, setSponsorsList] = useState([])
-    const [includeSponsorsInBalanceSheet, setIncludeSponsorsInBalanceSheet] = useState(false)
+    const [includeSponsorsInBalanceSheet, setIncludeSponsorsInBalanceSheet] = useState(true)
     const [sponsorPdfColumns, setSponsorPdfColumns] = useState(() => {
         try {
             const saved = localStorage.getItem('vishwautsav_sponsor_pdf_cols')
@@ -2166,7 +2166,7 @@ const Festivals = () => {
             )}
 
             {activeTab === 'balanceSheet' && (() => {
-                const totalCollection = (subscriptionsList || [])
+                const attendeeCollection = (subscriptionsList || [])
                     .filter(s => s.paymentType !== 'Due')
                     .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0)
 
@@ -2174,13 +2174,28 @@ const Festivals = () => {
                     .filter(s => s.paymentType === 'Due')
                     .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0)
 
-                const totalExpenses = (expensesList || [])
+                const baseExpenses = (expensesList || [])
                     .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0)
 
-                const netBalance = totalCollection - totalExpenses
                 const cashPaidAmt = (subscriptionsList || []).filter(s => s.paymentType === 'Cash & Paid').reduce((a, b) => a + (Number(b.amount) || 0), 0)
                 const onlineAmt = (subscriptionsList || []).filter(s => s.paymentType === 'Online').reduce((a, b) => a + (Number(b.amount) || 0), 0)
                 const couponAmt = (subscriptionsList || []).filter(s => s.paymentType === 'Coupon or Token' || s.paymentType === 'Coupon / Token').reduce((a, b) => a + (Number(b.amount) || 0), 0)
+
+                // 3 Sponsor Accounting Buckets
+                const activeSponsors = (sponsorsList || []).filter(s => !s.isHidden)
+                const sponsorIncomeSponsors = activeSponsors.filter(s => s.accountingImpact === 'Income' || !s.accountingImpact)
+                const sponsorIncomeAmt = sponsorIncomeSponsors.reduce((sum, s) => sum + (Number(s.amount) || 0), 0)
+
+                const sponsorBothSidesSponsors = activeSponsors.filter(s => s.accountingImpact === 'Income & Expenses')
+                const sponsorBothSidesAmt = sponsorBothSidesSponsors.reduce((sum, s) => sum + (Number(s.amount) || 0), 0)
+
+                const sponsorNoneSponsors = activeSponsors.filter(s => s.accountingImpact === 'None')
+                const sponsorNoneAmt = sponsorNoneSponsors.reduce((sum, s) => sum + (Number(s.amount) || 0), 0)
+
+                // Effective Totals (Controlled by Merge Sponsors & Donors)
+                const totalInflows = attendeeCollection + (includeSponsorsInBalanceSheet ? (sponsorIncomeAmt + sponsorBothSidesAmt) : 0)
+                const totalExpenses = baseExpenses + (includeSponsorsInBalanceSheet ? sponsorBothSidesAmt : 0)
+                const netBalance = totalInflows - totalExpenses
 
                 return (
                     <div className="py-2 animate-in">
@@ -2262,6 +2277,7 @@ const Festivals = () => {
                                                         { key: 'contribution', label: 'WHAT THEY DONATED' },
                                                         { key: 'category', label: 'DONATION CATEGORY' },
                                                         { key: 'amount', label: 'CONTRIBUTION AMOUNT (₹)' },
+                                                        { key: 'accountingImpact', label: 'BALANCE SHEET EFFECT' },
                                                         { key: 'contact', label: 'CONTACT PHONE NUMBER' },
                                                         { key: 'paymentStatus', label: 'PAYMENT / DELIVERY STATUS' }
                                                     ].map(col => (
@@ -2281,7 +2297,7 @@ const Festivals = () => {
                                                     <button
                                                         type="button"
                                                         onClick={() => {
-                                                            const reset = { tier: true, contribution: true, category: true, amount: true, contact: false, paymentStatus: true }
+                                                            const reset = { tier: true, contribution: true, category: true, amount: true, accountingImpact: true, contact: false, paymentStatus: true }
                                                             setSponsorPdfColumns(reset)
                                                             try { localStorage.setItem('vishwautsav_sponsor_pdf_cols', JSON.stringify(reset)) } catch (_) {}
                                                         }}
@@ -2319,7 +2335,7 @@ const Festivals = () => {
                                         </div>
                                     </div>
                                     <div className="figma-finance-value text-success">
-                                        ₹{totalCollection.toLocaleString()}
+                                        ₹{totalInflows.toLocaleString()}
                                     </div>
                                     <div className="d-flex align-items-center justify-content-between mt-auto pt-2 border-top border-secondary border-opacity-10">
                                         <span className="extra-tiny text-muted fw-bold">Verified Revenue</span>
@@ -2463,6 +2479,7 @@ const Festivals = () => {
                                                             { key: 'contribution', label: 'WHAT THEY DONATED' },
                                                             { key: 'category', label: 'DONATION CATEGORY' },
                                                             { key: 'amount', label: 'CONTRIBUTION AMOUNT (₹)' },
+                                                            { key: 'accountingImpact', label: 'BALANCE SHEET EFFECT' },
                                                             { key: 'contact', label: 'CONTACT PHONE NUMBER' },
                                                             { key: 'paymentStatus', label: 'PAYMENT / DELIVERY STATUS' }
                                                         ].map(col => (
@@ -2482,7 +2499,7 @@ const Festivals = () => {
                                                         <button
                                                             type="button"
                                                             onClick={() => {
-                                                                const reset = { tier: true, contribution: true, category: true, amount: true, contact: false, paymentStatus: true }
+                                                                const reset = { tier: true, contribution: true, category: true, amount: true, accountingImpact: true, contact: false, paymentStatus: true }
                                                                 setSponsorPdfColumns(reset)
                                                                 try { localStorage.setItem('vishwautsav_sponsor_pdf_cols', JSON.stringify(reset)) } catch (_) {}
                                                             }}
@@ -2540,10 +2557,30 @@ const Festivals = () => {
                                             ₹{couponAmt.toLocaleString()}
                                         </span>
                                     </div>
+                                    {includeSponsorsInBalanceSheet && sponsorIncomeAmt > 0 && (
+                                        <div className="figma-ledger-row" style={{ background: 'rgba(16, 185, 129, 0.06)' }}>
+                                            <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-success">
+                                                <Coins size={14} className="text-success" /> Sponsors &amp; Donors (Direct Revenue):
+                                            </span>
+                                            <span className="fw-extrabold text-success font-monospace" style={{ fontSize: '0.86rem' }}>
+                                                ₹{sponsorIncomeAmt.toLocaleString()}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {includeSponsorsInBalanceSheet && sponsorBothSidesAmt > 0 && (
+                                        <div className="figma-ledger-row" style={{ background: 'rgba(59, 130, 246, 0.06)' }}>
+                                            <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-primary">
+                                                <Sparkles size={14} className="text-primary" /> In-Kind / Matched Sponsors (Inflow):
+                                            </span>
+                                            <span className="fw-extrabold text-primary font-monospace" style={{ fontSize: '0.86rem' }}>
+                                                ₹{sponsorBothSidesAmt.toLocaleString()}
+                                            </span>
+                                        </div>
+                                    )}
                                     <div className="figma-ledger-total-box mt-3">
                                         <span className="fw-extrabold text-main extra-tiny uppercase tracking-wider">TOTAL INCOME</span>
                                         <span className="fw-extrabold text-success font-monospace" style={{ fontSize: '1.05rem' }}>
-                                            ₹{totalCollection.toLocaleString()}
+                                            ₹{totalInflows.toLocaleString()}
                                         </span>
                                     </div>
                                 </div>
@@ -2603,6 +2640,18 @@ const Festivals = () => {
                                             </Fragment>
                                         )
                                     })}
+                                    {/* In-Kind Sponsorship Allocations (Contra Outflow) */}
+                                    {includeSponsorsInBalanceSheet && sponsorBothSidesAmt > 0 && (
+                                        <div className="figma-ledger-row" style={{ background: 'rgba(59, 130, 246, 0.06)' }}>
+                                            <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-primary">
+                                                <Sparkles size={14} className="text-primary" /> In-Kind Sponsorship Allocations (Outflow):
+                                            </span>
+                                            <span className="fw-extrabold text-primary font-monospace" style={{ fontSize: '0.86rem' }}>
+                                                ₹{sponsorBothSidesAmt.toLocaleString()}
+                                            </span>
+                                        </div>
+                                    )}
+
                                     <div className="figma-ledger-total-box mt-3">
                                         <span className="fw-extrabold text-main extra-tiny uppercase tracking-wider">TOTAL EXPENSE</span>
                                         <span className="fw-extrabold text-danger font-monospace" style={{ fontSize: '1.05rem' }}>
@@ -2612,6 +2661,70 @@ const Festivals = () => {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Additional Information & Honorary Patrons (None Effect) */}
+                        {sponsorNoneSponsors.length > 0 && (
+                            <div className="figma-breakdown-card mt-4 p-3 p-sm-4 border shadow-sm rounded-4" style={{ background: 'var(--card-bg, #ffffff)', borderColor: 'rgba(100, 116, 139, 0.25)' }}>
+                                <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                    <div className="d-flex align-items-center gap-2.5">
+                                        <div className="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style={{ width: '36px', height: '36px', background: 'rgba(100, 116, 139, 0.12)', color: '#475569' }}>
+                                            <Info size={18} />
+                                        </div>
+                                        <div>
+                                            <h5 className="fw-extrabold mb-0.5 text-main" style={{ fontSize: '1.05rem', letterSpacing: '-0.02em' }}>
+                                                Additional Information: Honorary &amp; Non-Balance Sheet Patrons
+                                            </h5>
+                                            <p className="text-muted extra-tiny mb-0">
+                                                Contributions recorded for honorary recognition or non-monetary aid. Excluded from cash inflows, outflows, and net ledger balance.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span className="badge rounded-pill px-3 py-1.5 fw-bold" style={{ background: 'rgba(100, 116, 139, 0.12)', color: '#475569', border: '1px solid rgba(100, 116, 139, 0.25)', fontSize: '0.74rem' }}>
+                                        {sponsorNoneSponsors.length} Honorary Patrons • ₹{sponsorNoneAmt.toLocaleString()} Value
+                                    </span>
+                                </div>
+
+                                <div className="table-responsive rounded-3 border" style={{ borderColor: 'var(--glass-border)' }}>
+                                    <table className="table table-hover mb-0 extra-tiny align-middle">
+                                        <thead style={{ background: 'rgba(100, 116, 139, 0.08)' }}>
+                                            <tr className="text-muted fw-bold uppercase">
+                                                <th className="py-2.5 ps-3">#</th>
+                                                <th className="py-2.5">Patron / Donor Name</th>
+                                                <th className="py-2.5">Tier &amp; Category</th>
+                                                <th className="py-2.5">What Was Donated / Contributed</th>
+                                                <th className="py-2.5 text-end pe-3">Estimated Value (₹)</th>
+                                                <th className="py-2.5 text-center">Audit Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {sponsorNoneSponsors.map((sp, idx) => (
+                                                <tr key={sp._id || idx}>
+                                                    <td className="ps-3 fw-bold text-muted">{idx + 1}</td>
+                                                    <td>
+                                                        <div className="fw-bold text-main">{sp.name}</div>
+                                                        {sp.company && <div className="text-muted" style={{ fontSize: '0.68rem' }}>{sp.company}</div>}
+                                                    </td>
+                                                    <td>
+                                                        <span className="badge rounded-pill bg-light text-dark border px-2 py-0.5 fw-semibold" style={{ fontSize: '0.67rem' }}>
+                                                            {sp.tier || 'Donor'} • {sp.category || 'General'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="fw-semibold text-main">{sp.contribution || 'Honorary Support'}</td>
+                                                    <td className="text-end pe-3 font-monospace fw-bold text-muted">
+                                                        ₹{(Number(sp.amount) || 0).toLocaleString()}
+                                                    </td>
+                                                    <td className="text-center">
+                                                        <span className="badge rounded-pill px-2 py-0.5 fw-semibold" style={{ background: 'rgba(100, 116, 139, 0.12)', color: '#475569', fontSize: '0.64rem' }}>
+                                                            Excluded from Ledger
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )
             })()}

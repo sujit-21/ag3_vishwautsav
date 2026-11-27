@@ -583,10 +583,23 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
         .reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const totalExpenses = (expensesList || []).reduce((acc, e) => acc + (Number(String(e.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const totalDues = (subscriptionsList || []).filter(s => s.paymentType === 'Due').reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
-    const totalSponsors = (sponsorsList || []).reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
 
-    const effectiveInflow = includeSponsors ? (totalCollection + totalSponsors) : totalCollection
-    const netBalance = effectiveInflow - totalExpenses
+    // 3 Sponsor Accounting Buckets
+    const activeSponsors = (sponsorsList || []).filter(s => !s.isHidden)
+    const sponsorIncomeSponsors = activeSponsors.filter(s => s.accountingImpact === 'Income' || !s.accountingImpact)
+    const sponsorIncomeAmt = sponsorIncomeSponsors.reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
+
+    const sponsorBothSidesSponsors = activeSponsors.filter(s => s.accountingImpact === 'Income & Expenses')
+    const sponsorBothSidesAmt = sponsorBothSidesSponsors.reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
+
+    const sponsorNoneSponsors = activeSponsors.filter(s => s.accountingImpact === 'None')
+    const sponsorNoneAmt = sponsorNoneSponsors.reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
+
+    const totalSponsors = activeSponsors.reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
+
+    const effectiveInflow = includeSponsors ? (totalCollection + sponsorIncomeAmt + sponsorBothSidesAmt) : totalCollection
+    const effectiveExpenses = includeSponsors ? (totalExpenses + sponsorBothSidesAmt) : totalExpenses
+    const netBalance = effectiveInflow - effectiveExpenses
 
     drawHeader(doc, {
         title: `Balance Sheet & Financial Audit: ${activeTitle || 'General'}`,
@@ -603,7 +616,7 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
     const kpis = [
         { label: includeSponsors ? 'TOTAL INFLOW (ALL)' : 'TOTAL COLLECTION', value: fmtCurrency(effectiveInflow), color: FIGMA_COLORS.emerald, sub: includeSponsors ? 'Attendees + Sponsors' : 'Verified Inflow' },
         { label: 'PENDING DUES', value: fmtCurrency(totalDues), color: [217, 119, 6], sub: 'Pending Clearance' },
-        { label: 'TOTAL EXPENSES', value: fmtCurrency(totalExpenses), color: FIGMA_COLORS.crimson, sub: 'Resource Outflows' },
+        { label: 'TOTAL EXPENSES', value: fmtCurrency(effectiveExpenses), color: FIGMA_COLORS.crimson, sub: includeSponsors && sponsorBothSidesAmt > 0 ? 'Ops + In-Kind Outflows' : 'Resource Outflows' },
         { label: 'NET BALANCE', value: fmtCurrency(netBalance), color: netBalance >= 0 ? FIGMA_COLORS.blue : FIGMA_COLORS.crimson, sub: netBalance >= 0 ? 'Operating Surplus' : 'Operating Deficit' }
     ]
 
@@ -639,11 +652,20 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
         ['Gross Attendee Revenue', 'Verified Inflow', fmtCurrency(totalCollection)],
     ]
     if (includeSponsors) {
-        execBody.push(['Sponsors & Donors Contributions', `${sponsorsList.length} Patrons Inflow`, fmtCurrency(totalSponsors)])
+        if (sponsorIncomeAmt > 0) {
+            execBody.push(['Sponsor Revenue (Direct / Inflow)', `${sponsorIncomeSponsors.length} Patrons`, fmtCurrency(sponsorIncomeAmt)])
+        }
+        if (sponsorBothSidesAmt > 0) {
+            execBody.push(['In-Kind Sponsorships (Inflow)', `${sponsorBothSidesSponsors.length} Patrons`, fmtCurrency(sponsorBothSidesAmt)])
+        }
         execBody.push(['Total Consolidated Inflow', 'All Inflow Channels', fmtCurrency(effectiveInflow)])
     }
     execBody.push(['Outstanding Attendee Dues', 'Receivable', fmtCurrency(totalDues)])
-    execBody.push(['Total Operational Disbursements', 'Audited Outflow', fmtCurrency(totalExpenses)])
+    execBody.push(['Operational Disbursements', 'Audited Outflow', fmtCurrency(totalExpenses)])
+    if (includeSponsors && sponsorBothSidesAmt > 0) {
+        execBody.push(['In-Kind Sponsorship Allocations', 'Contra Outflow', fmtCurrency(sponsorBothSidesAmt)])
+        execBody.push(['Total Consolidated Disbursements', 'All Outflows', fmtCurrency(effectiveExpenses)])
+    }
     execBody.push(['Net Financial Position', netBalance >= 0 ? 'Net Surplus' : 'Net Deficit', fmtCurrency(netBalance)])
 
     autoTable(doc, {
@@ -691,8 +713,11 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
         ['Income: Online / Digital', fmtCurrency((subscriptionsList || []).filter(s => s.paymentType === 'Online').reduce((a, b) => a + (Number(String(b.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0))],
         ['Income: Coupon / Token', fmtCurrency(couponTotal)]
     ]
-    if (includeSponsors && totalSponsors > 0) {
-        incomeRows.push(['Income: Sponsors & Donors', fmtCurrency(totalSponsors)])
+    if (includeSponsors && sponsorIncomeAmt > 0) {
+        incomeRows.push(['Income: Sponsors (Direct)', fmtCurrency(sponsorIncomeAmt)])
+    }
+    if (includeSponsors && sponsorBothSidesAmt > 0) {
+        incomeRows.push(['Income: Sponsors (In-Kind Inflow)', fmtCurrency(sponsorBothSidesAmt)])
     }
 
     const expenseRows = []
@@ -710,6 +735,9 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
             }
         }
     })
+    if (includeSponsors && sponsorBothSidesAmt > 0) {
+        expenseRows.push(['Expense: In-Kind Sponsorships', fmtCurrency(sponsorBothSidesAmt)])
+    }
 
     const table2Body = []
     const maxLen = Math.max(incomeRows.length, expenseRows.length)
@@ -718,7 +746,7 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
         const exp = expenseRows[i] || ['', '']
         table2Body.push([inc[0], inc[1], exp[0], exp[1]])
     }
-    table2Body.push(['TOTAL INFLOW', fmtCurrency(effectiveInflow), 'TOTAL OUTFLOW', fmtCurrency(totalExpenses)])
+    table2Body.push(['TOTAL INFLOW', fmtCurrency(effectiveInflow), 'TOTAL OUTFLOW', fmtCurrency(effectiveExpenses)])
 
     const nextY = (doc.lastAutoTable?.finalY || 100) + 7
     doc.setFont('helvetica', 'bold')
@@ -802,9 +830,60 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
         }
     })
 
+    // Section 3: Additional Information (Honorary & Non-Balance Sheet Patrons)
+    if (sponsorNoneSponsors.length > 0) {
+        const noteY = (doc.lastAutoTable?.finalY || 160) + 6
+        if (noteY + 22 < 255) {
+            doc.setFont('helvetica', 'bold')
+            doc.setFontSize(7.5)
+            doc.setTextColor(...FIGMA_COLORS.slateNavy)
+            doc.text(`ADDITIONAL INFORMATION: HONORARY & NON-BALANCE SHEET PATRONS (${sponsorNoneSponsors.length})`, 14, noteY)
+
+            doc.setFont('helvetica', 'normal')
+            doc.setFontSize(6.2)
+            doc.setTextColor(...FIGMA_COLORS.muted)
+            doc.text('Contributions recorded for honorary recognition — excluded from cash inflows, outflows, and net ledger totals.', 14, noteY + 3.8)
+
+            const noneBody = sponsorNoneSponsors.map((sp, idx) => [
+                String(idx + 1),
+                `${sp.name}${sp.company ? ` (${sp.company})` : ''}`,
+                `${sp.tier || 'Donor'} - ${sp.category || 'General'}`,
+                sp.contribution || 'Honorary Support',
+                fmtCurrency(sp.amount),
+                'Excluded from Ledger'
+            ])
+
+            autoTable(doc, {
+                startY: noteY + 5.5,
+                margin: { left: 14, right: 14 },
+                head: [['#', 'PATRON NAME', 'TIER & CATEGORY', 'CONTRIBUTED ITEMS', 'VALUE', 'ACCOUNTING STATUS']],
+                body: noneBody,
+                theme: 'striped',
+                headStyles: {
+                    fillColor: [100, 116, 139],
+                    textColor: [255, 255, 255],
+                    fontSize: 6.8,
+                    fontStyle: 'bold'
+                },
+                bodyStyles: {
+                    fontSize: 6.4,
+                    cellPadding: { top: 1.8, bottom: 1.8, left: 2.2, right: 2.2 }
+                },
+                columnStyles: {
+                    0: { cellWidth: 8, halign: 'center' },
+                    1: { cellWidth: 46, fontStyle: 'bold' },
+                    2: { cellWidth: 32 },
+                    3: { cellWidth: 48 },
+                    4: { cellWidth: 24, halign: 'right', fontStyle: 'bold' },
+                    5: { cellWidth: 24, halign: 'center', textColor: [100, 116, 139] }
+                }
+            })
+        }
+    }
+
     // Certification Box
-    const certY = (doc.lastAutoTable?.finalY || 180) + 8
-    if (certY < 250) {
+    const certY = (doc.lastAutoTable?.finalY || 180) + 7
+    if (certY < 265) {
         doc.setFillColor(...FIGMA_COLORS.lightBg)
         doc.roundedRect(14, certY, 182, 18, 2, 2, 'F')
         doc.setDrawColor(...FIGMA_COLORS.border)
@@ -853,19 +932,21 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
             contribution: resolvedCols?.contribution !== false,
             category: resolvedCols?.category !== false,
             amount: resolvedCols?.amount !== false,
+            accountingImpact: resolvedCols?.accountingImpact !== false,
             contact: resolvedCols?.contact === true,
             paymentStatus: resolvedCols?.paymentStatus !== false
         }
 
         const allDefs = [
             { id: 'index', header: '#', baseWidth: 8, halign: 'center' },
-            { id: 'name', header: 'SPONSOR / DONOR NAME', baseWidth: 44, fontStyle: 'bold' },
-            ...(colsConfig.tier ? [{ id: 'tier', header: 'TIER / LEVEL', baseWidth: 26, fontStyle: 'bold' }] : []),
-            ...(colsConfig.contribution ? [{ id: 'contribution', header: 'WHAT THEY DONATED', baseWidth: 40 }] : []),
-            ...(colsConfig.category ? [{ id: 'category', header: 'CATEGORY', baseWidth: 22 }] : []),
-            ...(colsConfig.amount ? [{ id: 'amount', header: 'CONTRIBUTION', baseWidth: 26, halign: 'right', fontStyle: 'bold' }] : []),
-            ...(colsConfig.contact ? [{ id: 'contact', header: 'CONTACT', baseWidth: 24 }] : []),
-            ...(colsConfig.paymentStatus ? [{ id: 'paymentStatus', header: 'STATUS', baseWidth: 20, halign: 'center' }] : [])
+            { id: 'name', header: 'SPONSOR / DONOR NAME', baseWidth: 42, fontStyle: 'bold' },
+            ...(colsConfig.tier ? [{ id: 'tier', header: 'TIER / LEVEL', baseWidth: 24, fontStyle: 'bold' }] : []),
+            ...(colsConfig.contribution ? [{ id: 'contribution', header: 'WHAT THEY DONATED', baseWidth: 38 }] : []),
+            ...(colsConfig.category ? [{ id: 'category', header: 'CATEGORY', baseWidth: 20 }] : []),
+            ...(colsConfig.amount ? [{ id: 'amount', header: 'CONTRIBUTION', baseWidth: 24, halign: 'right', fontStyle: 'bold' }] : []),
+            ...(colsConfig.accountingImpact ? [{ id: 'accountingImpact', header: 'LEDGER EFFECT', baseWidth: 20, halign: 'center', fontStyle: 'bold' }] : []),
+            ...(colsConfig.contact ? [{ id: 'contact', header: 'CONTACT', baseWidth: 22 }] : []),
+            ...(colsConfig.paymentStatus ? [{ id: 'paymentStatus', header: 'STATUS', baseWidth: 18, halign: 'center' }] : [])
         ]
 
         const totalBaseWidth = allDefs.reduce((acc, c) => acc + c.baseWidth, 0)
@@ -896,6 +977,8 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
                         return String(sp.category || 'General')
                     case 'amount':
                         return sp.hideAmount ? '— (Confidential)' : fmtCurrency(Number(sp.amount) || 0)
+                    case 'accountingImpact':
+                        return String(sp.accountingImpact || 'Income')
                     case 'contact':
                         return sp.hideContact ? '— (Private)' : (sp.contact ? `${sp.countryCode || '+91'} ${sp.contact}` : (sp.phone || '—'))
                     case 'paymentStatus':
@@ -1913,19 +1996,21 @@ export const exportSponsorsDirectoryPDF = ({
         contribution: columnVisibility?.contribution !== false,
         category: columnVisibility?.category !== false,
         amount: columnVisibility?.amount !== false,
+        accountingImpact: columnVisibility?.accountingImpact !== false,
         contact: columnVisibility?.contact === true,
         paymentStatus: columnVisibility?.paymentStatus !== false
     }
 
     const allDefs = [
         { id: 'index', header: '#', baseWidth: 6, halign: 'center' },
-        { id: 'name', header: 'Sponsor / Organization', baseWidth: 44, fontStyle: 'bold' },
-        ...(colsConfig.tier ? [{ id: 'tier', header: 'Tier / Level', baseWidth: 28, fontStyle: 'bold' }] : []),
-        ...(colsConfig.contribution ? [{ id: 'contribution', header: 'What They Donated / Contribution', baseWidth: 46 }] : []),
-        ...(colsConfig.category ? [{ id: 'category', header: 'Category', baseWidth: 22 }] : []),
-        ...(colsConfig.amount ? [{ id: 'amount', header: 'Amount / Value', baseWidth: 28, halign: 'right', fontStyle: 'bold' }] : []),
+        { id: 'name', header: 'Sponsor / Organization', baseWidth: 42, fontStyle: 'bold' },
+        ...(colsConfig.tier ? [{ id: 'tier', header: 'Tier / Level', baseWidth: 26, fontStyle: 'bold' }] : []),
+        ...(colsConfig.contribution ? [{ id: 'contribution', header: 'What They Donated / Contribution', baseWidth: 42 }] : []),
+        ...(colsConfig.category ? [{ id: 'category', header: 'Category', baseWidth: 20 }] : []),
+        ...(colsConfig.amount ? [{ id: 'amount', header: 'Amount / Value', baseWidth: 26, halign: 'right', fontStyle: 'bold' }] : []),
+        ...(colsConfig.accountingImpact ? [{ id: 'accountingImpact', header: 'Ledger Effect', baseWidth: 22, halign: 'center', fontStyle: 'bold' }] : []),
         ...(colsConfig.contact ? [{ id: 'contact', header: 'Contact', baseWidth: 24 }] : []),
-        ...(colsConfig.paymentStatus ? [{ id: 'paymentStatus', header: 'Status', baseWidth: 20, halign: 'center', fontStyle: 'bold' }] : [])
+        ...(colsConfig.paymentStatus ? [{ id: 'paymentStatus', header: 'Status', baseWidth: 18, halign: 'center', fontStyle: 'bold' }] : [])
     ]
 
     const totalBaseWidth = allDefs.reduce((acc, c) => acc + c.baseWidth, 0)
@@ -1956,6 +2041,8 @@ export const exportSponsorsDirectoryPDF = ({
                     return String(sp.category || 'Cash')
                 case 'amount':
                     return sp.hideAmount ? '— (Confidential)' : fmtCurrency(sp.amount)
+                case 'accountingImpact':
+                    return String(sp.accountingImpact || 'Income')
                 case 'contact':
                     return sp.hideContact ? '— (Private)' : (sp.contact ? `${sp.countryCode || '+91'} ${sp.contact}` : '—')
                 case 'paymentStatus':

@@ -6,7 +6,7 @@ import {
     Award, Plus, Search, FileDown, Edit3, Trash2, Phone, Mail, 
     ShieldCheck, Sparkles, Filter, X, Save, MessageCircle, 
     ChevronDown, MapPin, Tag, Crown, BadgeCheck, SlidersHorizontal, 
-    Eye, EyeOff, Coins, Gift, DollarSign, Building2, CheckCircle2, Link2
+    Eye, EyeOff, Coins, Gift, DollarSign, Building2, CheckCircle2, Link2, Scale
 } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
@@ -138,7 +138,8 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
             category: true,
             amount: true,
             contact: false,
-            paymentStatus: true
+            paymentStatus: true,
+            accountingImpact: true
         }
     })
 
@@ -179,6 +180,7 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
         address: '',
         paymentMode: 'Cash',
         paymentStatus: 'Received',
+        accountingImpact: 'Income',
         status: 'Active',
         isHidden: false,
         hideAmount: false,
@@ -283,6 +285,7 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                 address: sponsor.address || '',
                 paymentMode: sponsor.paymentMode || 'Cash',
                 paymentStatus: sponsor.paymentStatus || 'Received',
+                accountingImpact: sponsor.accountingImpact || 'Income',
                 status: sponsor.status || 'Active',
                 isHidden: Boolean(sponsor.isHidden),
                 hideAmount: Boolean(sponsor.hideAmount),
@@ -304,6 +307,7 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                 address: '',
                 paymentMode: 'Cash',
                 paymentStatus: 'Received',
+                accountingImpact: 'Income',
                 status: 'Active',
                 isHidden: false,
                 hideAmount: false,
@@ -476,6 +480,7 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                                         { key: 'contribution', label: 'What They Donated' },
                                         { key: 'category', label: 'Donation Category' },
                                         { key: 'amount', label: 'Contribution Amount (₹)' },
+                                        { key: 'accountingImpact', label: 'Accounting / Balance Effect' },
                                         { key: 'contact', label: 'Contact Phone Number' },
                                         { key: 'paymentStatus', label: 'Payment / Delivery Status' }
                                     ].map(col => (
@@ -495,7 +500,7 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            const reset = { tier: true, contribution: true, category: true, amount: true, contact: false, paymentStatus: true }
+                                            const reset = { tier: true, contribution: true, category: true, amount: true, accountingImpact: true, contact: false, paymentStatus: true }
                                             setPdfColumns(reset)
                                             try { localStorage.setItem('vishwautsav_sponsor_pdf_cols', JSON.stringify(reset)) } catch (_) {}
                                         }}
@@ -800,18 +805,47 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                                                 <TierIcon size={13} />
                                                 <span>{sponsor.tier || 'Community Donor'}</span>
                                             </span>
-                                            <span 
-                                                className="badge rounded-pill px-2.5 py-1 fw-semibold d-inline-flex align-items-center gap-1 extra-tiny"
-                                                style={{
-                                                    background: 'rgba(0, 0, 0, 0.04)',
-                                                    color: 'var(--text-muted, #64748b)',
-                                                    border: '1px solid var(--glass-border, rgba(0, 0, 0, 0.08))',
-                                                    fontSize: '0.68rem'
-                                                }}
-                                            >
-                                                <Tag size={10} />
-                                                <span>{sponsor.category || 'Cash'}</span>
-                                            </span>
+                                            <div className="d-flex align-items-center gap-1.5 flex-wrap">
+                                                <span 
+                                                    className="badge rounded-pill px-2.5 py-1 fw-semibold d-inline-flex align-items-center gap-1 extra-tiny"
+                                                    style={{
+                                                        background: 'rgba(0, 0, 0, 0.04)',
+                                                        color: 'var(--text-muted, #64748b)',
+                                                        border: '1px solid var(--glass-border, rgba(0, 0, 0, 0.08))',
+                                                        fontSize: '0.68rem'
+                                                    }}
+                                                >
+                                                    <Tag size={10} />
+                                                    <span>{sponsor.category || 'Cash'}</span>
+                                                </span>
+                                                {sponsor.accountingImpact === 'None' && (
+                                                    <span 
+                                                        className="badge rounded-pill px-2 py-1 fw-semibold d-inline-flex align-items-center gap-1 extra-tiny shadow-2xs"
+                                                        style={{ background: 'rgba(100, 116, 139, 0.1)', color: '#475569', border: '1px solid rgba(100, 116, 139, 0.25)', fontSize: '0.64rem' }}
+                                                        title="Excluded from Balance Sheet; Displayed as Additional Information"
+                                                    >
+                                                        <Scale size={10} className="text-secondary" /> Info Only
+                                                    </span>
+                                                )}
+                                                {(sponsor.accountingImpact === 'Income' || !sponsor.accountingImpact) && (
+                                                    <span 
+                                                        className="badge rounded-pill px-2 py-1 fw-semibold d-inline-flex align-items-center gap-1 extra-tiny shadow-2xs"
+                                                        style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#047857', border: '1px solid rgba(16, 185, 129, 0.25)', fontSize: '0.64rem' }}
+                                                        title="Reflected in Income / Inflow side"
+                                                    >
+                                                        <Scale size={10} className="text-success" /> Income Only
+                                                    </span>
+                                                )}
+                                                {sponsor.accountingImpact === 'Income & Expenses' && (
+                                                    <span 
+                                                        className="badge rounded-pill px-2 py-1 fw-semibold d-inline-flex align-items-center gap-1 extra-tiny shadow-2xs"
+                                                        style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#1d4ed8', border: '1px solid rgba(59, 130, 246, 0.25)', fontSize: '0.64rem' }}
+                                                        title="Reflected in both Income & Expense sides (In-Kind contra offset)"
+                                                    >
+                                                        <Scale size={10} className="text-primary" /> Income &amp; Expense
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
 
                                         {/* Redesigned Bento Donation Capsule */}
@@ -1151,6 +1185,46 @@ const SponsorsSection = ({ type = 'festival', activeEntity, festivalName = '', e
                                                 <option value="Partial">Partial Received</option>
                                                 <option value="Pending">Pending</option>
                                             </select>
+                                        </div>
+                                    </div>
+
+                                    {/* Accounting / Balance Sheet Effect Dropdown */}
+                                    <div className="col-12">
+                                        <label className="luxury-label mb-1">
+                                            <Scale size={12} className="text-warning" />
+                                            <span>Accounting / Balance Sheet Effect</span>
+                                            <span className="text-danger">*</span>
+                                        </label>
+                                        <div className="luxury-input-wrapper">
+                                            <select
+                                                value={formData.accountingImpact || 'Income'}
+                                                onChange={e => setFormData({ ...formData, accountingImpact: e.target.value })}
+                                                className="luxury-input-field ps-3 fw-bold"
+                                                style={{ cursor: 'pointer' }}
+                                            >
+                                                <option value="None">None (Additional Info Only • Do Not Add to Balance Sheet)</option>
+                                                <option value="Income">Income (Show in Income Side Only • Verified Inflow)</option>
+                                                <option value="Income & Expenses">Income &amp; Expenses (Show in Both Sides • In-Kind Contra Offset)</option>
+                                            </select>
+                                        </div>
+                                        <div className="d-flex align-items-center gap-1.5 mt-1.5 ps-1">
+                                            <span className="extra-tiny text-muted" style={{ fontSize: '0.7rem', lineHeight: '1.4' }}>
+                                                {formData.accountingImpact === 'None' && (
+                                                    <span className="text-secondary fw-semibold">
+                                                        ℹ️ <strong>None:</strong> Will not add to Balance Sheet totals. Displayed as Additional Information below the Audit Balance Sheet.
+                                                    </span>
+                                                )}
+                                                {(formData.accountingImpact === 'Income' || !formData.accountingImpact) && (
+                                                    <span className="text-success fw-semibold">
+                                                        🟢 <strong>Income:</strong> Added to the Income / Inflow side only as verified monetary revenue.
+                                                    </span>
+                                                )}
+                                                {formData.accountingImpact === 'Income & Expenses' && (
+                                                    <span className="text-primary fw-semibold">
+                                                        ⚖️ <strong>Income &amp; Expenses:</strong> Added to BOTH sides (In-Kind contra offset: increases Inflow and increases Expense; net balance remains unaffected).
+                                                    </span>
+                                                )}
+                                            </span>
                                         </div>
                                     </div>
 

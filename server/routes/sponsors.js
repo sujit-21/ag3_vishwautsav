@@ -48,7 +48,7 @@ router.post('/', auth, async (req, res) => {
         const { 
             name, company, tier, contribution, amount, category, 
             contact, countryCode, email, address, logo, paymentMode, 
-            paymentStatus, receivedDate, festOrEventName, type, status, 
+            paymentStatus, accountingImpact, receivedDate, festOrEventName, type, status, 
             isHidden, hideAmount, hideContact, notes 
         } = req.body;
 
@@ -78,6 +78,7 @@ router.post('/', auth, async (req, res) => {
             logo: logo || '',
             paymentMode: paymentMode || 'Cash',
             paymentStatus: paymentStatus || 'Received',
+            accountingImpact: ['None', 'Income', 'Income & Expenses'].includes(accountingImpact) ? accountingImpact : 'Income',
             receivedDate: receivedDate ? new Date(receivedDate) : new Date(),
             festOrEventName: festOrEventName ? festOrEventName.trim() : '',
             entityName: resolvedEntity,

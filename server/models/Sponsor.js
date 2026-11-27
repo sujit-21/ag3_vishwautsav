@@ -30,6 +30,11 @@ const SponsorSchema = new mongoose.Schema({
         enum: ['Received', 'Pledged', 'Partial', 'Pending'], 
         default: 'Received' 
     },
+    accountingImpact: {
+        type: String,
+        enum: ['None', 'Income', 'Income & Expenses'],
+        default: 'Income'
+    },
     receivedDate: { type: Date, default: Date.now },
     festOrEventName: { type: String, trim: true }, // Associated festival or event title
     entityName: { type: String, required: true, trim: true },
