@@ -27,7 +27,8 @@ const Settings = () => {
         name: '', 
         securityKey: '', 
         profilePicture: '', 
-        profileShape: 'rounded' 
+        profileShape: 'rounded',
+        imageFit: 'contain'
     })
     const [uploadingImage, setUploadingImage] = useState(false)
     const [previewImageModal, setPreviewImageModal] = useState(null)
@@ -541,10 +542,82 @@ const Settings = () => {
                                     </div>
                                 </div>
 
-                                <button onClick={() => { setEditingEntity(null); setEntityForm({ name: '', securityKey: '', profilePicture: '', profileShape: 'rounded' }); setIsEntityModalOpen(true); }} className="btn-luxury-action">
+                                <button onClick={() => { setEditingEntity(null); setEntityForm({ name: '', securityKey: '', profilePicture: '', profileShape: 'rounded', imageFit: 'contain' }); setIsEntityModalOpen(true); }} className="btn-luxury-action">
                                     <Plus size={15} /> <span>NEW ENTITY</span>
                                 </button>
                             </div>
+
+                            {/* Active Entity Showcase Banner if configured */}
+                            {entities.some(e => e.profilePicture) && (
+                                <div className="entity-banner-showcase">
+                                    {(() => {
+                                        const activeEnt = entities.find(e => (verifiedEntity?.name === e.name || e.name === 'sakaripara')) || entities.find(e => e.profilePicture);
+                                        if (!activeEnt || !activeEnt.profilePicture) return null;
+                                        return (
+                                            <>
+                                                <div className="d-flex align-items-center gap-3" style={{ minWidth: 0, flex: 1 }}>
+                                                    <div 
+                                                        className="entity-banner-display-frame flex-shrink-0"
+                                                        onClick={() => setPreviewImageModal({ img: activeEnt.profilePicture, name: activeEnt.name, shape: activeEnt.profileShape || 'rectangle', fit: activeEnt.imageFit || 'contain' })}
+                                                        title="Click to view full banner"
+                                                    >
+                                                        <img 
+                                                            src={activeEnt.profilePicture} 
+                                                            alt={activeEnt.name} 
+                                                            style={{ width: '100%', height: '100%', objectFit: activeEnt.imageFit || 'contain' }} 
+                                                        />
+                                                    </div>
+                                                    <div style={{ minWidth: 0 }}>
+                                                        <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                                            <span className="badge rounded-pill extra-tiny px-2.5 py-1 text-uppercase fw-extrabold" style={{ background: 'rgba(234, 88, 12, 0.15)', color: 'var(--palette-terracotta, #ea580c)', border: '1px solid rgba(234, 88, 12, 0.3)' }}>
+                                                                Active Entity Brand Banner
+                                                            </span>
+                                                            <span className={`shape-badge-pill ${activeEnt.profileShape || 'rectangle'}`}>
+                                                                {(activeEnt.profileShape || 'rectangle').toUpperCase()}
+                                                            </span>
+                                                        </div>
+                                                        <h6 className="fw-black text-main mb-0 text-truncate" style={{ fontSize: '1.05rem', letterSpacing: '-0.01em' }}>
+                                                            {activeEnt.name}
+                                                        </h6>
+                                                        <p className="extra-tiny text-muted mb-0 mt-0.5 text-truncate">
+                                                            Operating Node Banner &amp; Visual Identity • Click banner to view in full resolution
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="d-flex align-items-center gap-2 flex-shrink-0">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setPreviewImageModal({ img: activeEnt.profilePicture, name: activeEnt.name, shape: activeEnt.profileShape || 'rectangle', fit: activeEnt.imageFit || 'contain' })}
+                                                        className="btn btn-sm btn-light border rounded-3 fw-bold extra-tiny px-3 py-2 d-inline-flex align-items-center gap-1.5"
+                                                    >
+                                                        <Maximize2 size={13} className="text-primary" />
+                                                        <span>Preview Full</span>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setEditingEntity(activeEnt);
+                                                            setEntityForm({
+                                                                name: activeEnt.name,
+                                                                securityKey: activeEnt.securityKey,
+                                                                profilePicture: activeEnt.profilePicture || '',
+                                                                profileShape: activeEnt.profileShape || 'rounded',
+                                                                imageFit: activeEnt.imageFit || 'contain'
+                                                            });
+                                                            setIsEntityModalOpen(true);
+                                                        }}
+                                                        className="btn-luxury-action py-1.5 px-3 extra-tiny"
+                                                    >
+                                                        <Edit3 size={13} />
+                                                        <span>Change</span>
+                                                    </button>
+                                                </div>
+                                            </>
+                                        );
+                                    })()}
+                                </div>
+                            )}
 
                             <div className="settings-table-container">
                                 {/* Desktop & Tablet Table (Screens >= 768px) */}
@@ -574,10 +647,15 @@ const Settings = () => {
                                                                 <div 
                                                                     className={`entity-avatar-wrapper shape-${shape}`}
                                                                     title={hasPhoto ? "Click to preview full image" : `${c.name} (${shape})`}
-                                                                    onClick={() => hasPhoto && setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape })}
+                                                                    onClick={() => hasPhoto && setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape, fit: c.imageFit || 'contain' })}
                                                                 >
                                                                     {hasPhoto ? (
-                                                                        <img src={c.profilePicture} alt={c.name} className="entity-avatar-img" />
+                                                                        <img 
+                                                                            src={c.profilePicture} 
+                                                                            alt={c.name} 
+                                                                            className="entity-avatar-img"
+                                                                            style={{ objectFit: c.imageFit || 'contain' }}
+                                                                        />
                                                                     ) : (
                                                                         <span className="fw-black text-primary extra-tiny" style={{ letterSpacing: '0.5px' }}>
                                                                             {c.name ? c.name.slice(0, 2).toUpperCase() : 'EN'}
@@ -602,7 +680,7 @@ const Settings = () => {
                                                                     {shape === 'rectangle' && '▬ Rectangle'}
                                                                 </span>
                                                                 <span className="extra-tiny text-muted" style={{ fontSize: '0.66rem' }}>
-                                                                    {hasPhoto ? '✓ Photo Active' : 'Default Icon'}
+                                                                    {hasPhoto ? '✓ Full Banner Active' : 'Default Icon'}
                                                                 </span>
                                                             </div>
                                                         </td>
@@ -646,7 +724,7 @@ const Settings = () => {
                                                             <div className="d-inline-flex align-items-center gap-1">
                                                                 {hasPhoto && (
                                                                     <button 
-                                                                        onClick={() => setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape })}
+                                                                        onClick={() => setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape, fit: c.imageFit || 'contain' })}
                                                                         className="settings-action-btn"
                                                                         title="Preview Profile Picture"
                                                                         style={{ color: 'var(--palette-terracotta, #ea580c)' }}
@@ -661,7 +739,8 @@ const Settings = () => {
                                                                             name: c.name, 
                                                                             securityKey: c.securityKey,
                                                                             profilePicture: c.profilePicture || '',
-                                                                            profileShape: c.profileShape || 'rounded'
+                                                                            profileShape: c.profileShape || 'rounded',
+                                                                            imageFit: c.imageFit || 'contain'
                                                                         }); 
                                                                         setIsEntityModalOpen(true); 
                                                                     }} 
@@ -707,11 +786,16 @@ const Settings = () => {
                                                     <div className="d-flex align-items-center gap-2.5" style={{ minWidth: 0, flex: 1 }}>
                                                         <div 
                                                             className={`entity-avatar-wrapper shape-${shape}`}
-                                                            onClick={() => hasPhoto && setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape })}
-                                                            style={{ width: shape === 'rectangle' ? '54px' : '42px', height: shape === 'rectangle' ? '34px' : '42px' }}
+                                                            onClick={() => hasPhoto && setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape, fit: c.imageFit || 'contain' })}
+                                                            style={{ width: shape === 'rectangle' ? '92px' : '44px', height: shape === 'rectangle' ? '42px' : '44px' }}
                                                         >
                                                             {hasPhoto ? (
-                                                                <img src={c.profilePicture} alt={c.name} className="entity-avatar-img" />
+                                                                <img 
+                                                                    src={c.profilePicture} 
+                                                                    alt={c.name} 
+                                                                    className="entity-avatar-img"
+                                                                    style={{ objectFit: c.imageFit || 'contain' }}
+                                                                />
                                                             ) : (
                                                                 <span className="fw-black text-primary extra-tiny">
                                                                     {c.name ? c.name.slice(0, 2).toUpperCase() : 'EN'}
@@ -726,7 +810,7 @@ const Settings = () => {
                                                                 <span className={`shape-badge-pill ${shape}`} style={{ fontSize: '0.64rem', padding: '0.1rem 0.45rem' }}>
                                                                     {shape.charAt(0).toUpperCase() + shape.slice(1)}
                                                                 </span>
-                                                                <span className="extra-tiny text-muted">{hasPhoto ? '• Photo set' : ''}</span>
+                                                                <span className="extra-tiny text-muted">{hasPhoto ? '• Banner set' : ''}</span>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -734,7 +818,7 @@ const Settings = () => {
                                                     <div className="d-flex align-items-center gap-1 flex-shrink-0">
                                                         {hasPhoto && (
                                                             <button 
-                                                                onClick={() => setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape })}
+                                                                onClick={() => setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape, fit: c.imageFit || 'contain' })}
                                                                 className="settings-action-btn"
                                                                 title="Preview Photo"
                                                                 style={{ width: '28px', height: '28px', margin: 0, color: 'var(--palette-terracotta, #ea580c)' }}
@@ -749,7 +833,8 @@ const Settings = () => {
                                                                     name: c.name, 
                                                                     securityKey: c.securityKey,
                                                                     profilePicture: c.profilePicture || '',
-                                                                    profileShape: c.profileShape || 'rounded'
+                                                                    profileShape: c.profileShape || 'rounded',
+                                                                    imageFit: c.imageFit || 'contain'
                                                                 }); 
                                                                 setIsEntityModalOpen(true); 
                                                             }} 
@@ -1062,34 +1147,68 @@ const Settings = () => {
                                     <div className="entity-profile-preview-card mb-3">
                                         <div className="d-flex flex-column align-items-center justify-content-center w-100 py-1">
                                             <div 
-                                                className={`entity-avatar-wrapper shape-${entityForm.profileShape} mb-2`}
+                                                className={`entity-avatar-wrapper shape-${entityForm.profileShape} mb-2.5`}
                                                 style={{
-                                                    width: entityForm.profileShape === 'rectangle' ? '120px' : '84px',
-                                                    height: entityForm.profileShape === 'rectangle' ? '70px' : '84px',
-                                                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
-                                                    border: '2px solid var(--glass-border)'
+                                                    width: entityForm.profileShape === 'rectangle' ? '100%' : '110px',
+                                                    maxWidth: entityForm.profileShape === 'rectangle' ? '380px' : '110px',
+                                                    aspectRatio: entityForm.profileShape === 'rectangle' ? '2.19 / 1' : '1 / 1',
+                                                    height: 'auto',
+                                                    minHeight: entityForm.profileShape === 'rectangle' ? '120px' : '110px',
+                                                    boxShadow: '0 12px 30px rgba(0, 0, 0, 0.25)',
+                                                    border: '2px solid var(--glass-border)',
+                                                    background: '#070c18'
                                                 }}
                                             >
                                                 {entityForm.profilePicture ? (
-                                                    <img src={entityForm.profilePicture} alt="Profile Preview" className="entity-avatar-img" />
+                                                    <img 
+                                                        src={entityForm.profilePicture} 
+                                                        alt="Profile Preview" 
+                                                        className="entity-avatar-img"
+                                                        style={{ 
+                                                            width: '100%', 
+                                                            height: '100%', 
+                                                            objectFit: entityForm.imageFit || 'contain' 
+                                                        }} 
+                                                    />
                                                 ) : (
-                                                    <div className="d-flex flex-column align-items-center justify-content-center text-primary">
-                                                        <Building2 size={entityForm.profileShape === 'rectangle' ? 24 : 30} />
-                                                        <span className="extra-tiny fw-bold mt-1 text-muted" style={{ fontSize: '0.65rem' }}>
+                                                    <div className="d-flex flex-column align-items-center justify-content-center text-primary p-3">
+                                                        <Building2 size={entityForm.profileShape === 'rectangle' ? 28 : 34} />
+                                                        <span className="extra-tiny fw-bold mt-1 text-muted" style={{ fontSize: '0.68rem' }}>
                                                             {entityForm.name ? entityForm.name.slice(0, 3).toUpperCase() : 'NO PHOTO'}
                                                         </span>
                                                     </div>
                                                 )}
                                             </div>
 
-                                            <div className="d-flex align-items-center gap-2">
+                                            <div className="d-flex flex-wrap align-items-center justify-content-center gap-2">
                                                 <span className={`shape-badge-pill ${entityForm.profileShape}`}>
                                                     {entityForm.profileShape.toUpperCase()} GEOMETRY
                                                 </span>
                                                 {entityForm.profilePicture && (
                                                     <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill extra-tiny">
-                                                        ✓ Photo Loaded
+                                                        ✓ Full Banner Ready
                                                     </span>
+                                                )}
+                                                {/* Fit mode toggle */}
+                                                {entityForm.profilePicture && (
+                                                    <div className="d-inline-flex align-items-center gap-1 ms-1 p-0.5 rounded-3 border" style={{ background: 'var(--card-bg)', borderColor: 'var(--glass-border)' }}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setEntityForm({ ...entityForm, imageFit: 'contain' })}
+                                                            className={`btn btn-sm py-0.5 px-2 extra-tiny fw-bold rounded-2 border-0 ${entityForm.imageFit !== 'cover' ? 'btn-primary text-white' : 'text-muted'}`}
+                                                            title="Show full banner without cutting edges"
+                                                        >
+                                                            Fit (No Crop)
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setEntityForm({ ...entityForm, imageFit: 'cover' })}
+                                                            className={`btn btn-sm py-0.5 px-2 extra-tiny fw-bold rounded-2 border-0 ${entityForm.imageFit === 'cover' ? 'btn-primary text-white' : 'text-muted'}`}
+                                                            title="Fill frame"
+                                                        >
+                                                            Fill (Cover)
+                                                        </button>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
@@ -1159,27 +1278,34 @@ const Settings = () => {
                 {previewImageModal && (
                     <div 
                         className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" 
-                        style={{ background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)', zIndex: 999999 }}
+                        style={{ background: 'rgba(10, 15, 29, 0.92)', backdropFilter: 'blur(16px)', zIndex: 999999 }}
                         onClick={() => setPreviewImageModal(null)}
                     >
                         <motion.div 
-                            initial={{ scale: 0.9, opacity: 0 }} 
+                            initial={{ scale: 0.92, opacity: 0 }} 
                             animate={{ scale: 1, opacity: 1 }} 
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            className="p-4 rounded-4 shadow-2xl border text-center position-relative"
+                            exit={{ scale: 0.92, opacity: 0 }}
+                            className="p-3 p-md-4 rounded-4 shadow-2xl border position-relative"
                             style={{ 
-                                maxWidth: '480px', 
-                                width: '100%', 
+                                maxWidth: '850px', 
+                                width: '96%', 
                                 background: 'var(--card-bg, #ffffff)', 
                                 borderColor: 'var(--glass-border)' 
                             }}
                             onClick={e => e.stopPropagation()}
                         >
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <div className="text-start">
-                                    <h6 className="fw-extrabold text-main mb-0">{previewImageModal.name}</h6>
-                                    <span className={`shape-badge-pill ${previewImageModal.shape} mt-1`}>
-                                        {previewImageModal.shape.toUpperCase()} GEOMETRY
+                            <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-10">
+                                <div>
+                                    <div className="d-flex align-items-center gap-2">
+                                        <h5 className="fw-black text-main mb-0" style={{ letterSpacing: '-0.01em' }}>
+                                            {previewImageModal.name}
+                                        </h5>
+                                        <span className={`shape-badge-pill ${previewImageModal.shape}`}>
+                                            {previewImageModal.shape.toUpperCase()}
+                                        </span>
+                                    </div>
+                                    <span className="extra-tiny text-muted">
+                                        Entity Official Visual Brand &amp; Banner
                                     </span>
                                 </div>
                                 <button 
@@ -1190,29 +1316,31 @@ const Settings = () => {
                                 />
                             </div>
 
-                            <div className="d-flex align-items-center justify-content-center p-3 my-2 rounded-3 bg-dark bg-opacity-25 overflow-hidden">
-                                <div 
-                                    className={`entity-avatar-wrapper shape-${previewImageModal.shape}`}
-                                    style={{
-                                        width: previewImageModal.shape === 'rectangle' ? '280px' : '200px',
-                                        height: previewImageModal.shape === 'rectangle' ? '160px' : '200px',
-                                        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.25)',
-                                        cursor: 'default'
+                            <div 
+                                className="d-flex align-items-center justify-content-center p-2 rounded-3 overflow-hidden"
+                                style={{ background: '#050914', border: '1.5px solid rgba(255, 255, 255, 0.1)' }}
+                            >
+                                <img 
+                                    src={previewImageModal.img} 
+                                    alt={previewImageModal.name} 
+                                    style={{ 
+                                        width: '100%', 
+                                        maxHeight: '72vh', 
+                                        objectFit: previewImageModal.fit || 'contain',
+                                        display: 'block',
+                                        borderRadius: '8px'
                                     }}
-                                >
-                                    <img 
-                                        src={previewImageModal.img} 
-                                        alt={previewImageModal.name} 
-                                        className="entity-avatar-img"
-                                    />
-                                </div>
+                                />
                             </div>
 
-                            <div className="d-flex justify-content-end gap-2 mt-3 pt-2 border-top border-secondary border-opacity-10">
+                            <div className="d-flex justify-content-between align-items-center gap-2 mt-3 pt-2">
+                                <span className="extra-tiny text-muted">
+                                    Full resolution banner • Every detail &amp; text preserved
+                                </span>
                                 <button 
                                     type="button" 
                                     onClick={() => setPreviewImageModal(null)} 
-                                    className="btn btn-sm btn-light border fw-bold px-3 py-1.5 extra-tiny rounded-3"
+                                    className="btn btn-sm btn-primary rounded-3 fw-bold px-4 py-1.5 extra-tiny shadow-sm"
                                 >
                                     CLOSE
                                 </button>

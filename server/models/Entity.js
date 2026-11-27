@@ -9,6 +9,11 @@ const EntitySchema = new mongoose.Schema({
         enum: ['rounded', 'rectangle', 'square'], 
         default: 'rounded' 
     },
+    imageFit: {
+        type: String,
+        enum: ['contain', 'cover'],
+        default: 'contain'
+    },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now },
 });

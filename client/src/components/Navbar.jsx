@@ -617,13 +617,14 @@ const Navbar = () => {
                                                         <div
                                                             className="flex-shrink-0 overflow-hidden d-flex align-items-center justify-content-center"
                                                             style={{
-                                                                width: verifiedEntity.profileShape === 'rectangle' ? '24px' : '18px',
-                                                                height: verifiedEntity.profileShape === 'rectangle' ? '15px' : '18px',
+                                                                width: verifiedEntity.profileShape === 'rectangle' ? '36px' : '20px',
+                                                                height: verifiedEntity.profileShape === 'rectangle' ? '18px' : '20px',
                                                                 borderRadius: verifiedEntity.profileShape === 'rounded' ? '50%' : (verifiedEntity.profileShape === 'square' ? '4px' : '3px'),
-                                                                border: '1px solid var(--glass-border)'
+                                                                border: '1px solid var(--glass-border)',
+                                                                background: '#070c18'
                                                             }}
                                                         >
-                                                            <img src={verifiedEntity.profilePicture} alt="Entity" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                            <img src={verifiedEntity.profilePicture} alt="Entity" style={{ width: '100%', height: '100%', objectFit: verifiedEntity.imageFit || 'contain' }} />
                                                         </div>
                                                     ) : (
                                                         <Building2 size={13} className="text-warning flex-shrink-0" />

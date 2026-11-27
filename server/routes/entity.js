@@ -53,7 +53,7 @@ const migrateDataToEntity = async (userId, name) => {
 // Get entities (Publicly accessible for selection)
 router.get('/', async (req, res) => {
     try {
-        const entities = await Entity.find({}, 'name profilePicture profileShape createdAt');
+        const entities = await Entity.find({}, 'name profilePicture profileShape imageFit createdAt');
         res.json(entities);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -63,7 +63,7 @@ router.get('/', async (req, res) => {
 // Get all entity names globally (Publicly accessible)
 router.get('/all', async (req, res) => {
     try {
-        const entities = await Entity.find({}, 'name profilePicture profileShape createdAt');
+        const entities = await Entity.find({}, 'name profilePicture profileShape imageFit createdAt');
         res.json(entities);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -86,7 +86,7 @@ router.get('/manage', auth, async (req, res) => {
 // Register new club (Entity)
 router.post('/register', auth, async (req, res) => {
     try {
-        const { name, securityKey, profilePicture, profileShape } = req.body;
+        const { name, securityKey, profilePicture, profileShape, imageFit } = req.body;
         // Search case-insensitively for entity
         const trimmedName = name.trim();
         let entity = await Entity.findOne({ name: { $regex: new RegExp("^" + trimmedName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + "$", "i") } });
@@ -96,6 +96,7 @@ router.post('/register', auth, async (req, res) => {
             if (entity.securityKey === securityKey) {
                 if (profilePicture !== undefined) entity.profilePicture = profilePicture;
                 if (profileShape !== undefined) entity.profileShape = profileShape;
+                if (imageFit !== undefined) entity.imageFit = imageFit;
                 await entity.save();
                 await User.findByIdAndUpdate(req.user.id, { entityName: entity.name });
                 await migrateDataToEntity(req.user.id, entity.name);
@@ -109,6 +110,7 @@ router.post('/register', auth, async (req, res) => {
             securityKey, 
             profilePicture: profilePicture || '',
             profileShape: profileShape || 'rounded',
+            imageFit: imageFit || 'contain',
             owner: req.user.id 
         });
         await entity.save();
