@@ -236,6 +236,109 @@ const drawFooter = (doc, isLandscape = false) => {
 }
 
 /**
+ * Cache for loaded watermark images
+ */
+const cachedWatermarks = new Map()
+
+/**
+ * Helper to safely pre-load watermark images as Data URLs with natural aspect ratio & timeout
+ */
+export const loadWatermarkImageWithTimeout = (src, timeoutMs = 3500) => {
+    if (!src || typeof window === 'undefined') return Promise.resolve(null)
+    if (cachedWatermarks.has(src)) return Promise.resolve(cachedWatermarks.get(src))
+
+    const loadPromise = new Promise((resolve) => {
+        // If src is already a Data URL
+        if (typeof src === 'string' && src.startsWith('data:image')) {
+            const img = new Image()
+            img.onload = () => {
+                const w = img.naturalWidth || img.width || 800
+                const h = img.naturalHeight || img.height || 365
+                const res = { dataUrl: src, width: w, height: h, aspectRatio: w / (h || 1) }
+                cachedWatermarks.set(src, res)
+                resolve(res)
+            }
+            img.onerror = () => resolve(null)
+            img.src = src
+            return
+        }
+
+        const img = new Image()
+        img.crossOrigin = 'Anonymous'
+        img.onload = () => {
+            try {
+                const canvas = document.createElement('canvas')
+                const w = img.naturalWidth || img.width || 800
+                const h = img.naturalHeight || img.height || 365
+                canvas.width = w
+                canvas.height = h
+                const ctx = canvas.getContext('2d')
+                ctx.drawImage(img, 0, 0)
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.88)
+                const res = { dataUrl, width: w, height: h, aspectRatio: w / (h || 1) }
+                cachedWatermarks.set(src, res)
+                resolve(res)
+            } catch (err) {
+                // If canvas was tainted, fallback to direct src
+                const res = { dataUrl: src, width: 800, height: 365, aspectRatio: 2.19 }
+                resolve(res)
+            }
+        }
+        img.onerror = () => {
+            console.warn('Could not load watermark image:', src)
+            resolve(null)
+        }
+        img.src = src
+    })
+
+    return Promise.race([
+        loadPromise,
+        new Promise((resolve) => setTimeout(() => resolve(null), timeoutMs))
+    ])
+}
+
+/**
+ * Draw watermark subtly across all pages of a document
+ */
+export const drawWatermark = (doc, watermarkObj, isLandscape = false) => {
+    if (!watermarkObj || !watermarkObj.dataUrl) return
+    const totalPages = doc.internal.getNumberOfPages()
+    const pageW = isLandscape ? 297 : 210
+    const pageH = isLandscape ? 210 : 297
+
+    const maxW = isLandscape ? 190 : 155
+    const maxH = isLandscape ? 115 : 120
+    const ar = watermarkObj.aspectRatio || 2.19
+
+    let wmW = maxW
+    let wmH = wmW / ar
+    if (wmH > maxH) {
+        wmH = maxH
+        wmW = wmH * ar
+    }
+
+    const wmX = (pageW - wmW) / 2
+    const wmY = (pageH - wmH) / 2
+
+    for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i)
+        try {
+            if (doc.GState) {
+                doc.saveGraphicsState()
+                doc.setGState(new doc.GState({ opacity: 0.085 }))
+            }
+            const format = (typeof watermarkObj.dataUrl === 'string' && watermarkObj.dataUrl.startsWith('data:image/png')) ? 'PNG' : 'JPEG'
+            doc.addImage(watermarkObj.dataUrl, format, wmX, wmY, wmW, wmH, undefined, 'FAST')
+            if (doc.GState) {
+                doc.restoreGraphicsState()
+            }
+        } catch (err) {
+            console.warn('Watermark rendering skipped on page', i, err)
+        }
+    }
+}
+
+/**
  * Parse cell styles to inject luxury badges for Amount, Name, Status, and Tier:
  * 1. Rows alternate between 2 clean colors: Pure White (#FFFFFF) and Soft Neutral Slate (#F8FAFC)
  * 2. Mint-Light Tier colors (background and text) are applied specifically to:
@@ -574,8 +677,29 @@ export const exportExpenseLedgerPDF = ({ expensesList, activeTitle, entityName, 
 // ============================================================================
 // 3. BALANCE SHEET & FINANCIAL AUDIT (A4 PORTRAIT: 210mm x 297mm)
 // ============================================================================
-export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsorsList = [], includeSponsors = false, sponsorColumnVisibility = null, activeTitle, entityName, expenseTypes = [] }) => {
+export const exportBalanceSheetPDF = async ({
+    subscriptionsList,
+    expensesList,
+    sponsorsList = [],
+    includeSponsors = false,
+    sponsorColumnVisibility = null,
+    activeTitle,
+    entityName,
+    expenseTypes = [],
+    watermarkImage = null,
+    includeWatermark = true
+}) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+
+    // Optional Watermark Pre-loading
+    let loadedWatermark = null
+    if (includeWatermark && watermarkImage) {
+        try {
+            loadedWatermark = await loadWatermarkImageWithTimeout(watermarkImage, 3500)
+        } catch (err) {
+            console.warn('Watermark pre-load note:', err)
+        }
+    }
 
     // Total Collection MUST ONLY include verified inflows (excluding pending dues)
     const totalCollection = (subscriptionsList || [])
@@ -912,8 +1036,6 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
         doc.text('STATUS: VERIFIED & BALANCED', 140, certY + 11)
     }
 
-    drawFooter(doc, false)
-
     // Optional Page 2: Merged Sponsors & Donors Ledger (Dynamic Columns as per PDF Columns Config)
     if (includeSponsors && sponsorsList && sponsorsList.length > 0) {
         doc.addPage()
@@ -1060,8 +1182,12 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
                 }
             }
         })
-        drawFooter(doc, false)
     }
+
+    if (loadedWatermark) {
+        drawWatermark(doc, loadedWatermark, false)
+    }
+    drawFooter(doc, false)
 
     const fileName = includeSponsors 
         ? `BalanceSheet_With_Sponsors_${String(activeTitle || 'Audit').replace(/\s+/g, '_')}.pdf`
@@ -1073,8 +1199,29 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
 // ============================================================================
 // 4. MASTER DATA AUDIT PACKAGE (A4 LANDSCAPE: 297mm x 210mm)
 // ============================================================================
-export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, sponsorsList = [], activeTitle, entityName, expenseTypes = [], getTierDisplayName, getPaymentDisplayName }) => {
+export const exportMasterDataPackagePDF = async ({
+    subscriptionsList,
+    expensesList,
+    sponsorsList = [],
+    activeTitle,
+    entityName,
+    expenseTypes = [],
+    getTierDisplayName,
+    getPaymentDisplayName,
+    watermarkImage = null,
+    includeWatermark = true
+}) => {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
+
+    // Optional Watermark Pre-loading
+    let loadedWatermark = null
+    if (includeWatermark && watermarkImage) {
+        try {
+            loadedWatermark = await loadWatermarkImageWithTimeout(watermarkImage, 3500)
+        } catch (err) {
+            console.warn('Master PDF Watermark pre-load note:', err)
+        }
+    }
 
     const totalCollection = (subscriptionsList || [])
         .filter(s => s.paymentType !== 'Due')
@@ -1264,6 +1411,9 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, sp
         })
     }
 
+    if (loadedWatermark) {
+        drawWatermark(doc, loadedWatermark, true)
+    }
     drawFooter(doc, true)
     doc.save(`MASTER_DATA_${String(activeTitle || 'Bundle').replace(/\s+/g, '_')}.pdf`)
 }

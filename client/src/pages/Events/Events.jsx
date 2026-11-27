@@ -170,7 +170,7 @@ const getPaymentColorStyle = (paymentType) => {
 
 
 const Events = () => {
-    const { activeEvent, setActiveEvent, user } = useAuth()
+    const { activeEvent, setActiveEvent, user, verifiedEntity } = useAuth()
     const toast = useToast()
     const [search, setSearch] = useState('')
     const [subSearch, setSubSearch] = useState('')
@@ -307,6 +307,7 @@ const Events = () => {
     const [cardsList, setCardsList] = useState([])
     const [sponsorsList, setSponsorsList] = useState([])
     const [includeSponsorsInBalanceSheet, setIncludeSponsorsInBalanceSheet] = useState(true)
+    const [includeWatermarkInBalanceSheet, setIncludeWatermarkInBalanceSheet] = useState(true)
     const [sponsorPdfColumns, setSponsorPdfColumns] = useState(() => {
         try {
             const saved = localStorage.getItem('vishwautsav_sponsor_pdf_cols')
@@ -581,7 +582,18 @@ const Events = () => {
 
     const downloadBalanceSheetPDF = async () => {
         try {
-            exportBalanceSheetPDF({
+            let activeEntityObj = verifiedEntity;
+            if (!activeEntityObj) {
+                try {
+                    const storedEntity = localStorage.getItem('verifiedEntity');
+                    if (storedEntity && storedEntity !== 'undefined' && storedEntity !== 'null') {
+                        activeEntityObj = JSON.parse(storedEntity);
+                    }
+                } catch (_) {}
+            }
+            const watermarkUrl = activeEntityObj?.profilePicture || null;
+
+            await exportBalanceSheetPDF({
                 subscriptionsList,
                 expensesList,
                 sponsorsList,
@@ -589,7 +601,9 @@ const Events = () => {
                 sponsorColumnVisibility: sponsorPdfColumns,
                 activeTitle: activeEvent?.title,
                 entityName: activeEvent?.entityName,
-                expenseTypes: eventExpenseTypes
+                expenseTypes: eventExpenseTypes,
+                watermarkImage: includeWatermarkInBalanceSheet ? watermarkUrl : null,
+                includeWatermark: includeWatermarkInBalanceSheet
             });
         } catch (err) {
             console.error('PDF Error:', err);
@@ -599,7 +613,18 @@ const Events = () => {
 
     const downloadMasterDataPDF = async () => {
         try {
-            exportMasterDataPackagePDF({
+            let activeEntityObj = verifiedEntity;
+            if (!activeEntityObj) {
+                try {
+                    const storedEntity = localStorage.getItem('verifiedEntity');
+                    if (storedEntity && storedEntity !== 'undefined' && storedEntity !== 'null') {
+                        activeEntityObj = JSON.parse(storedEntity);
+                    }
+                } catch (_) {}
+            }
+            const watermarkUrl = activeEntityObj?.profilePicture || null;
+
+            await exportMasterDataPackagePDF({
                 subscriptionsList,
                 expensesList,
                 sponsorsList,
@@ -607,7 +632,9 @@ const Events = () => {
                 entityName: activeEvent?.entityName,
                 expenseTypes: eventExpenseTypes,
                 getTierDisplayName,
-                getPaymentDisplayName
+                getPaymentDisplayName,
+                watermarkImage: includeWatermarkInBalanceSheet ? watermarkUrl : null,
+                includeWatermark: includeWatermarkInBalanceSheet
             });
         } catch (err) {
             console.error('PDF Error:', err);
@@ -2142,6 +2169,23 @@ const Events = () => {
                                     <Sparkles size={11} /> Real-Time Ledger
                                 </span>
                                 <label 
+                                    className={`figma-watermark-pill ${includeWatermarkInBalanceSheet ? 'active' : ''}`}
+                                    title="Include Entity Brand Picture as a faint watermark on Audit Balance Sheet PDF"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={includeWatermarkInBalanceSheet}
+                                        onChange={(e) => setIncludeWatermarkInBalanceSheet(e.target.checked)}
+                                    />
+                                    <ShieldCheck size={14} className={includeWatermarkInBalanceSheet ? 'text-white' : 'text-sky-600'} />
+                                    <span>Watermark</span>
+                                    {includeWatermarkInBalanceSheet && (
+                                        <span className="badge rounded-pill bg-white text-dark px-1.5 py-0.5 shadow-xs" style={{ fontSize: '0.62rem', fontWeight: 800 }}>
+                                            ON
+                                        </span>
+                                    )}
+                                </label>
+                                <label 
                                     className={`figma-merge-sponsors-pill ${includeSponsorsInBalanceSheet ? 'active' : ''}`}
                                     title="Include Sponsors & Donors audit ledger in PDF export"
                                 >
@@ -2343,6 +2387,23 @@ const Events = () => {
                                     <p className="text-muted extra-tiny mb-0">Itemized comparative audit between inflow sources and expense allocations.</p>
                                 </div>
                                 <div className="d-flex align-items-center gap-2 flex-wrap">
+                                    <label 
+                                        className={`figma-watermark-pill ${includeWatermarkInBalanceSheet ? 'active' : ''}`}
+                                        title="Include Entity Brand Picture as a faint watermark on Audit Balance Sheet PDF"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={includeWatermarkInBalanceSheet}
+                                            onChange={(e) => setIncludeWatermarkInBalanceSheet(e.target.checked)}
+                                        />
+                                        <ShieldCheck size={14} className={includeWatermarkInBalanceSheet ? 'text-white' : 'text-sky-600'} />
+                                        <span>Watermark</span>
+                                        {includeWatermarkInBalanceSheet && (
+                                            <span className="badge rounded-pill bg-white text-dark px-1.5 py-0.5 shadow-xs" style={{ fontSize: '0.62rem', fontWeight: 800 }}>
+                                                ON
+                                            </span>
+                                        )}
+                                    </label>
                                     <label 
                                         className={`figma-merge-sponsors-pill ${includeSponsorsInBalanceSheet ? 'active' : ''}`}
                                         title="Include Sponsors & Donors audit ledger in PDF export"
