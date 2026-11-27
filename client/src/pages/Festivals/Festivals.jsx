@@ -1620,8 +1620,13 @@ const Festivals = () => {
                                                                             type="button"
                                                                             onClick={() => {
                                                                                 setOpenActionSubId(null)
+                                                                                const cleanPhone = (sub.contact || '').replace(/\D/g, '')
+                                                                                if (!cleanPhone) {
+                                                                                    alert('No contact number available for WhatsApp message.')
+                                                                                    return
+                                                                                }
                                                                                 const message = `Halo ${sub.name}, your subscription ID ${sub.subId} is confirmed.`
-                                                                                window.open(`https://wa.me/${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank')
+                                                                                window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank')
                                                                             }}
                                                                             className="sub-action-item"
                                                                         >
@@ -1819,8 +1824,13 @@ const Festivals = () => {
                                                                     type="button"
                                                                     onClick={() => {
                                                                         setOpenActionSubId(null);
+                                                                        const cleanPhone = (sub.contact || '').replace(/\D/g, '');
+                                                                        if (!cleanPhone) {
+                                                                            alert('No contact number available for WhatsApp message.');
+                                                                            return;
+                                                                        }
                                                                         const message = `Halo ${sub.name}, your ${isEvent ? 'event pass ID' : 'subscription ID' } ${sub.subId} is confirmed.`;
-                                                                        window.open(`https://wa.me/${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`, '_blank');
+                                                                        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
                                                                     }}
                                                                     className="sub-action-item"
                                                                 >
@@ -3250,7 +3260,9 @@ const Festivals = () => {
 
                                     {/* Contact */}
                                     <div className="col-12 col-md-6">
-                                        <label className="luxury-label mb-1">Secure Contact Node</label>
+                                        <label className="luxury-label mb-1">
+                                            Secure Contact Node <span className="text-muted fw-normal extra-tiny">(Optional)</span>
+                                        </label>
                                         <div className="luxury-input-wrapper">
                                             <div className="luxury-icon-box">
                                                 <Phone size={16} />
@@ -3261,18 +3273,20 @@ const Festivals = () => {
                                                     {countryCodes.map(c => <option key={c.code} value={c.code}>{c.code}</option>)}
                                                 </select>
                                             </div>
-                                            <input type="tel" className="luxury-input-field" placeholder="Mobile / Phone number" value={subFormData.contact} onChange={e => setSubFormData({ ...subFormData, contact: e.target.value })} required />
+                                            <input type="tel" className="luxury-input-field" placeholder="Mobile / Phone number (optional)" value={subFormData.contact} onChange={e => setSubFormData({ ...subFormData, contact: e.target.value })} />
                                         </div>
                                     </div>
 
                                     {/* Residence / Address */}
                                     <div className="col-12">
-                                        <label className="luxury-label mb-1">Attendee Residence / Address</label>
+                                        <label className="luxury-label mb-1">
+                                            Attendee Residence / Address <span className="text-muted fw-normal extra-tiny">(Optional)</span>
+                                        </label>
                                         <div className="luxury-input-wrapper">
                                             <div className="luxury-icon-box">
                                                 <MapPin size={16} />
                                             </div>
-                                            <input type="text" className="luxury-input-field" placeholder="Street address, city, district, state..." value={subFormData.address} onChange={e => setSubFormData({ ...subFormData, address: e.target.value })} />
+                                            <input type="text" className="luxury-input-field" placeholder="Street address, city, district, state... (optional)" value={subFormData.address} onChange={e => setSubFormData({ ...subFormData, address: e.target.value })} />
                                         </div>
                                     </div>
 

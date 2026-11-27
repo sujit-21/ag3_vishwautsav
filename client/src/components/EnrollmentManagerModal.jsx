@@ -714,11 +714,11 @@ const EnrollmentManagerModal = ({
                                                                 </div>
                                                             </div>
                                                             <a
-                                                                href={`https://wa.me/${(sub.countryCode || '+91').replace(/\+/g, '')}${sub.contact.replace(/\D/g, '')}?text=${encodeURIComponent(`Namaste ${sub.name}, regarding your enrollment for ${currentPortalName}:`)}`}
-                                                                target="_blank"
+                                                                href={sub.contact ? `https://wa.me/${(sub.countryCode || '+91').replace(/\+/g, '')}${(sub.contact || '').replace(/\D/g, '')}?text=${encodeURIComponent(`Namaste ${sub.name}, regarding your enrollment for ${currentPortalName}:`)}` : '#'}
+                                                                target={sub.contact ? "_blank" : "_self"}
                                                                 rel="noopener noreferrer"
-                                                                className="enr-whatsapp-btn"
-                                                                title="Message on WhatsApp"
+                                                                className={`enr-whatsapp-btn ${!sub.contact ? 'opacity-50 pe-none' : ''}`}
+                                                                title={sub.contact ? "Message on WhatsApp" : "No contact number"}
                                                             >
                                                                 <span>WhatsApp</span>
                                                             </a>
