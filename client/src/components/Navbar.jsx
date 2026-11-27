@@ -77,6 +77,29 @@ const Navbar = () => {
     const [mobileFestivalsOpen, setMobileFestivalsOpen] = useState(false)
     const [mobileEventsOpen, setMobileEventsOpen] = useState(false)
 
+    // Contextual secondary horizontal subnav calculations
+    const isFestivalsPage = location.pathname.startsWith('/festivals')
+    const isEventsPage = location.pathname.startsWith('/events')
+
+    let activeSubTabs = null
+    let currentSubnavType = null
+
+    if (eventsOpen) {
+        activeSubTabs = eventSubTabs
+        currentSubnavType = 'event'
+    } else if (festivalsOpen) {
+        activeSubTabs = festivalSubTabs
+        currentSubnavType = 'festival'
+    } else if (isFestivalsPage) {
+        activeSubTabs = festivalSubTabs
+        currentSubnavType = 'festival'
+    } else if (isEventsPage) {
+        activeSubTabs = eventSubTabs
+        currentSubnavType = 'event'
+    }
+
+    const isCurrentContext = (currentSubnavType === 'festival' && isFestivalsPage) || (currentSubnavType === 'event' && isEventsPage)
+
     // Touch gesture ref for mobile swipe-to-close
     const touchStartXRef = useRef(null)
 
@@ -227,7 +250,13 @@ const Navbar = () => {
 
     return (
         <>
-            <div className="nav-wrapper">
+            <div 
+                className="nav-wrapper"
+                onMouseLeave={() => {
+                    setFestivalsOpen(false)
+                    setEventsOpen(false)
+                }}
+            >
                 {/* ================= NAVBAR ================= */}
                 <nav className="nav" id="nav" aria-label="Primary">
                     {/* Brand / Logo */}
@@ -298,101 +327,63 @@ const Navbar = () => {
 
                         {isAuthenticated && isAdmin && hasEntity && (
                             <>
-                                {/* Festivals Dropdown */}
-                                <div
-                                    className="nav__dropdown-wrap"
-                                    onMouseEnter={() => setFestivalsOpen(true)}
-                                    onMouseLeave={() => setFestivalsOpen(false)}
+                                {/* Festivals Link */}
+                                <NavLink
+                                    to="/festivals"
+                                    className={({ isActive }) => `nav__link ${isActive || location.pathname.startsWith('/festivals') ? 'is-active' : ''}`}
+                                    onPointerEnter={(e) => {
+                                        place(e.currentTarget, true)
+                                        setFestivalsOpen(true)
+                                        setEventsOpen(false)
+                                    }}
+                                    onFocus={(e) => {
+                                        place(e.currentTarget, true)
+                                        setFestivalsOpen(true)
+                                        setEventsOpen(false)
+                                    }}
+                                    onClick={() => {
+                                        setFestivalsOpen(false)
+                                        setEventsOpen(false)
+                                    }}
                                 >
-                                    <NavLink
-                                        to="/festivals"
-                                        className={({ isActive }) => `nav__link nav__link-dropdown ${isActive || location.pathname.startsWith('/festivals') ? 'is-active' : ''}`}
-                                        onPointerEnter={(e) => place(e.currentTarget, true)}
-                                        onFocus={(e) => place(e.currentTarget, true)}
-                                        onClick={() => setFestivalsOpen(false)}
-                                    >
-                                        <span>Festivals</span>
-                                        <ChevronDown size={13} className={`nav__chevron ms-1 ${festivalsOpen ? 'rotate-180' : ''}`} />
-                                    </NavLink>
+                                    <span>Festivals</span>
+                                </NavLink>
 
-                                    <div className={`nav__desktop-dropdown-menu ${festivalsOpen ? 'open' : ''}`}>
-                                        <div className="nav__desktop-dropdown-header">
-                                            <span className="nav__dropdown-tag">Festivals Portal</span>
-                                        </div>
-                                        {festivalSubTabs.map(item => (
-                                            <Link
-                                                key={item.id}
-                                                to={item.path}
-                                                className={`nav__desktop-dropdown-item ${item.isAction ? 'is-action-item' : ''} ${item.isData ? 'is-data-item' : ''} ${location.pathname.startsWith('/festivals') && (location.search.includes(`tab=${item.id}`) || (item.id === 'festivals' && !location.search.includes('tab='))) ? 'active-item' : ''}`}
-                                                onClick={() => {
-                                                    setFestivalsOpen(false);
-                                                    if (item.isData) {
-                                                        window.dispatchEvent(new CustomEvent('open-data-reports', { detail: { target: 'festival' } }));
-                                                    }
-                                                }}
-                                            >
-                                                <div className={`nav__item-icon-wrap ${item.isAction ? 'action-icon-wrap' : ''} ${item.isData ? 'data-icon-wrap' : ''}`}>
-                                                    <item.icon size={15} />
-                                                </div>
-                                                <div className="nav__item-text">
-                                                    <span className="nav__item-title">{item.label}</span>
-                                                    <span className="nav__item-sub">{item.sub}</span>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Events Dropdown */}
-                                <div
-                                    className="nav__dropdown-wrap"
-                                    onMouseEnter={() => setEventsOpen(true)}
-                                    onMouseLeave={() => setEventsOpen(false)}
+                                {/* Events Link */}
+                                <NavLink
+                                    to="/events"
+                                    className={({ isActive }) => `nav__link ${isActive || location.pathname.startsWith('/events') ? 'is-active' : ''}`}
+                                    onPointerEnter={(e) => {
+                                        place(e.currentTarget, true)
+                                        setEventsOpen(true)
+                                        setFestivalsOpen(false)
+                                    }}
+                                    onFocus={(e) => {
+                                        place(e.currentTarget, true)
+                                        setEventsOpen(true)
+                                        setFestivalsOpen(false)
+                                    }}
+                                    onClick={() => {
+                                        setFestivalsOpen(false)
+                                        setEventsOpen(false)
+                                    }}
                                 >
-                                    <NavLink
-                                        to="/events"
-                                        className={({ isActive }) => `nav__link nav__link-dropdown ${isActive || location.pathname.startsWith('/events') ? 'is-active' : ''}`}
-                                        onPointerEnter={(e) => place(e.currentTarget, true)}
-                                        onFocus={(e) => place(e.currentTarget, true)}
-                                        onClick={() => setEventsOpen(false)}
-                                    >
-                                        <span>Events</span>
-                                        <ChevronDown size={13} className={`nav__chevron ms-1 ${eventsOpen ? 'rotate-180' : ''}`} />
-                                    </NavLink>
-
-                                    <div className={`nav__desktop-dropdown-menu ${eventsOpen ? 'open' : ''}`}>
-                                        <div className="nav__desktop-dropdown-header">
-                                            <span className="nav__dropdown-tag">Events Portal</span>
-                                        </div>
-                                        {eventSubTabs.map(item => (
-                                            <Link
-                                                key={item.id}
-                                                to={item.path}
-                                                className={`nav__desktop-dropdown-item ${item.isAction ? 'is-action-item' : ''} ${item.isData ? 'is-data-item' : ''} ${location.pathname.startsWith('/events') && (location.search.includes(`tab=${item.id}`) || (item.id === 'events' && !location.search.includes('tab='))) ? 'active-item' : ''}`}
-                                                onClick={() => {
-                                                    setEventsOpen(false);
-                                                    if (item.isData) {
-                                                        window.dispatchEvent(new CustomEvent('open-data-reports', { detail: { target: 'event' } }));
-                                                    }
-                                                }}
-                                            >
-                                                <div className={`nav__item-icon-wrap ${item.isAction ? 'action-icon-wrap' : ''} ${item.isData ? 'data-icon-wrap' : ''}`}>
-                                                    <item.icon size={15} />
-                                                </div>
-                                                <div className="nav__item-text">
-                                                    <span className="nav__item-title">{item.label}</span>
-                                                    <span className="nav__item-sub">{item.sub}</span>
-                                                </div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                </div>
+                                    <span>Events</span>
+                                </NavLink>
 
                                 <NavLink
                                     to="/dashboard"
                                     className={({ isActive }) => `nav__link ${isActive ? 'is-active' : ''}`}
-                                    onPointerEnter={(e) => place(e.currentTarget, true)}
-                                    onFocus={(e) => place(e.currentTarget, true)}
+                                    onPointerEnter={(e) => {
+                                        place(e.currentTarget, true)
+                                        setFestivalsOpen(false)
+                                        setEventsOpen(false)
+                                    }}
+                                    onFocus={(e) => {
+                                        place(e.currentTarget, true)
+                                        setFestivalsOpen(false)
+                                        setEventsOpen(false)
+                                    }}
                                 >
                                     Dashboard
                                 </NavLink>
@@ -490,6 +481,48 @@ const Navbar = () => {
                         </button>
                     </div>
                 </nav>
+
+                {/* ================= SECONDARY SUBNAV BAR (Desktop & Laptops) ================= */}
+                {isAuthenticated && isAdmin && hasEntity && activeSubTabs && (
+                    <div 
+                        className="nav__subnav-bar"
+                        onMouseEnter={() => {
+                            if (currentSubnavType === 'festival') setFestivalsOpen(true)
+                            if (currentSubnavType === 'event') setEventsOpen(true)
+                        }}
+                    >
+                        <div className="nav__subnav-scroll">
+                            {activeSubTabs.map(item => {
+                                const isActive = isCurrentContext && (
+                                    item.id === 'enrollment'
+                                        ? location.search.includes('openEnroll=true')
+                                        : item.id === 'members'
+                                            ? location.search.includes('tab=members') && !location.search.includes('openEnroll=true')
+                                            : location.search.includes(`tab=${item.id}`) ||
+                                              (item.id === (currentSubnavType === 'festival' ? 'festivals' : 'events') && !location.search.includes('tab='))
+                                )
+                                return (
+                                    <Link
+                                        key={item.id}
+                                        to={item.path}
+                                        className={`nav__subnav-item ${item.isAction ? 'is-action' : ''} ${item.isData ? 'is-data' : ''} ${isActive ? 'is-active' : ''}`}
+                                        onClick={() => {
+                                            setFestivalsOpen(false)
+                                            setEventsOpen(false)
+                                            if (item.isData) {
+                                                window.dispatchEvent(new CustomEvent('open-data-reports', { detail: { target: currentSubnavType } }))
+                                            }
+                                        }}
+                                        title={`${item.label} — ${item.sub}`}
+                                    >
+                                        <item.icon size={13} className="nav__subnav-icon" />
+                                        <span>{item.label}</span>
+                                    </Link>
+                                )
+                            })}
+                        </div>
+                    </div>
+                )}
 
                 {/* ================= GOO FILTER ================= */}
                 <svg
