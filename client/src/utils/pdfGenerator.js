@@ -703,7 +703,7 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
             if (type.toLowerCase() === 'miscellaneous' && matching.length > 0) {
                 expenseRows.push([`Expense: ${type} (Subtotal)`, fmtCurrency(amt)])
                 matching.forEach(m => {
-                    expenseRows.push([`  ↳ ${m.particular || 'Misc Item'}${m.paidTo ? ` (${m.paidTo})` : ''}`, fmtCurrency(Number(m.amount) || 0)])
+                    expenseRows.push([`  - ${m.particular || 'Misc Item'}${m.paidTo ? ` (${m.paidTo})` : ''}`, fmtCurrency(Number(m.amount) || 0)])
                 })
             } else {
                 expenseRows.push([`Expense: ${type}`, fmtCurrency(amt)])
@@ -714,8 +714,8 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
     const table2Body = []
     const maxLen = Math.max(incomeRows.length, expenseRows.length)
     for (let i = 0; i < maxLen; i++) {
-        const inc = incomeRows[i] || ['—', '—']
-        const exp = expenseRows[i] || ['—', '—']
+        const inc = incomeRows[i] || ['', '']
+        const exp = expenseRows[i] || ['', '']
         table2Body.push([inc[0], inc[1], exp[0], exp[1]])
     }
     table2Body.push(['TOTAL INFLOW', fmtCurrency(effectiveInflow), 'TOTAL OUTFLOW', fmtCurrency(totalExpenses)])
@@ -762,7 +762,7 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
 
                     // Dynamic Mint Tier Styling on Name (Col 0) & Amount (Col 1)
                     const incomeVal = data.row.raw?.[1] || data.row.cells?.[1]?.text?.[0]
-                    if (incomeVal && incomeVal !== '—') {
+                    if (incomeVal && incomeVal !== '—' && incomeVal !== '') {
                         const incBadge = getAmountBadge(incomeVal)
                         if (data.column.index === 0 || data.column.index === 1) {
                             data.cell.styles.fillColor = incBadge.fillColor
@@ -771,14 +771,30 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
                         }
                     }
 
-                    // Dynamic Mint Tier Styling on Name (Col 2) & Amount (Col 3)
-                    const expVal = data.row.raw?.[3] || data.row.cells?.[3]?.text?.[0]
-                    if (expVal && expVal !== '—') {
-                        const expBadge = getAmountBadge(expVal)
-                        if (data.column.index === 2 || data.column.index === 3) {
-                            data.cell.styles.fillColor = expBadge.fillColor
-                            data.cell.styles.textColor = expBadge.textColor
+                    // Check if current row is a sub-item (starts with '  -')
+                    const isSubItem = typeof data.row.raw?.[2] === 'string' && data.row.raw?.[2].startsWith('  -')
+
+                    if (isSubItem) {
+                        // Clean sub-item styling: normal weight, muted slate name, warm amber amount
+                        if (data.column.index === 2) {
+                            data.cell.styles.fontStyle = 'normal'
+                            data.cell.styles.textColor = [71, 85, 105] // #475569 muted slate
+                            data.cell.styles.fillColor = isEvenRow ? [255, 255, 255] : [248, 250, 252]
+                        } else if (data.column.index === 3) {
                             data.cell.styles.fontStyle = 'bold'
+                            data.cell.styles.textColor = [217, 119, 6] // #d97706 warm amber for misc items
+                            data.cell.styles.fillColor = isEvenRow ? [255, 255, 255] : [248, 250, 252]
+                        }
+                    } else {
+                        // Standard Category Row
+                        const expVal = data.row.raw?.[3] || data.row.cells?.[3]?.text?.[0]
+                        if (expVal && expVal !== '—' && expVal !== '') {
+                            const expBadge = getAmountBadge(expVal)
+                            if (data.column.index === 2 || data.column.index === 3) {
+                                data.cell.styles.fillColor = expBadge.fillColor
+                                data.cell.styles.textColor = expBadge.textColor
+                                data.cell.styles.fontStyle = 'bold'
+                            }
                         }
                     }
                 }

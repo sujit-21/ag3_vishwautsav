@@ -2072,15 +2072,22 @@ const Events = () => {
                                 <span className="figma-pass-count-pill shadow-xs">
                                     <Sparkles size={11} /> Real-Time Ledger
                                 </span>
-                                <label className="d-flex align-items-center gap-1.5 extra-tiny fw-bold text-muted cursor-pointer user-select-none mb-0 bg-secondary bg-opacity-10 px-2.5 py-1.5 rounded-pill border border-secondary border-opacity-15 hover-bg-secondary" title="Include Sponsors & Donors audit ledger in PDF export">
+                                <label 
+                                    className={`figma-merge-sponsors-pill ${includeSponsorsInBalanceSheet ? 'active' : ''}`}
+                                    title="Include Sponsors & Donors audit ledger in PDF export"
+                                >
                                     <input
                                         type="checkbox"
-                                        className="form-check-input m-0 cursor-pointer"
-                                        style={{ width: '13px', height: '13px' }}
                                         checked={includeSponsorsInBalanceSheet}
                                         onChange={(e) => setIncludeSponsorsInBalanceSheet(e.target.checked)}
                                     />
+                                    <Users size={14} className={includeSponsorsInBalanceSheet ? 'text-white' : 'text-primary'} />
                                     <span>Merge Sponsors &amp; Donors</span>
+                                    {includeSponsorsInBalanceSheet && (
+                                        <span className="badge rounded-pill bg-white text-primary px-1.5 py-0.5 shadow-xs" style={{ fontSize: '0.62rem', fontWeight: 800 }}>
+                                            ON
+                                        </span>
+                                    )}
                                 </label>
                                 <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet" title="Download BalanceSheet PDF">
                                     <FileDown size={15} /> BalanceSheet Pdf Download
@@ -2183,15 +2190,22 @@ const Events = () => {
                                     <p className="text-muted extra-tiny mb-0">Itemized comparative audit between inflow sources and expense allocations.</p>
                                 </div>
                                 <div className="d-flex align-items-center gap-2 flex-wrap">
-                                    <label className="d-flex align-items-center gap-1.5 extra-tiny fw-bold text-muted cursor-pointer user-select-none mb-0 bg-secondary bg-opacity-10 px-2.5 py-1.5 rounded-pill border border-secondary border-opacity-15 hover-bg-secondary" title="Include Sponsors & Donors audit ledger in PDF export">
+                                    <label 
+                                        className={`figma-merge-sponsors-pill ${includeSponsorsInBalanceSheet ? 'active' : ''}`}
+                                        title="Include Sponsors & Donors audit ledger in PDF export"
+                                    >
                                         <input
                                             type="checkbox"
-                                            className="form-check-input m-0 cursor-pointer"
-                                            style={{ width: '13px', height: '13px' }}
                                             checked={includeSponsorsInBalanceSheet}
                                             onChange={(e) => setIncludeSponsorsInBalanceSheet(e.target.checked)}
                                         />
+                                        <Users size={14} className={includeSponsorsInBalanceSheet ? 'text-white' : 'text-primary'} />
                                         <span>Merge Sponsors &amp; Donors</span>
+                                        {includeSponsorsInBalanceSheet && (
+                                            <span className="badge rounded-pill bg-white text-primary px-1.5 py-0.5 shadow-xs" style={{ fontSize: '0.62rem', fontWeight: 800 }}>
+                                                ON
+                                            </span>
+                                        )}
                                     </label>
                                     <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet" title="Download BalanceSheet PDF">
                                         <FileDown size={14} /> BalanceSheet Pdf Download
@@ -2264,22 +2278,26 @@ const Events = () => {
                                                     </span>
                                                 </div>
                                                 {isMisc && matchingExpenses.length > 0 && (
-                                                    <div className="ps-3 pe-2 py-2 mb-2 mt-1 rounded-3 bg-secondary bg-opacity-10 border-start border-3 border-danger border-opacity-40">
-                                                        <div className="extra-tiny text-muted fw-bold mb-1.5 d-flex align-items-center justify-content-between">
-                                                            <span className="text-uppercase tracking-wider" style={{ fontSize: '0.68rem', letterSpacing: '0.04em' }}>Itemized Miscellaneous Particulars</span>
-                                                            <span className="badge bg-secondary bg-opacity-20 text-muted px-1.5 py-0.5 rounded-pill" style={{ fontSize: '0.65rem' }}>{matchingExpenses.length} items</span>
+                                                    <div className="figma-misc-breakdown-card">
+                                                        <div className="figma-misc-breakdown-header">
+                                                            <span className="figma-misc-breakdown-title">
+                                                                <Tag size={12} className="text-warning" /> Itemized Miscellaneous Particulars
+                                                            </span>
+                                                            <span className="figma-misc-breakdown-badge">
+                                                                {matchingExpenses.length} items
+                                                            </span>
                                                         </div>
                                                         <div className="d-flex flex-column gap-1">
                                                             {matchingExpenses.map((m, idx) => (
-                                                                <div key={m._id || m.expenseId || idx} className="d-flex justify-content-between align-items-center py-1 border-top border-secondary border-opacity-10" style={{ fontSize: '0.78rem' }}>
+                                                                <div key={m._id || m.expenseId || idx} className="figma-misc-item-row">
                                                                     <div className="d-flex align-items-center gap-1.5 text-truncate me-2">
-                                                                        <span className="text-muted">↳</span>
-                                                                        <span className="text-main fw-semibold text-truncate">{m.particular || 'Unspecified Expense'}</span>
+                                                                        <span className="text-warning fw-bold" style={{ fontSize: '0.72rem' }}>•</span>
+                                                                        <span className="figma-misc-item-name text-truncate">{m.particular || 'Unspecified Expense'}</span>
                                                                         {m.paidTo && (
-                                                                            <span className="text-muted extra-tiny text-truncate">({m.paidTo})</span>
+                                                                            <span className="figma-misc-item-vendor text-truncate">({m.paidTo})</span>
                                                                         )}
                                                                     </div>
-                                                                    <span className="font-monospace text-danger fw-bold flex-shrink-0" style={{ fontSize: '0.8rem' }}>
+                                                                    <span className="figma-misc-item-amt flex-shrink-0">
                                                                         ₹{Number(m.amount || 0).toLocaleString()}
                                                                     </span>
                                                                 </div>
