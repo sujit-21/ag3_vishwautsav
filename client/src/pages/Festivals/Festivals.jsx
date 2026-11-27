@@ -1,8 +1,8 @@
-import React, { useState, useEffect, Fragment, useDeferredValue } from 'react'
+import React, { useState, useEffect, useRef, Fragment, useDeferredValue } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import './Festivals.css'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Clock, Hash, FileText, Layers, Smartphone, QrCode, Building2, Wallet, TrendingUp, Receipt, ArrowDownRight, ArrowUpRight, Scale, ChevronRight, Users, Ticket, Link2 } from 'lucide-react'
+import { Search, MapPin, Calendar, Tag, Plus, Trash2, Edit3, X, Save, FileDown, MessageCircle, Zap, CheckCircle, Check, History, Eye, Phone, Lock, User, CreditCard, Crown, ShieldCheck, Fingerprint, Copy, ArrowUpDown, Filter, Download, ChevronDown, Sparkles, Info, Globe, Radio, Banknote, Clock, Hash, FileText, Layers, Smartphone, QrCode, Building2, Wallet, TrendingUp, Receipt, ArrowDownRight, ArrowUpRight, Scale, ChevronRight, Users, Ticket, Link2, SlidersHorizontal } from 'lucide-react'
 import axios from 'axios'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
@@ -312,6 +312,49 @@ const Festivals = () => {
     const [cardsList, setCardsList] = useState([])
     const [sponsorsList, setSponsorsList] = useState([])
     const [includeSponsorsInBalanceSheet, setIncludeSponsorsInBalanceSheet] = useState(false)
+    const [sponsorPdfColumns, setSponsorPdfColumns] = useState(() => {
+        try {
+            const saved = localStorage.getItem('vishwautsav_sponsor_pdf_cols')
+            if (saved) return JSON.parse(saved)
+        } catch (_) {}
+        return {
+            tier: true,
+            contribution: true,
+            category: true,
+            amount: true,
+            contact: false,
+            paymentStatus: true
+        }
+    })
+    const [showSponsorPdfColMenu, setShowSponsorPdfColMenu] = useState(false)
+    const [showBreakdownPdfColMenu, setShowBreakdownPdfColMenu] = useState(false)
+    const sponsorPdfColMenuRef = useRef(null)
+    const breakdownPdfColMenuRef = useRef(null)
+
+    const handleToggleSponsorPdfColumn = (colKey) => {
+        setSponsorPdfColumns(prev => {
+            const updated = { ...prev, [colKey]: !prev[colKey] }
+            try {
+                localStorage.setItem('vishwautsav_sponsor_pdf_cols', JSON.stringify(updated))
+            } catch (_) {}
+            return updated
+        })
+    }
+
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (sponsorPdfColMenuRef.current && !sponsorPdfColMenuRef.current.contains(e.target)) {
+                setShowSponsorPdfColMenu(false)
+            }
+            if (breakdownPdfColMenuRef.current && !breakdownPdfColMenuRef.current.contains(e.target)) {
+                setShowBreakdownPdfColMenu(false)
+            }
+        }
+        if (showSponsorPdfColMenu || showBreakdownPdfColMenu) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside)
+    }, [showSponsorPdfColMenu, showBreakdownPdfColMenu])
     const [isCardAdding, setIsCardAdding] = useState(false)
     const [editingCardId, setEditingCardId] = useState(null)
     const [isCardEnrollOpen, setIsCardEnrollOpen] = useState(false)
@@ -548,6 +591,7 @@ const Festivals = () => {
                 expensesList,
                 sponsorsList,
                 includeSponsors: includeSponsorsInBalanceSheet,
+                sponsorColumnVisibility: sponsorPdfColumns,
                 activeTitle: activeFestival?.title,
                 entityName: activeFestival?.entityName,
                 expenseTypes: festivalExpenseTypes
@@ -2174,6 +2218,89 @@ const Festivals = () => {
                                         </span>
                                     )}
                                 </label>
+                                {includeSponsorsInBalanceSheet && (
+                                    <div className="position-relative flex-shrink-0" ref={sponsorPdfColMenuRef}>
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowSponsorPdfColMenu(prev => !prev)}
+                                            title="Configure Merged Sponsor PDF Columns"
+                                            className={`figma-btn-action-pill ${showSponsorPdfColMenu ? 'border-primary text-primary' : ''}`}
+                                            style={{ height: '38px', padding: '0 14px', borderRadius: '9999px', fontSize: '0.74rem', fontWeight: 700 }}
+                                        >
+                                            <SlidersHorizontal size={13} className="text-primary" />
+                                            <span>PDF Columns</span>
+                                            <ChevronDown size={11} style={{ transform: showSponsorPdfColMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                                        </button>
+
+                                        {showSponsorPdfColMenu && (
+                                            <div 
+                                                className="position-absolute end-0 mt-2 p-3 rounded-4 shadow-lg border"
+                                                style={{ 
+                                                    top: '100%', 
+                                                    zIndex: 1050, 
+                                                    minWidth: '240px', 
+                                                    background: 'var(--card-bg, #ffffff)', 
+                                                    borderColor: 'var(--glass-border)' 
+                                                }}
+                                            >
+                                                <div className="d-flex align-items-center justify-content-between pb-2 border-bottom mb-2">
+                                                    <span className="extra-tiny fw-bold text-main d-flex align-items-center gap-1">
+                                                        <SlidersHorizontal size={12} className="text-primary" />
+                                                        <span>PDF Columns</span>
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowSponsorPdfColMenu(false)}
+                                                        className="btn btn-sm btn-light rounded-circle p-1 extra-tiny text-muted"
+                                                    >
+                                                        <X size={11} />
+                                                    </button>
+                                                </div>
+                                                <div className="d-flex flex-column gap-2 mb-2">
+                                                    {[
+                                                        { key: 'tier', label: 'SPONSORSHIP TIER' },
+                                                        { key: 'contribution', label: 'WHAT THEY DONATED' },
+                                                        { key: 'category', label: 'DONATION CATEGORY' },
+                                                        { key: 'amount', label: 'CONTRIBUTION AMOUNT (₹)' },
+                                                        { key: 'contact', label: 'CONTACT PHONE NUMBER' },
+                                                        { key: 'paymentStatus', label: 'PAYMENT / DELIVERY STATUS' }
+                                                    ].map(col => (
+                                                        <label key={col.key} className="d-flex align-items-center gap-2 extra-tiny text-main cursor-pointer user-select-none mb-0">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={Boolean(sponsorPdfColumns[col.key])}
+                                                                onChange={() => handleToggleSponsorPdfColumn(col.key)}
+                                                                className="form-check-input mt-0"
+                                                                style={{ cursor: 'pointer' }}
+                                                            />
+                                                            <span style={{ fontSize: '0.73rem', fontWeight: 600 }}>{col.label}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                                <div className="pt-2 border-top d-flex justify-content-between align-items-center">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const reset = { tier: true, contribution: true, category: true, amount: true, contact: false, paymentStatus: true }
+                                                            setSponsorPdfColumns(reset)
+                                                            try { localStorage.setItem('vishwautsav_sponsor_pdf_cols', JSON.stringify(reset)) } catch (_) {}
+                                                        }}
+                                                        className="btn btn-link p-0 text-muted extra-tiny text-decoration-none hover-text-main"
+                                                    >
+                                                        Reset
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setShowSponsorPdfColMenu(false)}
+                                                        className="btn btn-sm btn-primary rounded-pill px-2.5 py-0.5 extra-tiny text-white fw-bold"
+                                                    >
+                                                        Done
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                                 <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet" title="Download BalanceSheet PDF">
                                     <FileDown size={15} /> BalanceSheet Pdf Download
                                 </button>
@@ -2292,6 +2419,89 @@ const Festivals = () => {
                                             </span>
                                         )}
                                     </label>
+                                    {includeSponsorsInBalanceSheet && (
+                                        <div className="position-relative flex-shrink-0" ref={breakdownPdfColMenuRef}>
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowBreakdownPdfColMenu(prev => !prev)}
+                                                title="Configure Merged Sponsor PDF Columns"
+                                                className={`figma-btn-action-pill ${showBreakdownPdfColMenu ? 'border-primary text-primary' : ''}`}
+                                                style={{ height: '38px', padding: '0 14px', borderRadius: '9999px', fontSize: '0.74rem', fontWeight: 700 }}
+                                            >
+                                                <SlidersHorizontal size={13} className="text-primary" />
+                                                <span>PDF Columns</span>
+                                                <ChevronDown size={11} style={{ transform: showBreakdownPdfColMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                                            </button>
+
+                                            {showBreakdownPdfColMenu && (
+                                                <div 
+                                                    className="position-absolute end-0 mt-2 p-3 rounded-4 shadow-lg border"
+                                                    style={{ 
+                                                        top: '100%', 
+                                                        zIndex: 1050, 
+                                                        minWidth: '240px', 
+                                                        background: 'var(--card-bg, #ffffff)', 
+                                                        borderColor: 'var(--glass-border)' 
+                                                    }}
+                                                >
+                                                    <div className="d-flex align-items-center justify-content-between pb-2 border-bottom mb-2">
+                                                        <span className="extra-tiny fw-bold text-main d-flex align-items-center gap-1">
+                                                            <SlidersHorizontal size={12} className="text-primary" />
+                                                            <span>PDF Columns</span>
+                                                        </span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setShowBreakdownPdfColMenu(false)}
+                                                            className="btn btn-sm btn-light rounded-circle p-1 extra-tiny text-muted"
+                                                        >
+                                                            <X size={11} />
+                                                        </button>
+                                                    </div>
+                                                    <div className="d-flex flex-column gap-2 mb-2">
+                                                        {[
+                                                            { key: 'tier', label: 'SPONSORSHIP TIER' },
+                                                            { key: 'contribution', label: 'WHAT THEY DONATED' },
+                                                            { key: 'category', label: 'DONATION CATEGORY' },
+                                                            { key: 'amount', label: 'CONTRIBUTION AMOUNT (₹)' },
+                                                            { key: 'contact', label: 'CONTACT PHONE NUMBER' },
+                                                            { key: 'paymentStatus', label: 'PAYMENT / DELIVERY STATUS' }
+                                                        ].map(col => (
+                                                            <label key={col.key} className="d-flex align-items-center gap-2 extra-tiny text-main cursor-pointer user-select-none mb-0">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={Boolean(sponsorPdfColumns[col.key])}
+                                                                    onChange={() => handleToggleSponsorPdfColumn(col.key)}
+                                                                    className="form-check-input mt-0"
+                                                                    style={{ cursor: 'pointer' }}
+                                                                />
+                                                                <span style={{ fontSize: '0.73rem', fontWeight: 600 }}>{col.label}</span>
+                                                            </label>
+                                                        ))}
+                                                    </div>
+                                                    <div className="pt-2 border-top d-flex justify-content-between align-items-center">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => {
+                                                                const reset = { tier: true, contribution: true, category: true, amount: true, contact: false, paymentStatus: true }
+                                                                setSponsorPdfColumns(reset)
+                                                                try { localStorage.setItem('vishwautsav_sponsor_pdf_cols', JSON.stringify(reset)) } catch (_) {}
+                                                            }}
+                                                            className="btn btn-link p-0 text-muted extra-tiny text-decoration-none hover-text-main"
+                                                        >
+                                                            Reset
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setShowBreakdownPdfColMenu(false)}
+                                                            className="btn btn-sm btn-primary rounded-pill px-2.5 py-0.5 extra-tiny text-white fw-bold"
+                                                        >
+                                                            Done
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                     <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet" title="Download BalanceSheet PDF">
                                         <FileDown size={14} /> BalanceSheet Pdf Download
                                     </button>

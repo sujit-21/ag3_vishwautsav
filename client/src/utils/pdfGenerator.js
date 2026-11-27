@@ -574,7 +574,7 @@ export const exportExpenseLedgerPDF = ({ expensesList, activeTitle, entityName, 
 // ============================================================================
 // 3. BALANCE SHEET & FINANCIAL AUDIT (A4 PORTRAIT: 210mm x 297mm)
 // ============================================================================
-export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsorsList = [], includeSponsors = false, activeTitle, entityName, expenseTypes = [] }) => {
+export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsorsList = [], includeSponsors = false, sponsorColumnVisibility = null, activeTitle, entityName, expenseTypes = [] }) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
     // Total Collection MUST ONLY include verified inflows (excluding pending dues)
@@ -829,7 +829,7 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
 
     drawFooter(doc, false)
 
-    // Optional Page 2: Merged Sponsors & Donors Ledger
+    // Optional Page 2: Merged Sponsors & Donors Ledger (Dynamic Columns as per PDF Columns Config)
     if (includeSponsors && sponsorsList && sponsorsList.length > 0) {
         doc.addPage()
         drawHeader(doc, {
@@ -839,46 +839,134 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
             isLandscape: false
         })
 
-        const spRows = sponsorsList.map((sp, idx) => [
-            String(idx + 1),
-            sp.name || 'Anonymous Donor',
-            sp.tier || sp.category || 'General Donor',
-            sp.contact || sp.phone || '—',
-            sp.paymentType || sp.paymentMode || 'Online',
-            fmtCurrency(Number(sp.amount) || 0)
-        ])
-        spRows.push(['', 'TOTAL SPONSORSHIP / DONATIONS', '', '', '', fmtCurrency(totalSponsors)])
+        // Resolve Column Visibility Config (using passed sponsorColumnVisibility or localStorage)
+        let resolvedCols = sponsorColumnVisibility
+        if (!resolvedCols) {
+            try {
+                const saved = localStorage.getItem('vishwautsav_sponsor_pdf_cols')
+                if (saved) resolvedCols = JSON.parse(saved)
+            } catch (_) {}
+        }
+
+        const colsConfig = {
+            tier: resolvedCols?.tier !== false,
+            contribution: resolvedCols?.contribution !== false,
+            category: resolvedCols?.category !== false,
+            amount: resolvedCols?.amount !== false,
+            contact: resolvedCols?.contact === true,
+            paymentStatus: resolvedCols?.paymentStatus !== false
+        }
+
+        const allDefs = [
+            { id: 'index', header: '#', baseWidth: 8, halign: 'center' },
+            { id: 'name', header: 'SPONSOR / DONOR NAME', baseWidth: 44, fontStyle: 'bold' },
+            ...(colsConfig.tier ? [{ id: 'tier', header: 'TIER / LEVEL', baseWidth: 26, fontStyle: 'bold' }] : []),
+            ...(colsConfig.contribution ? [{ id: 'contribution', header: 'WHAT THEY DONATED', baseWidth: 40 }] : []),
+            ...(colsConfig.category ? [{ id: 'category', header: 'CATEGORY', baseWidth: 22 }] : []),
+            ...(colsConfig.amount ? [{ id: 'amount', header: 'CONTRIBUTION', baseWidth: 26, halign: 'right', fontStyle: 'bold' }] : []),
+            ...(colsConfig.contact ? [{ id: 'contact', header: 'CONTACT', baseWidth: 24 }] : []),
+            ...(colsConfig.paymentStatus ? [{ id: 'paymentStatus', header: 'STATUS', baseWidth: 20, halign: 'center' }] : [])
+        ]
+
+        const totalBaseWidth = allDefs.reduce((acc, c) => acc + c.baseWidth, 0)
+        let assignedWidth = 0
+        const activeColumns = allDefs.map((col, idx) => {
+            if (idx === allDefs.length - 1) {
+                return { ...col, width: Math.round((182.0 - assignedWidth) * 10) / 10 }
+            }
+            const w = Math.round(((col.baseWidth / totalBaseWidth) * 182.0) * 10) / 10
+            assignedWidth += w
+            return { ...col, width: w }
+        })
+
+        const head = [activeColumns.map(c => c.header)]
+
+        const body = sponsorsList.map((sp, idx) => {
+            return activeColumns.map(col => {
+                switch (col.id) {
+                    case 'index':
+                        return String(idx + 1)
+                    case 'name':
+                        return `${sp.name || 'Anonymous Donor'}${sp.company ? `\n(${sp.company})` : ''}`
+                    case 'tier':
+                        return String(sp.tier || sp.category || 'Community Donor')
+                    case 'contribution':
+                        return String(sp.contribution || '—')
+                    case 'category':
+                        return String(sp.category || 'General')
+                    case 'amount':
+                        return sp.hideAmount ? '— (Confidential)' : fmtCurrency(Number(sp.amount) || 0)
+                    case 'contact':
+                        return sp.hideContact ? '— (Private)' : (sp.contact ? `${sp.countryCode || '+91'} ${sp.contact}` : (sp.phone || '—'))
+                    case 'paymentStatus':
+                        return String(sp.paymentStatus || sp.paymentType || sp.paymentMode || 'Received')
+                    default:
+                        return '—'
+                }
+            })
+        })
+
+        // Add summary row if amount column is active
+        if (colsConfig.amount) {
+            const totalRow = activeColumns.map(col => {
+                if (col.id === 'name') return 'TOTAL SPONSORSHIP / DONATIONS'
+                if (col.id === 'amount') return fmtCurrency(totalSponsors)
+                return ''
+            })
+            body.push(totalRow)
+        }
+
+        const columnStyles = {}
+        activeColumns.forEach((col, idx) => {
+            columnStyles[idx] = {
+                cellWidth: col.width,
+                ...(col.halign ? { halign: col.halign } : {}),
+                ...(col.fontStyle ? { fontStyle: col.fontStyle } : {})
+            }
+        })
 
         autoTable(doc, {
             startY: 33,
             margin: { left: 14, right: 14 },
-            head: [['#', 'SPONSOR / DONOR NAME', 'TIER / CATEGORY', 'CONTACT', 'PAYMENT', 'CONTRIBUTION']],
-            body: spRows,
+            head,
+            body,
             theme: 'grid',
             headStyles: {
                 fillColor: FIGMA_COLORS.amber,
                 textColor: [255, 255, 255],
-                fontSize: 7.5,
-                fontStyle: 'bold'
+                fontSize: 7.2,
+                fontStyle: 'bold',
+                halign: 'left',
+                cellPadding: { top: 2.2, bottom: 2.2, left: 1.8, right: 1.8 }
             },
             bodyStyles: {
-                fontSize: 7.2,
-                cellPadding: { top: 2.2, bottom: 2.2, left: 2.5, right: 2.5 }
+                fontSize: 6.9,
+                textColor: FIGMA_COLORS.textDark,
+                cellPadding: { top: 2.0, bottom: 2.0, left: 1.8, right: 1.8 },
+                lineColor: FIGMA_COLORS.border,
+                lineWidth: 0.15
             },
-            columnStyles: {
-                0: { cellWidth: 10, halign: 'center' },
-                1: { cellWidth: 55, fontStyle: 'bold' },
-                2: { cellWidth: 32 },
-                3: { cellWidth: 28 },
-                4: { cellWidth: 27 },
-                5: { cellWidth: 30, halign: 'right', fontStyle: 'bold' }
-            },
+            columnStyles,
             didParseCell: (data) => {
                 if (data.row.section === 'body') {
-                    if (data.row.index === spRows.length - 1) {
+                    if (colsConfig.amount && data.row.index === body.length - 1) {
                         data.cell.styles.fillColor = FIGMA_COLORS.slateNavy
                         data.cell.styles.textColor = [255, 255, 255]
                         data.cell.styles.fontStyle = 'bold'
+                    } else {
+                        const isEvenRow = data.row.index % 2 === 0
+                        data.cell.styles.fillColor = isEvenRow ? FIGMA_COLORS.white : FIGMA_COLORS.lightBg
+
+                        const colDef = activeColumns[data.column.index]
+                        if (colDef && colDef.id === 'amount') {
+                            const rawVal = data.cell.text?.[0]
+                            if (rawVal && rawVal !== '—') {
+                                const badge = getAmountBadge(rawVal)
+                                data.cell.styles.fillColor = badge.fillColor
+                                data.cell.styles.textColor = badge.textColor
+                                data.cell.styles.fontStyle = 'bold'
+                            }
+                        }
                     }
                 }
             }
