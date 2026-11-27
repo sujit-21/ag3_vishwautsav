@@ -31,6 +31,27 @@ const DEFAULT_CURRENCIES = [
     { code: 'AED', symbol: 'AED' }
 ]
 
+// Custom Receipt Icon without dollar sign
+const ExpenseReceiptIcon = ({ size = 18, className = "" }) => (
+    <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        width={size} 
+        height={size} 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        className={className}
+    >
+        <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/>
+        <path d="M8 7h8"/>
+        <path d="M8 11h8"/>
+        <path d="M8 15h5"/>
+    </svg>
+)
+
 const generateExpenseID = () => Math.random().toString(36).substring(2, 12).toUpperCase()
 
 const ExpensesSection = ({
@@ -590,7 +611,7 @@ const ExpensesSection = ({
                             <tr>
                                 <td colSpan="7" className="text-center py-5 text-muted">
                                     <div className="figma-expense-icon-badge mx-auto mb-2" style={{ width: '40px', height: '40px' }}>
-                                        <Receipt size={20} className="text-muted" />
+                                        <ExpenseReceiptIcon size={20} className="text-muted" />
                                     </div>
                                     <p className="fw-semibold mb-0 small">
                                         {expensesList.length === 0 ? "No expenses logged yet." : "No matching expenses found."}

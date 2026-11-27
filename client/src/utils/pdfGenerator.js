@@ -574,13 +574,16 @@ export const exportExpenseLedgerPDF = ({ expensesList, activeTitle, entityName, 
 // ============================================================================
 // 3. BALANCE SHEET & FINANCIAL AUDIT (A4 PORTRAIT: 210mm x 297mm)
 // ============================================================================
-export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeTitle, entityName, expenseTypes = [] }) => {
+export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsorsList = [], includeSponsors = false, activeTitle, entityName, expenseTypes = [] }) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
     const totalCollection = (subscriptionsList || []).reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const totalExpenses = (expensesList || []).reduce((acc, e) => acc + (Number(String(e.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const totalDues = (subscriptionsList || []).filter(s => s.paymentType === 'Due').reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
-    const netBalance = totalCollection - totalExpenses
+    const totalSponsors = (sponsorsList || []).reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
+
+    const effectiveInflow = includeSponsors ? (totalCollection + totalSponsors) : totalCollection
+    const netBalance = effectiveInflow - totalExpenses
 
     drawHeader(doc, {
         title: `Balance Sheet & Financial Audit: ${activeTitle || 'General'}`,
@@ -595,7 +598,7 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
     const cardW = 43
     const gap = 3.3
     const kpis = [
-        { label: 'TOTAL COLLECTION', value: fmtCurrency(totalCollection), color: FIGMA_COLORS.emerald, sub: 'Verified Inflow' },
+        { label: includeSponsors ? 'TOTAL INFLOW (ALL)' : 'TOTAL COLLECTION', value: fmtCurrency(effectiveInflow), color: FIGMA_COLORS.emerald, sub: includeSponsors ? 'Attendees + Sponsors' : 'Verified Inflow' },
         { label: 'PENDING DUES', value: fmtCurrency(totalDues), color: [217, 119, 6], sub: 'Pending Clearance' },
         { label: 'TOTAL EXPENSES', value: fmtCurrency(totalExpenses), color: FIGMA_COLORS.crimson, sub: 'Resource Outflows' },
         { label: 'NET BALANCE', value: fmtCurrency(netBalance), color: netBalance >= 0 ? FIGMA_COLORS.blue : FIGMA_COLORS.crimson, sub: netBalance >= 0 ? 'Operating Surplus' : 'Operating Deficit' }
@@ -629,16 +632,22 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
     })
 
     // Section 1: Executive Audit Summary Table
+    const execBody = [
+        ['Gross Attendee Revenue', 'Verified Inflow', fmtCurrency(totalCollection)],
+    ]
+    if (includeSponsors) {
+        execBody.push(['Sponsors & Donors Contributions', `${sponsorsList.length} Patrons Inflow`, fmtCurrency(totalSponsors)])
+        execBody.push(['Total Consolidated Inflow', 'All Inflow Channels', fmtCurrency(effectiveInflow)])
+    }
+    execBody.push(['Outstanding Attendee Dues', 'Receivable', fmtCurrency(totalDues)])
+    execBody.push(['Total Operational Disbursements', 'Audited Outflow', fmtCurrency(totalExpenses)])
+    execBody.push(['Net Financial Position', netBalance >= 0 ? 'Net Surplus' : 'Net Deficit', fmtCurrency(netBalance)])
+
     autoTable(doc, {
         startY: 49,
         margin: { left: 14, right: 14 },
         head: [['EXECUTIVE FINANCIAL METRIC', 'AUDIT STATUS', 'CONSOLIDATED AMOUNT']],
-        body: [
-            ['Gross Revenue & Registrations', 'Verified Inflow', fmtCurrency(totalCollection)],
-            ['Outstanding Attendee Dues', 'Receivable', fmtCurrency(totalDues)],
-            ['Total Operational Disbursements', 'Audited Outflow', fmtCurrency(totalExpenses)],
-            ['Net Financial Position', netBalance >= 0 ? 'Net Surplus' : 'Net Deficit', fmtCurrency(netBalance)]
-        ],
+        body: execBody,
         theme: 'striped',
         headStyles: {
             fillColor: FIGMA_COLORS.slateNavy,
@@ -660,7 +669,7 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
                 const isEvenRow = data.row.index % 2 === 0
                 data.cell.styles.fillColor = isEvenRow ? FIGMA_COLORS.white : FIGMA_COLORS.lightBg
 
-                if (data.row.index === 3) {
+                if (data.row.index === execBody.length - 1) {
                     data.cell.styles.fillColor = netBalance >= 0 ? FIGMA_COLORS.emeraldBg : FIGMA_COLORS.crimsonBg
                     data.cell.styles.textColor = netBalance >= 0 ? FIGMA_COLORS.emeraldDark : FIGMA_COLORS.crimsonDark
                     data.cell.styles.fontStyle = 'bold'
@@ -675,11 +684,25 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
         ['Income: Online / Digital', fmtCurrency((subscriptionsList || []).filter(s => s.paymentType === 'Online').reduce((a, b) => a + (Number(b.amount) || 0), 0))],
         ['Income: Coupon / Token', fmtCurrency((subscriptionsList || []).filter(s => s.paymentType === 'Coupon / Token').reduce((a, b) => a + (Number(b.amount) || 0), 0))]
     ]
+    if (includeSponsors && totalSponsors > 0) {
+        incomeRows.push(['Income: Sponsors & Donors', fmtCurrency(totalSponsors)])
+    }
 
-    const expenseRows = (expenseTypes || []).map(type => {
-        const amt = (expensesList || []).filter(e => e.expenseType === type).reduce((a, b) => a + (Number(b.amount) || 0), 0)
-        return [`Expense: ${type}`, fmtCurrency(amt)]
-    }).filter(r => r[1] !== 'Rs. 0')
+    const expenseRows = []
+    ;(expenseTypes || []).forEach(type => {
+        const matching = (expensesList || []).filter(e => (e.expenseType || '').toLowerCase() === type.toLowerCase())
+        const amt = matching.reduce((a, b) => a + (Number(b.amount) || 0), 0)
+        if (amt > 0) {
+            if (type.toLowerCase() === 'miscellaneous' && matching.length > 0) {
+                expenseRows.push([`Expense: ${type} (Subtotal)`, fmtCurrency(amt)])
+                matching.forEach(m => {
+                    expenseRows.push([`  ↳ ${m.particular || 'Misc Item'}${m.paidTo ? ` (${m.paidTo})` : ''}`, fmtCurrency(Number(m.amount) || 0)])
+                })
+            } else {
+                expenseRows.push([`Expense: ${type}`, fmtCurrency(amt)])
+            }
+        }
+    })
 
     const table2Body = []
     const maxLen = Math.max(incomeRows.length, expenseRows.length)
@@ -688,7 +711,7 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
         const exp = expenseRows[i] || ['—', '—']
         table2Body.push([inc[0], inc[1], exp[0], exp[1]])
     }
-    table2Body.push(['TOTAL INFLOW', fmtCurrency(totalCollection), 'TOTAL OUTFLOW', fmtCurrency(totalExpenses)])
+    table2Body.push(['TOTAL INFLOW', fmtCurrency(effectiveInflow), 'TOTAL OUTFLOW', fmtCurrency(totalExpenses)])
 
     const nextY = (doc.lastAutoTable?.finalY || 100) + 7
     doc.setFont('helvetica', 'bold')
@@ -782,7 +805,69 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, activeT
     }
 
     drawFooter(doc, false)
-    doc.save(`BalanceSheet_${String(activeTitle || 'Audit').replace(/\s+/g, '_')}.pdf`)
+
+    // Optional Page 2: Merged Sponsors & Donors Ledger
+    if (includeSponsors && sponsorsList && sponsorsList.length > 0) {
+        doc.addPage()
+        drawHeader(doc, {
+            title: `Sponsors & Donors Contribution Audit: ${activeTitle || 'General'}`,
+            subtitle: `Entity: ${entityName || 'Vishwa Utsav'}  |  Patron Count: ${sponsorsList.length}  |  Total Value: ${fmtCurrency(totalSponsors)}`,
+            accentColor: FIGMA_COLORS.amber,
+            isLandscape: false
+        })
+
+        const spRows = sponsorsList.map((sp, idx) => [
+            String(idx + 1),
+            sp.name || 'Anonymous Donor',
+            sp.tier || sp.category || 'General Donor',
+            sp.contact || sp.phone || '—',
+            sp.paymentType || sp.paymentMode || 'Online',
+            fmtCurrency(Number(sp.amount) || 0)
+        ])
+        spRows.push(['', 'TOTAL SPONSORSHIP / DONATIONS', '', '', '', fmtCurrency(totalSponsors)])
+
+        autoTable(doc, {
+            startY: 33,
+            margin: { left: 14, right: 14 },
+            head: [['#', 'SPONSOR / DONOR NAME', 'TIER / CATEGORY', 'CONTACT', 'PAYMENT', 'CONTRIBUTION']],
+            body: spRows,
+            theme: 'grid',
+            headStyles: {
+                fillColor: FIGMA_COLORS.amber,
+                textColor: [255, 255, 255],
+                fontSize: 7.5,
+                fontStyle: 'bold'
+            },
+            bodyStyles: {
+                fontSize: 7.2,
+                cellPadding: { top: 2.2, bottom: 2.2, left: 2.5, right: 2.5 }
+            },
+            columnStyles: {
+                0: { cellWidth: 10, halign: 'center' },
+                1: { cellWidth: 55, fontStyle: 'bold' },
+                2: { cellWidth: 32 },
+                3: { cellWidth: 28 },
+                4: { cellWidth: 27 },
+                5: { cellWidth: 30, halign: 'right', fontStyle: 'bold' }
+            },
+            didParseCell: (data) => {
+                if (data.row.section === 'body') {
+                    if (data.row.index === spRows.length - 1) {
+                        data.cell.styles.fillColor = FIGMA_COLORS.slateNavy
+                        data.cell.styles.textColor = [255, 255, 255]
+                        data.cell.styles.fontStyle = 'bold'
+                    }
+                }
+            }
+        })
+        drawFooter(doc, false)
+    }
+
+    const fileName = includeSponsors 
+        ? `BalanceSheet_With_Sponsors_${String(activeTitle || 'Audit').replace(/\s+/g, '_')}.pdf`
+        : `BalanceSheet_${String(activeTitle || 'Audit').replace(/\s+/g, '_')}.pdf`
+
+    doc.save(fileName)
 }
 
 // ============================================================================

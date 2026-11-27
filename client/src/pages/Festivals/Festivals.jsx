@@ -52,6 +52,27 @@ const currencies = [
 const festivalExpenseTypes = ['Decoration', 'Sound', 'Catering', 'Lighting', 'Marketing', 'Guest Fees', 'Miscellaneous']
 const eventExpenseTypes = ['Venue Hire', 'Equipment', 'Staffing', 'Permits', 'Security', 'Promotion', 'Miscellaneous']
 
+// Custom Receipt Icon without dollar sign (neutral accounting lines)
+const ExpenseReceiptIcon = ({ size = 18, className = "" }) => (
+    <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        width={size} 
+        height={size} 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round" 
+        className={className}
+    >
+        <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/>
+        <path d="M8 7h8"/>
+        <path d="M8 11h8"/>
+        <path d="M8 15h5"/>
+    </svg>
+)
+
 const countryData = {
     'India': ['Religious', 'Harvest', 'Cultural', 'National', 'Music', 'Food'],
     'USA': ['Music', 'Food', 'Art', 'Holiday', 'Film'],
@@ -290,6 +311,7 @@ const Festivals = () => {
     const [editingSubId, setEditingSubId] = useState(null)
     const [cardsList, setCardsList] = useState([])
     const [sponsorsList, setSponsorsList] = useState([])
+    const [includeSponsorsInBalanceSheet, setIncludeSponsorsInBalanceSheet] = useState(false)
     const [isCardAdding, setIsCardAdding] = useState(false)
     const [editingCardId, setEditingCardId] = useState(null)
     const [isCardEnrollOpen, setIsCardEnrollOpen] = useState(false)
@@ -524,6 +546,8 @@ const Festivals = () => {
             exportBalanceSheetPDF({
                 subscriptionsList,
                 expensesList,
+                sponsorsList,
+                includeSponsors: includeSponsorsInBalanceSheet,
                 activeTitle: activeFestival?.title,
                 entityName: activeFestival?.entityName,
                 expenseTypes: festivalExpenseTypes
@@ -2133,6 +2157,16 @@ const Festivals = () => {
                                 <span className="figma-pass-count-pill shadow-xs">
                                     <Sparkles size={11} /> Real-Time Ledger
                                 </span>
+                                <label className="d-flex align-items-center gap-1.5 extra-tiny fw-bold text-muted cursor-pointer user-select-none mb-0 bg-secondary bg-opacity-10 px-2.5 py-1.5 rounded-pill border border-secondary border-opacity-15 hover-bg-secondary" title="Include Sponsors & Donors audit ledger in PDF export">
+                                    <input
+                                        type="checkbox"
+                                        className="form-check-input m-0 cursor-pointer"
+                                        style={{ width: '13px', height: '13px' }}
+                                        checked={includeSponsorsInBalanceSheet}
+                                        onChange={(e) => setIncludeSponsorsInBalanceSheet(e.target.checked)}
+                                    />
+                                    <span>Merge Sponsors &amp; Donors</span>
+                                </label>
                                 <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet" title="Download BalanceSheet PDF">
                                     <FileDown size={15} /> BalanceSheet Pdf Download
                                 </button>
@@ -2189,7 +2223,7 @@ const Festivals = () => {
                                     <div className="d-flex justify-content-between align-items-center">
                                         <span className="figma-pass-label mb-0">Total Expenses</span>
                                         <div className="figma-finance-icon-box icon-expenses">
-                                            <Receipt size={18} />
+                                            <ExpenseReceiptIcon size={18} />
                                         </div>
                                     </div>
                                     <div className="figma-finance-value text-danger">
@@ -2233,9 +2267,21 @@ const Festivals = () => {
                                     <h5 className="fw-extrabold mb-1 text-main" style={{ letterSpacing: '-0.02em' }}>Detailed Breakdown</h5>
                                     <p className="text-muted extra-tiny mb-0">Itemized comparative audit between inflow sources and expense allocations.</p>
                                 </div>
-                                <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet" title="Download BalanceSheet PDF">
-                                    <FileDown size={14} /> BalanceSheet Pdf Download
-                                </button>
+                                <div className="d-flex align-items-center gap-2 flex-wrap">
+                                    <label className="d-flex align-items-center gap-1.5 extra-tiny fw-bold text-muted cursor-pointer user-select-none mb-0 bg-secondary bg-opacity-10 px-2.5 py-1.5 rounded-pill border border-secondary border-opacity-15 hover-bg-secondary" title="Include Sponsors & Donors audit ledger in PDF export">
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input m-0 cursor-pointer"
+                                            style={{ width: '13px', height: '13px' }}
+                                            checked={includeSponsorsInBalanceSheet}
+                                            onChange={(e) => setIncludeSponsorsInBalanceSheet(e.target.checked)}
+                                        />
+                                        <span>Merge Sponsors &amp; Donors</span>
+                                    </label>
+                                    <button onClick={downloadBalanceSheetPDF} className="figma-btn-download-sheet" title="Download BalanceSheet PDF">
+                                        <FileDown size={14} /> BalanceSheet Pdf Download
+                                    </button>
+                                </div>
                             </div>
                             <div className="row g-4">
                                 {/* Left Column: Subscription Income */}
@@ -2282,23 +2328,51 @@ const Festivals = () => {
                                 <div className="col-12 col-lg-6">
                                     <div className="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom border-secondary border-opacity-15">
                                         <span className="figma-pass-label mb-0 text-danger">
-                                            <Receipt size={13} className="text-danger" /> EXPENSE CATEGORIES
+                                            <ExpenseReceiptIcon size={13} className="text-danger" /> EXPENSE CATEGORIES
                                         </span>
                                         <span className="extra-tiny text-muted fw-bold">Categorized Outflows</span>
                                     </div>
                                     {festivalExpenseTypes.map(type => {
-                                        const amt = expensesList.filter(e => e.expenseType === type).reduce((a, b) => a + (Number(b.amount) || 0), 0)
+                                        const matchingExpenses = expensesList.filter(e => (e.expenseType || '').toLowerCase() === type.toLowerCase())
+                                        const amt = matchingExpenses.reduce((a, b) => a + (Number(b.amount) || 0), 0)
                                         if (amt === 0) return null
+                                        const isMisc = type.toLowerCase() === 'miscellaneous'
                                         return (
-                                            <div key={type} className="figma-ledger-row">
-                                                <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-capitalize">
-                                                    <span className="p-1 rounded-circle bg-danger bg-opacity-10 d-inline-block" style={{ width: '6px', height: '6px' }}></span>
-                                                    {type}:
-                                                </span>
-                                                <span className="fw-extrabold text-danger font-monospace" style={{ fontSize: '0.86rem' }}>
-                                                    ₹{amt.toLocaleString()}
-                                                </span>
-                                            </div>
+                                            <Fragment key={type}>
+                                                <div className="figma-ledger-row">
+                                                    <span className="d-flex align-items-center gap-2 extra-tiny fw-bold text-capitalize">
+                                                        <span className="p-1 rounded-circle bg-danger bg-opacity-10 d-inline-block" style={{ width: '6px', height: '6px' }}></span>
+                                                        {type}:
+                                                    </span>
+                                                    <span className="fw-extrabold text-danger font-monospace" style={{ fontSize: '0.86rem' }}>
+                                                        ₹{amt.toLocaleString()}
+                                                    </span>
+                                                </div>
+                                                {isMisc && matchingExpenses.length > 0 && (
+                                                    <div className="ps-3 pe-2 py-2 mb-2 mt-1 rounded-3 bg-secondary bg-opacity-10 border-start border-3 border-danger border-opacity-40">
+                                                        <div className="extra-tiny text-muted fw-bold mb-1.5 d-flex align-items-center justify-content-between">
+                                                            <span className="text-uppercase tracking-wider" style={{ fontSize: '0.68rem', letterSpacing: '0.04em' }}>Itemized Miscellaneous Particulars</span>
+                                                            <span className="badge bg-secondary bg-opacity-20 text-muted px-1.5 py-0.5 rounded-pill" style={{ fontSize: '0.65rem' }}>{matchingExpenses.length} items</span>
+                                                        </div>
+                                                        <div className="d-flex flex-column gap-1">
+                                                            {matchingExpenses.map((m, idx) => (
+                                                                <div key={m._id || m.expenseId || idx} className="d-flex justify-content-between align-items-center py-1 border-top border-secondary border-opacity-10" style={{ fontSize: '0.78rem' }}>
+                                                                    <div className="d-flex align-items-center gap-1.5 text-truncate me-2">
+                                                                        <span className="text-muted">↳</span>
+                                                                        <span className="text-main fw-semibold text-truncate">{m.particular || 'Unspecified Expense'}</span>
+                                                                        {m.paidTo && (
+                                                                            <span className="text-muted extra-tiny text-truncate">({m.paidTo})</span>
+                                                                        )}
+                                                                    </div>
+                                                                    <span className="font-monospace text-danger fw-bold flex-shrink-0" style={{ fontSize: '0.8rem' }}>
+                                                                        ₹{Number(m.amount || 0).toLocaleString()}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </Fragment>
                                         )
                                     })}
                                     <div className="figma-ledger-total-box mt-3">
