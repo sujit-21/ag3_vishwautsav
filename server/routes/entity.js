@@ -53,7 +53,7 @@ const migrateDataToEntity = async (userId, name) => {
 // Get entities (Publicly accessible for selection)
 router.get('/', async (req, res) => {
     try {
-        const entities = await Entity.find({}, 'name');
+        const entities = await Entity.find({}, 'name profilePicture profileShape createdAt');
         res.json(entities);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -63,7 +63,7 @@ router.get('/', async (req, res) => {
 // Get all entity names globally (Publicly accessible)
 router.get('/all', async (req, res) => {
     try {
-        const entities = await Entity.find({}, 'name');
+        const entities = await Entity.find({}, 'name profilePicture profileShape createdAt');
         res.json(entities);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -73,7 +73,7 @@ router.get('/all', async (req, res) => {
 // Get entities for admin management (Owned or joined by current admin)
 router.get('/manage', auth, async (req, res) => {
     try {
-        const query = { $or: [{ owner: req.user.adminId }] };
+        const query = { $or: [{ owner: req.user.adminId }, { owner: req.user.id }] };
         if (req.user.entityName) query.$or.push({ name: req.user.entityName });
         
         const entities = await Entity.find(query);
@@ -86,7 +86,7 @@ router.get('/manage', auth, async (req, res) => {
 // Register new club (Entity)
 router.post('/register', auth, async (req, res) => {
     try {
-        const { name, securityKey } = req.body;
+        const { name, securityKey, profilePicture, profileShape } = req.body;
         // Search case-insensitively for entity
         const trimmedName = name.trim();
         let entity = await Entity.findOne({ name: { $regex: new RegExp("^" + trimmedName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + "$", "i") } });
@@ -94,6 +94,9 @@ router.post('/register', auth, async (req, res) => {
         if (entity) {
             // If it exists, check if security key matches to join
             if (entity.securityKey === securityKey) {
+                if (profilePicture !== undefined) entity.profilePicture = profilePicture;
+                if (profileShape !== undefined) entity.profileShape = profileShape;
+                await entity.save();
                 await User.findByIdAndUpdate(req.user.id, { entityName: entity.name });
                 await migrateDataToEntity(req.user.id, entity.name);
                 return res.json({ message: 'Successfully joined existing entity', entity });
@@ -101,7 +104,13 @@ router.post('/register', auth, async (req, res) => {
             return res.status(400).json({ message: 'Entity name already registered' });
         }
 
-        entity = new Entity({ name, securityKey, owner: req.user.id });
+        entity = new Entity({ 
+            name, 
+            securityKey, 
+            profilePicture: profilePicture || '',
+            profileShape: profileShape || 'rounded',
+            owner: req.user.id 
+        });
         await entity.save();
 
         // Automatically link creator to this entity
@@ -161,8 +170,12 @@ router.post('/verify', auth, async (req, res) => {
 // Update entity (CRUD)
 router.put('/:id', auth, async (req, res) => {
     try {
-        const query = { _id: req.params.id, $or: [{ owner: req.user.adminId }] };
+        const query = { _id: req.params.id, $or: [{ owner: req.user.adminId }, { owner: req.user.id }] };
         if (req.user.entityName) query.$or.push({ name: req.user.entityName });
+        if (req.user.role === 'admin' || req.user.role === 'superadmin') {
+            // Admin authority
+            delete query.$or;
+        }
 
         const entity = await Entity.findOneAndUpdate(query, req.body, { new: true });
         if (!entity) return res.status(404).json({ message: 'Entity not found or unauthorized' });
@@ -175,8 +188,11 @@ router.put('/:id', auth, async (req, res) => {
 // Delete entity (CRUD)
 router.delete('/:id', auth, async (req, res) => {
     try {
-        const query = { _id: req.params.id, $or: [{ owner: req.user.adminId }] };
+        const query = { _id: req.params.id, $or: [{ owner: req.user.adminId }, { owner: req.user.id }] };
         if (req.user.entityName) query.$or.push({ name: req.user.entityName });
+        if (req.user.role === 'admin' || req.user.role === 'superadmin') {
+            delete query.$or;
+        }
 
         const entity = await Entity.findOneAndDelete(query);
         if (!entity) return res.status(404).json({ message: 'Entity not found or unauthorized' });

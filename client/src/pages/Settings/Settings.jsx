@@ -5,13 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { 
     Settings as SettingsIcon, Shield, ShieldCheck, User, Trash2, Edit3, Plus, 
     Building2, Mail, Phone, Lock, Calendar, Key, Copy, Check, Eye, EyeOff, 
-    AlertCircle, Sparkles, X, ChevronRight 
+    AlertCircle, Sparkles, X, ChevronRight, Camera, UploadCloud, Image as ImageIcon,
+    Maximize2
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import axios from 'axios'
 
 const Settings = () => {
-    const { user } = useAuth()
+    const { user, verifiedEntity, setVerifiedEntity } = useAuth()
     const [status, setStatus] = useState('')
     const [statusType, setStatusType] = useState('success') // 'success' | 'danger'
     const [users, setUsers] = useState([])
@@ -22,7 +23,14 @@ const Settings = () => {
     const [entities, setEntities] = useState([])
     const [isEntityModalOpen, setIsEntityModalOpen] = useState(false)
     const [editingEntity, setEditingEntity] = useState(null)
-    const [entityForm, setEntityForm] = useState({ name: '', securityKey: '' })
+    const [entityForm, setEntityForm] = useState({ 
+        name: '', 
+        securityKey: '', 
+        profilePicture: '', 
+        profileShape: 'rounded' 
+    })
+    const [uploadingImage, setUploadingImage] = useState(false)
+    const [previewImageModal, setPreviewImageModal] = useState(null)
 
     // Security key reveal states
     const [revealedKeys, setRevealedKeys] = useState({})
@@ -147,24 +155,69 @@ const Settings = () => {
         }
     }
 
+    const handleImageUpload = (e) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size exceeds 5MB. Please choose a smaller image.')
+            return
+        }
+
+        setUploadingImage(true)
+        const reader = new FileReader()
+        reader.onload = async () => {
+            const base64Data = reader.result
+            try {
+                const formData = new FormData()
+                formData.append('image', file)
+                const uploadRes = await axios.post('/api/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                })
+                if (uploadRes.data?.imageUrl) {
+                    setEntityForm(prev => ({ ...prev, profilePicture: uploadRes.data.imageUrl }))
+                } else {
+                    setEntityForm(prev => ({ ...prev, profilePicture: base64Data }))
+                }
+            } catch (err) {
+                // Seamless fallback to base64 data URL
+                setEntityForm(prev => ({ ...prev, profilePicture: base64Data }))
+            } finally {
+                setUploadingImage(false)
+            }
+        }
+        reader.readAsDataURL(file)
+    }
+
+    const handleRemoveImage = () => {
+        setEntityForm(prev => ({ ...prev, profilePicture: '' }))
+    }
+
     const handleEntitySubmit = async (e) => {
         e.preventDefault()
         setStatus('')
         try {
+            let savedEntity = null
             if (editingEntity) {
-                await axios.put(`/api/entity/${editingEntity._id}`, entityForm)
+                const res = await axios.put(`/api/entity/${editingEntity._id}`, entityForm)
+                savedEntity = res.data
             } else {
-                await axios.post('/api/entity/register', entityForm)
+                const res = await axios.post('/api/entity/register', entityForm)
+                savedEntity = res.data?.entity || res.data
             }
             fetchEntities()
+            if (verifiedEntity && savedEntity && (verifiedEntity.name === savedEntity.name || verifiedEntity._id === savedEntity._id)) {
+                setVerifiedEntity(savedEntity)
+            }
             setIsEntityModalOpen(false)
             setEditingEntity(null)
-            setStatus('Entity configurations updated successfully!')
+            setStatus('Entity configuration saved successfully!')
             setStatusType('success')
             setTimeout(() => setStatus(''), 4000)
         } catch (err) {
             setStatus(err.response?.data?.message || 'Error updating entity')
             setStatusType('danger')
+            setTimeout(() => setStatus(''), 4000)
         }
     }
 
@@ -488,7 +541,7 @@ const Settings = () => {
                                     </div>
                                 </div>
 
-                                <button onClick={() => { setEditingEntity(null); setEntityForm({ name: '', securityKey: '' }); setIsEntityModalOpen(true); }} className="btn-luxury-action">
+                                <button onClick={() => { setEditingEntity(null); setEntityForm({ name: '', securityKey: '', profilePicture: '', profileShape: 'rounded' }); setIsEntityModalOpen(true); }} className="btn-luxury-action">
                                     <Plus size={15} /> <span>NEW ENTITY</span>
                                 </button>
                             </div>
@@ -499,29 +552,58 @@ const Settings = () => {
                                     <table className="settings-table entity-table">
                                         <thead>
                                             <tr>
-                                                <th style={{ minWidth: '200px' }}>Entity Name</th>
-                                                <th style={{ minWidth: '240px' }}>Security Key</th>
+                                                <th style={{ minWidth: '220px' }}>Entity &amp; Profile Picture</th>
+                                                <th style={{ minWidth: '150px' }}>Profile Shape</th>
+                                                <th style={{ minWidth: '230px' }}>Security Key</th>
                                                 <th style={{ minWidth: '140px' }}>Created On</th>
-                                                <th className="text-end" style={{ minWidth: '100px' }}>Actions</th>
+                                                <th className="text-end" style={{ minWidth: '110px' }}>Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {entities.length > 0 ? entities.map(c => {
                                                 const isRevealed = revealedKeys[c._id]
                                                 const isCopied = copiedKeyId === c._id
+                                                const shape = c.profileShape || 'rounded'
+                                                const hasPhoto = Boolean(c.profilePicture)
 
                                                 return (
                                                     <tr key={c._id}>
-                                                        {/* Entity Name */}
+                                                        {/* Entity Profile Picture & Name */}
                                                         <td>
-                                                            <div className="d-flex align-items-center gap-2">
-                                                                <div className="p-2 rounded-3 bg-primary bg-opacity-10 text-primary">
-                                                                    <Building2 size={16} />
+                                                            <div className="d-flex align-items-center gap-3">
+                                                                <div 
+                                                                    className={`entity-avatar-wrapper shape-${shape}`}
+                                                                    title={hasPhoto ? "Click to preview full image" : `${c.name} (${shape})`}
+                                                                    onClick={() => hasPhoto && setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape })}
+                                                                >
+                                                                    {hasPhoto ? (
+                                                                        <img src={c.profilePicture} alt={c.name} className="entity-avatar-img" />
+                                                                    ) : (
+                                                                        <span className="fw-black text-primary extra-tiny" style={{ letterSpacing: '0.5px' }}>
+                                                                            {c.name ? c.name.slice(0, 2).toUpperCase() : 'EN'}
+                                                                        </span>
+                                                                    )}
                                                                 </div>
                                                                 <div>
-                                                                    <span className="fw-extrabold text-main" style={{ fontSize: '0.94rem' }}>{c.name}</span>
+                                                                    <div className="d-flex align-items-center gap-1.5">
+                                                                        <span className="fw-extrabold text-main" style={{ fontSize: '0.94rem' }}>{c.name}</span>
+                                                                    </div>
                                                                     <div className="extra-tiny text-muted fw-semibold">Active Operating Node</div>
                                                                 </div>
+                                                            </div>
+                                                        </td>
+
+                                                        {/* Profile Shape Type */}
+                                                        <td>
+                                                            <div className="d-flex flex-column gap-1">
+                                                                <span className={`shape-badge-pill ${shape}`}>
+                                                                    {shape === 'rounded' && '⚪ Rounded'}
+                                                                    {shape === 'square' && '⬛ Square'}
+                                                                    {shape === 'rectangle' && '▬ Rectangle'}
+                                                                </span>
+                                                                <span className="extra-tiny text-muted" style={{ fontSize: '0.66rem' }}>
+                                                                    {hasPhoto ? '✓ Photo Active' : 'Default Icon'}
+                                                                </span>
                                                             </div>
                                                         </td>
 
@@ -561,26 +643,47 @@ const Settings = () => {
 
                                                         {/* Actions */}
                                                         <td className="text-end">
-                                                            <button 
-                                                                onClick={() => { setEditingEntity(c); setEntityForm({ name: c.name, securityKey: c.securityKey }); setIsEntityModalOpen(true); }} 
-                                                                className="settings-action-btn edit" 
-                                                                title="Edit Entity"
-                                                            >
-                                                                <Edit3 size={15} />
-                                                            </button>
-                                                            <button 
-                                                                onClick={() => deleteEntity(c._id, c.name)} 
-                                                                className="settings-action-btn delete" 
-                                                                title="Delete Entity"
-                                                            >
-                                                                <Trash2 size={15} />
-                                                            </button>
+                                                            <div className="d-inline-flex align-items-center gap-1">
+                                                                {hasPhoto && (
+                                                                    <button 
+                                                                        onClick={() => setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape })}
+                                                                        className="settings-action-btn"
+                                                                        title="Preview Profile Picture"
+                                                                        style={{ color: 'var(--palette-terracotta, #ea580c)' }}
+                                                                    >
+                                                                        <Eye size={15} />
+                                                                    </button>
+                                                                )}
+                                                                <button 
+                                                                    onClick={() => { 
+                                                                        setEditingEntity(c); 
+                                                                        setEntityForm({ 
+                                                                            name: c.name, 
+                                                                            securityKey: c.securityKey,
+                                                                            profilePicture: c.profilePicture || '',
+                                                                            profileShape: c.profileShape || 'rounded'
+                                                                        }); 
+                                                                        setIsEntityModalOpen(true); 
+                                                                    }} 
+                                                                    className="settings-action-btn edit" 
+                                                                    title="Edit Entity & Profile Picture"
+                                                                >
+                                                                    <Edit3 size={15} />
+                                                                </button>
+                                                                <button 
+                                                                    onClick={() => deleteEntity(c._id, c.name)} 
+                                                                    className="settings-action-btn delete" 
+                                                                    title="Delete Entity"
+                                                                >
+                                                                    <Trash2 size={15} />
+                                                                </button>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 )
                                             }) : (
                                                 <tr>
-                                                    <td colSpan="4" className="text-center py-4 text-muted extra-tiny">
+                                                    <td colSpan="5" className="text-center py-4 text-muted extra-tiny">
                                                         No operating entities found. Click "+ New Entity" to register one.
                                                     </td>
                                                 </tr>
@@ -594,26 +697,62 @@ const Settings = () => {
                                     {entities.length > 0 ? entities.map(c => {
                                         const isRevealed = revealedKeys[c._id]
                                         const isCopied = copiedKeyId === c._id
+                                        const shape = c.profileShape || 'rounded'
+                                        const hasPhoto = Boolean(c.profilePicture)
 
                                         return (
                                             <div key={c._id} className="settings-mobile-card">
                                                 {/* Top Row: Entity Icon, Name & Actions */}
                                                 <div className="d-flex justify-content-between align-items-start gap-2 mb-2.5">
                                                     <div className="d-flex align-items-center gap-2.5" style={{ minWidth: 0, flex: 1 }}>
-                                                        <div className="p-2 rounded-3 bg-primary bg-opacity-10 text-primary flex-shrink-0">
-                                                            <Building2 size={18} />
+                                                        <div 
+                                                            className={`entity-avatar-wrapper shape-${shape}`}
+                                                            onClick={() => hasPhoto && setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape })}
+                                                            style={{ width: shape === 'rectangle' ? '54px' : '42px', height: shape === 'rectangle' ? '34px' : '42px' }}
+                                                        >
+                                                            {hasPhoto ? (
+                                                                <img src={c.profilePicture} alt={c.name} className="entity-avatar-img" />
+                                                            ) : (
+                                                                <span className="fw-black text-primary extra-tiny">
+                                                                    {c.name ? c.name.slice(0, 2).toUpperCase() : 'EN'}
+                                                                </span>
+                                                            )}
                                                         </div>
                                                         <div style={{ minWidth: 0 }}>
-                                                            <span className="fw-extrabold text-main d-block" style={{ fontSize: '0.96rem', wordBreak: 'break-word' }}>
+                                                            <span className="fw-extrabold text-main d-block text-truncate" style={{ fontSize: '0.96rem' }}>
                                                                 {c.name}
                                                             </span>
-                                                            <div className="extra-tiny text-muted fw-semibold">Active Operating Node</div>
+                                                            <div className="d-flex align-items-center gap-1.5 mt-0.5">
+                                                                <span className={`shape-badge-pill ${shape}`} style={{ fontSize: '0.64rem', padding: '0.1rem 0.45rem' }}>
+                                                                    {shape.charAt(0).toUpperCase() + shape.slice(1)}
+                                                                </span>
+                                                                <span className="extra-tiny text-muted">{hasPhoto ? '• Photo set' : ''}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
 
                                                     <div className="d-flex align-items-center gap-1 flex-shrink-0">
+                                                        {hasPhoto && (
+                                                            <button 
+                                                                onClick={() => setPreviewImageModal({ img: c.profilePicture, name: c.name, shape: shape })}
+                                                                className="settings-action-btn"
+                                                                title="Preview Photo"
+                                                                style={{ width: '28px', height: '28px', margin: 0, color: 'var(--palette-terracotta, #ea580c)' }}
+                                                            >
+                                                                <Eye size={13} />
+                                                            </button>
+                                                        )}
                                                         <button 
-                                                            onClick={() => { setEditingEntity(c); setEntityForm({ name: c.name, securityKey: c.securityKey }); setIsEntityModalOpen(true); }} 
+                                                            onClick={() => { 
+                                                                setEditingEntity(c); 
+                                                                setEntityForm({ 
+                                                                    name: c.name, 
+                                                                    securityKey: c.securityKey,
+                                                                    profilePicture: c.profilePicture || '',
+                                                                    profileShape: c.profileShape || 'rounded'
+                                                                }); 
+                                                                setIsEntityModalOpen(true); 
+                                                            }} 
                                                             className="settings-action-btn edit" 
                                                             title="Edit Entity"
                                                             style={{ width: '28px', height: '28px', margin: 0 }}
@@ -833,9 +972,9 @@ const Settings = () => {
                             </div>
 
                             <form onSubmit={handleEntitySubmit} className="p-4">
-                                <div className="settings-input-group">
+                                <div className="settings-input-group mb-3">
                                     <label className="settings-input-label">
-                                        <Building2 size={13} className="text-primary" /> Entity Name
+                                        <Building2 size={13} className="text-primary" /> Entity / Organization Name
                                     </label>
                                     <div className="settings-field-wrapper">
                                         <span className="settings-field-icon"><Building2 size={16} /></span>
@@ -850,7 +989,7 @@ const Settings = () => {
                                     </div>
                                 </div>
 
-                                <div className="settings-input-group mb-4">
+                                <div className="settings-input-group mb-3">
                                     <label className="settings-input-label">
                                         <Key size={13} className="text-warning" /> Security Authorization Key
                                     </label>
@@ -867,6 +1006,139 @@ const Settings = () => {
                                     </div>
                                 </div>
 
+                                {/* ─── Entity Profile Picture Section (Rounded, Rectangle, Square) ─── */}
+                                <div className="p-3 rounded-4 mb-3" style={{ background: 'var(--input-bg, rgba(15, 23, 42, 0.02))', border: '1.5px solid var(--glass-border)' }}>
+                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                        <label className="settings-input-label mb-0">
+                                            <Camera size={14} className="text-primary" /> Entity Profile Picture &amp; Geometry
+                                        </label>
+                                        <span className="extra-tiny text-muted fw-semibold">
+                                            Shape: <strong className="text-capitalize text-main">{entityForm.profileShape}</strong>
+                                        </span>
+                                    </div>
+
+                                    {/* Shape Selector: Rounded, Rectangle, Square */}
+                                    <div className="mb-3">
+                                        <div className="extra-tiny fw-bold text-muted mb-1.5" style={{ letterSpacing: '0.5px' }}>
+                                            SELECT SHAPE GEOMETRY
+                                        </div>
+                                        <div className="entity-shape-selector">
+                                            {/* 1. Rounded */}
+                                            <button
+                                                type="button"
+                                                className={`shape-option-btn ${entityForm.profileShape === 'rounded' ? 'active' : ''}`}
+                                                onClick={() => setEntityForm({ ...entityForm, profileShape: 'rounded' })}
+                                            >
+                                                <div className="shape-glyph-preview rounded" />
+                                                <span>Rounded</span>
+                                                <span className="extra-tiny opacity-75" style={{ fontSize: '0.62rem' }}>Circle / 1:1</span>
+                                            </button>
+
+                                            {/* 2. Rectangle */}
+                                            <button
+                                                type="button"
+                                                className={`shape-option-btn ${entityForm.profileShape === 'rectangle' ? 'active' : ''}`}
+                                                onClick={() => setEntityForm({ ...entityForm, profileShape: 'rectangle' })}
+                                            >
+                                                <div className="shape-glyph-preview rectangle" />
+                                                <span>Rectangle</span>
+                                                <span className="extra-tiny opacity-75" style={{ fontSize: '0.62rem' }}>Wide / 16:9</span>
+                                            </button>
+
+                                            {/* 3. Square */}
+                                            <button
+                                                type="button"
+                                                className={`shape-option-btn ${entityForm.profileShape === 'square' ? 'active' : ''}`}
+                                                onClick={() => setEntityForm({ ...entityForm, profileShape: 'square' })}
+                                            >
+                                                <div className="shape-glyph-preview square" />
+                                                <span>Square</span>
+                                                <span className="extra-tiny opacity-75" style={{ fontSize: '0.62rem' }}>Box / 1:1</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Live Interactive Shape Preview Card */}
+                                    <div className="entity-profile-preview-card mb-3">
+                                        <div className="d-flex flex-column align-items-center justify-content-center w-100 py-1">
+                                            <div 
+                                                className={`entity-avatar-wrapper shape-${entityForm.profileShape} mb-2`}
+                                                style={{
+                                                    width: entityForm.profileShape === 'rectangle' ? '120px' : '84px',
+                                                    height: entityForm.profileShape === 'rectangle' ? '70px' : '84px',
+                                                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+                                                    border: '2px solid var(--glass-border)'
+                                                }}
+                                            >
+                                                {entityForm.profilePicture ? (
+                                                    <img src={entityForm.profilePicture} alt="Profile Preview" className="entity-avatar-img" />
+                                                ) : (
+                                                    <div className="d-flex flex-column align-items-center justify-content-center text-primary">
+                                                        <Building2 size={entityForm.profileShape === 'rectangle' ? 24 : 30} />
+                                                        <span className="extra-tiny fw-bold mt-1 text-muted" style={{ fontSize: '0.65rem' }}>
+                                                            {entityForm.name ? entityForm.name.slice(0, 3).toUpperCase() : 'NO PHOTO'}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="d-flex align-items-center gap-2">
+                                                <span className={`shape-badge-pill ${entityForm.profileShape}`}>
+                                                    {entityForm.profileShape.toUpperCase()} GEOMETRY
+                                                </span>
+                                                {entityForm.profilePicture && (
+                                                    <span className="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill extra-tiny">
+                                                        ✓ Photo Loaded
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Action Buttons: Upload, Remove */}
+                                    <div className="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-2">
+                                        <div className="d-flex align-items-center gap-2">
+                                            <label className="btn btn-sm btn-primary rounded-3 d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold extra-tiny mb-0 shadow-sm" style={{ cursor: 'pointer' }}>
+                                                <UploadCloud size={14} />
+                                                <span>{uploadingImage ? 'Uploading...' : (entityForm.profilePicture ? 'Change Photo' : 'Upload Photo')}</span>
+                                                <input 
+                                                    type="file" 
+                                                    accept="image/*" 
+                                                    className="d-none" 
+                                                    onChange={handleImageUpload} 
+                                                    disabled={uploadingImage}
+                                                />
+                                            </label>
+
+                                            {entityForm.profilePicture && (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleRemoveImage}
+                                                    className="btn btn-sm btn-outline-danger rounded-3 d-inline-flex align-items-center gap-1 px-2.5 py-1.5 fw-bold extra-tiny"
+                                                    title="Remove Profile Picture"
+                                                >
+                                                    <Trash2 size={13} />
+                                                    <span>Delete Photo</span>
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        <span className="extra-tiny text-muted">Supports PNG, JPG, WebP, SVG</span>
+                                    </div>
+
+                                    {/* Optional Direct URL input */}
+                                    <div className="pt-2 border-top border-secondary border-opacity-10">
+                                        <input 
+                                            type="url" 
+                                            className="settings-text-input py-1.5 px-3 extra-tiny" 
+                                            placeholder="Or paste direct image URL (https://...)" 
+                                            value={entityForm.profilePicture} 
+                                            onChange={e => setEntityForm({ ...entityForm, profilePicture: e.target.value })} 
+                                            style={{ fontSize: '0.78rem' }}
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="d-flex gap-2.5 pt-2">
                                     <button type="submit" className="btn-luxury-action flex-grow-1 justify-content-center py-2.5">
                                         <span>{editingEntity ? 'UPDATE ENTITY' : 'REGISTER ENTITY'}</span>
@@ -877,6 +1149,74 @@ const Settings = () => {
                                     </button>
                                 </div>
                             </form>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {/* ─── Profile Picture Lightbox Preview Modal ─── */}
+            <AnimatePresence>
+                {previewImageModal && (
+                    <div 
+                        className="modal-overlay position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3" 
+                        style={{ background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(16px)', zIndex: 999999 }}
+                        onClick={() => setPreviewImageModal(null)}
+                    >
+                        <motion.div 
+                            initial={{ scale: 0.9, opacity: 0 }} 
+                            animate={{ scale: 1, opacity: 1 }} 
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="p-4 rounded-4 shadow-2xl border text-center position-relative"
+                            style={{ 
+                                maxWidth: '480px', 
+                                width: '100%', 
+                                background: 'var(--card-bg, #ffffff)', 
+                                borderColor: 'var(--glass-border)' 
+                            }}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                <div className="text-start">
+                                    <h6 className="fw-extrabold text-main mb-0">{previewImageModal.name}</h6>
+                                    <span className={`shape-badge-pill ${previewImageModal.shape} mt-1`}>
+                                        {previewImageModal.shape.toUpperCase()} GEOMETRY
+                                    </span>
+                                </div>
+                                <button 
+                                    type="button" 
+                                    onClick={() => setPreviewImageModal(null)} 
+                                    className="btn btn-close p-2"
+                                    aria-label="Close"
+                                />
+                            </div>
+
+                            <div className="d-flex align-items-center justify-content-center p-3 my-2 rounded-3 bg-dark bg-opacity-25 overflow-hidden">
+                                <div 
+                                    className={`entity-avatar-wrapper shape-${previewImageModal.shape}`}
+                                    style={{
+                                        width: previewImageModal.shape === 'rectangle' ? '280px' : '200px',
+                                        height: previewImageModal.shape === 'rectangle' ? '160px' : '200px',
+                                        boxShadow: '0 12px 36px rgba(0, 0, 0, 0.25)',
+                                        cursor: 'default'
+                                    }}
+                                >
+                                    <img 
+                                        src={previewImageModal.img} 
+                                        alt={previewImageModal.name} 
+                                        className="entity-avatar-img"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="d-flex justify-content-end gap-2 mt-3 pt-2 border-top border-secondary border-opacity-10">
+                                <button 
+                                    type="button" 
+                                    onClick={() => setPreviewImageModal(null)} 
+                                    className="btn btn-sm btn-light border fw-bold px-3 py-1.5 extra-tiny rounded-3"
+                                >
+                                    CLOSE
+                                </button>
+                            </div>
                         </motion.div>
                     </div>
                 )}

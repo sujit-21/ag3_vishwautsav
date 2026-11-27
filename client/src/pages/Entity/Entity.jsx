@@ -239,7 +239,7 @@ const Entity = () => {
                                                         entities.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase())).map(c => (
                                                             <div
                                                                 key={c._id}
-                                                                className="px-4 py-3 border-bottom cursor-pointer fw-bold transition-all"
+                                                                className="px-4 py-2.5 border-bottom cursor-pointer fw-bold transition-all d-flex align-items-center gap-3"
                                                                 style={{ color: 'var(--text-main)', borderColor: 'var(--glass-border)' }}
                                                                 onMouseDown={(e) => {
                                                                     e.preventDefault();
@@ -250,7 +250,23 @@ const Entity = () => {
                                                                 onMouseEnter={(e) => e.currentTarget.style.background = 'var(--glass-bg)'}
                                                                 onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                                             >
-                                                                {c.name}
+                                                                <div 
+                                                                    className="d-flex align-items-center justify-content-center overflow-hidden flex-shrink-0"
+                                                                    style={{
+                                                                        width: (c.profileShape === 'rectangle' ? '36px' : '26px'),
+                                                                        height: (c.profileShape === 'rectangle' ? '22px' : '26px'),
+                                                                        borderRadius: c.profileShape === 'rounded' ? '50%' : (c.profileShape === 'square' ? '6px' : '5px'),
+                                                                        background: 'linear-gradient(135deg, rgba(234, 88, 12, 0.15), rgba(99, 102, 241, 0.15))',
+                                                                        border: '1px solid var(--glass-border)'
+                                                                    }}
+                                                                >
+                                                                    {c.profilePicture ? (
+                                                                        <img src={c.profilePicture} alt={c.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                                    ) : (
+                                                                        <span style={{ fontSize: '0.62rem' }}>{c.name.slice(0, 2).toUpperCase()}</span>
+                                                                    )}
+                                                                </div>
+                                                                <span>{c.name}</span>
                                                             </div>
                                                         ))
                                                     ) : (

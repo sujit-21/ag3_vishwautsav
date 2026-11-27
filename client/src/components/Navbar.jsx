@@ -613,7 +613,21 @@ const Navbar = () => {
                                         <div className="nav__sidebar-entity-box mt-2.5">
                                             <div className="d-flex align-items-center justify-content-between gap-1">
                                                 <div className="d-flex align-items-center gap-1.5 overflow-hidden">
-                                                    <Building2 size={13} className="text-warning flex-shrink-0" />
+                                                    {verifiedEntity?.profilePicture ? (
+                                                        <div
+                                                            className="flex-shrink-0 overflow-hidden d-flex align-items-center justify-content-center"
+                                                            style={{
+                                                                width: verifiedEntity.profileShape === 'rectangle' ? '24px' : '18px',
+                                                                height: verifiedEntity.profileShape === 'rectangle' ? '15px' : '18px',
+                                                                borderRadius: verifiedEntity.profileShape === 'rounded' ? '50%' : (verifiedEntity.profileShape === 'square' ? '4px' : '3px'),
+                                                                border: '1px solid var(--glass-border)'
+                                                            }}
+                                                        >
+                                                            <img src={verifiedEntity.profilePicture} alt="Entity" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        </div>
+                                                    ) : (
+                                                        <Building2 size={13} className="text-warning flex-shrink-0" />
+                                                    )}
                                                     <span className="tiny fw-bold text-main text-truncate">
                                                         {entityNameDisplay || 'No Entity Selected'}
                                                     </span>
