@@ -327,7 +327,7 @@ export const exportAttendeeMasterPDF = ({ subscriptionsList, sponsorsList = [], 
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
     const list = subscriptionsList || []
 
-    const totalRevenue = list.reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
+    const totalRevenue = list.filter(s => s.paymentType !== 'Due').reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const cashTotal = list.filter(s => s.paymentType === 'Cash & Paid').reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const onlineTotal = list.filter(s => s.paymentType === 'Online').reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const duesTotal = list.filter(s => s.paymentType === 'Due').reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
@@ -577,7 +577,10 @@ export const exportExpenseLedgerPDF = ({ expensesList, activeTitle, entityName, 
 export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsorsList = [], includeSponsors = false, activeTitle, entityName, expenseTypes = [] }) => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
 
-    const totalCollection = (subscriptionsList || []).reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
+    // Total Collection MUST ONLY include verified inflows (excluding pending dues)
+    const totalCollection = (subscriptionsList || [])
+        .filter(s => s.paymentType !== 'Due')
+        .reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const totalExpenses = (expensesList || []).reduce((acc, e) => acc + (Number(String(e.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const totalDues = (subscriptionsList || []).filter(s => s.paymentType === 'Due').reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const totalSponsors = (sponsorsList || []).reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
@@ -679,10 +682,14 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
     })
 
     // Section 2: Detailed Comparative Breakdown Table
+    const couponTotal = (subscriptionsList || [])
+        .filter(s => s.paymentType === 'Coupon / Token' || s.paymentType === 'Coupon or Token')
+        .reduce((a, b) => a + (Number(String(b.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
+
     const incomeRows = [
-        ['Income: Cash & Paid', fmtCurrency((subscriptionsList || []).filter(s => s.paymentType === 'Cash & Paid').reduce((a, b) => a + (Number(b.amount) || 0), 0))],
-        ['Income: Online / Digital', fmtCurrency((subscriptionsList || []).filter(s => s.paymentType === 'Online').reduce((a, b) => a + (Number(b.amount) || 0), 0))],
-        ['Income: Coupon / Token', fmtCurrency((subscriptionsList || []).filter(s => s.paymentType === 'Coupon / Token').reduce((a, b) => a + (Number(b.amount) || 0), 0))]
+        ['Income: Cash & Paid', fmtCurrency((subscriptionsList || []).filter(s => s.paymentType === 'Cash & Paid').reduce((a, b) => a + (Number(String(b.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0))],
+        ['Income: Online / Digital', fmtCurrency((subscriptionsList || []).filter(s => s.paymentType === 'Online').reduce((a, b) => a + (Number(String(b.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0))],
+        ['Income: Coupon / Token', fmtCurrency(couponTotal)]
     ]
     if (includeSponsors && totalSponsors > 0) {
         incomeRows.push(['Income: Sponsors & Donors', fmtCurrency(totalSponsors)])
@@ -876,7 +883,12 @@ export const exportBalanceSheetPDF = ({ subscriptionsList, expensesList, sponsor
 export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, sponsorsList = [], activeTitle, entityName, expenseTypes = [], getTierDisplayName, getPaymentDisplayName }) => {
     const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
 
-    const totalCollection = (subscriptionsList || []).reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
+    const totalCollection = (subscriptionsList || [])
+        .filter(s => s.paymentType !== 'Due')
+        .reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
+    const totalDues = (subscriptionsList || [])
+        .filter(s => s.paymentType === 'Due')
+        .reduce((acc, s) => acc + (Number(String(s.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const totalExpenses = (expensesList || []).reduce((acc, e) => acc + (Number(String(e.amount || 0).replace(/[^0-9.]/g, '')) || 0), 0)
     const netBalance = totalCollection - totalExpenses
 
@@ -991,6 +1003,7 @@ export const exportMasterDataPackagePDF = ({ subscriptionsList, expensesList, sp
         head: [['METRIC', 'STATUS', 'NET VALUE']],
         body: [
             ['Total Verified Revenue Inflows', 'Verified', fmtCurrency(totalCollection)],
+            ['Outstanding Attendee Dues', 'Receivable', fmtCurrency(totalDues)],
             ['Total Operational Outflows', 'Audited', fmtCurrency(totalExpenses)],
             ['Net Financial Position', netBalance >= 0 ? 'Surplus' : 'Deficit', fmtCurrency(netBalance)]
         ],

@@ -2038,7 +2038,7 @@ const Events = () => {
 
             {activeTab === 'balanceSheet' && (() => {
                 const totalCollection = (subscriptionsList || [])
-                    .filter(s => ['Cash & Paid', 'Coupon or Token', 'Online'].includes(s.paymentType))
+                    .filter(s => s.paymentType !== 'Due')
                     .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0)
 
                 const totalDues = (subscriptionsList || [])
@@ -2051,7 +2051,7 @@ const Events = () => {
                 const netBalance = totalCollection - totalExpenses
                 const cashPaidAmt = (subscriptionsList || []).filter(s => s.paymentType === 'Cash & Paid').reduce((a, b) => a + (Number(b.amount) || 0), 0)
                 const onlineAmt = (subscriptionsList || []).filter(s => s.paymentType === 'Online').reduce((a, b) => a + (Number(b.amount) || 0), 0)
-                const couponAmt = (subscriptionsList || []).filter(s => s.paymentType === 'Coupon or Token').reduce((a, b) => a + (Number(b.amount) || 0), 0)
+                const couponAmt = (subscriptionsList || []).filter(s => s.paymentType === 'Coupon or Token' || s.paymentType === 'Coupon / Token').reduce((a, b) => a + (Number(b.amount) || 0), 0)
 
                 return (
                     <div className="py-2 animate-in">
