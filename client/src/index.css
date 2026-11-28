@@ -1575,12 +1575,12 @@ label {
     }
 }
 
-/* Attendee Actions Toolbar (Single Horizontal Line on Smartphones & Desktops) */
+/* Attendee Actions Toolbar (Single Horizontal Line on Smartphones & Desktops/Laptops) */
 .attendee-actions-toolbar {
     display: flex;
     align-items: center;
     gap: 6px;
-    flex-wrap: nowrap !important;
+    flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -1595,20 +1595,45 @@ label {
 
 .attendee-actions-toolbar .btn,
 .attendee-actions-toolbar .action-item-pill {
-    height: 24px !important;
-    font-size: 0.62rem !important;
-    padding: 0 8px !important;
+    height: 26px !important;
+    font-size: 0.68rem !important;
+    padding: 0 9px !important;
     flex-shrink: 0 !important;
     white-space: nowrap !important;
 }
 
 .attendee-actions-toolbar .btn span {
-    font-size: 0.62rem !important;
+    font-size: 0.68rem !important;
 }
 
 .attendee-actions-toolbar .action-item-pill input {
-    font-size: 0.62rem !important;
-    width: 110px !important;
+    font-size: 0.68rem !important;
+    width: 125px !important;
+}
+
+/* Laptops & Desktop Computers: Sleek, Roomy Single Horizontal Row */
+@media (min-width: 992px) {
+    .attendee-actions-toolbar {
+        gap: 8px !important;
+        flex-wrap: wrap !important;
+        overflow-x: visible !important;
+    }
+
+    .attendee-actions-toolbar .btn,
+    .attendee-actions-toolbar .action-item-pill {
+        height: 29px !important;
+        font-size: 0.74rem !important;
+        padding: 0 11px !important;
+    }
+
+    .attendee-actions-toolbar .btn span {
+        font-size: 0.74rem !important;
+    }
+
+    .attendee-actions-toolbar .action-item-pill input {
+        font-size: 0.74rem !important;
+        width: 145px !important;
+    }
 }
 
 @media (max-width: 575.98px) {

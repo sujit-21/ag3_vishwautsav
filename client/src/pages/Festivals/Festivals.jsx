@@ -1432,186 +1432,205 @@ const Festivals = () => {
                         </span>
                     </div>
 
-                    {/* Toolbar below Title inside the Card */}
-                    <div className="d-flex flex-column py-1 mb-3" style={{ gap: '10px', isolation: 'isolate', position: 'relative' }}>
-                        {/* Row 1: Add New, Search, Attendee PDF, Action Log (Single Horizontal Line) */}
-                        <div className="attendee-actions-toolbar">
-                            {/* ADD NEW */}
-                            {!isSubAdding && (
-                                <button onClick={() => {
-                                    setIsSubAdding(true)
-                                    setSubFormData({
-                                        ...subFormData,
-                                        subId: generateSubID(),
-                                        date: new Date().toISOString().split('T')[0],
-                                        festOrEventName: activeFestival?.title || '',
-                                        entityName: activeFestival?.entityName || ''
-                                    })
-                                }} className="btn btn-premium btn-sm d-flex align-items-center gap-1 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm">
-                                    <Plus size={10} /> <span>Add New</span>
-                                </button>
-                            )}
-
-                            {/* SEARCH */}
-                            <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm">
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={10} /></span>
-                                <input
-                                    type="text"
-                                    className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100 fw-bold"
-                                    placeholder="Search attendees..."
-                                    value={subSearch}
-                                    onChange={(e) => setSubSearch(e.target.value)}
-                                />
-                            </div>
-
-                            {/* ATTENDEE PDF */}
-                            <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm">
-                                <FileDown size={10} /> <span>Attendee PDF</span>
+                    {/* Toolbar: Single Horizontal Line on Laptops & Computers */}
+                    <div className="attendee-actions-toolbar py-1 mb-3" style={{ isolation: 'isolate', position: 'relative' }}>
+                        {/* 1. ADD NEW */}
+                        {!isSubAdding && (
+                            <button onClick={() => {
+                                setIsSubAdding(true)
+                                setSubFormData({
+                                    ...subFormData,
+                                    subId: generateSubID(),
+                                    date: new Date().toISOString().split('T')[0],
+                                    festOrEventName: activeFestival?.title || '',
+                                    entityName: activeFestival?.entityName || ''
+                                })
+                            }} className="btn btn-premium btn-sm d-flex align-items-center gap-1 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm">
+                                <Plus size={11} /> <span>Add New</span>
                             </button>
+                        )}
 
-                            {/* ACTION LOGS */}
-                            <button 
-                                onClick={() => handleTabChange('activity_logs')} 
-                                className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 rounded-pill fw-bold text-nowrap transition-all shadow-sm" 
-                                title="View who created, updated, or deleted attendee records"
+                        {/* 2. SEARCH */}
+                        <div className="input-group action-item-pill search-pill-container px-2 flex-nowrap shadow-sm">
+                            <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Search size={11} /></span>
+                            <input
+                                type="text"
+                                className="form-control bg-transparent border-0 text-main shadow-none tiny p-0 pe-1 h-100 fw-bold"
+                                placeholder="Search attendees..."
+                                value={subSearch}
+                                onChange={(e) => setSubSearch(e.target.value)}
+                            />
+                        </div>
+
+                        {/* 3. SORT */}
+                        <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm">
+                            <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
+                            <select
+                                className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                value={subSort}
+                                onChange={(e) => setSubSort(e.target.value)}
+                                title="Sort Attendees"
                             >
-                                <History size={10} className="text-primary" /> <span>Action Log</span>
-                            </button>
+                                <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
+                                <option value="oldest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Oldest</option>
+                                <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (A-Z)</option>
+                                <option value="name-desc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (Z-A)</option>
+                                <option value="amount-high" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (High-Low)</option>
+                                <option value="amount-low" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (Low-High)</option>
+                            </select>
                         </div>
 
-                        {/* Row 2: Sort, Tier All, Pay All (Just below - clean horizontal swipe on mobile) */}
-                        <div className="d-flex align-items-center gap-2 overflow-x-auto py-1 flex-nowrap">
-                            {/* SORT */}
-                            <div className="input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm" style={{ height: '26px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-primary px-1 py-0 d-flex align-items-center"><ArrowUpDown size={11} /></span>
-                                <select
-                                    className="form-select select-sort bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.67rem' }}
-                                    value={subSort}
-                                    onChange={(e) => setSubSort(e.target.value)}
-                                    title="Sort Attendees"
-                                >
-                                    <option value="newest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Newest</option>
-                                    <option value="oldest" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Oldest</option>
-                                    <option value="name-asc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (A-Z)</option>
-                                    <option value="name-desc" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Name (Z-A)</option>
-                                    <option value="amount-high" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (High-Low)</option>
-                                    <option value="amount-low" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>SORT: Amount (Low-High)</option>
-                                </select>
-                            </div>
-
-                            {/* TIER FILTER */}
-                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${subMembershipFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={subMembershipFilter !== 'all' ? 'text-primary' : ''} /></span>
-                                <select
-                                    className="form-select select-tier bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.67rem' }}
-                                    value={subMembershipFilter}
-                                    onChange={(e) => setSubMembershipFilter(e.target.value)}
-                                    title="Filter Tier"
-                                >
-                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Tier: All</option>
-                                    <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP</option>
-                                    <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime</option>
-                                    <option value="None" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>None</option>
-                                    <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
-                                </select>
-                            </div>
-
-                            {/* PAYMENT FILTER */}
-                            <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${subPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`} style={{ height: '26px' }}>
-                                <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><CreditCard size={11} className={subPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
-                                <select
-                                    className="form-select select-pay bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
-                                    style={{ fontSize: '0.67rem' }}
-                                    value={subPaymentFilter}
-                                    onChange={(e) => setSubPaymentFilter(e.target.value)}
-                                    title="Filter Payment"
-                                >
-                                    <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Pay: All</option>
-                                    <option value="Cash & Paid" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Paid</option>
-                                    <option value="Online" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Online</option>
-                                    <option value="Due" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Due</option>
-                                    <option value="Coupon or Token" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Coupon</option>
-                                </select>
-                            </div>
+                        {/* 4. TIER FILTER */}
+                        <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${subMembershipFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`}>
+                            <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><Filter size={11} className={subMembershipFilter !== 'all' ? 'text-primary' : ''} /></span>
+                            <select
+                                className="form-select select-tier bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                value={subMembershipFilter}
+                                onChange={(e) => setSubMembershipFilter(e.target.value)}
+                                title="Filter Tier"
+                            >
+                                <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Tier: All</option>
+                                <option value="VIP" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>VIP</option>
+                                <option value="Prime" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Prime</option>
+                                <option value="None" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>None</option>
+                                <option value="Administrative" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Administrative</option>
+                            </select>
                         </div>
+
+                        {/* 5. PAYMENT FILTER */}
+                        <div className={`input-group action-item-pill px-2 align-items-center flex-nowrap shadow-sm ${subPaymentFilter !== 'all' ? 'border-primary bg-primary bg-opacity-15' : ''}`}>
+                            <span className="input-group-text bg-transparent border-0 text-muted px-1 py-0 d-flex align-items-center"><CreditCard size={11} className={subPaymentFilter !== 'all' ? 'text-primary' : ''} /></span>
+                            <select
+                                className="form-select select-pay bg-transparent border-0 text-main shadow-none tiny py-0 ps-0 pe-2 h-100 fw-bold"
+                                value={subPaymentFilter}
+                                onChange={(e) => setSubPaymentFilter(e.target.value)}
+                                title="Filter Payment"
+                            >
+                                <option value="all" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Pay: All</option>
+                                <option value="Cash & Paid" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Paid</option>
+                                <option value="Online" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Online</option>
+                                <option value="Due" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Due</option>
+                                <option value="Coupon or Token" style={{ backgroundColor: '#1e4755', color: '#f0f9f8' }}>Coupon</option>
+                            </select>
+                        </div>
+
+                        {/* 6. ATTENDEE PDF */}
+                        <button onClick={downloadAllAttendeesPDF} className="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 rounded-pill fw-bold text-nowrap transition-all hover-glow shadow-sm">
+                            <FileDown size={11} /> <span>Attendee PDF</span>
+                        </button>
+
+                        {/* 7. ACTION LOGS */}
+                        <button 
+                            onClick={() => handleTabChange('activity_logs')} 
+                            className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 rounded-pill fw-bold text-nowrap transition-all shadow-sm" 
+                            title="View who created, updated, or deleted attendee records"
+                        >
+                            <History size={11} className="text-primary" /> <span>Action Log</span>
+                        </button>
                     </div>
 
-                    {/* Desktop & Laptop Table View (Screens >= 768px) */}
-                    <div className="table-responsive rounded-2 d-none d-md-block" style={{ WebkitOverflowScrolling: 'touch' }}>
-                        <table className="table table-hover align-middle mb-0" style={{ tableLayout: 'fixed', width: '100%', minWidth: '540px' }}>
-                            <colgroup>
-                                <col style={{ width: '85px' }} />
-                                <col style={{ width: '175px' }} />
-                                <col style={{ width: '100px' }} />
-                                <col style={{ width: '75px' }} />
-                                <col style={{ width: '85px' }} />
-                            </colgroup>
+                    {/* Desktop & Laptop Table View (Screens >= 768px: Full-Width Roomy Spacing) */}
+                    <div className="table-responsive rounded-2 d-none d-md-block shadow-xs" style={{ WebkitOverflowScrolling: 'touch' }}>
+                        <table className="table table-hover align-middle mb-0 w-100">
                             <thead>
-                                <tr className="small text-muted border-bottom">
-                                    <th className="border-0 fw-semibold py-2 ps-2 pe-1">ID</th>
-                                    <th className="border-0 fw-semibold py-2 px-1">Attendee Name</th>
-                                    <th className="border-0 fw-semibold py-2 px-1">Payment</th>
-                                    <th className="border-0 fw-semibold py-2 px-1">Amount</th>
-                                    <th className="border-0 fw-semibold py-2 ps-1 pe-2">Action</th>
+                                <tr className="small text-muted border-bottom" style={{ fontSize: '0.76rem', letterSpacing: '0.02em' }}>
+                                    <th className="border-0 fw-bold py-2.5 ps-3 pe-1" style={{ width: '85px' }}>ID</th>
+                                    <th className="border-0 fw-bold py-2.5 px-1" style={{ width: '95px' }}>Date</th>
+                                    <th className="border-0 fw-bold py-2.5 px-2" style={{ minWidth: '150px' }}>Attendee Name</th>
+                                    <th className="border-0 fw-bold py-2.5 px-2" style={{ width: '135px' }}>Contact</th>
+                                    <th className="border-0 fw-bold py-2.5 px-2" style={{ minWidth: '150px' }}>Address</th>
+                                    <th className="border-0 fw-bold py-2.5 px-1" style={{ width: '95px' }}>Tier</th>
+                                    <th className="border-0 fw-bold py-2.5 px-1" style={{ width: '110px' }}>Payment</th>
+                                    <th className="border-0 fw-bold py-2.5 px-1" style={{ width: '90px' }}>Amount</th>
+                                    <th className="border-0 fw-bold py-2.5 ps-1 pe-3 text-end" style={{ width: '85px' }}>Action</th>
                                 </tr>
                             </thead>
                             <tbody className="text-main">
                                 {filteredSubs.length === 0 ? (
-                                    <tr><td colSpan="5" className="text-center py-5 text-muted">{subscriptionsList.length === 0 ? "No subscriptions yet. Click 'Add New' to begin." : "No matching attendees found."}</td></tr>
+                                    <tr><td colSpan="9" className="text-center py-5 text-muted">{subscriptionsList.length === 0 ? "No subscriptions yet. Click 'Add New' to begin." : "No matching attendees found."}</td></tr>
                                 ) : (
                                     filteredSubs.map((sub, index) => {
-                                        const isInfoOpen = !!openInfoIds[sub.subId];
                                         const isActionOpen = openActionSubId === sub.subId;
                                         const isEven = index % 2 === 0;
-                                        const rowBg = isInfoOpen
-                                            ? 'rgba(67, 130, 149, 0.14)'
-                                            : isEven
-                                                ? 'rgba(67, 130, 149, 0.07)'
-                                                : 'rgba(224, 122, 67, 0.07)';
+                                        const rowBg = isEven ? 'rgba(67, 130, 149, 0.05)' : 'rgba(224, 122, 67, 0.05)';
                                         return (
-                                            <Fragment key={sub.subId}>
-                                                <tr className="align-middle transition-all sub-table-row" style={{ backgroundColor: rowBg }}>
-                                                    <td className="border-0 py-2 ps-2 pe-1">
-                                                        <span className="badge bg-secondary bg-opacity-10 text-dark font-monospace px-2 py-1">{sub.subId}</span>
-                                                    </td>
-                                                    <td className="border-0 py-2 px-1 pe-2">
-                                                        <div className="d-flex align-items-center justify-content-between gap-1.5 w-100">
-                                                            <span className="fw-bold small" style={{ wordBreak: 'break-word', whiteSpace: 'normal', lineHeight: '1.25' }}>
-                                                                {sub.name}
-                                                            </span>
-                                                            <button
-                                                                type="button"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    setOpenInfoIds(prev => ({ ...prev, [sub.subId]: !prev[sub.subId] }));
-                                                                }}
-                                                                className={`btn btn-sm p-0 rounded-circle d-inline-flex align-items-center justify-content-center flex-shrink-0 transition-all sub-info-btn ${
-                                                                    isInfoOpen
-                                                                        ? 'bg-primary text-white shadow-sm'
-                                                                        : 'bg-secondary bg-opacity-10 text-primary border-0 hover-bg-primary hover-text-white'
-                                                                }`}
-                                                                style={{ width: '20px', height: '20px', minWidth: '20px', cursor: 'pointer' }}
-                                                                title={isInfoOpen ? "Hide attendee details" : "Show Date, Contact, Address, Type"}
-                                                              >
-                                                                <Info size={11} strokeWidth={2.5} />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                    <td className="border-0 py-2 px-1">
-                                                        <div className="d-flex align-items-center gap-1 flex-wrap">
-                                                            <span className="badge px-2 py-1 fw-medium" style={getPaymentBadgeStyle(sub.paymentType)}>
-                                                                {getPaymentDisplayName(sub.paymentType)}
-                                                            </span>
-                                                            {sub.referenceName && <span className="text-muted extra-tiny">Ref: {sub.referenceName}</span>}
-                                                        </div>
-                                                    </td>
-                                                    <td className="border-0 py-2 px-1">
-                                                        <span className="badge bg-success text-white px-2 py-1 fw-bold shadow-sm sub-card-amount" style={{ fontSize: '0.8rem' }}>
-                                                            {sub.currency || '₹'}{String(sub.amount || 0).replace(/[^0-9.]/g, '')}
+                                            <tr key={sub.subId} className="align-middle transition-all sub-table-row" style={{ backgroundColor: rowBg }}>
+                                                {/* 1. ID */}
+                                                <td className="border-0 py-2.5 ps-3 pe-1">
+                                                    <span className="badge bg-secondary bg-opacity-10 text-dark font-monospace px-2 py-1" style={{ fontSize: '0.72rem' }}>
+                                                        {sub.subId}
+                                                    </span>
+                                                </td>
+
+                                                {/* 2. Date */}
+                                                <td className="border-0 py-2.5 px-1 text-muted small text-nowrap" style={{ fontSize: '0.74rem' }}>
+                                                    {sub.date ? new Date(sub.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                                                </td>
+
+                                                {/* 3. Attendee Name (Cleanly exposed, no rounded 'i') */}
+                                                <td className="border-0 py-2.5 px-2">
+                                                    <div className="d-flex flex-column">
+                                                        <span className="fw-bold small text-main" style={{ wordBreak: 'break-word', lineHeight: '1.25' }}>
+                                                            {sub.name}
                                                         </span>
-                                                    </td>
+                                                        {sub.referenceName && (
+                                                            <span className="text-muted extra-tiny mt-0.5" style={{ fontSize: '0.66rem' }}>Ref: {sub.referenceName}</span>
+                                                        )}
+                                                    </div>
+                                                </td>
+
+                                                {/* 4. Contact */}
+                                                <td className="border-0 py-2.5 px-2 text-nowrap">
+                                                    {sub.contact ? (
+                                                        <a
+                                                            href={`tel:${sub.countryCode || '+91'}${sub.contact}`}
+                                                            className="text-decoration-none text-main small d-inline-flex align-items-center gap-1 hover-primary"
+                                                            style={{ fontSize: '0.74rem' }}
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            title={`Call ${sub.countryCode || '+91'} ${sub.contact}`}
+                                                        >
+                                                            <Phone size={11} className="text-info opacity-85 flex-shrink-0" />
+                                                            <span>{sub.countryCode || '+91'} {sub.contact}</span>
+                                                        </a>
+                                                    ) : (
+                                                        <span className="text-muted small">—</span>
+                                                    )}
+                                                </td>
+
+                                                {/* 5. Address */}
+                                                <td className="border-0 py-2.5 px-2">
+                                                    {sub.address ? (
+                                                        <div className="d-flex align-items-center gap-1 text-muted small" title={sub.address} style={{ fontSize: '0.74rem' }}>
+                                                            <MapPin size={11} className="text-danger opacity-85 flex-shrink-0" />
+                                                            <span className="text-truncate" style={{ maxWidth: '240px' }}>{sub.address}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-muted small">—</span>
+                                                    )}
+                                                </td>
+
+                                                {/* 6. Tier */}
+                                                <td className="border-0 py-2.5 px-1">
+                                                    <span className="badge px-2 py-0.5 fw-semibold shadow-xs" style={{ ...getTierBadgeStyle(sub.membershipType), fontSize: '0.67rem' }}>
+                                                        {getTierDisplayName(sub.membershipType)}
+                                                    </span>
+                                                </td>
+
+                                                {/* 7. Payment */}
+                                                <td className="border-0 py-2.5 px-1">
+                                                    <span className="badge px-2 py-0.5 fw-medium" style={{ ...getPaymentBadgeStyle(sub.paymentType), fontSize: '0.70rem' }}>
+                                                        {getPaymentDisplayName(sub.paymentType)}
+                                                    </span>
+                                                </td>
+
+                                                {/* 8. Amount */}
+                                                <td className="border-0 py-2.5 px-1">
+                                                    <span className="badge bg-success text-white px-2.5 py-1 fw-bold shadow-xs sub-card-amount" style={{ fontSize: '0.78rem' }}>
+                                                        {sub.currency || '₹'}{String(sub.amount || 0).replace(/[^0-9.]/g, '')}
+                                                    </span>
+                                                </td>
+
+                                                {/* 9. Action */}
                                                     <td className="border-0 py-2 ps-1 pe-2 position-relative">
                                                         <div className="position-relative d-inline-block" style={{ zIndex: isActionOpen ? 1045 : 'auto' }}>
                                                             <button
@@ -1721,47 +1740,6 @@ const Festivals = () => {
                                                         </div>
                                                     </td>
                                                 </tr>
-                                                {isInfoOpen && (
-                                                    <tr style={{ backgroundColor: 'rgba(67, 130, 149, 0.14)' }} className="border-top-0">
-                                                        <td colSpan="5" className="border-0 pt-0 pb-2 px-3">
-                                                            <motion.div
-                                                                initial={{ opacity: 0, height: 0 }}
-                                                                animate={{ opacity: 1, height: 'auto' }}
-                                                                exit={{ opacity: 0, height: 0 }}
-                                                                transition={{ duration: 0.2 }}
-                                                                className="p-2.5 rounded-3 shadow-sm sub-desktop-info-drawer d-flex flex-wrap align-items-center gap-3 text-muted"
-                                                                style={{ fontSize: '0.78rem' }}
-                                                            >
-                                                                {/* Date */}
-                                                                <div className="d-flex align-items-center gap-1.5">
-                                                                    <Calendar size={13} className="text-warning" />
-                                                                    <span><strong className="text-main">Date:</strong> {sub.date ? new Date(sub.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</span>
-                                                                </div>
-
-                                                                {/* Contact */}
-                                                                <div className="d-flex align-items-center gap-1.5">
-                                                                    <Phone size={13} className="text-info" />
-                                                                    <span><strong className="text-main">Contact:</strong> {sub.countryCode || ''} {sub.contact || 'N/A'}</span>
-                                                                </div>
-
-                                                                {/* Address */}
-                                                                <div className="d-flex align-items-center gap-1.5">
-                                                                    <MapPin size={13} className="text-danger" />
-                                                                    <span><strong className="text-main">Address:</strong> {sub.address || 'N/A'}</span>
-                                                                </div>
-
-                                                                {/* Reference */}
-                                                                {sub.referenceName && (
-                                                                    <div className="d-flex align-items-center gap-1.5">
-                                                                        <Tag size={13} className="text-primary" />
-                                                                        <span><strong className="text-main">Ref:</strong> {sub.referenceName}</span>
-                                                                    </div>
-                                                                )}
-                                                            </motion.div>
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </Fragment>
                                         );
                                     })
                                 )}
