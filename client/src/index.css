@@ -1580,7 +1580,7 @@ label {
     display: flex;
     align-items: center;
     gap: 6px;
-    flex-wrap: nowrap;
+    flex-wrap: nowrap !important;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -1595,44 +1595,45 @@ label {
 
 .attendee-actions-toolbar .btn,
 .attendee-actions-toolbar .action-item-pill {
-    height: 26px !important;
-    font-size: 0.68rem !important;
-    padding: 0 9px !important;
+    height: 27px !important;
+    font-size: 0.70rem !important;
+    padding: 0 8px !important;
     flex-shrink: 0 !important;
     white-space: nowrap !important;
 }
 
 .attendee-actions-toolbar .btn span {
-    font-size: 0.68rem !important;
+    font-size: 0.70rem !important;
 }
 
 .attendee-actions-toolbar .action-item-pill input {
-    font-size: 0.68rem !important;
-    width: 125px !important;
+    font-size: 0.70rem !important;
+    width: 110px !important;
 }
 
-/* Laptops & Desktop Computers: Sleek, Roomy Single Horizontal Row */
+/* Laptops & Desktop Computers: Sleek Single Horizontal Row - Strictly Never Wrap */
 @media (min-width: 992px) {
     .attendee-actions-toolbar {
-        gap: 8px !important;
-        flex-wrap: wrap !important;
-        overflow-x: visible !important;
+        gap: 6px !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
     }
 
     .attendee-actions-toolbar .btn,
     .attendee-actions-toolbar .action-item-pill {
-        height: 29px !important;
-        font-size: 0.74rem !important;
-        padding: 0 11px !important;
+        height: 28px !important;
+        font-size: 0.72rem !important;
+        padding: 0 9px !important;
+        flex-shrink: 0 !important;
     }
 
     .attendee-actions-toolbar .btn span {
-        font-size: 0.74rem !important;
+        font-size: 0.72rem !important;
     }
 
     .attendee-actions-toolbar .action-item-pill input {
-        font-size: 0.74rem !important;
-        width: 145px !important;
+        font-size: 0.72rem !important;
+        width: 115px !important;
     }
 }
 
@@ -1680,15 +1681,15 @@ label {
 }
 
 .action-item-pill select.select-sort {
-    width: 125px !important;
+    width: 105px !important;
 }
 
 .action-item-pill select.select-tier {
-    width: 95px !important;
+    width: 80px !important;
 }
 
 .action-item-pill select.select-pay {
-    width: 90px !important;
+    width: 76px !important;
 }
 
 .action-item-pill select.select-cat {
