@@ -901,7 +901,7 @@ const Events = () => {
         })
 
     return (
-        <div className="container pt-3 pb-5 text-main">
+        <div className="container-fluid px-2 px-sm-3 px-md-4 px-xl-5 pt-3 pb-5 text-main" style={{ maxWidth: '1780px' }}>
             {/* DATA Reports Download Modal (Triggered via Navbar / Sidebar / URL ?tab=data) */}
             {isDataOpen && (
                 <div 
@@ -1458,15 +1458,15 @@ const Events = () => {
                         <table className="table table-hover align-middle mb-0 w-100">
                             <thead>
                                 <tr className="small text-muted border-bottom" style={{ fontSize: '0.76rem', letterSpacing: '0.02em' }}>
-                                    <th className="border-0 fw-bold py-2.5 ps-3 pe-1" style={{ width: '85px' }}>ID</th>
+                                    <th className="border-0 fw-bold py-2.5 ps-3 pe-1" style={{ width: '80px' }}>ID</th>
                                     <th className="border-0 fw-bold py-2.5 px-1" style={{ width: '95px' }}>Date</th>
-                                    <th className="border-0 fw-bold py-2.5 px-2" style={{ minWidth: '150px' }}>Attendee Name</th>
-                                    <th className="border-0 fw-bold py-2.5 px-2" style={{ width: '135px' }}>Contact</th>
-                                    <th className="border-0 fw-bold py-2.5 px-2" style={{ minWidth: '150px' }}>Address</th>
+                                    <th className="border-0 fw-bold py-2.5 px-2" style={{ minWidth: '130px' }}>Attendee Name</th>
+                                    <th className="border-0 fw-bold py-2.5 px-2" style={{ width: '125px' }}>Contact</th>
+                                    <th className="border-0 fw-bold py-2.5 px-2" style={{ minWidth: '130px' }}>Address</th>
                                     <th className="border-0 fw-bold py-2.5 px-1" style={{ width: '95px' }}>Tier</th>
-                                    <th className="border-0 fw-bold py-2.5 px-1" style={{ width: '110px' }}>Payment</th>
-                                    <th className="border-0 fw-bold py-2.5 px-1" style={{ width: '90px' }}>Amount</th>
-                                    <th className="border-0 fw-bold py-2.5 ps-1 pe-3 text-end" style={{ width: '85px' }}>Action</th>
+                                    <th className="border-0 fw-bold py-2.5 px-1" style={{ width: '105px' }}>Payment</th>
+                                    <th className="border-0 fw-bold py-2.5 px-1" style={{ width: '85px' }}>Amount</th>
+                                    <th className="border-0 fw-bold py-2.5 ps-1 pe-3 text-end" style={{ width: '90px' }}>Action</th>
                                 </tr>
                             </thead>
                             <tbody className="text-main">
