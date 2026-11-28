@@ -4,9 +4,21 @@ const Subscription = require('../models/Subscription');
 const auth = require('../middleware/auth');
 const { logActivity } = require('../services/activityLogger');
 
+function sanitizeContact(c) {
+    if (!c || typeof c !== 'string') return '';
+    const clean = c.trim().replace(/\D/g, '');
+    if (!clean || clean.length < 5) return '';
+    if (/^(\d)\1+$/.test(clean)) return ''; // e.g. 9999999999, 0000000000
+    if (['1234567890', '0123456789'].includes(clean)) return '';
+    return c.trim();
+}
+
 // Create Subscription
 router.post('/', auth, async (req, res) => {
     try {
+        if (req.body.contact !== undefined) {
+            req.body.contact = sanitizeContact(req.body.contact);
+        }
         const subscription = new Subscription({
             ...req.body,
             adminId: req.user.adminId,
@@ -130,6 +142,9 @@ router.get('/:type', auth, async (req, res) => {
 // Update Subscription
 router.put('/:id', auth, async (req, res) => {
     try {
+        if (req.body.contact !== undefined) {
+            req.body.contact = sanitizeContact(req.body.contact);
+        }
         const query = req.entityQuery({ subId: req.params.id });
         const existing = await Subscription.findOne(query);
         if (!existing) return res.status(404).json({ message: 'Subscription not found or unauthorized' });

@@ -126,6 +126,15 @@ const getPaymentDisplayName = (paymentType) => {
     return paymentType;
 };
 
+const isValidContact = (c) => {
+    if (!c || typeof c !== 'string') return false;
+    const clean = c.trim().replace(/\D/g, '');
+    if (clean.length < 5) return false;
+    if (/^(\d)\1+$/.test(clean)) return false;
+    if (['1234567890', '0123456789'].includes(clean)) return false;
+    return true;
+};
+
 const getTierPdfStyle = (tier) => {
     const label = getTierDisplayName(tier);
     if (tier === 'Prime') {
@@ -779,7 +788,7 @@ const Festivals = () => {
                 const tableRows = filteredSubs.map((s, i) => [
                     s.subId || '—',
                     s.name || '—',
-                    `${s.countryCode || ''} ${s.contact || '—'}`,
+                    isValidContact(s.contact) ? `${s.countryCode || '+91'} ${s.contact}`.trim() : '—',
                     s.address || '—',
                     `Rs. ${String(s.amount || 0).replace(/[^0-9.]/g, '')}`,
                     s.paymentType || '—',
@@ -1581,7 +1590,7 @@ const Festivals = () => {
 
                                                 {/* 4. Contact */}
                                                 <td className="border-0 py-2.5 px-2 text-nowrap">
-                                                    {sub.contact ? (
+                                                    {isValidContact(sub.contact) ? (
                                                         <a
                                                             href={`tel:${sub.countryCode || '+91'}${sub.contact}`}
                                                             className="text-decoration-none text-main small d-inline-flex align-items-center gap-1 hover-primary"
@@ -1667,7 +1676,7 @@ const Festivals = () => {
                                                                             onClick={() => {
                                                                                 setOpenActionSubId(null)
                                                                                 const cleanPhone = (sub.contact || '').replace(/\D/g, '')
-                                                                                if (!cleanPhone) {
+                                                                                if (!isValidContact(sub.contact) || !cleanPhone) {
                                                                                     alert('No contact number available for WhatsApp message.')
                                                                                     return
                                                                                 }
@@ -1830,7 +1839,7 @@ const Festivals = () => {
                                                                     onClick={() => {
                                                                         setOpenActionSubId(null);
                                                                         const cleanPhone = (sub.contact || '').replace(/\D/g, '');
-                                                                        if (!cleanPhone) {
+                                                                        if (!isValidContact(sub.contact) || !cleanPhone) {
                                                                             alert('No contact number available for WhatsApp message.');
                                                                             return;
                                                                         }
@@ -1898,7 +1907,7 @@ const Festivals = () => {
 
                                             {/* Line 3: Contact, Address */}
                                             <div className="d-flex align-items-center gap-2.5 extra-tiny text-muted flex-nowrap overflow-hidden pt-0.5" style={{ fontSize: '0.70rem' }}>
-                                                {sub.contact && (
+                                                {isValidContact(sub.contact) && (
                                                     <a href={`tel:${sub.contact}`} className="text-muted text-decoration-none d-inline-flex align-items-center gap-1 flex-shrink-0 font-monospace hover-text-main text-nowrap" title={sub.contact}>
                                                         <Phone size={11} className="text-secondary opacity-75 flex-shrink-0" />
                                                         <span>{sub.countryCode || ''} {sub.contact}</span>
@@ -3227,11 +3236,12 @@ const Festivals = () => {
                             <form onSubmit={async (e) => {
                                 e.preventDefault()
                                 try {
+                                    const cleanedContact = isValidContact(subFormData.contact) ? subFormData.contact.trim() : '';
                                     if (editingSubId) {
-                                        await axios.put(`/api/subscriptions/${editingSubId}`, { ...subFormData, type: 'festival' })
+                                        await axios.put(`/api/subscriptions/${editingSubId}`, { ...subFormData, contact: cleanedContact, type: 'festival' })
                                     } else {
                                         const { _id, __v, createdAt, ...postData } = subFormData;
-                                        await axios.post('/api/subscriptions', { ...postData, type: 'festival' })
+                                        await axios.post('/api/subscriptions', { ...postData, contact: cleanedContact, type: 'festival' })
                                     }
                                     toast.success(editingSubId ? 'Subscription updated successfully!' : 'Membership pass authorized!')
                                     fetchSubscriptions()

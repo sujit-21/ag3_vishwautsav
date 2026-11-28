@@ -5,6 +5,20 @@ import logoImage from '../images/logo-emblem.png'
 // Cached base64 logo data URL
 let cachedLogoDataUrl = null
 
+export const isValidContact = (c) => {
+    if (!c || typeof c !== 'string') return false;
+    const clean = c.trim().replace(/\D/g, '');
+    if (clean.length < 5) return false;
+    if (/^(\d)\1+$/.test(clean)) return false;
+    if (['1234567890', '0123456789'].includes(clean)) return false;
+    return true;
+};
+
+export const formatContactDisplay = (contact, countryCode = '+91') => {
+    if (!isValidContact(contact)) return '—';
+    return `${countryCode} ${contact.trim()}`.trim();
+};
+
 /**
  * Helper to get the VU logo emblem as a Base64 data URL for jsPDF embedding
  */
@@ -491,7 +505,7 @@ export const exportAttendeeMasterPDF = ({ subscriptionsList, sponsorsList = [], 
             String(s.subId || s.cardId || '—'),
             s.date ? new Date(s.date).toLocaleDateString() : '—',
             String(s.name || '—'),
-            `${s.countryCode || ''} ${s.contact || '—'}`.trim(),
+            formatContactDisplay(s.contact, s.countryCode || '+91'),
             String(s.address || '—'),
             s.paymentType === 'Online' && s.onlineParticulars ? `Online (${s.onlineParticulars})` : (getPaymentDisplayName ? getPaymentDisplayName(s.paymentType) : (s.paymentType || '—')),
             getTierDisplayName ? getTierDisplayName(s.membershipType) : (s.membershipType || 'Regular'),
@@ -1254,7 +1268,7 @@ export const exportMasterDataPackagePDF = async ({
             String(s.subId || s.cardId || '—'),
             s.date ? new Date(s.date).toLocaleDateString() : '—',
             String(s.name || '—'),
-            `${s.countryCode || ''} ${s.contact || '—'}`.trim(),
+            formatContactDisplay(s.contact, s.countryCode || '+91'),
             String(s.address || '—'),
             s.paymentType === 'Online' && s.onlineParticulars ? `Online (${s.onlineParticulars})` : (getPaymentDisplayName ? getPaymentDisplayName(s.paymentType) : (s.paymentType || '—')),
             getTierDisplayName ? getTierDisplayName(s.membershipType) : (s.membershipType || 'Regular'),
@@ -1496,7 +1510,7 @@ export const exportSingleAttendeeReceiptPDF = async ({ sub, festOrEvent = {}, en
     // Table 2: Attendee Particulars
     const attendeeBody = [
         ['Full Name', String(sub.name || '—')],
-        ['Contact Number', `${sub.countryCode || ''} ${sub.contact || '—'}`.trim()],
+        ['Contact Number', formatContactDisplay(sub.contact, sub.countryCode || '+91')],
         ['Address', String(sub.address || '—')],
         ['Access Tier', getTierDisplayName ? getTierDisplayName(sub.membershipType) : String(sub.membershipType || 'Regular')],
         ['Payment Method', getPaymentDisplayName ? getPaymentDisplayName(sub.paymentType) : String(sub.paymentType || 'Cash & Paid')],
